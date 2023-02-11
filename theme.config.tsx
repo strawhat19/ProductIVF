@@ -1,18 +1,21 @@
 import React from 'react'
 import { DocsThemeConfig } from 'nextra-theme-docs'
+let appName = `ProductIVF`;
 
 const config: DocsThemeConfig = {
-  logo: <span>My Project</span>,
+  logo: <span>{appName}</span>,
   project: {
-    link: 'https://github.com/shuding/nextra-docs-template',
+    link: 'https://github.com/strawhat19/',
   },
   chat: {
-    link: 'https://discord.com',
+    link: 'https://discord.gg/gv9HnAv',
   },
-  docsRepositoryBase: 'https://github.com/shuding/nextra-docs-template',
+  docsRepositoryBase: 'https://github.com/strawhat19/ProductIVF/',
   footer: {
-    text: 'Nextra Docs Template',
+    text: appName,
   },
+  primaryHue: 154,
+  faviconGlyph:	`XX`
 }
 
 export default config
