@@ -1,9 +1,0 @@
-{
-    "version": 3,
-    "mappings": "AAAA,AAAA,QAAQ,CAAC;EACP,MAAM,EAAE,cAAc;EACtB,aAAa,EAAE,GAAG;EAClB,OAAO,EAAE,OAAO;EAChB,MAAM,EAAE,QAAQ;CACjB",
-    "sources": [
-        "counters.module.scss"
-    ],
-    "names": [],
-    "file": "counters.module.css"
-}

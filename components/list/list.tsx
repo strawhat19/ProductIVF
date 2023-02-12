@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import styles from './list.module.css';
+import styles from './list.module.scss';
 import { useRef, useState, useEffect, useContext } from 'react';
 
 export default function List() {

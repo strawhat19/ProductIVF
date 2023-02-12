@@ -1,0 +1,1574 @@
+// *,
+// *::before,
+// *::after {
+//     margin: 0;
+//     padding: 0;
+//     box-sizing: border-box;
+// }
+
+:root {
+    --containerWidth: 90%;
+    // @media (max-width: 992px) {
+    //     --containerWidth: 95%;
+    // }
+
+    --html: #f16529;
+    --css: #2862e9;
+    --js: #f7df1e;
+    --php: #7377ad;
+    --node: #73ab60;
+    --sass: #f783ac;
+    --sql: #f783ac;
+    --mongo: #00684a;
+    --node: #3eb112;
+    --git: #e94e31;
+    --swift: #f4993a;
+    --discord: #7289DA;
+    --skeleton: #4c4c4c;
+    --bg: #1f1f1f;
+    --posterH: 250px;
+    --posterW: 165px;
+    --steel: #7a7a7a;
+    --react: #0fccce;
+    --silver: #f2f2f2;
+    --ground: #00b900;
+    --gameBlue: #00c2ff;
+    --softBlack: #1a1a1a;
+    --secondary: #3c3c3c;
+    --piratechs: #2b4261;
+    --softBlack2: #636363;
+    --piratechsDark: #10141d;
+    --main: rgb(0, 216, 255);
+    --authGlass: rgba(0, 0, 0, 0.05);
+    --mainTeal: rgba(32, 143, 163, 1);
+    --blackGlass: rgba(0, 0, 0, 0.75);
+    --silverGlass: rgba(0, 0, 0, 0.35);
+    --mainGlass: rgba(255, 28, 11, 0.75);
+    --dangerColor: rgba(255, 28, 11, 0.75);
+    --softWhite: rgba(255, 255, 255, 0.87);
+    --gameBlueSoft: rgba(0, 194, 255, 0.75);
+    --transition: 0.24s cubic-bezier(0.77, 0.2, 0.05, 1) !important;
+}
+
+body {
+    // margin: 0;
+    // padding: 0;
+    // width: 100%;
+    // overflow-x: hidden;
+    background: black !important;
+    // font-family: Montserrat, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    //     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+
+    // &.Game {
+    //     overflow-y: hidden !important;
+    // }
+
+    // &.dark {
+    //     color: white;
+    // }
+
+    // &.black {
+    //     input {
+    //         border: solid 2px var(--gameBlue);
+    //     }
+    // }
+
+    // &.light {
+    //     color: black;
+
+    //     .emphasis {
+    //         &.white {
+    //             color: black !important;
+    //         }
+    //     }
+
+    //     // button, input[type="submit"] {
+    //     //     color: white !important;
+    //     //     background: var(--blackGlass);
+    //     //     &:hover { // Mouse Over
+    //     //         filter: invert(1);
+    //     //         box-shadow: 0 0 8px 0px black;
+    //     //     }
+    //     //     &:focus { // Active or Was Pushed
+    //     //         filter: invert(1) brightness(1.5);
+    //     //     }
+    //     //     &:active { // On Click
+    //     //         transform: scale(1.01);
+    //     //         box-shadow: inset 0 0 8px 0px black;
+    //     //     }
+    //     // }
+    // }
+}
+
+// header {
+//     top: 0;
+//     width: 100%;
+//     height: 100px;
+//     grid-gap: 2em;
+//     display: flex;
+//     margin: 0 auto;
+//     color: white;
+//     font-weight: 500;
+//     font-size: 1.2em;
+//     position: sticky;
+//     align-items: center;
+//     backdrop-filter: blur(8px);
+//     background: var(--blackGlass);
+//     justify-content: space-between;
+
+//     .logo {
+//         display: flex;
+//         grid-gap: 1em;
+//         font-size: 1.3em;
+//         font-weight: 700;
+//         position: relative;
+//         align-items: center;
+//         justify-content: center;
+
+//         &.reactLogo {
+//             top: 0;
+//             left: 0;
+//             opacity: 0.1;
+//             position: absolute;
+//             transform: scale(2);
+//             transform-origin: center;
+//             animation: logo-spin infinite 20s linear;
+//             filter: saturate(0) invert(1) brightness(2);
+//         }
+//     }
+
+//     .menu {
+//         display: flex;
+//         grid-gap: 2em;
+//         list-style: none;
+//         align-items: center;
+//         justify-content: flex-end;
+//         animation: fadeIn var(--transition);
+
+//         &.hide {
+//             display: none;
+//         }
+
+//         &.mobileNav {
+//             left: 0;
+//             top: 100px;
+//             width: 100%;
+//             grid-gap: 0;
+//             position: absolute;
+//             flex-direction: column;
+//             background: var(--blackGlass);
+//             border-top: 1px solid white;
+//             animation: fadeIn var(--transition);
+
+//             li {
+//                 width: 100%;
+//                 padding: 1em 0;
+//                 border-bottom: 1px solid white;
+
+//                 a {
+//                     margin: 0 auto;
+//                     max-width: 250px;
+//                     justify-content: center;
+//                 }
+//             }
+//         }
+//     }
+// }
+
+// #menuToggle {
+//     margin: 0px;
+//     display: flex;
+//     grid-gap: .3em;
+//     cursor: pointer;
+//     align-items: center;
+//     transition: var(--transition);
+//     justify-content: space-between;
+
+//     span {
+//         display: flex;
+//         background: white;
+//         transition: var(--transition);
+
+//         &:first-child {
+//             &:first-child {
+//                 transform-origin: 0% 0%;
+//             }
+//         }
+
+//         &:nth-last-child(2) {
+//             &:nth-last-child(2) {
+//                 transform-origin: 0% 100%;
+//             }
+//         }
+
+//         &:last-child {
+//             margin-bottom: 0px;
+//         }
+//     }
+
+//     &:hover {
+//         span {
+//             background: var(--main);
+//         }
+//     }
+// }
+
+// #openMenuToggler {
+//     display: flex;
+//     cursor: pointer;
+//     align-items: center;
+//     transform: scale(.8);
+//     flex-direction: column;
+//     justify-content: center;
+//     transition: var(--transition);
+
+//     span {
+//         top: .08em;
+//         width: 20px;
+//         height: 3px;
+//         display: block;
+//         border-radius: 0px;
+//         margin-bottom: 4px;
+//         position: relative;
+//         transform-origin: 4px 0px;
+//         transition: transform var(--transition);
+//     }
+
+//     &.clicked {
+//         top: 3px;
+//         position: relative;
+
+//         span {
+//             top: -3px;
+//             opacity: 1;
+//             margin-bottom: 5px;
+//             transform-origin: 4px 0px;
+//             transition: transform var(--transition);
+//             transform: rotate(-45deg) translate(0px, 0px);
+
+//             &:nth-last-child(2) {
+//                 transform: rotate(45deg) translate(-2px, -4px);
+//             }
+
+//             &:nth-last-child(3) {
+//                 opacity: 0;
+//                 transform: rotate(0deg) scale(0.2, 0.2);
+//             }
+//         }
+//     }
+// }
+
+// .blur {
+//     filter: blur(3px);
+// }
+
+// .subBanner {
+//     *:nth-child(2) {
+//         font-weight: 400;
+//         text-align: right;
+//     }
+// }
+
+// .profileText {
+//     span:not(.emphasis) {
+//         font-weight: 500;
+//     }
+// }
+
+// .skeleton {
+//     width: 100%;
+//     transition: var(--transition);
+
+//     .skeletonItem {
+//         position: relative;
+//         filter: blur(1px) brightness(1.35);
+//         animation: skeleton 1.5s var(--transition) infinite alternate;
+
+//         &::before {
+//             content: '';
+//             position: absolute;
+//             top: 0;
+//             left: 0;
+//             width: 100%;
+//             height: 100%;
+//             display: flex;
+//             justify-content: center;
+//             align-items: center;
+//         }
+//     }
+
+//     * {
+//         width: 100%;
+//         transition: var(--transition);
+
+//         * {
+//             position: relative;
+//             filter: blur(1px) brightness(1.35);
+//             background: var(--skeleton) !important;
+//             animation: skeleton 1.5s var(--transition) infinite alternate;
+
+//             &::before {
+//                 content: 'Loading...';
+//                 position: absolute;
+//                 top: 0;
+//                 left: 0;
+//                 width: 100%;
+//                 height: 100%;
+//                 display: flex;
+//                 justify-content: center;
+//                 align-items: center;
+//                 background: var(--skeleton) !important;
+//             }
+//         }
+//     }
+// }
+
+// @keyframes skeleton {
+//     0% {
+//         filter: blur(1px) brightness(1.35);
+//     }
+
+//     100% {
+//         filter: blur(0px) brightness(1);
+//     }
+// }
+
+// section {
+//     width: 100%;
+//     height: auto;
+//     display: flex;
+//     grid-gap: 1em;
+//     margin: 0 auto;
+//     padding: 1em 0;
+//     overflow: hidden;
+//     align-items: center;
+//     justify-content: space-between;
+
+//     article {
+//         width: 100%;
+//         height: auto;
+//         display: flex;
+//         grid-gap: 1em;
+//         flex-direction: column;
+//     }
+// }
+
+// .inner {
+//     display: flex;
+//     margin: 0 auto;
+//     align-items: center;
+//     width: var(--containerWidth);
+//     justify-content: space-between;
+
+//     &.stretch {
+//         width: 100%;
+//     }
+
+//     &.pageInner {
+//         width: 100%;
+//         flex-direction: column;
+//     }
+// }
+
+// .column {
+//     display: flex;
+//     flex-direction: column;
+
+//     &.rightColumn {
+//         text-align: right;
+//         align-items: flex-end;
+//         justify-content: flex-end;
+//     }
+// }
+
+// .overflow {
+//     &.items {
+//         max-height: 300px;
+//         overflow-x: hidden;
+//         overflow-y: overlay;
+//         padding-right: 10px;
+
+//         &::-webkit-scrollbar {
+//             position: relative;
+//             border-radius: 4px;
+//             width: 4px !important;
+//             background: var(--blackGlass) !important;
+//         }
+
+//         &::-webkit-scrollbar-thumb {
+//             background: var(--softWhite);
+//             border-radius: 4px;
+//         }
+//     }
+
+//     article {
+//         overflow-x: hidden;
+//         overflow-y: overlay;
+//         padding-right: 10px;
+//         max-height: 110px;
+
+//         &::-webkit-scrollbar {
+//             position: relative;
+//             border-radius: 4px;
+//             width: 4px !important;
+//             background: black !important;
+//         }
+
+//         &::-webkit-scrollbar-thumb {
+//             background: var(--gameBlue);
+//             border-radius: 4px;
+//         }
+//     }
+// }
+
+// main {
+//     width: 100%;
+//     height: auto;
+//     padding: 3em 0;
+//     margin: 0 auto;
+//     // &.Game {
+//     //     padding: 2em;
+//     // }
+// }
+
+// h1 {
+//     font-size: 3.5em;
+//     font-weight: 500;
+// }
+
+// h2 {
+//     font-weight: 600;
+// }
+
+// a {
+//     color: inherit;
+//     text-decoration: none;
+// }
+
+// .flex {
+//     height: auto;
+//     display: flex;
+//     grid-gap: 1em;
+//     align-items: center;
+
+//     &.end {
+//         justify-content: flex-end !important;
+//     }
+
+//     &:not(.start) {
+//         justify-content: center;
+//     }
+
+//     &.stretch {
+//         width: 100%;
+//     }
+
+//     &:not(.row) {
+//         flex-direction: column;
+//     }
+
+//     * {
+//         &:not(.contain) {
+//             width: 100%;
+//         }
+//     }
+// }
+
+// .grid {
+//     gap: 1%;
+//     padding: 0;
+//     width: 100%;
+//     height: auto;
+//     display: grid;
+//     grid-template-columns: repeat(3, minmax(30%, 1fr));
+
+//     div {
+//         margin: 0px;
+//         height: 100%;
+//     }
+// }
+
+// form {
+//     height: 100% !important;
+// }
+
+// input {
+//     border: 0;
+//     outline: none;
+//     font-weight: 600;
+//     border-radius: 4px;
+//     padding: 10px 25px;
+//     font-family: "Montserrat";
+//     background: var(--blackGlass);
+//     transition: var(--transition);
+//     color: var(--softWhite) !important;
+
+//     &::placeholder {
+//         color: var(--softWhite);
+//     }
+
+//     &[type="color"] {
+//         border: 0;
+//         padding: 1em;
+//         outline: none;
+//         min-height: 60px;
+//         border-radius: 4px;
+//         position: relative;
+
+//         &::before {
+//             transform: translate(-50%, -50%);
+//             content: attr(data-color);
+//             position: absolute;
+//             top: 50%;
+//             left: 50%;
+//             color: white;
+//             font-weight: 500;
+//             height: 28px;
+//             width: 96.5%;
+//             // border: solid 2px var(--blackGlass);
+//             display: flex;
+//             justify-content: center;
+//             align-items: center;
+//         }
+
+//         &.dark {
+//             &::before {
+//                 color: white;
+//             }
+//         }
+
+//         &.light {
+//             &::before {
+//                 color: black;
+//             }
+//         }
+//     }
+// }
+
+// button,
+// input[type="submit"] {
+//     border: 0;
+//     padding: 10px;
+//     outline: none;
+//     cursor: pointer;
+//     border-radius: 4px;
+//     font-family: 'Montserrat';
+//     color: white !important;
+//     background: var(--blackGlass);
+//     transition: var(--transition);
+
+//     &.rowButton {
+//         margin-top: -17px;
+//     }
+
+//     &:hover {
+
+//         // Mouse Over
+//         &:not(.iconButton) {
+//             filter: invert(1);
+//             box-shadow: 0 0 8px 0px black;
+//         }
+//     }
+
+//     &:focus {
+//         // Active or Was Pushed
+//         filter: invert(1) brightness(1.5);
+//     }
+
+//     &:active {
+//         // On Click
+//         transform: scale(1.01);
+//         box-shadow: inset 0 0 8px 0px black;
+//     }
+// }
+
+// [type="submit"] {
+//     &[name="authFormBack"] {
+//         width: 49% !important;
+//         margin-left: auto;
+//         margin-top: -26px;
+//     }
+
+//     &[name="authFormSubmit"].half {
+//         width: 49% !important;
+//         margin-right: auto;
+//         margin-bottom: -26px;
+//     }
+
+//     &[name="authFormSave"] {
+//         width: 49% !important;
+//         margin-left: auto;
+//         margin-top: -26px;
+//     }
+// }
+
+// .textOverflow {
+//     max-width: 60%;
+//     text-overflow: ellipsis;
+//     white-space: nowrap;
+//     overflow: hidden;
+//     margin: 0;
+// }
+
+// .alert {
+//     top: 50%;
+//     left: 50%;
+//     width: 450px;
+//     height: 450px;
+//     display: flex;
+//     padding: 40px;
+//     position: fixed;
+//     border-radius: 4px;
+//     align-items: center;
+//     flex-direction: column;
+//     justify-content: center;
+//     backdrop-filter: blur(5px);
+//     background: var(--blackGlass);
+//     transition: var(--transition);
+//     box-shadow: 0 0 8px 0px black;
+//     transform: translate(-50%, -50%);
+
+//     &.slim {
+//         height: 120px;
+//     }
+
+//     button {
+//         position: absolute;
+//         filter: invert(1);
+//         right: 15px;
+//         top: 15px;
+//     }
+
+//     h3,
+//     p {
+//         padding: 5px 0;
+//         text-align: center;
+//     }
+// }
+
+// .buttonInnerLabel {
+//     max-width: fit-content;
+//     position: relative;
+//     font-size: 0.95em;
+//     top: -1px;
+// }
+
+// .buttonLabel {
+//     width: 100% !important;
+//     align-items: center !important;
+
+//     * {
+//         width: max-content !important;
+//     }
+// }
+
+// .iconButton {
+//     background: var(--blackGlass);
+//     transition: var(--transition);
+//     font-weight: 700 !important;
+//     justify-content: center;
+//     align-items: center;
+//     border-radius: 4px;
+//     padding: 5px 15px;
+//     font-size: 0.85em;
+//     min-height: 35px;
+//     width: 100%;
+
+//     &:hover {
+//         background: white !important;
+//         color: black !important;
+//     }
+// }
+
+// .lists {
+//     grid-gap: 1em;
+//     display: flex;
+//     margin: 0 auto;
+//     overflow: visible;
+//     align-items: flex-start;
+//     width: calc(var(--containerWidth));
+
+//     .buttonLabel {
+//         justify-content: flex-start;
+//     }
+
+//     .list {
+//         width: 100%;
+//         position: relative;
+//         border-radius: 4px;
+//         background: var(--gameBlueSoft) !important;
+
+//         h2 {
+//             color: white;
+//         }
+
+//         /* Neumorphic Inner shadow */
+//         box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.2);
+
+//         /* Neumorphic Outer shadow */
+//         box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1),
+//         0px 0px 20px rgba(0, 0, 0, 0.05);
+
+//         .items {
+//             gap: 1em;
+//             display: grid;
+//             width: 100% !important;
+//             transition: var(--transition);
+
+//             &.oneList {
+//                 padding: 2em 0 !important;
+//                 grid-template-columns: auto auto auto auto !important;
+//             }
+
+//             &.twoList {
+//                 padding: 1em 0 !important;
+//                 grid-template-columns: auto auto !important;
+//             }
+
+//             &.bigList {
+//                 max-width: 100% !important;
+//                 grid-template-columns: auto auto !important;
+//             }
+
+//             .item {
+//                 cursor: grab;
+//                 padding: 0em;
+//                 display: flex;
+//                 grid-gap: 20px;
+//                 min-height: 35px;
+//                 font-size: 0.85em;
+//                 position: relative;
+//                 border-radius: 4px;
+//                 align-items: center;
+//                 background: var(--blackGlass);
+//                 transition: var(--transition);
+
+//                 /* Neumorphic Inner shadow */
+//                 box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.2);
+
+//                 /* Neumorphic Outer shadow */
+//                 box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1), 0px 0px 20px rgba(0, 0, 0, 0.05);
+
+//                 span {
+//                     width: 100%;
+//                     max-height: 100%;
+//                 }
+
+//                 .itemButtons {
+//                     display: grid;
+//                     position: relative;
+//                     max-width: 125px !important;
+//                     grid-template-columns: auto auto;
+
+//                     button {
+//                         padding: 0;
+//                         max-width: 100%;
+//                         position: relative;
+//                         background: white;
+//                         width: 25px !important;
+//                         max-height: 9px !important;
+
+//                         i {
+//                             color: black;
+//                             pointer-events: none;
+//                         }
+
+//                         &:hover {
+//                             i {
+//                                 color: var(--gameBlue);
+//                             }
+//                         }
+//                     }
+//                 }
+
+//                 &:hover {
+//                     filter: invert(1);
+
+//                     .itemOrder {
+
+//                         // filter: invert(1);
+//                         .itemIndex {
+//                             filter: invert(1);
+//                         }
+//                     }
+//                 }
+
+//                 .itemOrder {
+//                     width: 45px;
+//                     display: flex;
+//                     padding: 1em 0;
+//                     max-height: 100%;
+//                     font-weight: 700;
+//                     align-items: center;
+//                     background: white;
+//                     color: var(--gameBlue);
+//                     justify-content: center;
+//                     border-top-left-radius: 4px;
+//                     border-bottom-left-radius: 4px;
+//                     transition: var(--transition);
+
+//                     .itemIndex {
+//                         transition: var(--transition);
+//                     }
+//                 }
+
+//                 .itemName {
+//                     font-weight: 500 !important;
+//                     transition: var(--transition);
+//                 }
+
+//                 &.complete {
+//                     filter: invert(1);
+//                     background: var(--authGlass);
+
+//                     .itemOrder {
+//                         background: transparent;
+//                         color: white;
+//                     }
+
+//                     .itemName {
+//                         min-width: 215px !important;
+//                         text-decoration-thickness: 0;
+//                         text-decoration: line-through;
+//                         text-decoration-color: black;
+//                     }
+//                 }
+//             }
+//         }
+//     }
+// }
+
+// .gameStats {
+//     min-width: 20%;
+
+//     h2 {
+//         .label {
+//             min-width: 110px;
+//             font-size: 0.85em;
+//         }
+
+//         font-size: 1.35em;
+
+//         i {
+//             font-size: 0.75em;
+//         }
+//     }
+// }
+
+// .gameStateAction {
+//     position: relative;
+//     z-index: 1;
+// }
+
+// .gameAnimation {
+//     position: absolute;
+//     top: 0;
+//     left: 0;
+//     bottom: 0;
+//     right: 0;
+//     z-index: 0;
+//     width: 100%;
+//     height: 100%;
+//     // display: flex;
+//     // justify-content: center;
+//     // transform: translate(-50%, -50%);
+//     // align-items: baseline;
+//     overflow: hidden;
+
+//     lottie-player {
+//         z-index: 0;
+//         bottom: -143px;
+//         position: relative;
+//         width: 100% !important;
+//         height: 100% !important;
+//         transform: scale(3.5, 0.3);
+
+//         &#cloudsAnimation {
+//             top: 0;
+//             opacity: 0.35;
+//             position: absolute;
+//             transform: scale(3, 1);
+//             width: 100% !important;
+//         }
+
+//         &.windAnim {
+//             transform: scale(0.35) rotateY(180deg) !important;
+//             position: absolute;
+//             width: 100% !important;
+//             filter: invert(1);
+//         }
+//     }
+// }
+
+// .leaderBoard {
+//     padding: 10px;
+//     color: white;
+//     border-radius: 4px;
+//     background: var(--blackGlass);
+
+//     .userScore {
+//         grid-gap: 1em;
+
+//         .score {
+//             text-align: right;
+//         }
+//     }
+// }
+
+// section {
+//     .game {
+//         width: 100%;
+//         display: flex;
+//         font-weight: 500;
+//         max-height: 413px;
+//         font-size: 0.75em;
+//         position: relative;
+//         border-radius: 4px;
+//         align-items: center;
+//         // overflow: hidden;
+//         justify-content: center;
+//         border: solid 2px black;
+
+//         .leaderBoard {
+//             max-width: 270px;
+//             margin-top: 75px;
+//         }
+
+//         .fa-coins {
+//             color: var(--js) !important;
+//         }
+
+//         .fa-save {
+//             color: #00b900;
+//         }
+
+//         .intro {
+//             font-size: 35px;
+//             color: transparent;
+//             pointer-events: none;
+//             animation: intro 2000ms ease-in-out;
+//         }
+
+//         .controls,
+//         .playerText {
+//             button {
+//                 &:not(.moveButton) {
+//                     font-size: 0.95em !important;
+//                 }
+//             }
+//         }
+
+//         .gameMessage {
+//             font-size: 25px;
+//             pointer-events: none;
+//             animation: fadeIn 500ms ease-in-out;
+//         }
+
+//         .playerSprite {
+//             /* transform: scale(1); */
+//             position: absolute;
+//             left: -75px;
+//             top: -150px;
+
+//             .windAnim {
+//                 transform: scale(0.35) rotateY(180deg) !important;
+//                 position: absolute;
+//                 width: 100% !important;
+//                 filter: invert(1);
+//                 max-height: 100%;
+//             }
+//         }
+
+//         .coinsAnimation {
+//             transform: scale(0.4, 0.6);
+//             position: absolute;
+//             bottom: -42px;
+//             left: -45px;
+//         }
+
+//         .gameControls {
+//             background: var(--blackGlass);
+//             border-radius: 3px;
+//             font-size: 0.90em;
+//             position: absolute;
+//             padding: 0.6em 2em;
+//             color: white;
+//             grid-gap: 1.5em;
+//             min-width: 82%;
+//             max-width: 82%;
+//             left: 25px;
+//             top: 80px;
+
+//             #jumpSpeed {
+//                 transform: rotateY(180deg);
+//             }
+
+//             i {
+//                 color: var(--gameBlue);
+//             }
+//         }
+
+//         .dmg {
+//             color: transparent;
+//             animation: damage 1500ms ease-in-out;
+//         }
+
+//         .topRow {
+//             justify-content: flex-start;
+//             position: relative;
+//         }
+
+//         .bottomRow {
+//             position: relative;
+//             top: -27px;
+//         }
+
+//         #playerTimer {
+//             .timer {
+//                 width: 100%;
+//                 max-width: fit-content;
+//             }
+//         }
+
+//         .moveButton {
+//             display: flex;
+//             font-weight: 900;
+//             align-items: center;
+//             justify-content: center;
+//             color: var(--gameBlue) !important;
+//         }
+
+//         .controls {
+//             position: absolute;
+//             right: 25px;
+//             top: 25px;
+
+//             .timer {
+//                 width: 100%;
+//                 display: flex;
+//                 margin: 0 auto;
+//                 grid-gap: 0.5em;
+//                 align-items: center;
+//                 justify-content: center;
+//             }
+
+//             i {
+//                 color: var(--gameBlue);
+//             }
+
+//             button {
+//                 height: 20px;
+//                 padding: 3px 20px;
+//             }
+//         }
+
+//         input[type=range] {
+//             min-width: 75px;
+//             -webkit-appearance: none;
+//             background: var(--gameBlue) !important;
+//             max-height: 1px !important;
+//             height: 1px !important;
+//             padding: 0 !important;
+//             margin-left: .5em;
+//             margin-top: .1em;
+//             color: white;
+//             width: 100%;
+//         }
+
+//         .dmgText {
+//             min-width: 65px;
+//         }
+
+//         input[type=range]::-webkit-slider-thumb {
+//             -webkit-appearance: none;
+//             height: 16px;
+//             width: 16px;
+//             border-radius: 10px;
+//             transform: scale(0.8);
+//             background: #fff;
+//             cursor: pointer;
+//             margin-top: -2.9px;
+//             box-shadow: 1px 1px 1px #fff, 0px 0px 1px #0d0d0d;
+//         }
+
+//         #startGame {
+//             font-size: 1.2em;
+//         }
+
+//         .playerText {
+//             z-index: 1;
+//             pointer-events: none;
+//             transition: var(--transition);
+
+//             button {
+//                 i {
+//                     color: var(--gameBlue);
+//                 }
+//             }
+//         }
+
+//         .healthText {
+//             i {
+//                 &.fa-heartbeat {
+//                     font-size: 2em;
+//                     color: red !important;
+//                 }
+//             }
+//         }
+
+//         .player {
+//             z-index: 1;
+//             pointer-events: none;
+//             transition: var(--transition);
+//             border-radius: 4px;
+//             position: absolute;
+//             text-align: center;
+//             // mix-blend-mode: difference;
+//             filter: saturate(0);
+
+//             &.right {
+//                 transform: rotate(0deg);
+//             }
+
+//             &.left {
+//                 transform: rotateY(180deg);
+//             }
+
+//             // font-size: 0.85em;
+//         }
+
+//         .finish {
+//             transition: var(--transition);
+//             position: absolute;
+//         }
+
+//         .enemy {
+//             display: flex;
+//             font-size: 2em;
+//             border-radius: 4px;
+//             position: absolute;
+//             text-align: center;
+//             align-items: center;
+//             justify-content: center;
+//             transition: var(--transition);
+
+//             &.moving {
+//                 border-radius: 100px;
+//                 background: var(--blackGlass) !important;
+//                 box-shadow: inset 0 0 3px 1px #333333;
+//                 // background: var(--dangerColor) !important;
+//             }
+
+//             &.stopped {
+//                 opacity: 0;
+//                 pointer-events: none;
+//                 animation-play-state: paused !important;
+//             }
+//         }
+
+//         .health {
+//             transition: var(--transition);
+//             border: solid 2px black;
+//             justify-content: center;
+//             align-items: center;
+//             border-radius: 3px;
+//             position: absolute;
+//             min-width: 150px;
+//             grid-gap: 0.5em;
+//             max-width: 82%;
+//             display: flex;
+//             left: 25px;
+//             top: 25px;
+//         }
+
+//         .ground {
+//             border-bottom-left-radius: 3px;
+//             border-bottom-right-radius: 3px;
+//             position: absolute;
+//             bottom: -0.2px;
+//             width: 100%;
+//             left: 0;
+
+//             .groundText {
+//                 position: absolute;
+//                 right: 25px;
+//                 top: 12px;
+
+//                 .emphasis {
+//                     filter: brightness(1.5);
+//                     color: var(--main);
+//                 }
+//             }
+//         }
+//     }
+// }
+
+// .emphasis {
+//     color: var(--gameBlue);
+//     margin: 0 0.3em;
+//     font-size: 1.1em;
+//     font-weight: 700;
+//     font-style: italic;
+
+//     &.white {
+//         color: white !important;
+//     }
+
+//     // -webkit-text-stroke-width: 1px; 
+//     // -webkit-text-stroke-color: var(--gameBlue); 
+// }
+
+// .sectionImage {
+//     width: 100%;
+//     height: auto;
+//     margin: 1em 0;
+//     max-height: 350px;
+// }
+
+// @keyframes enemy {
+//     0% {
+//         left: 100%;
+//     }
+
+//     100% {
+//         left: 0;
+//     }
+// }
+
+// @keyframes intro {
+//     0% {
+//         color: white;
+//     }
+
+//     100% {
+//         color: transparent;
+//         font-size: 15px;
+//     }
+// }
+
+// @keyframes damage {
+//     0% {
+//         color: var(--dangerColor);
+//     }
+
+//     33% {
+//         color: var(--dangerColor);
+//         font-weight: 300;
+//         font-size: 0.85em;
+//     }
+
+//     66% {
+//         color: var(--dangerColor);
+//         font-weight: 300;
+//         font-size: 0.75em;
+//         opacity: 0.5;
+//     }
+
+//     100% {
+//         color: transparent;
+//         font-weight: 300;
+//         font-size: 0.65em;
+//         opacity: 0;
+//     }
+// }
+
+// footer {
+//     left: 50%;
+//     bottom: 0;
+//     z-index: 1;
+//     height: 40px;
+//     width: 100vw;
+//     display: flex;
+//     grid-gap: 10px;
+//     font-size: 13px;
+//     flex-wrap: wrap;
+//     position: fixed;
+//     align-items: center;
+//     color: white !important;
+//     backdrop-filter: blur(8px);
+//     transform: translateX(-50%);
+//     font-weight: 400 !important;
+//     background: var(--blackGlass);
+//     justify-content: space-between;
+
+//     .hoverLink {
+//         &::before {
+//             bottom: -5px;
+//             height: 1px;
+//         }
+//     }
+
+//     div {
+//         display: flex;
+//         grid-gap: 1em;
+//         align-items: center;
+//     }
+
+//     .vertical-sep,
+//     i {
+//         color: var(--main);
+
+//         &.fas.fa-undo {
+//             font-size: 0.8em;
+//             margin-bottom: 0em;
+//         }
+//     }
+
+//     .inner {
+//         .right {
+
+//             img,
+//             svg {
+//                 fill: var(--main);
+
+//                 path {
+//                     fill: var(--main);
+//                 }
+//             }
+
+//             .piratechs {
+//                 max-height: 15px;
+//                 fill: var(--main);
+//                 margin: 0 -7px 1px 0;
+
+//                 path {
+//                     fill: var(--main);
+//                 }
+
+//                 img,
+//                 svg {
+//                     fill: var(--main);
+
+//                     path {
+//                         fill: var(--main);
+//                     }
+//                 }
+//             }
+//         }
+//     }
+// }
+
+// @keyframes fadeIn {
+//     0% {
+//         opacity: 0;
+//         pointer-events: none;
+//     }
+
+//     100% {
+//         opacity: 1;
+//         pointer-events: all;
+//     }
+// }
+
+// @keyframes logo-spin {
+//     0% {
+//         transform: rotate(0);
+//     }
+
+//     100% {
+//         transform: rotate(360deg);
+//     }
+// }
+
+// .hoverLink {
+//     display: flex;
+//     grid-gap: 0.3em;
+//     align-items: center;
+//     position: relative;
+//     transition: var(--transition);
+
+//     &::before {
+//         content: "" !important;
+//         background: var(--main);
+//         position: absolute;
+//         width: 100%;
+//         height: 2px;
+//         display: block;
+//         bottom: -10px;
+//         right: 0;
+//         z-index: 0;
+//         transform-origin: 0% 100%;
+//         transform: scale(0, 1);
+//         transition: var(--transition);
+//     }
+
+//     &:hover {
+//         transition: var(--transition);
+
+//         &::before {
+//             transform: scale(1, 1);
+//             transition: 500ms ease-in-out;
+//         }
+//     }
+// }
+
+// @media (prefers-color-scheme: dark) {
+//     html {
+//         color-scheme: dark;
+//     }
+// }
+
+// #scroll-text {
+
+//     width: 235%;
+//     // overflow: hidden;
+//     text-overflow: clip;
+//     white-space: nowrap;
+
+//     /* animation properties */
+//     transform: translateX(100%);
+//     -moz-transform: translateX(100%);
+//     -webkit-transform: translateX(100%);
+//     animation: my-animation 20s linear infinite;
+//     -moz-animation: my-animation 20s linear infinite;
+//     -webkit-animation: my-animation 20s linear infinite;
+
+//     /* for Firefox */
+//     @-moz-keyframes my-animation {
+//         from {
+//             -moz-transform: translateX(100%);
+//         }
+
+//         to {
+//             -moz-transform: translateX(-100%);
+//         }
+//     }
+
+//     /* for Chrome */
+//     @-webkit-keyframes my-animation {
+//         from {
+//             -webkit-transform: translateX(100%);
+//         }
+
+//         to {
+//             -webkit-transform: translateX(-100%);
+//         }
+//     }
+// }
+
+// @keyframes my-animation {
+//     from {
+//         -moz-transform: translateX(100%);
+//         -webkit-transform: translateX(100%);
+//         transform: translateX(100%);
+//     }
+
+//     to {
+//         -moz-transform: translateX(-100%);
+//         -webkit-transform: translateX(-100%);
+//         transform: translateX(-100%);
+//     }
+// }
+
+// @media (max-width: 697px) {
+//     header {
+//         height: 150px;
+//     }
+
+//     body {
+//         font-size: 28px;
+//     }
+
+//     main {
+//         padding: 1em 0;
+//     }
+
+//     #openMenuToggler span {
+//         height: 5px;
+//     }
+
+//     button,
+//     input[type="submit"] {
+//         font-size: 0.85em;
+//     }
+// }
+
+// /* Show Scores */
+// #scoresHover {
+//     position: absolute;
+//     top: 45px;
+//     left: 0;
+//     opacity: 0;
+//     width: 450%;
+//     border-radius: 10px;
+//     padding: 2em;
+//     background: var(--blackGlass);
+//     backdrop-filter: blur(8px);
+//     text-align: left;
+//     transform-origin: top;
+//     transform: scale(1, 0);
+//     display: flex;
+//     flex-direction: column;
+//     grid-gap: 1em;
+//     transition: 300ms ease-in-out;
+// }
+
+// .showScoresLink:hover #scoresHover {
+//     transform: scale(1, 1);
+//     opacity: 1;
+// }
+
+// .fadeInOut {
+//     animation: fadeInOut 3500ms ease-in-out 1;
+// }
+
+// @keyframes fadeInOut {
+//     0% {
+//         transform: scale(1, 0);
+//         opacity: 0;
+//     }
+
+//     20% {
+//         opacity: 0;
+//         transform: scale(1, 0.4);
+//     }
+
+//     30% {
+//         transform: scale(1, 1);
+//         opacity: 1;
+//     }
+
+//     50% {
+//         transform: scale(1, 1);
+//         opacity: 1;
+//     }
+
+//     80% {
+//         transform: scale(1, 1);
+//         opacity: 1;
+//     }
+
+//     100% {
+//         transform: scale(1, 0);
+//         opacity: 0;
+//     }
+// }
+
+// .attention {
+//     position: relative;
+//     border: solid var(--dangerColor) 3px;
+//     box-shadow: 0px 0px 4px 1px var(--dangerColor);
+//     animation: shake 1s ease-in-out infinite alternate-reverse;
+// }
+
+// @keyframes shake {
+//     0% {
+//         left: 0px;
+//         top: 0px;
+//     }
+
+//     33% {
+//         left: -1px;
+//         top: -1px;
+//     }
+
+//     66% {
+//         left: 1px;
+//         top: 1px;
+//     }
+
+//     100% {
+//         left: 0px;
+//         top: 0px;
+//     }
+// }

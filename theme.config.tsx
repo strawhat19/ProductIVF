@@ -1,7 +1,7 @@
 import React from 'react';
 let appName = `ProductIVF`;
+import Logo from './components/logo';
 import { DocsThemeConfig } from 'nextra-theme-docs';
-import Logo from './components/logo/logo';
 
 const config: DocsThemeConfig = {
   // primaryHue: 75, // Yellow
@@ -9,12 +9,12 @@ const config: DocsThemeConfig = {
   // primaryHue: 100, // Neon Green
   // primaryHue: 285, // Pink Purple
   primaryHue: 195, // Sky Blue
-  // faviconGlyph:	`Pr`,
   useNextSeoProps() {
     return {
       titleTemplate: `%s | ProductIVF`
     }
   },
+   // faviconGlyph:	`Pr`,
   project: {
     link: 'https://github.com/strawhat19/',
   },
@@ -25,12 +25,7 @@ const config: DocsThemeConfig = {
   footer: {
     text: appName,
   },
-  head: (
-    <>
-      <link rel="stylesheet" href="./styles/main.css"></link>
-      <link rel="icon" href="	https://next-13-vite-comparison.vercel.app/piratechs.svg" type="image/x-icon"></link>
-    </>
-  ),
+  head: <link rel="icon" href="	https://next-13-vite-comparison.vercel.app/piratechs.svg" type="image/x-icon"></link>,
   logo: <Logo title={`ProductIVF`} color={`hsl(var(--nextra-primary-hue)100% 50%/1)`} />,
 }
 
