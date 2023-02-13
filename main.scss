@@ -227,6 +227,43 @@ section {
     }
 }
 
+.customButtons {
+    button,input[type="submit"] {
+        border: 0;
+        padding: 10px;
+        outline: none;
+        cursor: pointer;
+        border-radius: 4px;
+        font-family: 'Montserrat';
+        color: white !important;
+        background: var(--blackGlass);
+        transition: var(--transition);
+
+        &.rowButton {
+            margin-top: -17px;
+        }
+
+        &:not([type="button"]) {
+            &:hover {
+                filter: invert(1);
+                box-shadow: 0 0 8px 0px black;
+            }
+        }
+
+        &:focus {
+            // Active or Was Pushed
+            filter: invert(1) brightness(1.5);
+        }
+
+        &:active {
+            // On Click
+            transform: scale(1.01);
+            box-shadow: inset 0 0 8px 0px black;
+        }
+    }
+
+}
+
 // ::-webkit-scrollbar {
 //     position: relative;
 //     border-radius: 4px;
@@ -251,21 +288,33 @@ section {
 //     border-radius: 4px;
 // }
 
+.nextra-search {
+    input {
+        border: 0 !important;
+        outline: none !important;
+    }
+}
+
 form {
     height: 100% !important;
     input {
-        border: 0;
-        outline: none;
-        font-weight: 600;
+        max-height: 34px;
+        font-size: 12px;
+        font-weight: 300;
+        // filter: invert(1);
         border-radius: 4px;
         padding: 10px 25px;
+        border: 1px solid var(--gameBlueSoft) !important;
+        outline: none !important;
         font-family: "Montserrat";
         background: var(--blackGlass);
         transition: var(--transition);
-        color: var(--softWhite) !important;
+        color: white !important;
+        // box-shadow: 0 0 10px var(--gameBlueSoft),0 0 20px var(--gameBlueSoft);
+        
     
         &::placeholder {
-            color: var(--softWhite);
+            color: white;
         }
     
         &[type="color"] {
@@ -304,63 +353,6 @@ form {
                 }
             }
         }
-    }
-}
-
-button,
-input[type="submit"] {
-    border: 0;
-    padding: 10px;
-    outline: none;
-    cursor: pointer;
-    border-radius: 4px;
-    font-family: 'Montserrat';
-    color: white !important;
-    background: var(--blackGlass);
-    transition: var(--transition);
-
-    &.rowButton {
-        margin-top: -17px;
-    }
-
-    &:hover {
-
-        // Mouse Over
-        &:not(.iconButton) {
-            filter: invert(1);
-            box-shadow: 0 0 8px 0px black;
-        }
-    }
-
-    &:focus {
-        // Active or Was Pushed
-        filter: invert(1) brightness(1.5);
-    }
-
-    &:active {
-        // On Click
-        transform: scale(1.01);
-        box-shadow: inset 0 0 8px 0px black;
-    }
-}
-
-[type="submit"] {
-    &[name="authFormBack"] {
-        width: 49% !important;
-        margin-left: auto;
-        margin-top: -26px;
-    }
-
-    &[name="authFormSubmit"].half {
-        width: 49% !important;
-        margin-right: auto;
-        margin-bottom: -26px;
-    }
-
-    &[name="authFormSave"] {
-        width: 49% !important;
-        margin-left: auto;
-        margin-top: -26px;
     }
 }
 

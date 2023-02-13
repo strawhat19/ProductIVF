@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import { db } from '../firebase';
-import AuthForm from './form';
+import Form from './form';
 import Section from './section';
 import { doc, setDoc } from 'firebase/firestore';
 import { collection, getDocs } from 'firebase/firestore';
@@ -340,7 +340,7 @@ export default function Lists(props) {
     })}
   </section>
   <Section id={`listsAuthSection`}>
-    <AuthForm />
+    <Form />
   </Section>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>

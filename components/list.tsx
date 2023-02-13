@@ -27,9 +27,9 @@ export default function List(props) {
 
   return <>
   <section id={`createTaskSection`}>
-    <form className={`flex`} style={{width: `100%`}} onSubmit={(e) => createTask(e)}>
+    <form className={`flex customButtons`} style={{width: `100%`}} onSubmit={(e) => createTask(e)}>
       <input placeholder="Create Task" type="text" name="createTask" required />
-      <input id={`createTask`} className={`save`} type="submit" value={`Save`} />
+      <input id={`createTask`} className={`save`} type="submit" value={`Add`} />
     </form>
   </section>
   <section>

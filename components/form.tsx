@@ -23,7 +23,7 @@ export const isShadeOfBlack = (HexString?:any) => {
   return (rgb?.r < darkColorBias) && (rgb?.g < darkColorBias) && (rgb?.b < darkColorBias);
 }
 
-export default function AuthForm(props?: any) {
+export default function Form(props?: any) {
   const { style } = props;
   const loadedRef = useRef(false);
   const [loaded, setLoaded] = useState(false);
@@ -64,14 +64,14 @@ export default function AuthForm(props?: any) {
     }    
   }
 
-  const addOrUpdateUser = async (id: any, user: User) => {
-    setDoc(doc(db, `users`, id), { ...user, id }).then(newSub => {
-      localStorage.setItem(`user`, JSON.stringify({ ...user, id }));
-      setUser({ ...user, id });
-      setUpdates(updates + 1);
-      return newSub;
-    }).catch(error => console.log(error));
-  }
+  // const addOrUpdateUser = async (id: any, user: User) => {
+  //   setDoc(doc(db, `users`, id), { ...user, id }).then(newSub => {
+  //     localStorage.setItem(`user`, JSON.stringify({ ...user, id }));
+  //     setUser({ ...user, id });
+  //     setUpdates(updates + 1);
+  //     return newSub;
+  //   }).catch(error => console.log(error));
+  // }
 
   const showAlert = async (alertTitle: any, alertMessage?: any, additionalInfo?:any) => {
     if (alertOpen) return;
@@ -111,18 +111,19 @@ export default function AuthForm(props?: any) {
         console.log(clicked?.value);
         break;
       case `Next`:
-        getDocs(collection(db, `users`)).then((snapshot) => {
-          let latestUsers = snapshot.docs.map((doc: any) => doc.data()).sort((a: any, b: any) => b?.highScore - a?.highScore);
-          let macthingEmails = latestUsers.filter((usr: any) => usr?.email.toLowerCase() == email.toLowerCase());
-          setUsers(latestUsers);
+        // getDocs(collection(db, `users`)).then((snapshot) => {
+        //   let latestUsers = snapshot.docs.map((doc: any) => doc.data()).sort((a: any, b: any) => b?.highScore - a?.highScore);
+        //   let macthingEmails = latestUsers.filter((usr: any) => usr?.email.toLowerCase() == email.toLowerCase());
+        //   setUsers(latestUsers);
+        let arr = [];
           setEmailField(true);
-          if (macthingEmails.length > 0) {
-            localStorage.setItem(`account`, JSON.stringify(macthingEmails[0]));
+          if (arr.length > 0) {
+            // localStorage.setItem(`account`, JSON.stringify(macthingEmails[0]));
             setAuthState(`Sign In`);
           } else {
             setAuthState(`Sign Up`);
           }
-        });
+        // });
         break;
       case `Back`:
         setUpdates(updates+1);
@@ -137,13 +138,13 @@ export default function AuthForm(props?: any) {
         setEmailField(false);
         setUpdates(updates+1);
         setContent(defaultContent);
-        localStorage.removeItem(`user`);
-        localStorage.removeItem(`users`);
-        localStorage.removeItem(`lists`);
-        localStorage.removeItem(`score`);
-        localStorage.removeItem(`health`);
-        localStorage.removeItem(`account`);
-        localStorage.removeItem(`highScore`);
+        // localStorage.removeItem(`user`);
+        // localStorage.removeItem(`users`);
+        // localStorage.removeItem(`lists`);
+        // localStorage.removeItem(`score`);
+        // localStorage.removeItem(`health`);
+        // localStorage.removeItem(`account`);
+        // localStorage.removeItem(`highScore`);
         break;
       case `Save`:
         let emptyFields = [];
@@ -172,7 +173,7 @@ export default function AuthForm(props?: any) {
               return {[input.id]: input.value}
             }
           })));
-          addOrUpdateUser(user?.id, updatedUser);
+          // addOrUpdateUser(user?.id, updatedUser);
         }
         break;
       case `Sign In`:
@@ -193,7 +194,7 @@ export default function AuthForm(props?: any) {
             setHighScore(scoreToSet);
             setContent(existingAccount?.bio);
             setColor((existingAccount?.color || `#000000`));
-            addOrUpdateUser(existingAccount?.id, {...existingAccount, highScore: scoreToSet, lastSignin: formatDate(new Date())});
+            // addOrUpdateUser(existingAccount?.id, {...existingAccount, highScore: scoreToSet, lastSignin: formatDate(new Date())});
             getDocs(collection(db, `users`)).then((snapshot) => setUsers(snapshot.docs.map((doc: any) => doc.data()).sort((a: any, b: any) => b?.highScore - a?.highScore)));
           } else {
             showAlert(`Invalid Password`);
@@ -202,47 +203,48 @@ export default function AuthForm(props?: any) {
         break;
       case `Sign Up`:
         let name = capitalizeAllWords(email.split(`@`)[0]);
+        setAuthState(`Signed Up`);
 
-        getDocs(collection(db, `users`)).then((snapshot) => {
-          let latestUsers = snapshot.docs.map((doc: any) => doc.data());
-          let macthingEmails = latestUsers.filter((usr: any) => usr?.email.toLowerCase() == email.toLowerCase());
-          setUsers(latestUsers);
-          if (macthingEmails.length > 0) {
-            localStorage.setItem(`account`, JSON.stringify(macthingEmails[0]));
-            setAuthState(`Sign In`);
-          } else {
-            setAuthState(`Sign Up`);
-          }
+        // getDocs(collection(db, `users`)).then((snapshot) => {
+        //   let latestUsers = snapshot.docs.map((doc: any) => doc.data());
+        //   let macthingEmails = latestUsers.filter((usr: any) => usr?.email.toLowerCase() == email.toLowerCase());
+        //   setUsers(latestUsers);
+        //   if (macthingEmails.length > 0) {
+        //     localStorage.setItem(`account`, JSON.stringify(macthingEmails[0]));
+        //     setAuthState(`Sign In`);
+        //   } else {
+        //     setAuthState(`Sign Up`);
+        //   }
 
-          let password = formFields?.password?.value;
-          if (password == ``) {
-            showAlert(`Password Required`);
-          } else {
-            setFocus(false);
-            let storedHighScore = JSON.parse(localStorage.getItem(`highScore`) as any);
-            let potentialUser = { 
-              id: users.length + 1, 
-              bio: ``,
-              color: ``, 
-              number: 0,
-              status: ``,
-              name: name, 
-              email: email,
-              roles: [`user`],
-              password: password, 
-              lists: defaultLists,
-              updated: formatDate(new Date()), 
-              lastSignin: formatDate(new Date()), 
-              registered: formatDate(new Date()), 
-              highScore: Math.floor(storedHighScore) || 0,
-            };
+        //   let password = formFields?.password?.value;
+        //   if (password == ``) {
+        //     showAlert(`Password Required`);
+        //   } else {
+        //     setFocus(false);
+        //     let storedHighScore = JSON.parse(localStorage.getItem(`highScore`) as any);
+        //     let potentialUser = { 
+        //       id: users.length + 1, 
+        //       bio: ``,
+        //       color: ``, 
+        //       number: 0,
+        //       status: ``,
+        //       name: name, 
+        //       email: email,
+        //       roles: [`user`],
+        //       password: password, 
+        //       lists: defaultLists,
+        //       updated: formatDate(new Date()), 
+        //       lastSignin: formatDate(new Date()), 
+        //       registered: formatDate(new Date()), 
+        //       highScore: Math.floor(storedHighScore) || 0,
+        //     };
   
-            let uuid = genUUID(latestUsers, potentialUser);
-            addOrUpdateUser(uuid, potentialUser);
-            getDocs(collection(db, `users`)).then((snapshot) => setUsers(snapshot.docs.map((doc: any) => doc.data()).sort((a: any, b: any) => b?.highScore - a?.highScore)));
-            setAuthState(`Sign Out`);
-          }
-        });
+        //     let uuid = genUUID(latestUsers, potentialUser);
+        //     // addOrUpdateUser(uuid, potentialUser);
+        //     getDocs(collection(db, `users`)).then((snapshot) => setUsers(snapshot.docs.map((doc: any) => doc.data()).sort((a: any, b: any) => b?.highScore - a?.highScore)));
+        //     setAuthState(`Sign Out`);
+        //   }
+        // });
         break;
     };
   }
@@ -254,8 +256,8 @@ export default function AuthForm(props?: any) {
   }, [user, users, authState]);
 
   return <>
-  <form id="authForm" className={`flex`} onSubmit={authForm} style={style}>
-      {!user && <input placeholder="Email (You can use a fake email or throwaway email! We dont actually send you any emails)" type="email" name="email" autoComplete={`email`} required />}
+  <form id="authForm" onSubmit={authForm} className={`flex customButtons`} style={style}>
+      {!user && <input placeholder="Email" type="email" name="email" autoComplete={`email`} required />}
       {!user && emailField && <input placeholder="Password (Use a password that you dont care about, but its still easy to remember)" type="password" name="password" autoComplete={`current-password`} />}
       {user && window?.location?.href?.includes(`profile`) && <input id="name" className={`name userData`} placeholder="Name" type="text" name="status" />}
       {user && window?.location?.href?.includes(`profile`) && <input id="status" className={`status userData`} placeholder="Status" type="text" name="status" />}
