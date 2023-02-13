@@ -1,13 +1,12 @@
 import $ from 'jquery';
 import styles from './list.module.scss';
-import { useRef, useState, useEffect, useContext } from 'react';
+import { StateContext } from '../../pages/_app';
+import { useRef, useEffect, useContext } from 'react';
 
 export default function List() {
+  const { tasks, setTasks } = useContext<any>(StateContext);
   let loadedRef = useRef(false);
   let newTasks = [];
-  let [tasks, setTasks] = useState([
-    {id: 1, task: `task 1`, complete: false}, {id: 2, task: `task 2`, complete: true}, {id: 3, task: `task 3`, complete: false}
-  ]);
 
   const createTask = async (e: any) => {
     e.preventDefault();
