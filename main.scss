@@ -44,7 +44,7 @@
     --mainTeal: rgba(32, 143, 163, 1);
     --blackGlass: rgba(0, 0, 0, 0.75);
     --silverGlass: rgba(0, 0, 0, 0.35);
-    --menuBackground: black !important;
+    --menuBackground: var(--blackGlass) !important;
     --piratechsBlue: rgba(1, 47, 74, 1);
     --mainGlass: rgba(255, 28, 11, 0.75);
     --dangerColor: rgba(255, 28, 11, 0.75);
@@ -417,6 +417,11 @@ form {
     }
 }
 
+.alertButton {
+    filter: invert(1);
+    background: white;
+}
+
 .hoverLink {
     display: flex;
     grid-gap: 0.3em;
@@ -450,9 +455,10 @@ form {
 }
 
 .lists {
-    grid-gap: 1em;
     display: flex;
     margin: 0 auto;
+    grid-gap: 19px;
+    flex-wrap: wrap;
     overflow: visible;
     align-items: flex-start;
     width: calc(var(--containerWidth));
@@ -462,9 +468,11 @@ form {
     }
 
     .list {
-        width: 100%;
+        // max-height: 550px !important;
         position: relative;
         border-radius: 4px;
+        width: 49% !important;
+        padding: 1em !important;
         background: var(--gameBlueSoft) !important;
 
         h2 {
@@ -479,10 +487,27 @@ form {
         0px 0px 20px rgba(0, 0, 0, 0.05);
 
         .items {
-            gap: 1em;
+            gap: 0em;
             display: grid;
             width: 100% !important;
+
+            max-height: 403px;
+            overflow-x: hidden;
+            overflow-y: overlay;
+            padding-right: 10px;
+
             transition: var(--transition);
+
+            &::-webkit-scrollbar {
+                position: relative;
+                border-radius: 4px;
+                width: 4px !important;
+                background: var(--blackGlass) !important;
+            }
+            &::-webkit-scrollbar-thumb {
+                background: var(--softWhite);
+                border-radius: 4px;
+            }
 
             &.oneList {
                 padding: 2em 0 !important;
@@ -501,7 +526,6 @@ form {
 
             .item {
                 cursor: grab;
-                padding: 0em;
                 display: flex;
                 grid-gap: 20px;
                 min-height: 35px;
@@ -509,8 +533,10 @@ form {
                 position: relative;
                 border-radius: 4px;
                 align-items: center;
+                padding: 0em !important;
                 background: var(--blackGlass);
-                transition: var(--transition);
+                flex-direction: row !important;
+                transition: filter var(--transition);
 
                 /* Neumorphic Inner shadow */
                 box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.2);
@@ -524,18 +550,23 @@ form {
                 }
 
                 .itemButtons {
-                    display: grid;
-                    position: relative;
-                    max-width: 125px !important;
-                    grid-template-columns: auto auto;
+                    display: flex;
+                    max-width: fit-content;
+                    flex-direction: row !important;
+                    grid-gap: 7px;
+                    justify-content: flex-end;
+                    padding-right: 7px;
 
                     button {
-                        padding: 0;
+                        padding: 0px !important;
+                        &.editButton {
+                            padding: 0 0 0 3px !important;
+                        }
                         max-width: 100%;
                         position: relative;
                         background: white;
                         width: 25px !important;
-                        max-height: 9px !important;
+                        min-height: 33px;
 
                         i {
                             color: black;
@@ -543,22 +574,27 @@ form {
                         }
 
                         &:hover {
+                            box-shadow: none !important;
                             i {
-                                color: var(--gameBlue);
+                                filter: invert(1);
+                                // color: var(--gameBlue);
                             }
                         }
                     }
                 }
 
                 &:hover {
-                    filter: invert(1);
-
+                    &:not(.itemOrder) {
+                        filter: invert(1);
+                    }
                     .itemOrder {
-
-                        // filter: invert(1);
+                        color: var(--gameBlueSoft);
                         .itemIndex {
                             filter: invert(1);
                         }
+                    }
+                    .itemButtons {
+                        filter: invert(1);
                     }
                 }
 
@@ -566,33 +602,37 @@ form {
                     width: 45px;
                     display: flex;
                     padding: 1em 0;
+                    min-width: 50px;
                     max-height: 100%;
                     font-weight: 700;
+                    text-align: center;
                     align-items: center;
                     background: white;
                     color: var(--gameBlue);
                     justify-content: center;
                     border-top-left-radius: 4px;
                     border-bottom-left-radius: 4px;
-                    transition: var(--transition);
+                    // transition: var(--transition);
 
-                    .itemIndex {
-                        transition: var(--transition);
-                    }
+                    // .itemIndex {
+                    //     transition: var(--transition);
+                    // }
                 }
 
                 .itemName {
+                    text-transform: capitalize;
                     font-weight: 500 !important;
                     transition: var(--transition);
                 }
 
                 &.complete {
                     filter: invert(1);
-                    background: var(--authGlass);
+                    background: rgba(0, 0, 0, 0.5) !important;
 
                     .itemOrder {
-                        background: transparent;
-                        color: white;
+                        filter: invert(1);
+                        background: black !important;
+                        color: var(--gameBlueSoft);
                     }
 
                     .itemName {
@@ -601,9 +641,37 @@ form {
                         text-decoration: line-through;
                         text-decoration-color: black;
                     }
+
+                    .itemButtons {
+                        filter: invert(1);
+                        button {
+                            background: black;
+                        }
+                    }
                 }
+
             }
         }
+    }
+}
+
+.iconButton {
+    flex-direction: row !important;
+    background: var(--blackGlass);
+    transition: var(--transition);
+    font-weight: 700 !important;
+    justify-content: center;
+    align-items: center;
+    border-radius: 4px;
+    padding: 5px 15px;
+    font-size: 0.85em;
+    min-height: 35px;
+    display: flex;
+    width: 100%;
+    &:hover {
+        filter: invert(1);
+        // background: white !important;
+        // color: black !important;
     }
 }
 

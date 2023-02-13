@@ -86,23 +86,28 @@ export const getCurrentPageName = () => {
   
   export const defaultLists = [
     {id: 1, name: `ProductIVF`, itemName: `Ticket`, items: [
-      {id: 1, order: 1, index: 0, item: `Draggable Lists`, complete: false},
-      {id: 2, order: 2, index: 1, item: `Complete Item in List`, complete: false},
-      {id: 3, order: 3, index: 2, item: `Icon in Tab`, complete: false},
-      {id: 4, order: 4, index: 3, item: `Update Lists on Reorder`, complete: false},
-      {id: 5, order: 5, index: 4, item: `Corner Draggable`, complete: false},
-      {id: 6, order: 6, index: 5, item: `Create List`, complete: false},
-      {id: 7, order: 7, index: 6, item: `localStorage if Signed Out`, complete: false},
-      {id: 8, order: 8, index: 7, item: `Switch to User`, complete: false},
-      {id: 9, order: 9, index: 8, item: `Save User List if Signed In`, complete: false},
-      {id: 10, order: 10, index: 9,  item: `Mobile Responsiveness`, complete: false},
+      {id: `item-1`, content: `Draggable Lists`, complete: false},
+      {id: `item-2`, content: `Complete Item in List`, complete: false},
+      {id: `item-3`, content: `Icon in Tab`, complete: false},
+      {id: `item-4`, content: `Update Lists on Reorder`, complete: false},
+      {id: `item-5`, content: `Corner Draggable`, complete: false},
+      {id: `item-6`, content: `Create List`, complete: false},
+      {id: `item-7`, content: `localStorage if Signed Out`, complete: false},
+      {id: `item-8`, content: `Switch to User`, complete: false},
+      {id: `item-9`, content: `Save User List if Signed In`, complete: false},
+      {id: `item-10`,  content: `Mobile Responsiveness`, complete: false},
+    ]},
+    {id: 2, name: `Tasks`, itemName: `Task`, items: [
+      {id: `item-1`, content: `task 1`, complete: false}, 
+      {id: `item-2`, content: `task 2`, complete: true}, 
+      {id: `item-3`, content: `task 3`, complete: false}
     ]},
     {id: 3, name: `One Piece Strongest 2023`, itemName: `Character`, items: [
-      {id: 1, order: 1, index: 0, item: `Imu`, complete: false},
-      {id: 2, order: 2, index: 1, item: `Shanks`, complete: false},
-      {id: 3, order: 3, index: 2, item: `Dragon`, complete: false},
-      {id: 4, order: 4, index: 3, item: `Kaido`, complete: false},
-      {id: 5, order: 5, index: 4, item: `Mihawk`, complete: false},
+      {id: `item-1`, content: `Imu`, complete: false},
+      {id: `item-2`, content: `Shanks`, complete: false},
+      {id: `item-3`, content: `Dragon`, complete: false},
+      {id: `item-4`, content: `Kaido`, complete: false},
+      {id: `item-5`, content: `Mihawk`, complete: false},
     ]},
   ];
 
@@ -125,18 +130,13 @@ export default function MyApp({ Component, pageProps }) {
     let [highScore, setHighScore] = useState(0);
     let [platform, setPlatform] = useState(null);
     let [colorPref, setColorPref] = useState(user);
+    let [alertOpen, setAlertOpen] = useState(false);
     let [authState, setAuthState] = useState(`Next`);
     let [mobileMenu, setMobileMenu] = useState(false);
     let [emailField, setEmailField] = useState(false);
     let [showLeaders, setShowLeaders] = useState(false);
     let [content, setContent] = useState(`defaultContent`);
     let [year, setYear] = useState(new Date().getFullYear());
-
-    let [tasks, setTasks] = useState([
-        {id: 1, task: `task 1`, complete: false}, 
-        {id: 2, task: `task 2`, complete: true}, 
-        {id: 3, task: `task 3`, complete: false}
-    ]);
 
     useEffect(() => {
         if (loaded.current) return;
@@ -147,11 +147,7 @@ export default function MyApp({ Component, pageProps }) {
         setYear(new Date().getFullYear());
         setPage(window.location.pathname.replace(`/`,``));
         setDevEnv(window.location.host.includes(`localhost`));
-        setTasks([
-            {id: 1, task: `task 1`, complete: false}, 
-            {id: 2, task: `task 2`, complete: true}, 
-            {id: 3, task: `task 3`, complete: false}
-        ]);
+        setLists(JSON.parse(localStorage.getItem(`lists`)) || defaultLists);
     
         return () => {
         //   window.removeEventListener(`resize`, () => windowEvents());
@@ -159,5 +155,5 @@ export default function MyApp({ Component, pageProps }) {
         }
       }, [user, users, authState, dark])
 
-    return <StateContext.Provider value={{ tasks, setTasks, updates, setUpdates, content, setContent, width, setWidth, user, setUser, page, setPage, mobileMenu, setMobileMenu, users, setUsers, authState, setAuthState, emailField, setEmailField, devEnv, setDevEnv, mobileMenuBreakPoint, platform, setPlatform, focus, setFocus, highScore, setHighScore, color, setColor, dark, setDark, colorPref, setColorPref, lists, setLists, showLeaders, setShowLeaders, items, setItems, qotd, setQotd }}><Component {...pageProps} /></StateContext.Provider>
+    return <StateContext.Provider value={{ updates, setUpdates, content, setContent, width, setWidth, user, setUser, page, setPage, mobileMenu, setMobileMenu, users, setUsers, authState, setAuthState, emailField, setEmailField, devEnv, setDevEnv, mobileMenuBreakPoint, platform, setPlatform, focus, setFocus, highScore, setHighScore, color, setColor, dark, setDark, colorPref, setColorPref, lists, setLists, showLeaders, setShowLeaders, items, setItems, qotd, setQotd, alertOpen, setAlertOpen }}><Component {...pageProps} /></StateContext.Provider>
 }

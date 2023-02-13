@@ -40,7 +40,7 @@ export default function Quote(props) {
     const cycleQuotes = () => {
         let x = Math.floor(Math.random() * quotes.length);
         setQotd(quotes[x]);
-        console.log(quotes[x]);
+        // console.log(`Qoute`, quotes[x]);
     }
     
     useEffect(() => {
