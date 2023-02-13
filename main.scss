@@ -191,6 +191,18 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
     }
 }
 
+// @media (max-width: 767px) {
+//     .navFormSection {
+//         display: none !important;
+//     }
+// }
+
+@media (max-width: 1215px) {
+    .navFormSection {
+        display: none !important;
+    }
+}
+
 footer {
     div {
         padding: 1em !important;
@@ -298,8 +310,8 @@ section {
 form {
     height: 100% !important;
     input {
-        max-height: 34px;
         font-size: 12px;
+        max-height: 34px;
         font-weight: 300;
         // filter: invert(1);
         border-radius: 4px;
@@ -311,6 +323,12 @@ form {
         transition: var(--transition);
         color: white !important;
         // box-shadow: 0 0 10px var(--gameBlueSoft),0 0 20px var(--gameBlueSoft);
+
+        label {
+            padding: 50px !important;
+            // top: -5px;
+            // position: relative;
+        }
         
     
         &::placeholder {
@@ -549,83 +567,6 @@ form {
         }
     }
 }
-
-// .gameStats {
-//     min-width: 20%;
-
-//     h2 {
-//         .label {
-//             min-width: 110px;
-//             font-size: 0.85em;
-//         }
-
-//         font-size: 1.35em;
-
-//         i {
-//             font-size: 0.75em;
-//         }
-//     }
-// }
-
-// .gameStateAction {
-//     position: relative;
-//     z-index: 1;
-// }
-
-// .gameAnimation {
-//     position: absolute;
-//     top: 0;
-//     left: 0;
-//     bottom: 0;
-//     right: 0;
-//     z-index: 0;
-//     width: 100%;
-//     height: 100%;
-//     // display: flex;
-//     // justify-content: center;
-//     // transform: translate(-50%, -50%);
-//     // align-items: baseline;
-//     overflow: hidden;
-
-//     lottie-player {
-//         z-index: 0;
-//         bottom: -143px;
-//         position: relative;
-//         width: 100% !important;
-//         height: 100% !important;
-//         transform: scale(3.5, 0.3);
-
-//         &#cloudsAnimation {
-//             top: 0;
-//             opacity: 0.35;
-//             position: absolute;
-//             transform: scale(3, 1);
-//             width: 100% !important;
-//         }
-
-//         &.windAnim {
-//             transform: scale(0.35) rotateY(180deg) !important;
-//             position: absolute;
-//             width: 100% !important;
-//             filter: invert(1);
-//         }
-//     }
-// }
-
-// .leaderBoard {
-//     padding: 10px;
-//     color: white;
-//     border-radius: 4px;
-//     background: var(--blackGlass);
-
-//     .userScore {
-//         grid-gap: 1em;
-
-//         .score {
-//             text-align: right;
-//         }
-//     }
-// }
 
 // .emphasis {
 //     color: var(--gameBlue);
