@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/shuding/nextra-docs-template#readme",
   "dependencies": {
+    "firebase": "^9.17.1",
     "jquery": "^3.6.3",
     "next": "^13.0.6",
     "nextra": "latest",

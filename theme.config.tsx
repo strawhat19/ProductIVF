@@ -1,6 +1,7 @@
 import React from 'react';
 import Logo from './components/logo';
 import { DocsThemeConfig } from 'nextra-theme-docs';
+import Footer from './components/footer';
 
 const config: DocsThemeConfig = {
   // primaryHue: 75, // Yellow
@@ -45,7 +46,8 @@ const config: DocsThemeConfig = {
   },
   docsRepositoryBase: 'https://github.com/strawhat19/ProductIVF/',
   footer: {
-    text: `ProductIVF Copyright Ⓒ 2023`,
+    // text: `ProductIVF Copyright Ⓒ 2023`,
+    component: <Footer />
   },
 }
 
