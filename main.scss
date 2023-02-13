@@ -44,6 +44,7 @@
     --mainTeal: rgba(32, 143, 163, 1);
     --blackGlass: rgba(0, 0, 0, 0.75);
     --silverGlass: rgba(0, 0, 0, 0.35);
+    --menuBackground: black !important;
     --piratechsBlue: rgba(1, 47, 74, 1);
     --mainGlass: rgba(255, 28, 11, 0.75);
     --dangerColor: rgba(255, 28, 11, 0.75);
@@ -105,21 +106,21 @@ html[class~="dark"] .dark\:nx-border-neutral-800 {
 
     .nx-sticky {
         &:not(.nx-top-0) {
-            background: black !important;
+            background: var(--menuBackground) !important;
         }
     }
 
     html[class~="dark"] .dark\:nx-shadow-\[0_-12px_16px_\#111\] {
-        background: black !important;
+        background: var(--menuBackground) !important;
     }
 
     aside {
         border-right: solid 1px var(--bg);
-        background: black !important;
+        background: var(--menuBackground) !important;
     }
 
     body {
-        background: black !important;
+        background: var(--menuBackground) !important;
     }
 
     article {
@@ -160,7 +161,9 @@ html[class~="dark"] .dark\:nx-border-neutral-800 {
 }
 
 .textOverflow {
-    max-width: 60%;
+    &:not(.extended) {
+        max-width: 60%;
+    }
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
