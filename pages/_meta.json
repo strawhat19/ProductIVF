@@ -1,10 +1,26 @@
 {
-  "index": "Home",
-  "archive": "Archive",
-  "schedule": "Schedule",
+  "index": {
+    "title": "Home"
+  },
+  "projects": "Projects",
+  "code-snippets": "Code Snippets",
   "about": {
     "title": "About",
     "type": "page"
+  },
+  "company": {
+    "title": "Company",
+    "type": "menu",
+    "items": {
+      "about": {
+        "title": "Piratechs",
+        "href": "https://piratechs.com/"
+      },
+      "contact": {
+        "title": "Text Me",
+        "href": "sms:6787903980"
+      }
+    }
   },
   "contact": {
     "title": "Contact ↗",
