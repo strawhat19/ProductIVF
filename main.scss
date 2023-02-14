@@ -376,6 +376,12 @@ section {
     }
 }
 
+@supports (-webkit-backdrop-filter:blur(1px)) or ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px)))  {
+    html[class~=dark] .nextra-nav-container-blur {
+        background: rgba(0, 0, 0, 0.35) !important;
+    }
+}
+
 form {
     height: 100% !important;
     input {
@@ -607,6 +613,7 @@ form {
         border-radius: 4px;
         width: 100% !important;
         padding: 1em !important;
+        min-width: 100% !important;
         background: var(--gameBlueSoft) !important;
 
         .listName {
