@@ -138,7 +138,7 @@ nav {
 
     aside {
         border-right: solid 1px var(--bg);
-        background: var(--menuBackground) !important;
+        background: black !important;
     }
 
     body {
@@ -198,7 +198,9 @@ html[class~=dark] .dark\:nx-bg-dark {
 }
 
 html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-gray-400 {
-    @extend .hoverLink;
+    &:not(.excerpt) {
+        @extend .hoverLink;
+    }
     &::before {
         height: 1px;
     }
@@ -233,14 +235,14 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
     }
 }
 
-@media (max-width: 1130px) {
+@media (max-width: 1600px) {
   .lists {
     grid-template-columns: 1fr !important;
   }
 }
 
 @media (max-width: 1215px) {
-    .navFormSection {
+    .navFormDiv {
         display: none !important;
     }
 }
@@ -379,7 +381,7 @@ form {
     input {
         font-size: 12px;
         max-height: 34px;
-        font-weight: 300;
+        font-weight: 400;
         // filter: invert(1);
         border-radius: 4px;
         padding: 10px 25px;
@@ -544,19 +546,22 @@ form {
 }
 
 .addListFormItem {
+    grid-gap: 1em;
+    display: flex;
+    flex-direction: column;
     .addListFormItemSection {
         padding: 0;
         max-width: 100%;
         .addListForm {
             width: 100%;
-            display: grid;
+            // display: grid;
             overflow: hidden;
             // display: flex;
             align-items: center;
             // flex-direction: row;
             max-width: 100% !important;
             border-radius: 4px !important;
-            grid-template-columns: 75% 25%;
+            // grid-template-columns: 75% 25%;
             justify-content: space-between;
             .submit {
                 border: 0 !important;
@@ -575,6 +580,17 @@ form {
     align-items: baseline;
     width: calc(var(--containerWidth));
     grid-template-columns: repeat(2, 1fr);
+
+    form {
+        input {
+            &.submit {
+                color: black !important;
+                background: white !important;
+                max-width: fit-content;
+                max-width: fit-content;
+            }
+        }
+    }
 
     &.extended {
         width: 100%;

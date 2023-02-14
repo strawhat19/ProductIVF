@@ -30,10 +30,15 @@ const config: DocsThemeConfig = {
   //   titleComponent: <Form />
   // },
   navbar: {
-    extraContent: <div style={{order: -1, display: `flex`, flexDirection: `row`, gridGap: 15, alignItems: `center`}}><span className={`textOverflow extended`}>Sign In</span><section className={`navFormSection`} style={{maxWidth: 300, margin: 0, padding: `0 20px 0 0 !important;`, position: `relative`}}><Form id="navForm" style={{display: `flex`, flexDirection: `row`}} /></section></div>,
+    extraContent: <div className={`navFormDiv`} style={{order: -1, display: `flex`, flexDirection: `row`, gridGap: 15, alignItems: `center`}}>
+      <span className={`navFormText textOverflow extended`} style={{minWidth: `fit-content`}}>Sign In</span>
+      <section className={`navFormSection`} style={{maxWidth: 300, margin: 0, padding: `0 20px 0 0 !important;`, position: `relative`}}>
+        <Form id="navForm" style={{display: `flex`, flexDirection: `row`}} />
+      </section>
+    </div>,
   },
   toc: {
-    extraContent: <section style={{padding: `0 20px 0 0 !important;`, display: `flex`, flexDirection: `column`, margin: `-40px 0`}}>
+    extraContent: <section style={{padding: `0 20px 0 0 !important;`, display: `flex`, flexDirection: `column`, margin: 0, order: -2 }}>
       <Status />
       <h2 style={{fontSize: 18, paddingBottom: `.5em`, borderBottom: `1px solid var(--gameBlueSoft)`}}><i>Sign In or Sign Up</i></h2>
       <Form id="sidebarForm" />

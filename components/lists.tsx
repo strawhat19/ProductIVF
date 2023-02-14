@@ -118,14 +118,7 @@ export default function Lists(props) {
             id: `list-${lists.length + 1}`,
             created: formatDate(new Date()),
             name: formFields[0].value,
-            items: [
-                {
-                    id: `item-1`,
-                    complete: false,
-                    content: `Item 1`,
-                    created: formatDate(new Date()),
-                }
-            ]
+            items: [ ]
         };
         let updatedLists: List[] = [newList, ...lists];
         localStorage.setItem(`lists`, JSON.stringify(updatedLists));
@@ -188,7 +181,7 @@ export default function Lists(props) {
             let updatedItems: Item[] = [...list.items.filter(itm => itm.id != item.id)];
             let updatedLists = lists.map((lis: List, index) => {
                 if (lis.id == list.id) {
-                    setSystemStatus(`Deleted Item ${item.name}.`);
+                    setSystemStatus(`Deleted Item ${item.content}.`);
                     return {...list, items: updatedItems, updated: formatDate(new Date())};
                 } else {
                     return lis;
@@ -280,11 +273,11 @@ export default function Lists(props) {
     };
 
     return <>
-    <div className="lists extended">
+    <div className="createList lists extended">
         <div id={props.id} className={`list items ${props.className}`}>
             <div className="items">
                 <div className="addListFormItem">
-                <h2 style={{fontWeight: 600, fontSize: 30, }}>Create List {lists.length + 1}</h2>
+                <h2 style={{fontWeight: 600, fontSize: 24 }}>Create List {lists.length + 1}</h2>
                 <section className={`addListFormItemSection`} style={{margin: 0}}>
                     <form title={`Add List`} id={`addListForm`} className={`flex addListForm`} style={{width: `100%`, flexDirection: `row`}} onSubmit={(e) => createList(e, lists)}>
                         <input placeholder={`Add List ${lists.length + 1}`} type="text" name="createItem" required />

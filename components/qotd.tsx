@@ -53,7 +53,7 @@ export default function Quote(props) {
     }, []);
 
     return <blockquote id={props.id} className={`quote qotd ${props.className}`} style={props.style}>
-        <h2 style={{fontSize: 18, paddingBottom: `.5em`, borderBottom: `1px solid var(--gameBlueSoft)`}}><i>Qoute of the Day</i></h2>
+        <h2 style={{fontSize: 18, paddingBottom: `.5em`, borderBottom: `1px solid var(--gameBlueSoft)`}}><i>Qoutes of the Day</i></h2>
         <span className="actualQuote">"{qotd == `` ? `Qoute` : qotd.quote}"</span>
         <i className="quoteAuthor" style={{color: `var(--gameBlueSoft)`, fontSize: `0.85em`, fontWeight: 700}}> - {qotd == `` ? `Qoute Arthur` : `${qotd.author}, ${qotd.date.slice(-4)}`}</i>
     </blockquote>
