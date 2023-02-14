@@ -74,6 +74,7 @@ article {
     padding: 0 !important;
     margin: 0 !important;
     .nextra-scrollbar {
+        overflow: visible !important;
         p, ul {
             padding: 0 0 1em 2em;
             li {
@@ -94,12 +95,33 @@ article {
     }
 }
 
+.spinnerEl {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    .spinner {
+        font-size: 18px;
+        max-width: fit-content;
+        transform-origin: center;
+        transition: var(--transition);
+        animation: spin 1s linear infinite;
+    }
+}
+
 [dir="ltr"] .ltr\:-nx-mr-4 {
     margin-right: -2rem;
 }
 
 html[class~="dark"] .dark\:nx-border-neutral-800 {
     border-color: hsl(var(--nextra-primary-hue)100% 94%/.1) !important;
+}
+
+nav {
+    a {
+        &:first-child {
+            order: -1;
+        }
+    }
 }
 
 .dark {
@@ -198,11 +220,24 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
     }
 }
 
-// @media (max-width: 767px) {
-//     .navFormSection {
-//         display: none !important;
-//     }
-// }
+@media (max-width: 850px) {
+    nav {
+        * {
+            &.nx-relative {
+                display: none !important;
+            }
+            &.nx-text-sm {
+                display: none !important;
+            }
+        }
+    }
+}
+
+@media (max-width: 1130px) {
+  .lists {
+    grid-template-columns: 1fr !important;
+  }
+}
 
 @media (max-width: 1215px) {
     .navFormSection {
@@ -249,6 +284,20 @@ section {
 .customButtons {
     button,input[type="submit"] {
         border: 0;
+        &[type="submit"] {
+            color: white !important;
+            background: rgb(0 188 247 / 75%) !important;
+            padding: 10px 25px !important;
+            font-weight: 600;
+            line-height: 1;
+            /* filter: invert(1); */
+            border: 0 !important;
+            &:hover {
+                color: black !important;
+                background: white !important;
+                filter: invert(0) !important;
+            }
+        }
         padding: 10px;
         outline: none;
         cursor: pointer;
@@ -257,6 +306,10 @@ section {
         color: white !important;
         background: var(--blackGlass);
         transition: var(--transition);
+
+        i {
+            pointer-events: none;
+        }
 
         &.rowButton {
             margin-top: -17px;
@@ -314,6 +367,13 @@ section {
     }
 }
 
+.navFormSection {
+    padding: 0 !important;
+    .submit {
+        max-width: fit-content !important;
+    }
+}
+
 form {
     height: 100% !important;
     input {
@@ -326,7 +386,7 @@ form {
         border: 1px solid var(--gameBlueSoft) !important;
         outline: none !important;
         font-family: "Montserrat";
-        background: var(--blackGlass);
+        background: var(--blackGlass) !important;
         transition: var(--transition);
         color: white !important;
         // box-shadow: 0 0 10px var(--gameBlueSoft),0 0 20px var(--gameBlueSoft);
@@ -340,6 +400,14 @@ form {
     
         &::placeholder {
             color: white;
+        }
+
+        &[type="submit"] {
+            cursor: pointer;
+            &:hover {
+                border: 0 !important;
+                filter: invert(1);
+            }
         }
     
         &[type="color"] {
@@ -454,14 +522,64 @@ form {
     }
 }
 
+.listOrder {
+    width: 50px;
+    height: 100%;
+    padding: 1em 0;
+    min-width: 50px;
+    background: white;
+    max-width: fit-content;
+    min-height: 100% !important;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+
+.addItemForm {
+    .submit {
+        border: 0 !important;
+        &:hover {
+            padding: 10px 25px !important;
+        }
+    }
+}
+
+.addListFormItem {
+    .addListFormItemSection {
+        padding: 0;
+        max-width: 100%;
+        .addListForm {
+            width: 100%;
+            display: grid;
+            overflow: hidden;
+            // display: flex;
+            align-items: center;
+            // flex-direction: row;
+            max-width: 100% !important;
+            border-radius: 4px !important;
+            grid-template-columns: 75% 25%;
+            justify-content: space-between;
+            .submit {
+                border: 0 !important;
+                &:hover {
+                    padding: 10px 25px !important;
+                }
+            }
+        }
+    }
+}
+
 .lists {
-    display: flex;
+    display: grid;
     margin: 0 auto;
-    grid-gap: 19px;
-    flex-wrap: wrap;
     overflow: visible;
-    align-items: flex-start;
+    align-items: baseline;
     width: calc(var(--containerWidth));
+    grid-template-columns: repeat(2, 1fr);
+
+    &.extended {
+        width: 100%;
+        display: flex;
+    }
 
     .buttonLabel {
         justify-content: flex-start;
@@ -471,9 +589,13 @@ form {
         // max-height: 550px !important;
         position: relative;
         border-radius: 4px;
-        width: 49% !important;
+        width: 100% !important;
         padding: 1em !important;
         background: var(--gameBlueSoft) !important;
+
+        .listName {
+            text-transform: capitalize;
+        }
 
         h2 {
             color: white;
@@ -489,12 +611,10 @@ form {
         .items {
             gap: 0em;
             display: grid;
-            width: 100% !important;
-
-            max-height: 403px;
+            max-height: 400px;
             overflow-x: hidden;
-            overflow-y: overlay;
-            padding-right: 10px;
+            overflow-y: overlay;;
+            width: 100% !important;
 
             transition: var(--transition);
 
@@ -525,11 +645,12 @@ form {
             }
 
             .item {
+                width: 100%;
                 cursor: grab;
                 display: flex;
                 grid-gap: 20px;
+                font-size: 0.8em;
                 min-height: 35px;
-                font-size: 0.85em;
                 position: relative;
                 border-radius: 4px;
                 align-items: center;
@@ -549,40 +670,6 @@ form {
                     max-height: 100%;
                 }
 
-                .itemButtons {
-                    display: flex;
-                    max-width: fit-content;
-                    flex-direction: row !important;
-                    grid-gap: 7px;
-                    justify-content: flex-end;
-                    padding-right: 7px;
-
-                    button {
-                        padding: 0px !important;
-                        &.editButton {
-                            padding: 0 0 0 3px !important;
-                        }
-                        max-width: 100%;
-                        position: relative;
-                        background: white;
-                        width: 25px !important;
-                        min-height: 33px;
-
-                        i {
-                            color: black;
-                            pointer-events: none;
-                        }
-
-                        &:hover {
-                            box-shadow: none !important;
-                            i {
-                                filter: invert(1);
-                                // color: var(--gameBlue);
-                            }
-                        }
-                    }
-                }
-
                 &:hover {
                     &:not(.itemOrder) {
                         filter: invert(1);
@@ -599,7 +686,7 @@ form {
                 }
 
                 .itemOrder {
-                    width: 45px;
+                    width: 50px;
                     display: flex;
                     padding: 1em 0;
                     min-width: 50px;
@@ -617,6 +704,14 @@ form {
                     // .itemIndex {
                     //     transition: var(--transition);
                     // }
+                }
+
+                .itemDate {
+                    font-size: 11px;
+                    text-align: right;
+                    padding-right: 0;
+                    overflow: visible;
+                    max-width: fit-content;
                 }
 
                 .itemName {
@@ -655,6 +750,41 @@ form {
     }
 }
 
+.itemButtons {
+    display: flex;
+    max-width: fit-content;
+    flex-direction: row !important;
+    grid-gap: 7px;
+    justify-content: flex-end;
+    padding-right: 7px;
+
+    button {
+        padding: 0px 10px !important;
+        &.editButton {
+            padding: 0 0 0 3px !important;
+        }
+        max-width: 100%;
+        position: relative;
+        background: white;
+        color: black !important;
+        width: min-content;
+        min-height: 33px;
+
+        i {
+            max-width: fit-content;
+            pointer-events: none;
+        }
+
+        &:hover {
+            box-shadow: none !important;
+            i {
+                filter: invert(1);
+                // color: var(--gameBlue);
+            }
+        }
+    }
+}
+
 .iconButton {
     flex-direction: row !important;
     background: var(--blackGlass);
@@ -663,11 +793,20 @@ form {
     justify-content: center;
     align-items: center;
     border-radius: 4px;
-    padding: 5px 15px;
     font-size: 0.85em;
+    padding: 0px 0px;
     min-height: 35px;
     display: flex;
     width: 100%;
+    span, i {
+        pointer-events: none;
+    }
+    .iconButtonText {
+        grid-gap: 0;
+        display: flex;
+        align-items: center;
+        flex-direction: row;
+    }
     &:hover {
         filter: invert(1);
         // background: white !important;
@@ -774,15 +913,15 @@ footer {
 //     }
 // }
 
-// @keyframes logo-spin {
-//     0% {
-//         transform: rotate(0);
-//     }
+@keyframes spin {
+    0% {
+        transform: rotate(0);
+    }
 
-//     100% {
-//         transform: rotate(360deg);
-//     }
-// }
+    100% {
+        transform: rotate(360deg);
+    }
+}
 
 // @media (prefers-color-scheme: dark) {
 //     html {
@@ -890,8 +1029,41 @@ footer {
 //     opacity: 1;
 // }
 
+.listTitleButton {
+    &:hover {
+        filter: invert(0) !important;
+        button {
+            i, .itemLength {
+                filter: invert(1) !important;
+            }
+        }
+    }
+}
+
+.animComplete {
+    display: none !important;
+}
+
+.loaded {
+    animation: fadeOut 2s var(--transition) 1 !important;
+}
+
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+    99% {
+        opacity: 0.1;
+    }
+    100% {
+        opacity: 0;
+        display: none;
+        pointer-events: none;
+    }
+}
+
 // .fadeInOut {
-//     animation: fadeInOut 3500ms ease-in-out 1;
+//     animation: fadeInOut 3500ms ease-in-out infinite;
 // }
 
 // @keyframes fadeInOut {

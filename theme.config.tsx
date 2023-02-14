@@ -1,10 +1,10 @@
 import React from 'react';
 import Logo from './components/logo';
 import Form from './components/form';
-import { DocsThemeConfig } from 'nextra-theme-docs';
-import Footer from './components/footer';
-import Section from './components/section';
 import Quote from './components/qotd';
+import Status from './components/status';
+import Footer from './components/footer';
+import { DocsThemeConfig } from 'nextra-theme-docs';
 
 const config: DocsThemeConfig = {
   // primaryHue: 75, // Yellow
@@ -30,12 +30,14 @@ const config: DocsThemeConfig = {
   //   titleComponent: <Form />
   // },
   navbar: {
-    extraContent: <section className={`navFormSection`} style={{maxWidth: 500, margin: 0, paddingRight: 20}}><Form id="navForm" style={{display: `grid`, gridTemplateColumns: `75% 25%`}} /></section>,
+    extraContent: <div style={{order: -1, display: `flex`, flexDirection: `row`, gridGap: 15, alignItems: `center`}}><span className={`textOverflow extended`}>Sign In</span><section className={`navFormSection`} style={{maxWidth: 300, margin: 0, padding: `0 20px 0 0 !important;`, position: `relative`}}><Form id="navForm" style={{display: `flex`, flexDirection: `row`}} /></section></div>,
   },
   toc: {
-    extraContent: <section style={{paddingRight: 20, display: `flex`, flexDirection: `column`}}>
-      <Quote style={{marginBottom: 20}} id="sidebarQotd" />
+    extraContent: <section style={{padding: `0 20px 0 0 !important;`, display: `flex`, flexDirection: `column`, margin: `-40px 0`}}>
+      <Status />
+      <h2 style={{fontSize: 18, paddingBottom: `.5em`, borderBottom: `1px solid var(--gameBlueSoft)`}}><i>Sign In or Sign Up</i></h2>
       <Form id="sidebarForm" />
+      <Quote style={{margin: `20px 0`}} id="sidebarQotd" />
     </section>,
   },
   head: <><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.css"></link>

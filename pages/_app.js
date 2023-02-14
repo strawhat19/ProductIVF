@@ -73,7 +73,7 @@ export const getCurrentPageName = () => {
     return arr;
   };
   
-  export const formatDate = (date) => {
+  export const formatDate = (date, specificPortion) => {
     let hours = date.getHours();
     let minutes = date.getMinutes();
     let ampm = hours >= 12 ? 'PM' : 'AM';
@@ -81,7 +81,15 @@ export const getCurrentPageName = () => {
     hours = hours ? hours : 12; // the hour '0' should be '12'
     minutes = minutes < 10 ? '0' + minutes : minutes;
     let strTime = hours + ':' + minutes + ' ' + ampm;
-    return strTime + ` ` + (date.getMonth() + 1) + "-" + date.getDate() + "-" + date.getFullYear();
+    let completedDate = strTime + ` ` + (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
+    if (specificPortion == `time`) {
+      completedDate = strTime;
+    } else if (specificPortion == `date`) {
+      completedDate = (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
+    } else {
+      completedDate = strTime + ` ` + (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
+    }
+    return completedDate;
   };
   
   export const defaultLists = [
@@ -127,27 +135,42 @@ export default function MyApp({ Component, pageProps }) {
     let [updates, setUpdates] = useState(0);
     let [focus, setFocus] = useState(false);
     let [devEnv, setDevEnv] = useState(false);
+    let [mobile, setMobile] = useState(false);
+    let [loading, setLoading] = useState(true);
     let [highScore, setHighScore] = useState(0);
     let [platform, setPlatform] = useState(null);
+    let [anim, setAnimComplete] = useState(false);
     let [colorPref, setColorPref] = useState(user);
     let [alertOpen, setAlertOpen] = useState(false);
     let [authState, setAuthState] = useState(`Next`);
     let [mobileMenu, setMobileMenu] = useState(false);
     let [emailField, setEmailField] = useState(false);
+    let [systemStatus, setSystemStatus] = useState(``);
     let [showLeaders, setShowLeaders] = useState(false);
     let [content, setContent] = useState(`defaultContent`);
+    let [animCompleted, setAnimCompleted] = useState(false);
     let [year, setYear] = useState(new Date().getFullYear());
 
     useEffect(() => {
+      setAnimComplete(false);
+      setLoading(true);
+      setSystemStatus(`Page Loading!`);
         if (loaded.current) return;
         loaded.current = true;
         let storedUser = JSON.parse(localStorage.getItem(`user`));
         setUpdates(updates);
         setPlatform(navigator?.userAgent);
         setYear(new Date().getFullYear());
+        setSystemStatus(`System Status Ok.`);
         setPage(window.location.pathname.replace(`/`,``));
         setDevEnv(window.location.host.includes(`localhost`));
         setLists(JSON.parse(localStorage.getItem(`lists`)) || defaultLists);
+        setMobile((typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1));
+
+        setLoading(false);
+        setSystemStatus(`Page Loaded.`);
+        setTimeout(() => setLoading(false), 1500);
+        // setTimeout(() => setAnimComplete(true), 3500);
     
         return () => {
         //   window.removeEventListener(`resize`, () => windowEvents());
@@ -155,5 +178,5 @@ export default function MyApp({ Component, pageProps }) {
         }
       }, [user, users, authState, dark])
 
-    return <StateContext.Provider value={{ updates, setUpdates, content, setContent, width, setWidth, user, setUser, page, setPage, mobileMenu, setMobileMenu, users, setUsers, authState, setAuthState, emailField, setEmailField, devEnv, setDevEnv, mobileMenuBreakPoint, platform, setPlatform, focus, setFocus, highScore, setHighScore, color, setColor, dark, setDark, colorPref, setColorPref, lists, setLists, showLeaders, setShowLeaders, items, setItems, qotd, setQotd, alertOpen, setAlertOpen }}><Component {...pageProps} /></StateContext.Provider>
+    return <StateContext.Provider value={{ updates, setUpdates, content, setContent, width, setWidth, user, setUser, page, setPage, mobileMenu, setMobileMenu, users, setUsers, authState, setAuthState, emailField, setEmailField, devEnv, setDevEnv, mobileMenuBreakPoint, platform, setPlatform, focus, setFocus, highScore, setHighScore, color, setColor, dark, setDark, colorPref, setColorPref, lists, setLists, showLeaders, setShowLeaders, items, setItems, qotd, setQotd, alertOpen, setAlertOpen, mobile, setMobile, systemStatus, setSystemStatus, loading, setLoading, anim, setAnimComplete }}><Component {...pageProps} /></StateContext.Provider>
 }

@@ -2,8 +2,6 @@
   "index": {
     "title": "Home"
   },
-  "projects": "Projects",
-  "code-snippets": "Code Snippets",
   "about": {
     "title": "About",
     "type": "page"
@@ -27,5 +25,8 @@
     "type": "page",
     "href": "https://piratechs.com/",
     "newWindow": true
-  }
+  },
+  "lists": "Lists",
+  "projects": "Projects",
+  "code-snippets": "Code Snippets"
 }
