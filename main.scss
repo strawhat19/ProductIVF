@@ -235,6 +235,14 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
     }
 }
 
+@media (min-width: 1600px) {
+   .multiList {
+    .itemName {
+        max-width: 220px;
+    }
+   }
+}
+
 @media (max-width: 1600px) {
   .lists {
     grid-template-columns: 1fr !important;
@@ -457,6 +465,17 @@ form {
     }
 }
 
+.flex {
+    width: 100%;
+    display: flex;
+    max-width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    &.row {
+        flex-direction: row !important;
+    }
+}
+
 .alert {
     top: 50%;
     left: 50%;
@@ -585,7 +604,13 @@ form {
     overflow: visible;
     align-items: baseline;
     width: calc(var(--containerWidth));
-    grid-template-columns: repeat(2, 1fr);
+    &.oneList {
+        grid-template-columns: repeat(1, 1fr);
+    }
+
+    &.multiList {
+        grid-template-columns: repeat(2, 1fr);
+    }
 
     form {
         input {
@@ -680,6 +705,7 @@ form {
                 padding: 0em !important;
                 background: var(--blackGlass);
                 flex-direction: row !important;
+                justify-content: space-between;
                 transition: filter var(--transition);
 
                 /* Neumorphic Inner shadow */

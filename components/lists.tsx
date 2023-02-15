@@ -88,42 +88,24 @@ export default function Lists(props) {
 
     const { lists, setLists, alertOpen, setAlertOpen, loading, setLoading, systemStatus, setSystemStatus, setAnimComplete } = useContext<any>(StateContext);
 
-    const reorder = async (items, startIndex, endIndex, list, lists, setLists) => {
-        setLoading(true);
-        setSystemStatus(`Rearranging Items.`);
-        const result = Array.from(items);
-        const [removed] = result.splice(startIndex, 1);
-        result.splice(endIndex, 0, removed);
-        let updatedLists = lists.map((lis: List) => {
-          if (lis.id == list.id) {
-              return {...list, items: result};
-          } else {
-              return lis;
-          }
-        });
-        localStorage.setItem(`lists`, JSON.stringify(updatedLists));
-        await setLists(updatedLists);
-        setSystemStatus(`Rearranged Item.`);
-        setTimeout(() => setLoading(false), 1500);
-        setTimeout(() => setAnimComplete(true), 3500);
-        return result;
-    };
-
     const createList = async (e: any, lists: List[]) => {
         e.preventDefault();
         setLoading(true);
         setSystemStatus(`Creating List.`);
+        let newListID = `list-${lists.length + 1}`;
         let formFields = e.target.children;
         let newList: List = {
-            id: `list-${lists.length + 1}`,
+            id: newListID,
             created: formatDate(new Date()),
             name: formFields[0].value,
             items: [ ]
         };
-        let updatedLists: List[] = [newList, ...lists];
+        let updatedLists: List[] = [...lists, newList];
         localStorage.setItem(`lists`, JSON.stringify(updatedLists));
         await setLists(updatedLists);
         e.target.reset();
+        let newListForm: any = document.querySelector(`#${newListID} form input`);
+        newListForm.focus();
         setSystemStatus(`Created List ${newList.name}.`);
         setTimeout(() => setLoading(false), 1500);
         // setTimeout(() => setAnimComplete(true), 3500);
@@ -288,13 +270,13 @@ export default function Lists(props) {
             </div>
         </div>
     </div>
-    <section className={`lists`} id={`lists`}>
+    <section className={`lists ${lists.length == 1 ? `oneList` : `multiList`}`} id={`lists`}>
         {lists.map((list, index) => {
             return <DragDropContext onDragEnd={(e) => onDragEnd(e, list)}>
-            <Droppable droppableId="droppable">
+            <Droppable id={list.id} droppableId="droppable">
               {(provided, snapshot) => (
                 <div
-                  id={props.id}
+                  id={list.id}
                   ref={provided.innerRef}
                   {...provided.droppableProps}
                   className={`list items ${props.className}`}
@@ -315,16 +297,17 @@ export default function Lists(props) {
                       <Draggable key={item.id} draggableId={item.id} index={index}>
                           {(provided, snapshot) => (
                           <div
-                              onClick={(e) => setItemComplete(e, item, list)}
-                              className={`item ${item.complete ? `complete` : ``}`}
-                              ref={provided.innerRef}
-                              id={`item-${index + 1}`}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              style={getItemStyle(
-                              snapshot.isDragging,
-                              provided.draggableProps.style
-                              )}
+                            className={`item ${item.complete ? `complete` : ``}`}
+                            onClick={(e) => setItemComplete(e, item, list)}
+                            {...provided.dragHandleProps}
+                            {...provided.draggableProps}
+                            id={`item-${index + 1}`}
+                            ref={provided.innerRef}
+                            title={item.content}
+                            style={getItemStyle(
+                                snapshot.isDragging,
+                                provided.draggableProps.style
+                            )}
                           >
                               <span className="itemOrder">
                                   <i className="itemIndex">{index + 1}</i>
