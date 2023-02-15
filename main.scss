@@ -862,6 +862,9 @@ form {
     }
     &:hover {
         filter: invert(1);
+        .itemLength {
+            filter: invert(1) !important;
+        }
         // background: white !important;
         // color: black !important;
     }
