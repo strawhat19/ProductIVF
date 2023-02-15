@@ -93,29 +93,9 @@ export const getCurrentPageName = () => {
   };
   
   export const defaultLists = [
-    {id: 1, name: `ProductIVF`, itemName: `Ticket`, items: [
-      {id: `item-1`, content: `Draggable Lists`, complete: false},
-      {id: `item-2`, content: `Complete Item in List`, complete: false},
-      {id: `item-3`, content: `Icon in Tab`, complete: false},
-      {id: `item-4`, content: `Update Lists on Reorder`, complete: false},
-      {id: `item-5`, content: `Corner Draggable`, complete: false},
-      {id: `item-6`, content: `Create List`, complete: false},
-      {id: `item-7`, content: `localStorage if Signed Out`, complete: false},
-      {id: `item-8`, content: `Switch to User`, complete: false},
-      {id: `item-9`, content: `Save User List if Signed In`, complete: false},
-      {id: `item-10`,  content: `Mobile Responsiveness`, complete: false},
-    ]},
-    {id: 2, name: `Tasks`, itemName: `Task`, items: [
-      {id: `item-1`, content: `task 1`, complete: false}, 
-      {id: `item-2`, content: `task 2`, complete: true}, 
-      {id: `item-3`, content: `task 3`, complete: false}
-    ]},
-    {id: 3, name: `One Piece Strongest 2023`, itemName: `Character`, items: [
-      {id: `item-1`, content: `Imu`, complete: false},
-      {id: `item-2`, content: `Shanks`, complete: false},
-      {id: `item-3`, content: `Dragon`, complete: false},
-      {id: `item-4`, content: `Kaido`, complete: false},
-      {id: `item-5`, content: `Mihawk`, complete: false},
+    {id: `list-1`, name: `ProductIVF Features`, created: formatDate(new Date()), items: [
+      {id: `item-1`, content: `Corner Draggable`, complete: false, created: formatDate(new Date())},
+      {id: `item-2`, content: `Switch to User`, complete: false, created: formatDate(new Date())},
     ]},
   ];
 

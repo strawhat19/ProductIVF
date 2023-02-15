@@ -573,7 +573,7 @@ form {
 .addListFormItem {
     grid-gap: 1em;
     display: flex;
-    flex-direction: column;
+    // flex-direction: column;
     .addListFormItemSection {
         padding: 0;
         max-width: 100%;
@@ -801,11 +801,14 @@ form {
 
 .itemButtons {
     display: flex;
-    max-width: fit-content;
-    flex-direction: row !important;
     grid-gap: 7px;
+    padding-right: 7px;    
     justify-content: flex-end;
-    padding-right: 7px;
+    flex-direction: row !important;
+
+    &:not(.unset) {
+        max-width: fit-content;
+    }
 
     button {
         padding: 0px 10px !important;
@@ -818,6 +821,7 @@ form {
         color: black !important;
         width: min-content;
         min-height: 33px;
+        grid-gap: 8px;
 
         i {
             max-width: fit-content;

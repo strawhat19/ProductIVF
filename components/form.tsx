@@ -2,7 +2,7 @@
 import { db } from '../firebase';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { collection, doc, getDocs, setDoc } from 'firebase/firestore';
-import { defaultContent, defaultLists, formatDate, capitalizeAllWords, createXML, StateContext } from '../pages/_app';
+import { defaultContent, formatDate, capitalizeAllWords, createXML, StateContext } from '../pages/_app';
 
 export const convertHexToRGB = (HexString?:any, returnObject?: any) => {
   let r = parseInt(HexString.slice(1, 3), 16),

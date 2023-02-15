@@ -19,13 +19,12 @@ const config: DocsThemeConfig = {
   },
   feedback: {
     // content: null,
-    // content: <>form</>,
+    content: `Report a Bug  →`,
   },
   editLink: {
-    
     // text: null,
     // text: `Quote goes here`,
-    // component: <>to</> as any,
+    component: <a className={`hoverLink`} style={{fontSize: 12}} href={`https://github.com/strawhat19/ProductIVF`} target={`_blank`}>Github  →</a> as any,
   },
   // sidebar: {
   //   titleComponent: <Form />
