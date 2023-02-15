@@ -204,10 +204,12 @@ nav {
     &:not(.extended) {
         max-width: 60%;
     }
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-    margin: 0;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    display: inline-block;
 }
 
 html[class~=dark] .dark\:nx-bg-dark {
@@ -253,7 +255,8 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
     }
 }
 
-@media (min-width: 1600px) {
+// @media (min-width: 1600px) {
+@media (min-width: 1420px) {
    .multiList {
     .itemName {
         max-width: 220px;
@@ -261,9 +264,23 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
    }
 }
 
-@media (max-width: 1600px) {
+// @media (max-width: 1600px) {
+@media (max-width: 1420px) {
   .lists {
     grid-template-columns: 1fr !important;
+    .itemName {
+        width: 100% !important;
+        grid-gap: 10px !important;
+        justify-content: flex-start;
+        .status {
+            // @extend .textOverflow;
+            overflow: hidden;
+            display: inline-block;
+            width: 40px !important;
+            text-overflow: ellipsis;
+            max-width: 25px !important;
+        }
+    }
   }
 }
 
@@ -580,6 +597,8 @@ form {
 }
 
 .addItemForm {
+    padding: 0 !important;
+    width: 100% !important;
     .submit {
         border: 0 !important;
         &:hover {
@@ -596,11 +615,12 @@ form {
         padding: 0;
         max-width: 100%;
         .addListForm {
-            width: 100%;
             // display: grid;
             overflow: hidden;
             // display: flex;
             align-items: center;
+            padding: 0 !important;
+            width: 100% !important;
             // flex-direction: row;
             max-width: 100% !important;
             border-radius: 4px !important;
@@ -779,13 +799,17 @@ form {
 
                 .itemDate {
                     font-size: 11px;
-                    text-align: right;
                     padding-right: 0;
+                    text-align: right;
                     overflow: visible;
                     max-width: fit-content;
+                    * {
+                        max-width: fit-content;
+                    }
                 }
 
                 .itemName {
+                    grid-gap: 0 !important;
                     text-transform: capitalize;
                     font-weight: 500 !important;
                     transition: var(--transition);

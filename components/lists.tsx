@@ -220,6 +220,7 @@ export default function Lists(props) {
 
     const onDragEnd = (result, list) => {
         setLoading(true);
+        console.log(`Drag`, result);
         setSystemStatus(`Rearranging Items.`);
         // if item dropped outside the list
         if (!result.destination) {
@@ -241,7 +242,11 @@ export default function Lists(props) {
         })
         let updatedLists = lists.map((lis: List) => {
           if (lis.id == list.id) {
-              return {...list, items: updatedItemsWithDates, updated: formatDate(new Date())};
+              return {
+                ...list, 
+                items: updatedItemsWithDates, 
+                updated: formatDate(new Date())
+            };
           } else {
               return lis;
           }
@@ -274,7 +279,7 @@ export default function Lists(props) {
     <section className={`lists ${lists.length == 1 ? `oneList` : `multiList`}`} id={`lists`}>
         {lists.map((list, index) => {
             return <DragDropContext onDragEnd={(e) => onDragEnd(e, list)}>
-            <Droppable id={list.id} droppableId="droppable">
+            <Droppable id={list.id} droppableId={list.id}>
               {(provided, snapshot) => (
                 <div
                   id={list.id}
@@ -287,7 +292,11 @@ export default function Lists(props) {
                       <div className="itemOrder listOrder" style={{maxWidth: `fit-content`}}>
                           <i style={{color: `var(--gameBlue)`, fontSize: 18, padding: `0 15px`, maxWidth: `fit-content`}} className="fas fa-list"></i>
                       </div>
-                      <h2 style={{position: `relative`}}><i className={`listName textOverflow extended`} style={{fontSize: 14, fontWeight: 500}}>{list.name}</i></h2>
+                      <h2 className={`nx-tracking-light`} id={list.id} style={{position: `relative`}}>
+                        <i className={`listName textOverflow extended`} style={{fontSize: 14, fontWeight: 500}}>
+                            {list.name}
+                        </i>
+                      </h2>
                       <div className="itemButtons customButtons">
                           {/* <button title={`Edit List`} className={`iconButton editButton`}><i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-edit"></i></button> */}
                           <button style={{pointerEvents: `all`}} onClick={(e) => deleteList(e, list)} title={`Delete List`} className={`iconButton deleteButton`}><i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-trash"></i><span className={`iconButtonText textOverflow extended`}>Delete {list.items.length > 0 && <><span className={`itemLength`} style={{fontSize: 14, fontWeight: 700, padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content`}}>{list.items.length}</span>Item(s)</>}</span></button>
@@ -314,7 +323,17 @@ export default function Lists(props) {
                                   <i className="itemIndex">{index + 1}</i>
                               </span>
                               <span className="itemName textOverflow extended">{item.content}</span>
-                              {item.created && !item.updated ? <span className="itemName itemDate itemCreated textOverflow extended">Created {formatDate(new Date(item.created))}</span> : item.updated ? <span className="itemName itemDate itemCreated itemUpdated textOverflow extended">Updated {formatDate(new Date(item.updated))}</span> : null}
+                              {item.created && !item.updated ? (
+                                <span className="itemDate itemName itemCreated textOverflow extended flex row">
+                                    <i className={`status`}>Created</i> 
+                                    <span className={`itemDateTime`}>{formatDate(new Date(item.created))}</span>
+                                </span>
+                              ) : item.updated ? (
+                                <span className="itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
+                                    <i className={`status`}>Updated</i> 
+                                    <span className={`itemDateTime`}>{formatDate(new Date(item.updated))}</span>
+                                </span>
+                              ) : null}
                               <div className="itemButtons customButtons">
                                   {/* <button title={`Edit Item`} className={`iconButton editButton`}><i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-edit"></i></button> */}
                                   <button onClick={(e) => deleteItem(e, item, list)} title={`Delete Item`} className={`iconButton deleteButton`}><i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-trash"></i></button>
