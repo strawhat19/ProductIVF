@@ -54,12 +54,6 @@
     --transition: 0.24s cubic-bezier(0.77, 0.2, 0.05, 1) !important;
 }
 
-.line {
-    &::before {
-        color: var(--softWhite) !important;
-    }
-}
-
 article {
     padding: 1em 0;
     main {
@@ -143,6 +137,12 @@ nav {
 }
 
 .dark {
+
+    .line {
+        &::before {
+            color: var(--softWhite) !important;
+        }
+    }
 
     .nx-sticky {
         &:not(.nx-top-0) {
