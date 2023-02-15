@@ -22,6 +22,7 @@ const config: DocsThemeConfig = {
     // content: <>form</>,
   },
   editLink: {
+    
     // text: null,
     // text: `Quote goes here`,
     // component: <>to</> as any,

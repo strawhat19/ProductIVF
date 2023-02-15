@@ -346,29 +346,29 @@ section {
 
 }
 
-// ::-webkit-scrollbar {
-//     position: relative;
-//     border-radius: 4px;
-//     width: 4px !important;
-//     background: black !important;
-// }
+::-webkit-scrollbar {
+    position: relative;
+    border-radius: 4px;
+    width: 4px !important;
+    background: black !important;
+}
 
-// ::-webkit-scrollbar-thumb {
-//     background: var(--gameBlue);
-//     border-radius: 4px;
-// }
+::-webkit-scrollbar-thumb {
+    background: var(--gameBlue);
+    border-radius: 4px;
+}
 
-// ::-webkit-scrollbar {
-//     position: relative;
-//     border-radius: 4px;
-//     width: 4px !important;
-//     background: var(--blackGlass) !important;
-// }
+::-webkit-scrollbar {
+    position: relative;
+    border-radius: 4px;
+    width: 4px !important;
+    background: var(--blackGlass) !important;
+}
 
-// ::-webkit-scrollbar-thumb {
-//     background: var(--softWhite);
-//     border-radius: 4px;
-// }
+::-webkit-scrollbar-thumb {
+    background: var(--softWhite);
+    border-radius: 4px;
+}
 
 .nextra-search {
     input {
@@ -863,28 +863,6 @@ form {
     }
 }
 
-// .emphasis {
-//     color: var(--gameBlue);
-//     margin: 0 0.3em;
-//     font-size: 1.1em;
-//     font-weight: 700;
-//     font-style: italic;
-
-//     &.white {
-//         color: white !important;
-//     }
-
-//     // -webkit-text-stroke-width: 1px; 
-//     // -webkit-text-stroke-color: var(--gameBlue); 
-// }
-
-// .sectionImage {
-//     width: 100%;
-//     height: auto;
-//     margin: 1em 0;
-//     max-height: 350px;
-// }
-
 footer {
     height: 40px;
     display: flex;
@@ -950,18 +928,6 @@ footer {
     }
 }
 
-// @keyframes fadeIn {
-//     0% {
-//         opacity: 0;
-//         pointer-events: none;
-//     }
-
-//     100% {
-//         opacity: 1;
-//         pointer-events: all;
-//     }
-// }
-
 @keyframes spin {
     0% {
         transform: rotate(0);
@@ -971,112 +937,6 @@ footer {
         transform: rotate(360deg);
     }
 }
-
-// @media (prefers-color-scheme: dark) {
-//     html {
-//         color-scheme: dark;
-//     }
-// }
-
-// #scroll-text {
-
-//     width: 235%;
-//     // overflow: hidden;
-//     text-overflow: clip;
-//     white-space: nowrap;
-
-//     /* animation properties */
-//     transform: translateX(100%);
-//     -moz-transform: translateX(100%);
-//     -webkit-transform: translateX(100%);
-//     animation: my-animation 20s linear infinite;
-//     -moz-animation: my-animation 20s linear infinite;
-//     -webkit-animation: my-animation 20s linear infinite;
-
-//     /* for Firefox */
-//     @-moz-keyframes my-animation {
-//         from {
-//             -moz-transform: translateX(100%);
-//         }
-
-//         to {
-//             -moz-transform: translateX(-100%);
-//         }
-//     }
-
-//     /* for Chrome */
-//     @-webkit-keyframes my-animation {
-//         from {
-//             -webkit-transform: translateX(100%);
-//         }
-
-//         to {
-//             -webkit-transform: translateX(-100%);
-//         }
-//     }
-// }
-
-// @keyframes my-animation {
-//     from {
-//         -moz-transform: translateX(100%);
-//         -webkit-transform: translateX(100%);
-//         transform: translateX(100%);
-//     }
-
-//     to {
-//         -moz-transform: translateX(-100%);
-//         -webkit-transform: translateX(-100%);
-//         transform: translateX(-100%);
-//     }
-// }
-
-// @media (max-width: 697px) {
-//     header {
-//         height: 150px;
-//     }
-
-//     body {
-//         font-size: 28px;
-//     }
-
-//     main {
-//         padding: 1em 0;
-//     }
-
-//     #openMenuToggler span {
-//         height: 5px;
-//     }
-
-//     button,
-//     input[type="submit"] {
-//         font-size: 0.85em;
-//     }
-// }
-
-// /* Show Scores */
-// #scoresHover {
-//     position: absolute;
-//     top: 45px;
-//     left: 0;
-//     opacity: 0;
-//     width: 450%;
-//     border-radius: 10px;
-//     padding: 2em;
-//     background: var(--blackGlass);
-//     backdrop-filter: blur(8px);
-//     text-align: left;
-//     transform-origin: top;
-//     transform: scale(1, 0);
-//     display: flex;
-//     flex-direction: column;
-//     grid-gap: 1em;
-//     transition: 300ms ease-in-out;
-// }
-
-// .showScoresLink:hover #scoresHover {
-//     transform: scale(1, 1);
-//     opacity: 1;
-// }
 
 .listTitleButton {
     &:hover {
@@ -1110,6 +970,18 @@ footer {
         pointer-events: none;
     }
 }
+
+// @keyframes fadeIn {
+//     0% {
+//         opacity: 0;
+//         pointer-events: none;
+//     }
+
+//     100% {
+//         opacity: 1;
+//         pointer-events: all;
+//     }
+// }
 
 // .fadeInOut {
 //     animation: fadeInOut 3500ms ease-in-out infinite;
