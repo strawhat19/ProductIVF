@@ -344,7 +344,7 @@ export default function Lists(props) {
                       ))}
                   </div>
                   <form title={`Add Item`} id={`listForm${list.id}`} className={`flex addItemForm itemButtons unset`} style={{width: `100%`, flexDirection: `row`}} onSubmit={(e) => createItem(e, list)}>
-                      <input maxLength={14} placeholder={`Name of Item`} type="text" name="createItem" required />
+                      <input placeholder={`Name of Item`} type="text" name="createItem" required />
                       <button type={`submit`} title={`Create List`} className={`iconButton createList`}><i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-plus"></i><span className={`iconButtonText textOverflow extended`}><span style={{fontSize: 12}}>Add Item</span><span className={`itemLength`} style={{fontSize: 14, fontWeight: 700, padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content`}}>{list.items.length + 1}</span></span></button>
                       {/* <input style={{width: `35%`}} className={`save submit`} type="submit" value={`Add Item`} /> */}
                   </form>
