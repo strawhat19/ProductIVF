@@ -3,101 +3,141 @@ import { createContext, useRef, useState, useEffect } from 'react';
 
 export const StateContext = createContext({});
 
+export const dev = (item, source) => {
+  if (window.location.host.includes(`local`)) {
+    if (item) {
+      console.log(`Dev Log`, item);
+    } else if (item && source) {
+      console.log(`Dev Log`, item, `From`, source);
+    }
+    return true;
+  } else {
+    return false;
+  }
+}
+
 export const getCurrentPageName = () => {
-    return window.location.hash.slice(window.location.hash.lastIndexOf(`/`)).replace(`/`, ``);
-  };
-  
-  export const defaultContent = `Hey, I’m Rakib, a Software Engineer @ Mitsubishi Electric Trane HVAC US, or just Mitsubishi Electric for short. Along with my 7 years of experience as a developer, and owner of my own tech and digital media side business, Piratechs. This website is just for me to test out Next.js 13.`;
-  
-  export const getNumberFromString = (string) => {
-    let result = string.match(/\d+/);
-    let number = parseInt(result[0]);
-    return number;
+  return window.location.hash.slice(window.location.hash.lastIndexOf(`/`)).replace(`/`, ``);
+};
+
+export const defaultContent = `Hey, I’m Rakib, a Software Engineer @ Mitsubishi Electric Trane HVAC US, or just Mitsubishi Electric for short. Along with my 7 years of experience as a developer, and owner of my own tech and digital media side business, Piratechs. This website is just for me to test out Next.js 13.`;
+
+export const getNumberFromString = (string) => {
+  let result = string.match(/\d+/);
+  let number = parseInt(result[0]);
+  return number;
+}
+
+export const createXML = (xmlString) => {
+  let div = document.createElement('div');
+  div.innerHTML = xmlString.trim();
+  return div.firstChild;
+}
+
+export const capitalizeAllWords = (string) => {
+  if (string != null || string != undefined) {
+    return string.replace(`  `,` `).split(` `).map((word) => word?.charAt(0)?.toUpperCase() + word?.slice(1).toLowerCase()).join();
   }
-  
-  export const createXML = (xmlString) => {
-    let div = document.createElement('div');
-    div.innerHTML = xmlString.trim();
-    return div.firstChild;
+};
+
+export const cutOffTextAndReplace = (string, end, replacement) => {
+  if (!replacement) {
+    replacement = `...` || `-`;
   }
-  
-  export const capitalizeAllWords = (string) => {
-    if (string != null || string != undefined) {
-      return string.replace(`  `,` `).split(` `).map((word) => word?.charAt(0)?.toUpperCase() + word?.slice(1).toLowerCase()).join();
-    }
-  };
-  
-  export const cutOffTextAndReplace = (string, end, replacement) => {
-    if (!replacement) {
-      replacement = `...` || `-`;
-    }
-    return string?.length > end ? string?.substring(0, end - 1) + replacement : string;
-  };
-  
-  export const removeDuplicateObjectFromArray = (arrayOfObjects) => {
-    const uniqueArray = arrayOfObjects?.filter((value, index) => {
-      const _value = JSON.stringify(value);
-      return index === arrayOfObjects?.findIndex((obj) => {
-          return JSON.stringify(obj) === _value;
-      });
+  return string?.length > end ? string?.substring(0, end - 1) + replacement : string;
+};
+
+export const removeDuplicateObjectFromArray = (arrayOfObjects) => {
+  const uniqueArray = arrayOfObjects?.filter((value, index) => {
+    const _value = JSON.stringify(value);
+    return index === arrayOfObjects?.findIndex((obj) => {
+        return JSON.stringify(obj) === _value;
     });
-    return uniqueArray;
-  };
-  
-  export const getFormValuesFromFields = (formFields) => {
-    for (let i = 0; i < formFields.length; i++) {
-      let field = formFields[i];
-      if (field.type != `submit`) {
-        console.log(field.type, field.value);
-      };
+  });
+  return uniqueArray;
+};
+
+export const getFormValuesFromFields = (formFields) => {
+  for (let i = 0; i < formFields.length; i++) {
+    let field = formFields[i];
+    if (field.type != `submit`) {
+      console.log(field.type, field.value);
+    };
+  }
+};
+
+export const generateUniqueID = (existingIDs) => {
+  let newID = Math.random().toString(36).substr(2, 9);
+  if (existingIDs && existingIDs.length > 0) {
+    while (existingIDs.includes(newID)) {
+      newID = Math.random().toString(36).substr(2, 9);
     }
+  }
+  return newID;
+};
+
+export const updateOrAdd = (obj, arr) => {
+  let index = arr.findIndex((item) => item.name === obj.name);
+  if (index !== -1) {
+    arr[index] = obj;
+  } else {
+    arr.push(obj);
+  }
+  return arr;
+};
+
+export const formatDate = (date, specificPortion) => {
+  let hours = date.getHours();
+  let minutes = date.getMinutes();
+  let ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12;
+  hours = hours ? hours : 12; // the hour '0' should be '12'
+  minutes = minutes < 10 ? '0' + minutes : minutes;
+  let strTime = hours + ':' + minutes + ' ' + ampm;
+  let completedDate = strTime + ` ` + (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
+  if (specificPortion == `time`) {
+    completedDate = strTime;
+  } else if (specificPortion == `date`) {
+    completedDate = (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
+  } else {
+    completedDate = strTime + ` ` + (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
+  }
+  return completedDate;
+};
+
+export const defaultLists = [
+  {id: `list-1`, name: `ProductIVF Features`, created: formatDate(new Date()), items: [
+    {id: `item-1`, content: `Corner Draggable`, complete: false, created: formatDate(new Date())},
+    {id: `item-2`, content: `Switch to User`, complete: false, created: formatDate(new Date())},
+  ]},
+];
+
+export const showAlert = async (alertTitle, alertMessage, additionalInfo) => {
+  if (alertOpen) return;
+  setAlertOpen(true);
+  let alertDialog = document.createElement(`div`);
+  alertDialog.className = `alert`;
+  if ((!alertMessage && !additionalInfo) || (additionalInfo && additionalInfo?.length == 0)) alertDialog.classList.add(`slim`);
+  alertDialog.innerHTML = `<h3>${alertTitle}</h3>
+      ${alertMessage ? additionalInfo ? `` : alertMessage : ``}
+  `;
+  if (additionalInfo?.length > 0) {
+  additionalInfo?.forEach((info, index) => {
+      let element = createXML(`<p>${index+1}. ${alertMessage} ${info}</p>`);
+      alertDialog.append(element);
+  });
+  }
+  document.body.appendChild(alertDialog);
+  let closeButton = document.createElement(`button`);
+  closeButton.classList.add(`iconButton`);
+  closeButton.classList.add(`alertButton`);
+  closeButton.innerHTML = `X`;
+  closeButton.onclick = () => {
+  document.body.removeChild(alertDialog);
+  setAlertOpen(false);
   };
-  
-  export const generateUniqueID = (existingIDs) => {
-    let newID = Math.random().toString(36).substr(2, 9);
-    if (existingIDs && existingIDs.length > 0) {
-      while (existingIDs.includes(newID)) {
-        newID = Math.random().toString(36).substr(2, 9);
-      }
-    }
-    return newID;
-  };
-  
-  export const updateOrAdd = (obj, arr) => {
-    let index = arr.findIndex((item) => item.name === obj.name);
-    if (index !== -1) {
-      arr[index] = obj;
-    } else {
-      arr.push(obj);
-    }
-    return arr;
-  };
-  
-  export const formatDate = (date, specificPortion) => {
-    let hours = date.getHours();
-    let minutes = date.getMinutes();
-    let ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12;
-    hours = hours ? hours : 12; // the hour '0' should be '12'
-    minutes = minutes < 10 ? '0' + minutes : minutes;
-    let strTime = hours + ':' + minutes + ' ' + ampm;
-    let completedDate = strTime + ` ` + (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
-    if (specificPortion == `time`) {
-      completedDate = strTime;
-    } else if (specificPortion == `date`) {
-      completedDate = (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
-    } else {
-      completedDate = strTime + ` ` + (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
-    }
-    return completedDate;
-  };
-  
-  export const defaultLists = [
-    {id: `list-1`, name: `ProductIVF Features`, created: formatDate(new Date()), items: [
-      {id: `item-1`, content: `Corner Draggable`, complete: false, created: formatDate(new Date())},
-      {id: `item-2`, content: `Switch to User`, complete: false, created: formatDate(new Date())},
-    ]},
-  ];
+  alertDialog.appendChild(closeButton);
+}
 
 export default function MyApp({ Component, pageProps }) {
     let loaded = useRef(false);

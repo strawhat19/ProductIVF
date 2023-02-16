@@ -107,7 +107,7 @@ export default function Lists(props) {
         e.target.reset();
         let newListForm: any = document.querySelector(`#${newListID} form input`);
         newListForm.focus();
-        setSystemStatus(`Created List ${newList.name}.`);
+        setSystemStatus(`Created List #${lists.length + 1} ${newList.name}.`);
         setTimeout(() => setLoading(false), 1500);
         // setTimeout(() => setAnimComplete(true), 3500);
     }
@@ -135,13 +135,13 @@ export default function Lists(props) {
         localStorage.setItem(`lists`, JSON.stringify(updatedLists));
         await setLists(updatedLists);
         e.target.reset();
-        setSystemStatus(`Created Item.`);
+        setSystemStatus(`Created Item ${list.items.length + 1}.`);
         setTimeout(() => setLoading(false), 1500);
         // setTimeout(() => setAnimComplete(true), 3500);
         return listItems.scrollTop = listItems.scrollHeight;
     }
 
-    const deleteList = async (e: any, list: List) => {
+    const deleteList = async (e: any, list: List, index) => {
         e.preventDefault();
         let isButton = e.target.classList.contains(`iconButton`);
         if (isButton) {
@@ -150,12 +150,12 @@ export default function Lists(props) {
             let updatedLists = lists.filter((lis: List) => lis.id != list.id);
             localStorage.setItem(`lists`, JSON.stringify(updatedLists));
             await setLists(updatedLists);
-            setSystemStatus(`Deleted List ${list.name}.`);
+            setSystemStatus(`Deleted List #${index + 1} - ${list.name}.`);
             setTimeout(() => setLoading(false), 1500);
         }
     }
 
-    const deleteItem = async (e: any, item: Item, list: List) => {
+    const deleteItem = async (e: any, item: Item, list: List, lists: List[], index) => {
         e.preventDefault();
         let isButton = e.target.classList.contains(`iconButton`);
         if (isButton) {
@@ -164,7 +164,7 @@ export default function Lists(props) {
             let updatedItems: Item[] = [...list.items.filter(itm => itm.id != item.id)];
             let updatedLists = lists.map((lis: List, index) => {
                 if (lis.id == list.id) {
-                    setSystemStatus(`Deleted Item ${item.content}.`);
+                    setSystemStatus(`Deleted Item ${index + 1}.`);
                     return {...list, items: updatedItems, updated: formatDate(new Date())};
                 } else {
                     return lis;
@@ -176,45 +176,18 @@ export default function Lists(props) {
         }
     }
 
-    const setItemComplete = async (e: any, item: Item, list: List) => {
+    const setItemComplete = async (e: any, item: Item, list: List, index) => {
         let isButton = e.target.classList.contains(`iconButton`);
         if (!isButton) {
             setLoading(true);
-            setSystemStatus(`Marking Item as Complete.`);
+            setSystemStatus(`Marking Item ${index + 1} as Complete.`);
             list.items[list.items.indexOf(item)].complete = !list.items[list.items.indexOf(item)].complete;
             list.items[list.items.indexOf(item)].updated = formatDate(new Date());
             localStorage.setItem(`lists`, JSON.stringify(lists));
             await setLists(lists);
             setTimeout(() => setLoading(false), 1500);
-            setSystemStatus(`Marked Item as Complete.`);
+            setSystemStatus(`Marked Item ${index + 1} as Complete.`);
         }
-    }
-
-    const showAlert = async (alertTitle: any, alertMessage?: any, additionalInfo?:any) => {
-        if (alertOpen) return;
-        setAlertOpen(true);
-        let alertDialog = document.createElement(`div`);
-        alertDialog.className = `alert`;
-        if ((!alertMessage && !additionalInfo) || (additionalInfo && additionalInfo?.length == 0)) alertDialog.classList.add(`slim`);
-        alertDialog.innerHTML = `<h3>${alertTitle}</h3>
-        ${alertMessage ? additionalInfo ? `` : alertMessage : ``}
-        `;
-        if (additionalInfo?.length > 0) {
-        additionalInfo?.forEach((info: any, index: any) => {
-            let element: any = createXML(`<p>${index+1}. ${alertMessage} ${info}</p>`);
-            alertDialog.append(element);
-        });
-        }
-        document.body.appendChild(alertDialog);
-        let closeButton = document.createElement(`button`);
-        closeButton.classList.add(`iconButton`);
-        closeButton.classList.add(`alertButton`);
-        closeButton.innerHTML = `X`;
-        closeButton.onclick = () => {
-        document.body.removeChild(alertDialog);
-        setAlertOpen(false);
-        };
-        alertDialog.appendChild(closeButton);
     }
 
     const onDragEnd = (result, list) => {
@@ -277,8 +250,8 @@ export default function Lists(props) {
                 <h2 style={{fontWeight: 600, fontSize: 24, minWidth: `fit-content` }}>Create List {lists.length + 1}</h2>
                 <section className={`addListFormItemSection`} style={{margin: 0}}>
                     <form title={`Add List`} id={`addListForm`} className={`flex addListForm itemButtons`} style={{width: `100%`, flexDirection: `row`}} onSubmit={(e) => createList(e, lists)}>
-                        <input maxLength={15} placeholder={`Name of List`} type="text" name="createItem" required />
-                        {/* <input style={{borderRadius: `4px !important;`}} className={`save submit`} type="submit" value={`Add List`} /> */}
+                        <input maxLength={35} placeholder={`Name of List`} type="text" name="createItem" required />
+                        {/* <input style={{borderRadius: `4px !important`}} className={`save submit`} type="submit" value={`Add List`} /> */}
                         <button type={`submit`} title={`Create List`} className={`iconButton createList`}><i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-list"></i><span className={`iconButtonText textOverflow extended`}><span style={{fontSize: 12}}>Create List</span><span className={`itemLength`} style={{fontSize: 14, fontWeight: 700, padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content`}}>{lists.length + 1}</span></span></button>
                     </form>
                 </section>
@@ -287,7 +260,7 @@ export default function Lists(props) {
         </div>
     </div>
     <section ref={listsRef} className={`lists ${lists.length == 1 ? `oneList` : `multiList`}`} id={`lists`}>
-        {lists.map((list, index) => {
+        {lists.map((list, listIndex) => {
             return <DragDropContext key={list.id} onDragEnd={(e) => onDragEnd(e, list)}>
             <Droppable id={list.id} droppableId={list.id}>
               {(provided, snapshot) => (
@@ -302,14 +275,14 @@ export default function Lists(props) {
                       <div className="itemOrder listOrder" style={{maxWidth: `fit-content`}}>
                           <i style={{color: `var(--gameBlue)`, fontSize: 18, padding: `0 15px`, maxWidth: `fit-content`}} className="fas fa-list"></i>
                       </div>
-                      <h2 className={`nx-tracking-light`} id={list.id} style={{position: `relative`}}>
-                        <i className={`listName textOverflow extended`} style={{fontSize: 14, fontWeight: 500}}>
+                      <h3 className={`listNameRow nx-tracking-light`} id={list.id} style={{position: `relative`}}>
+                        <i className={`listName textOverflow extended`} style={{fontSize: 13, fontWeight: 600}}>
                             {list.name}
                         </i>
-                      </h2>
+                      </h3>
                       <div className="itemButtons customButtons">
                           {/* <button title={`Edit List`} className={`iconButton editButton`}><i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-edit"></i></button> */}
-                          <button style={{pointerEvents: `all`}} onClick={(e) => deleteList(e, list)} title={`Delete List`} className={`iconButton deleteButton`}><i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-trash"></i><span className={`iconButtonText textOverflow extended`}>Delete {list.items.length > 0 && <><span className={`itemLength`} style={{fontSize: 14, fontWeight: 700, padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content`}}>{list.items.length}</span>Item(s)</>}</span></button>
+                          <button style={{pointerEvents: `all`}} onClick={(e) => deleteList(e, list, listIndex)} title={`Delete List`} className={`iconButton deleteButton`}><i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-trash"></i><span className={`iconButtonText textOverflow extended`}>Delete {list.items.length > 0 && <><span className={`itemLength`} style={{fontSize: 14, fontWeight: 700, padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content`}}>{list.items.length}</span>Item(s)</>}</span></button>
                       </div>
                   </div>
                   <div className={`items listItems`}>
@@ -318,7 +291,7 @@ export default function Lists(props) {
                           {(provided, snapshot) => (
                           <div
                             className={`item ${item.complete ? `complete` : ``}`}
-                            onClick={(e) => setItemComplete(e, item, list)}
+                            onClick={(e) => setItemComplete(e, item, list, index)}
                             {...provided.dragHandleProps}
                             {...provided.draggableProps}
                             id={`item-${index + 1}`}
@@ -346,7 +319,7 @@ export default function Lists(props) {
                               ) : null}
                               <div className="itemButtons customButtons">
                                   {/* <button title={`Edit Item`} className={`iconButton editButton`}><i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-edit"></i></button> */}
-                                  <button onClick={(e) => deleteItem(e, item, list)} title={`Delete Item`} className={`iconButton deleteButton`}><i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-trash"></i></button>
+                                  <button onClick={(e) => deleteItem(e, item, list, lists, index)} title={`Delete Item`} className={`iconButton deleteButton`}><i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-trash"></i></button>
                               </div>
                           </div>
                           )}
