@@ -22,9 +22,9 @@ const config: DocsThemeConfig = {
     content: `Report a Bug  →`,
   },
   editLink: {
-    // text: null,
+    text: null,
     // text: `Quote goes here`,
-    component: <a className={`hoverLink`} style={{fontSize: 12}} href={`https://github.com/strawhat19/ProductIVF`} target={`_blank`}>Github  →</a> as any,
+    // component: <a className={`hoverLink`} style={{fontSize: 12}} href={`https://github.com/strawhat19/ProductIVF`} target={`_blank`}>Github  →</a> as any,
   },
   // sidebar: {
   //   titleComponent: <Form />

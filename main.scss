@@ -256,16 +256,29 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
 }
 
 // @media (min-width: 1600px) {
-@media (min-width: 1420px) {
+// @media (min-width: 1420px) {
+@media (min-width: 1365px) {
    .multiList {
     .itemName {
         max-width: 220px;
+    }
+    .itemDate {
+        min-width: 135px !important;
+        .status {
+            overflow: hidden;
+            text-align: left;
+            white-space: nowrap;
+            display: inline-block;
+            text-overflow: ellipsis;
+            max-width: 50px !important;
+        }
     }
    }
 }
 
 // @media (max-width: 1600px) {
-@media (max-width: 1420px) {
+// @media (max-width: 1420px) {
+@media (max-width: 1365px) {
   .lists {
     grid-template-columns: 1fr !important;
     .itemName {
@@ -274,11 +287,12 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
         justify-content: flex-start;
         .status {
             // @extend .textOverflow;
+            text-align: left;
             overflow: hidden;
             display: inline-block;
-            width: 40px !important;
+            width: 50px !important;
             text-overflow: ellipsis;
-            max-width: 25px !important;
+            max-width: 50px !important;
         }
     }
   }
@@ -699,8 +713,12 @@ form {
             display: grid;
             max-height: 400px;
             overflow-x: hidden;
-            overflow-y: overlay;;
+            overflow-y: overlay;
             width: 100% !important;
+
+            &.overflowingList {
+                padding: 0 10px 0 0;
+            }
 
             transition: var(--transition);
 
@@ -804,8 +822,7 @@ form {
                     font-weight: 500 !important;
                     transition: var(--transition);
                     &:not(.itemDate) {
-                        padding: 5px 0;
-                        max-width: 220px !important;
+                        padding: 10px 0;
                         white-space: normal !important;
                         word-wrap: break-word !important;
                     }
@@ -817,11 +834,16 @@ form {
                     text-align: right;
                     overflow: visible;
                     // max-width: fit-content;
-                    grid-gap: 5px !important;
-                    max-width: 150px !important;
+                    grid-gap: 10px !important;
+                    max-width: 157px !important;
+                    justify-content: space-between;
                     * {
                         max-width: fit-content;
                     }
+                }
+
+                .itemButtons {
+                    padding: 6px;
                 }
 
                 &.complete {
@@ -836,9 +858,11 @@ form {
 
                     .itemName {
                         // min-width: 215px !important;
+                       &:not(.itemDate) {
                         text-decoration-thickness: 0;
                         text-decoration: line-through;
                         text-decoration-color: black;
+                       }
                     }
 
                     .itemButtons {
@@ -855,7 +879,7 @@ form {
 }
 
 .itemButtons {
-    height: 75%;
+    height: 100%;
     display: flex;
     grid-gap: 7px;
     padding-right: 7px;    

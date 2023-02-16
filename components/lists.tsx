@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import { StateContext, createXML, formatDate } from '../pages/_app';
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
@@ -86,6 +86,7 @@ const getListStyle = isDraggingOver => ({
 
 export default function Lists(props) {
 
+    let listsRef = useRef<any>(null);
     const { lists, setLists, alertOpen, setAlertOpen, loading, setLoading, systemStatus, setSystemStatus, setAnimComplete } = useContext<any>(StateContext);
 
     const createList = async (e: any, lists: List[]) => {
@@ -182,10 +183,8 @@ export default function Lists(props) {
             setSystemStatus(`Marking Item as Complete.`);
             list.items[list.items.indexOf(item)].complete = !list.items[list.items.indexOf(item)].complete;
             list.items[list.items.indexOf(item)].updated = formatDate(new Date());
-            let filteredLists: List[] = lists.filter((lis: any) => lis.id != list.id);
-            let updatedLists: List[] = [...filteredLists, list];
-            localStorage.setItem(`lists`, JSON.stringify(updatedLists));
-            await setLists(updatedLists);
+            localStorage.setItem(`lists`, JSON.stringify(lists));
+            await setLists(lists);
             setTimeout(() => setLoading(false), 1500);
             setSystemStatus(`Marked Item as Complete.`);
         }
@@ -259,9 +258,20 @@ export default function Lists(props) {
         return result;
     };
 
+    useEffect(() => {
+        if (listsRef.current.children.length > 0) {
+            let listItems = listsRef.current.querySelectorAll(`.listItems`);
+            listItems.forEach(listOfItems => {
+                if (listOfItems.scrollHeight > listOfItems.clientHeight) {
+                    listOfItems.classList.add(`overflowingList`);
+                }
+            })
+        }
+    }, [lists])
+
     return <>
     <div className="createList lists extended">
-        <div id={props.id} className={`list items ${props.className}`}>
+        <div id={props.id} className={`list items addListDiv`}>
             <div className="items">
                 <div className="addListFormItem">
                 <h2 style={{fontWeight: 600, fontSize: 24, minWidth: `fit-content` }}>Create List {lists.length + 1}</h2>
@@ -276,19 +286,19 @@ export default function Lists(props) {
             </div>
         </div>
     </div>
-    <section className={`lists ${lists.length == 1 ? `oneList` : `multiList`}`} id={`lists`}>
+    <section ref={listsRef} className={`lists ${lists.length == 1 ? `oneList` : `multiList`}`} id={`lists`}>
         {lists.map((list, index) => {
-            return <DragDropContext onDragEnd={(e) => onDragEnd(e, list)}>
+            return <DragDropContext key={list.id} onDragEnd={(e) => onDragEnd(e, list)}>
             <Droppable id={list.id} droppableId={list.id}>
               {(provided, snapshot) => (
                 <div
                   id={list.id}
                   ref={provided.innerRef}
                   {...provided.droppableProps}
-                  className={`list items ${props.className}`}
+                  className={`list items draggableDiv`}
                   style={getListStyle(snapshot.isDraggingOver)}
                 >
-                  <button style={{pointerEvents: `none`, position: `relative`}} id={`manage${list.id}Button`} title={`Manage ${list.name}`}  className={`flex row iconButton item listTitleButton`}>
+                  <div style={{pointerEvents: `none`, position: `relative`}} id={`manage${list.id}Button`} title={`Manage ${list.name}`}  className={`flex row iconButton item listTitleButton`}>
                       <div className="itemOrder listOrder" style={{maxWidth: `fit-content`}}>
                           <i style={{color: `var(--gameBlue)`, fontSize: 18, padding: `0 15px`, maxWidth: `fit-content`}} className="fas fa-list"></i>
                       </div>
@@ -301,8 +311,8 @@ export default function Lists(props) {
                           {/* <button title={`Edit List`} className={`iconButton editButton`}><i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-edit"></i></button> */}
                           <button style={{pointerEvents: `all`}} onClick={(e) => deleteList(e, list)} title={`Delete List`} className={`iconButton deleteButton`}><i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-trash"></i><span className={`iconButtonText textOverflow extended`}>Delete {list.items.length > 0 && <><span className={`itemLength`} style={{fontSize: 14, fontWeight: 700, padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content`}}>{list.items.length}</span>Item(s)</>}</span></button>
                       </div>
-                  </button>
-                  <div className="items">
+                  </div>
+                  <div className={`items listItems`}>
                       {list.items.map((item, index) => (
                       <Draggable key={item.id} draggableId={item.id} index={index}>
                           {(provided, snapshot) => (
