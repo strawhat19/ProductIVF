@@ -104,7 +104,7 @@ export const getListStyle = isDraggingOver => ({
 export default function Lists(props) {
 
     let listsRef = useRef<any>(null);
-    const { lists, setLists, alertOpen, setAlertOpen, loading, setLoading, systemStatus, setSystemStatus, setAnimComplete, setPage, IDs, setIDs } = useContext<any>(StateContext);
+    const { lists, setLists, devEnv, alertOpen, setAlertOpen, loading, setLoading, systemStatus, setSystemStatus, setAnimComplete, setPage, IDs, setIDs } = useContext<any>(StateContext);
 
     const createList = async (e: any, lists: List[]) => {
         e.preventDefault();
@@ -305,7 +305,7 @@ export default function Lists(props) {
     };
 
     return <>
-    {dev() && < Grid columns={lists} rows={rows} />}
+    {devEnv && < Grid columns={lists} rows={rows} />}
     <div className="createList lists extended">
         <div id={props.id} className={`list items addListDiv`}>
             <div className="formItems items">

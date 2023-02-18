@@ -40,6 +40,8 @@ const Grid = ({columns, rows}) => {
     const [columnDefs] = useState(columns.map(col => {
         return {
             ...col,
+            sortable: true,
+            filter: true,
             field: col.name
         }
     }));
@@ -49,7 +51,7 @@ const Grid = ({columns, rows}) => {
     // }, [lists])
 
     return (
-        <div className="ag-theme-alpine" style={{ background: `black`, color: `white`, width: `100%`, height: 400, padding: 15, margin: 15 }}>
+        <div className="ag-theme-alpine-dark" style={{ background: `black`, color: `white`, width: `100%`, height: 400, padding: 15, margin: 15 }}>
             <AgGridReact rowData={rowData} columnDefs={columnDefs}></AgGridReact>
         </div>
     );
