@@ -1,8 +1,25 @@
+// import $ from 'jquery';
 import { useContext, useEffect, useRef } from 'react';
+// import 'https://code.jquery.com/ui/1.12.1/jquery-ui.min.js';
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import { StateContext, formatDate, getPage, generateUniqueID } from '../pages/_app';
+import { StateContext, formatDate, getPage, generateUniqueID, dev } from '../pages/_app';
+import Grid from './grid';
+import Spreadsheet from './spread';
 
 declare global {
+
+    interface Cell {
+        value: string;
+    }
+
+    interface Row {
+        cells: Cell[];
+    }
+
+    interface SpreadsheetProps {
+        rows: Row[];
+    }
+
     interface User {
       color: any;
       id: string;
@@ -70,7 +87,7 @@ declare global {
 
 const grid = 10;
 
-const getItemStyle = (isDragging, draggableStyle) => ({
+export const getItemStyle = (isDragging, draggableStyle) => ({
   userSelect: "none",
   padding: grid * 2,
   margin: `0 0 ${grid}px 0`,
@@ -78,7 +95,7 @@ const getItemStyle = (isDragging, draggableStyle) => ({
   ...draggableStyle
 });
 
-const getListStyle = isDraggingOver => ({
+export const getListStyle = isDraggingOver => ({
   background: isDraggingOver ? "var(--gameBlue)" : "var(--gameBlueSoft)",
   padding: grid,
   width: 250
@@ -258,10 +275,37 @@ export default function Lists(props) {
         // localStorage.setItem(`backup lists`, JSON.stringify(lists));
 
         addPaddingForLists();
+
+        // ($(`.draggableDiv`) as any).sortable();
+        // $(`.draggableDiv`).each(function() {
+        //     let any: any = $(this);
+        //     any.sortable();
+        // })
     
     }, [lists])
 
+    const cell1: Cell = {
+        value: `item`
+    }
+
+    const cell2: Cell = {
+        value: `item2`
+    }
+
+    const row1: Row = {
+        cells: [cell2, cell1],
+    };
+
+    const row2: Row = {
+        cells: [cell1, cell2],
+    };
+
+    const rows: SpreadsheetProps = {
+        rows: [row1, row2]
+    };
+
     return <>
+    {dev() && < Grid columns={lists} rows={rows} />}
     <div className="createList lists extended">
         <div id={props.id} className={`list items addListDiv`}>
             <div className="formItems items">
