@@ -70,14 +70,15 @@ export const getFormValuesFromFields = (formFields) => {
   }
 };
 
-export const generateUniqueID = (existingIDs) => {
+export const generateUniqueID = (existingIDs, name) => {
   let newID = Math.random().toString(36).substr(2, 9);
   if (existingIDs && existingIDs.length > 0) {
     while (existingIDs.includes(newID)) {
       newID = Math.random().toString(36).substr(2, 9);
     }
   }
-  return newID;
+  if (name) return `${name}_${formatDate(new Date())}_${newID}`.replace(/\s+/g, `_`).replace(/[:/]/g, `_`);
+  return `${formatDate(new Date())}_${newID}`.replace(/\s+/g, `_`).replace(/[:/]/g, `_`);
 };
 
 export const updateOrAdd = (obj, arr) => {
@@ -89,6 +90,14 @@ export const updateOrAdd = (obj, arr) => {
   }
   return arr;
 };
+
+export const genUUIDNumbers = (existingIDs) => {
+  let newID;
+  do {
+    newID = Math.floor(Math.random() * 1000000); // generate a random integer between 0 and 999999
+  } while (existingIDs.includes(newID)); // keep generating a new ID until it's not already in the existing IDs array
+  return newID;
+}
 
 export const getRGBAColorFromHue = (hue, alpha) => {
   const saturation = 1;
@@ -136,7 +145,6 @@ export const getRGBAColorFromHue = (hue, alpha) => {
   return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
 }
 
-
 export const formatDate = (date, specificPortion) => {
   let hours = date.getHours();
   let minutes = date.getMinutes();
@@ -157,9 +165,9 @@ export const formatDate = (date, specificPortion) => {
 };
 
 export const defaultLists = [
-  {id: `list-1`, name: `ProductIVF Features`, created: formatDate(new Date()), items: [
-    {id: `item-1`, content: `Corner Draggable`, complete: false, created: formatDate(new Date())},
-    {id: `item-2`, content: `Switch to User`, complete: false, created: formatDate(new Date())},
+  {id: `list_1_9_21_PM_2_17_2023_69zscemwk`, name: `ProductIVF Features`, created: formatDate(new Date()), items: [
+    {id: `item_1_9_21_PM_2_17_2023_68yscemwk`, content: `Corner Draggable`, complete: false, created: formatDate(new Date())},
+    {id: `item_2_9_22_PM_2_17_2023_r2epommeu`, content: `Switch to User`, complete: false, created: formatDate(new Date())},
   ]},
 ];
 
@@ -193,6 +201,7 @@ export const showAlert = async (alertTitle, alertMessage, additionalInfo) => {
 export default function MyApp({ Component, pageProps }) {
     let loaded = useRef(false);
     let mobileMenuBreakPoint = 697;
+    let [IDs, setIDs] = useState([]);
     let [page, setPage] = useState(``);
     let [qotd, setQotd] = useState(``);
     let [width, setWidth] = useState(0);
@@ -249,7 +258,7 @@ export default function MyApp({ Component, pageProps }) {
         }
       }, [user, users, authState, dark])
 
-    return <StateContext.Provider value={{ updates, setUpdates, content, setContent, width, setWidth, user, setUser, page, setPage, mobileMenu, setMobileMenu, users, setUsers, authState, setAuthState, emailField, setEmailField, devEnv, setDevEnv, mobileMenuBreakPoint, platform, setPlatform, focus, setFocus, highScore, setHighScore, color, setColor, dark, setDark, colorPref, setColorPref, lists, setLists, showLeaders, setShowLeaders, items, setItems, qotd, setQotd, alertOpen, setAlertOpen, mobile, setMobile, systemStatus, setSystemStatus, loading, setLoading, anim, setAnimComplete }}>
+    return <StateContext.Provider value={{ updates, setUpdates, content, setContent, width, setWidth, user, setUser, page, setPage, mobileMenu, setMobileMenu, users, setUsers, authState, setAuthState, emailField, setEmailField, devEnv, setDevEnv, mobileMenuBreakPoint, platform, setPlatform, focus, setFocus, highScore, setHighScore, color, setColor, dark, setDark, colorPref, setColorPref, lists, setLists, showLeaders, setShowLeaders, items, setItems, qotd, setQotd, alertOpen, setAlertOpen, mobile, setMobile, systemStatus, setSystemStatus, loading, setLoading, anim, setAnimComplete, IDs, setIDs }}>
       <div className={`pageWrapContainer ${page}`}>
         <Component {...pageProps} />
       </div>

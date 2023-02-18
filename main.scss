@@ -246,6 +246,7 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
 .addForm {
     border-radius: 4px;
     position: relative;
+    max-height: 35px;
     input {
         padding: 10px 0px 10px 65px;
     }
@@ -267,12 +268,34 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
     }
 }
 
-@media (max-width: 435px) {
+.formItems {
+    height: 35px;
+    min-height: 35px;
+    max-height: 35px;
+    form {
+        &.addListForm {
+            &::before { 
+                font-size: 45px;
+            }
+        }
+        &::before {
+            top: 1px;
+            max-height: 33px;
+        }
+    }
+}
+
+@media (max-width: 437px) {
     .itemButtons {
         button {
             span {
                 display: none !important;
             }
+        }
+    }
+    .listNameRow {
+        &.longName {
+            max-width: 67% !important;
         }
     }
 }
@@ -291,6 +314,11 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
     .itemDate {
         display: none !important;
     }
+    .listNameRow {
+        &.longName {
+            max-width: 38% !important;
+        }
+    }
 }
 
 @media (max-width: 515px) {
@@ -305,6 +333,14 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
     .addListFormItem {
         h2 {
             display: none;
+        }
+    }
+}
+
+@media (max-width: 562px) {
+    .listNameRow {
+        &.longName {
+            max-width: 43%;
         }
     }
 }
@@ -336,7 +372,7 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
 
 // @media (min-width: 1600px) {
 // @media (min-width: 1420px) {
-@media (min-width: 1365px) {
+@media (min-width: 1367px) {
    .multiList {
     .itemName {
         max-width: 220px;
@@ -357,7 +393,7 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
 
 // @media (max-width: 1600px) {
 // @media (max-width: 1420px) {
-@media (max-width: 1365px) {
+@media (max-width: 1367px) {
   .lists {
     grid-template-columns: 1fr !important;
     .itemName {
@@ -375,6 +411,37 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
         }
     }
   }
+}
+
+@media (min-width: 1367px) and (max-width: 1400px) {
+    .multiList {
+        .itemDate {
+            justify-content: flex-end !important;
+            .status {
+                display: none !important;
+            }
+        }
+    }
+}
+
+@media (min-width: 1367px) and (max-width: 1460px) {
+    .multiList {
+        .listNameRow {
+            &.longName {
+                max-width: 40%;
+            }
+        }
+    }
+}
+
+@media (min-width: 1460px) and (max-width: 1560px) {
+    .multiList {
+        .listNameRow {
+            &.longName {
+                max-width: 48%;
+            }
+        }
+    }
 }
 
 footer {
@@ -516,7 +583,7 @@ form {
     height: 100% !important;
     input {
         font-size: 12px;
-        max-height: 34px;
+        max-height: 35px;
         font-weight: 400;
         // filter: invert(1);
         border-radius: 4px;
@@ -908,7 +975,7 @@ form {
                     overflow: visible;
                     // max-width: fit-content;
                     grid-gap: 10px !important;
-                    max-width: 157px !important;
+                    max-width: 160px !important;
                     justify-content: space-between;
                     * {
                         max-width: fit-content;
@@ -993,10 +1060,10 @@ form {
 
 .iconButton {
     flex-direction: row !important;
+    justify-content: space-between;
     background: var(--blackGlass);
     transition: var(--transition);
     font-weight: 700 !important;
-    justify-content: center;
     align-items: center;
     border-radius: 4px;
     font-size: 0.85em;
