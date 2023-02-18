@@ -55,9 +55,8 @@ const config: DocsThemeConfig = {
   <script defer src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script defer src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
   {/* <script defer>
-      $(`.draggableDiv`).each(function() {
-        let any = $(this);
-        any.sortable();
+      $(`.draggableDiv`).each(function(this) {
+        ($(this) as any).sortable()
       })
   </script> */}
   </>,

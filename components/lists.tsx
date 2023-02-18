@@ -1,4 +1,4 @@
-// import $ from 'jquery';
+import $ from 'jquery';
 import { useContext, useEffect, useRef } from 'react';
 // import 'https://code.jquery.com/ui/1.12.1/jquery-ui.min.js';
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
@@ -275,12 +275,6 @@ export default function Lists(props) {
         // localStorage.setItem(`backup lists`, JSON.stringify(lists));
 
         addPaddingForLists();
-
-        // ($(`.draggableDiv`) as any).sortable();
-        // $(`.draggableDiv`).each(function() {
-        //     let any: any = $(this);
-        //     any.sortable();
-        // })
     
     }, [lists])
 
@@ -432,5 +426,10 @@ export default function Lists(props) {
           </DragDropContext>
         })}
     </section>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <script>
+        $(`.draggableDiv`).sortable();
+    </script>
 </>
 }
