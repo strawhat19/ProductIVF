@@ -1,24 +1,9 @@
-import $ from 'jquery';
+import Board from './board';
 import { useContext, useEffect, useRef } from 'react';
-// import 'https://code.jquery.com/ui/1.12.1/jquery-ui.min.js';
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { StateContext, formatDate, getPage, generateUniqueID, dev } from '../pages/_app';
-import Grid from './grid';
-import Spreadsheet from './spread';
 
 declare global {
-
-    interface Cell {
-        value: string;
-    }
-
-    interface Row {
-        cells: Cell[];
-    }
-
-    interface SpreadsheetProps {
-        rows: Row[];
-    }
 
     interface User {
       color: any;
@@ -104,7 +89,7 @@ export const getListStyle = isDraggingOver => ({
 export default function Lists(props) {
 
     let listsRef = useRef<any>(null);
-    const { lists, setLists, devEnv, alertOpen, setAlertOpen, loading, setLoading, systemStatus, setSystemStatus, setAnimComplete, setPage, IDs, setIDs } = useContext<any>(StateContext);
+    const { lists, setLists, devEnv, setLoading, setSystemStatus, setPage, IDs, setIDs } = useContext<any>(StateContext);
 
     const createList = async (e: any, lists: List[]) => {
         e.preventDefault();
@@ -116,7 +101,7 @@ export default function Lists(props) {
             id: `${newListID}_${generateUniqueID(IDs)}`,
             created: formatDate(new Date()),
             name: formFields[0].value,
-            items: [ ]
+            items: []
         };
         let updatedLists: any[] = [...lists, newList];
         setIDs(IDs.concat(updatedLists.concat(...updatedLists.map(lis => lis.items)).map(object => object.id)));
@@ -278,28 +263,8 @@ export default function Lists(props) {
     
     }, [lists])
 
-    const cell1: Cell = {
-        value: `item`
-    }
-
-    const cell2: Cell = {
-        value: `item2`
-    }
-
-    const row1: Row = {
-        cells: [cell2, cell1],
-    };
-
-    const row2: Row = {
-        cells: [cell1, cell2],
-    };
-
-    const rows: SpreadsheetProps = {
-        rows: [row1, row2]
-    };
-
     return <>
-    {devEnv && < Grid columns={lists} rows={rows} />}
+    {devEnv && <Board />}
     <div className="createList lists extended">
         <div id={props.id} className={`list items addListDiv`}>
             <div className="formItems items">
@@ -426,10 +391,5 @@ export default function Lists(props) {
           </DragDropContext>
         })}
     </section>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
-    <script>
-        $(`.draggableDiv`).sortable();
-    </script>
 </>
 }
