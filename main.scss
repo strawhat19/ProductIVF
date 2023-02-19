@@ -1276,22 +1276,49 @@ footer {
 // }
 
 
-#board {
+.board {
     display: flex;
-    overflow-x: scroll;
+    &.overflowingBoard {
+        overflow-x: scroll;
+    }
     .column {
+        min-width: 25%;
+        min-height: 500px;
         position: relative;
         border-radius: 4px;
+        align-items: center;
         // width: 100% !important;
         padding: 1em !important;
         // min-width: 100% !important;
+        justify-content: space-between;
         background: var(--gameBlueSoft) !important;
         box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.2);
         box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1), 0px 0px 20px rgba(0, 0, 0, 0.05);
 
+        .columnTitle {
+            .itemButtons {
+                max-height: 33px;
+                button {
+                    max-height: 33px;
+                }
+            }
+        }
+
+        .items {
+            min-height: 400px;
+        }
+
         form {
             input {
-                min-width: 200px;
+                min-width: 140px;
+            }
+            &.addForm {
+                input {
+                    padding: 10px 0px 10px 45px; 
+                }
+                &::before {
+                    width: 35px;
+                }
             }
         }
     }

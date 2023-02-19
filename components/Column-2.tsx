@@ -41,7 +41,7 @@ function Column(props) {
                     flexDirection: `column`,
                     alignItems: `center`,
                     paddingBottom: 10, }} {...provided.draggableProps} ref={provided.innerRef}>
-                    <div {...provided.dragHandleProps} style={{ position: `relative` }} id={`name_of_${props.column.id}`} title={`${props.column.title}`} className={`flex row iconButton item listTitleButton`}>
+                    <div {...provided.dragHandleProps} style={{ position: `relative` }} id={`name_of_${props.column.id}`} title={`${props.column.title}`} className={`columnTitle flex row iconButton item listTitleButton`}>
                         <div className="itemOrder listOrder" style={{ maxWidth: `fit-content` }}>
                             <i style={{ color: `var(--gameBlue)`, fontSize: 18, padding: `0 15px`, maxWidth: `fit-content` }} className="fas fa-list"></i>
                         </div>
@@ -60,7 +60,7 @@ function Column(props) {
                     </div>
                     <Droppable droppableId={props.column.id} type="task">
                         {provided => (
-                            <div style={{ padding: 8 }} {...provided.droppableProps} ref={provided.innerRef}>
+                            <div className={`items`} style={{ padding: 8 }} {...provided.droppableProps} ref={provided.innerRef}>
                                 {
                                     props.tasks.map((task, index) =>
                                         (<Task key={task.id} task={task} index={index} columnId={props.column.id} state={props.state} setState={props.setState} />)

@@ -197,7 +197,7 @@ function Board(props) {
             <AddColumn state={state} setState={setState} />
             <Droppable droppableId="all-columns" direction="horizontal" type="column">
                 {provided => (
-                    <section id={`board`} className={`container`} {...provided.droppableProps} ref={provided.innerRef}>
+                    <section id={`board`} className={`board container ${state.columnOrder.length > 3 ? `overflowingBoard` : ``}`} {...provided.droppableProps} ref={provided.innerRef}>
                         {
                             state.columnOrder.map((columnId, index) => {
                                 const column = state.columns[columnId];

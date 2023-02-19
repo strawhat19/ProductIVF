@@ -60,7 +60,7 @@ function AddTask(props) {
                 <button type={`submit`} title={`Add Item`} className={`iconButton createList wordIconButton`}>
                     <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-plus"></i>
                     <span className={`iconButtonText textOverflow extended`}>
-                        <span style={{ fontSize: 12 }}>Add Item</span>
+                        <span style={{ fontSize: 12 }}>Add</span>
                         <span className={`itemLength index`} style={{ fontSize: 14, fontWeight: 700, padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content` }}>
                             {/* {list.items.length + 1} */}
                         </span>
