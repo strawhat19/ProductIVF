@@ -5,6 +5,18 @@ import { StateContext, formatDate, getPage, generateUniqueID, dev } from '../pag
 
 declare global {
 
+    interface Cell {
+        value: string;
+    }
+
+    interface Row {
+        cells: Cell[];
+    }
+
+    interface SpreadsheetProps {
+        rows: Row[];
+    }
+
     interface User {
       color: any;
       id: string;
