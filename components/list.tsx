@@ -13,7 +13,6 @@ function List(props) {
         setLoading(true);
         setSystemStatus(`Creating Item ${column.itemIds.length + 1}.`);
         let listItems = e.target.previousSibling;
-        console.log(listItems);
         let newItemID = `item_${column.itemIds.length + 1}`;
         let itemID = `${newItemID}_${generateUniqueID()}`;
         const newItemIds = Array.from(column.itemIds);
