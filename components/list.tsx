@@ -40,27 +40,39 @@ function List(props) {
         e.target.reset();
     }
 
-    const deleteItem = (columnId, index, itemId) => {
-        const column = props.state.columns[columnId];
-        const newItemIds = Array.from(column.itemIds);
-        newItemIds.splice(index, 1);
+    const deleteItem = (item, columnId, index, itemId) => {
+        if (item.complete) {
+            const column = props.state.columns[columnId];
+            const newItemIds = Array.from(column.itemIds);
+            newItemIds.splice(index, 1);
 
-        const items = props.state.items;
-        const { [itemId]: oldItem, ...newItems } = items;
+            const items = props.state.items;
+            const { [itemId]: oldItem, ...newItems } = items;
 
-        props.setState({
-            ...props.state,
-            items: {
-                ...newItems
-            },
-            columns: {
-                ...props.state.columns,
-                [columnId]: {
-                    ...column,
-                    itemIds: newItemIds
+            props.setState({
+                ...props.state,
+                items: {
+                    ...newItems
+                },
+                columns: {
+                    ...props.state.columns,
+                    [columnId]: {
+                        ...column,
+                        itemIds: newItemIds
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            
+            props.state.items[itemId].complete = true;
+
+            props.setState({
+                ...props.state,
+                items: {
+                    ...props.state.items
+                },
+            });
+        }
     }
 
     const deleteColumn = (columnId, index) => {
@@ -98,7 +110,7 @@ function List(props) {
             {(provided, snapshot) => (
                 <div id={props.column.id} className={`container column list ${snapshot.isDragging ? `dragging` : ``}`} {...provided.draggableProps} ref={provided.innerRef}>
                     <div {...provided.dragHandleProps} style={{ position: `relative` }} id={`name_of_${props.column.id}`} title={`${props.column.title}`} className={`columnTitle flex row iconButton item listTitleButton`}>
-                        <div onClick={(e) => showAlert(`Manage List`, `You can manage how you would like this list to function.`)} className="itemOrder listOrder" style={{ maxWidth: `fit-content` }}>
+                        <div className="itemOrder listOrder" style={{ maxWidth: `fit-content` }}>
                             <i style={{ color: `var(--gameBlue)`, fontSize: 15, padding: `0 9px`, maxWidth: `fit-content` }} className="fas fa-list"></i>
                         </div>
                         <h3 className={`listNameRow nx-tracking-light ${props.column.title.length > 25 ? `longName` : ``}`} id={`list_name_of_${props.column.id}`} style={{ position: `relative` }}>
@@ -117,44 +129,42 @@ function List(props) {
                     <Droppable droppableId={props.column.id} type="task">
                         {provided => (
                             <div id={`items_of_${props.column.id}`} className={`items listItems`} {...provided.droppableProps} ref={provided.innerRef}>
-                                {
-                                    props.items.map((item, index) =>
-                                        (<Draggable draggableId={item.id} index={index}>
-                                            {provided => (
-                                                <div className={`item ${item.complete ? `complete` : ``} container`} title={item.content} {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
-                                                    <span className="itemOrder">
-                                                        <i className="itemIndex">{index + 1}</i>
+                                {props.items.map((item, index) =>
+                                    (<Draggable key={item.id} draggableId={item.id} index={index}>
+                                        {provided => (
+                                            <div id={item.id} className={`item ${item.complete ? `complete` : ``} container`} title={item.content} {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
+                                                <span className="itemOrder">
+                                                    <i className="itemIndex">{index + 1}</i>
+                                                </span>
+                                                <div className="itemContent">
+                                                    <span className="itemName textOverflow extended">{item.content}</span>
+                                                    {/* {item.created && !item.updated ? (
+                                                    <span className="itemDate itemName itemCreated textOverflow extended flex row">
+                                                        <i className={`status`}>Created</i> 
+                                                        <span className={`itemDateTime`}>{formatDate(new Date(item.created))}</span>
                                                     </span>
-                                                    <div className="itemContent">
-                                                        <span className="itemName textOverflow extended">{item.content}</span>
-                                                        {item.created && !item.updated ? (
-                                                        <span className="itemDate itemName itemCreated textOverflow extended flex row">
-                                                            <i className={`status`}>Created</i> 
-                                                            <span className={`itemDateTime`}>{formatDate(new Date(item.created))}</span>
-                                                        </span>
-                                                        ) : item.updated ? (
-                                                        <span className="itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
-                                                            <i className={`status`}>Updated</i> 
-                                                            <span className={`itemDateTime`}>{formatDate(new Date(item.updated))}</span>
-                                                        </span>
-                                                        ) : null}
-                                                    </div>
-                                                    <div className="itemButtons customButtons">
-                                                        {/* <button title={`Edit Item`} className={`iconButton editButton`}><i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-edit"></i></button> */}
-                                                        <button id={`delete_${item.id}`} onClick={() => deleteItem(props.column.id, index, item.id)} title={`Delete Item`} className={`iconButton deleteButton wordIconButton`}>
-                                                            <i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-trash"></i>
-                                                         </button>
-                                                    </div>
+                                                    ) : item.updated ? (
+                                                    <span className="itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
+                                                        <i className={`status`}>Updated</i> 
+                                                        <span className={`itemDateTime`}>{formatDate(new Date(item.updated))}</span>
+                                                    </span>
+                                                    ) : null} */}
                                                 </div>
-                                            )}
-                                        </Draggable>)
-                                    )
-                                }
+                                                <div className="itemButtons customButtons">
+                                                    {/* <button title={`Edit Item`} className={`iconButton editButton`}><i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-edit"></i></button> */}
+                                                    <button id={`delete_${item.id}`} onClick={() => deleteItem(item, props.column.id, index, item.id)} title={`Delete Item`} className={`iconButton deleteButton wordIconButton`}>
+                                                        <i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-trash"></i>
+                                                        </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </Draggable>)
+                                )}
                                 {provided.placeholder}
                             </div>
                         )}
                     </Droppable>
-                    <form title={`Add Item`} id={`add_item_form_${props.columnId}`} className={`flex addItemForm itemButtons unset addForm`} style={{ width: `100%`, flexDirection: `row` }} onSubmit={(e) => addNewItem(e)}>
+                    <form title={`Add Item`} id={`add_item_form_${props.column.id}`} className={`flex addItemForm itemButtons unset addForm`} style={{ width: `100%`, flexDirection: `row` }} onSubmit={(e) => addNewItem(e)}>
                         <input placeholder={`Name of Item`} type="text" name="createItem" required />
                         <button type={`submit`} title={`Add Item`} className={`iconButton createList wordIconButton`}>
                             <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-plus"></i>

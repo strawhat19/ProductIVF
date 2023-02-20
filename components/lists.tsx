@@ -1,4 +1,5 @@
 import Board from './board';
+import Spinner from './spinner';
 import { useContext, useEffect, useRef } from 'react';
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { StateContext, formatDate, getPage, generateUniqueID, dev } from '../pages/_app';
@@ -101,7 +102,7 @@ export const getListStyle = isDraggingOver => ({
 export default function Lists(props) {
 
     let listsRef = useRef<any>(null);
-    const { lists, setLists, devEnv, setLoading, setSystemStatus, setPage, IDs, setIDs } = useContext<any>(StateContext);
+    const { lists, setLists, devEnv, setLoading, setSystemStatus, setPage, IDs, setIDs, loading } = useContext<any>(StateContext);
 
     const createList = async (e: any, lists: List[]) => {
         e.preventDefault();
@@ -276,7 +277,6 @@ export default function Lists(props) {
     }, [lists])
 
     return <>
-    {devEnv && <Board style={{marginBottom: 15}} />}
     <div className="createList lists extended">
         <div id={props.id} className={`list items addListDiv`}>
             <div className="formItems items">

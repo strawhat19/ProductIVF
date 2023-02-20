@@ -1,22 +1,23 @@
 import List from './list';
-import React, { useState, useContext } from 'react';
-import { generateUniqueID, StateContext } from '../pages/_app';
+import React, { useState, useContext, useEffect } from 'react';
+import { dev, generateUniqueID, StateContext } from '../pages/_app';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 
 function Board(props) {
-    const { lists, setLoading, setSystemStatus } = useContext<any>(StateContext);
+    const [updates, setUpdates] = useState(0);
     const initialData = { items: {}, columns: {}, columnOrder: [] };
-    const [state, setState] = useState(initialData);
+    const [board, setBoard] = useState(initialData);
+    const { lists, setLoading, setSystemStatus } = useContext<any>(StateContext);
 
     const addNewColumn = (e) => {
         e.preventDefault();
         setLoading(true);
         setSystemStatus(`Creating List.`);
-        let newListID = `list_${state.columnOrder.length + 1}`;
+        let newListID = `list_${board.columnOrder.length + 1}`;
         let columnID = `${newListID}_${generateUniqueID()}`;
         let formFields = e.target.children;
 
-        const newColumnOrder = Array.from(state.columnOrder);
+        const newColumnOrder = Array.from(board.columnOrder);
         newColumnOrder.push(columnID);
 
         const newColumn = {
@@ -25,18 +26,24 @@ function Board(props) {
             itemIds: [],
         };
 
-        setState({
-            ...state,
+        setBoard({
+            ...board,
             columnOrder: newColumnOrder,
             columns: {
-                ...state.columns,
+                ...board.columns,
                 [columnID]: newColumn
             }
         });
 
         e.target.reset();
-        setLoading(false);
-        setSystemStatus(`Created List ${state.columnOrder.length + 1}.`);
+        setTimeout(() => {
+            let newListFormInput: any = document.querySelector(`#add_item_form_${newColumn.id} input`);
+            if (newListFormInput) newListFormInput.focus();
+        }, 500);
+        setTimeout(() => {
+            setLoading(false);
+            setSystemStatus(`Created List ${board.columnOrder.length + 1}.`);
+        }, 1500);
     }
 
     const onDragEnd = (result) => {
@@ -51,19 +58,19 @@ function Board(props) {
         }
 
         if (type === `column`) {
-            const newColumnOrder = Array.from(state.columnOrder);
+            const newColumnOrder = Array.from(board.columnOrder);
             newColumnOrder.splice(source.index, 1);
             newColumnOrder.splice(destination.index, 0, draggableId);
 
-            setState({
-                ...state,
+            setBoard({
+                ...board,
                 columnOrder: newColumnOrder,
             });
             return;
         }
 
-        const start = state.columns[source.droppableId];
-        const finish = state.columns[destination.droppableId];
+        const start = board.columns[source.droppableId];
+        const finish = board.columns[destination.droppableId];
 
         if (start === finish) {
             const newItemIds = Array.from(start.itemIds);
@@ -75,10 +82,10 @@ function Board(props) {
                 itemIds: newItemIds,
             }
 
-            setState({
-                ...state,
+            setBoard({
+                ...board,
                 columns: {
-                    ...state.columns,
+                    ...board.columns,
                     [newColumn.id]: newColumn
                 }
             });
@@ -99,15 +106,39 @@ function Board(props) {
             itemIds: finishItemIds,
         }
 
-        setState({
-            ...state,
+        setBoard({
+            ...board,
             columns: {
-                ...state.columns,
+                ...board.columns,
                 [newStart.id]: newStart,
                 [newFinish.id]: newFinish,
             }
         });
     }
+
+    useEffect(() => {
+        console.clear();
+        let storedBoard = JSON.parse(localStorage.getItem(`board`));
+        if (storedBoard && updates < 1) {
+            setBoard(storedBoard);
+        }
+
+        localStorage.setItem(`board`, JSON.stringify(board));
+
+        let listItems = document.querySelectorAll(`.listItems`);
+        listItems.forEach(listOfItems => {
+            if (listOfItems.scrollHeight > listOfItems.clientHeight) {
+                listOfItems.classList.add(`overflowingList`);
+            } else {
+                listOfItems.classList.remove(`overflowingList`);
+            }
+        })
+
+        setUpdates(updates + 1);
+        dev() && console.log(`Updates`, updates);
+        dev() && console.log(`Board`, board);
+
+    },  [board])
 
     return (
         <DragDropContext onDragEnd={onDragEnd}>
@@ -115,15 +146,15 @@ function Board(props) {
                 <div id={props.id} className={`list items addListDiv`}>
                     <div className="formItems items">
                         <div className="addListFormItem">
-                            <h2 style={{ fontWeight: 600, fontSize: 22, minWidth: `fit-content` }}>Create List {lists.length + 1}</h2>
+                            <h2 style={{ fontWeight: 600, fontSize: 22, minWidth: `fit-content` }}>Create Column {board.columnOrder.length + 1}</h2>
                             <section className={`addListFormItemSection`} style={{ margin: 0 }}>
-                                <form onSubmit={addNewColumn} title={`Add List`} id={`addListForm`} className={`flex addListForm itemButtons addForm`} style={{ width: `100%`, flexDirection: `row` }}>
-                                    <input maxLength={35} placeholder={`Name of List`} type="text" name="createItem" required />
-                                    <button type={`submit`} title={`Create List`} className={`iconButton createList`}>
+                                <form onSubmit={addNewColumn} title={`Add Column`} id={`addListForm`} className={`flex addListForm itemButtons addForm`} style={{ width: `100%`, flexDirection: `row` }}>
+                                    <input maxLength={35} placeholder={`Name of Column`} type="text" name="createItem" required />
+                                    <button type={`submit`} title={`Create Column`} className={`iconButton createList`}>
                                         <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-list"></i>
                                         <span className={`iconButtonText textOverflow extended`}>
                                             <span style={{ fontSize: 12 }}>Create List</span><span className={`itemLength index`} style={{ fontSize: 14, fontWeight: 700, padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content` }}>
-                                                {lists.length + 1}
+                                                {board.columnOrder.length + 1}
                                             </span>
                                         </span>
                                     </button>
@@ -133,14 +164,14 @@ function Board(props) {
                     </div>
                 </div>
             </div>
-            <Droppable droppableId="all-columns" direction="horizontal" type="column">
+            <Droppable droppableId={`all-columns`} direction="horizontal" type="column">
                 {provided => (
-                    <section id={`board`} className={`board lists container ${state.columnOrder.length >= 2 ? `clipColumns` : state.columnOrder.length > 3 ? `overflowingBoard` : ``}`} {...provided.droppableProps} ref={provided.innerRef} style={props.style}>
+                    <section id={`board`} className={`board lists container ${board.columnOrder.length == 2 ? `clipColumns` : board.columnOrder.length > 3 ? `overflowingBoard` : ``}`} {...provided.droppableProps} ref={provided.innerRef} style={props.style}>
                         {
-                            state.columnOrder.map((columnId, index) => {
-                                const column = state.columns[columnId];
-                                const items = column.itemIds.map(itemId => state.items[itemId]);
-                                return <List key={column.id} column={column} items={items} index={index} state={state} setState={setState} />;
+                            board.columnOrder.map((columnId, index) => {
+                                const column = board.columns[columnId];
+                                const items = column.itemIds.map(itemId => board.items[itemId]);
+                                return <List key={column.id} column={column} items={items} index={index} state={board} setState={setBoard} />;
                             })
                         }
                         {provided.placeholder}

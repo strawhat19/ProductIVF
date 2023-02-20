@@ -11,6 +11,8 @@ export const getCurrentPageName = () => {
   return window.location.hash.slice(window.location.hash.lastIndexOf(`/`)).replace(`/`, ``);
 };
 
+export const initialData = { items: {}, columns: {}, columnOrder: [] };
+
 export const dev = (item, source) => {
   if (window.location.host.includes(`local`)) {
     if (item) {
@@ -220,12 +222,14 @@ export default function MyApp({ Component, pageProps }) {
     let [highScore, setHighScore] = useState(0);
     let [platform, setPlatform] = useState(null);
     let [anim, setAnimComplete] = useState(false);
+    // let [board, setBoard] = useState(initialData);
     let [colorPref, setColorPref] = useState(user);
     let [alertOpen, setAlertOpen] = useState(false);
     let [authState, setAuthState] = useState(`Next`);
     let [mobileMenu, setMobileMenu] = useState(false);
     let [emailField, setEmailField] = useState(false);
     let [systemStatus, setSystemStatus] = useState(``);
+    let [boardLoaded, setBoardLoaded] = useState(false);
     let [showLeaders, setShowLeaders] = useState(false);
     let [content, setContent] = useState(`defaultContent`);
     let [animCompleted, setAnimCompleted] = useState(false);
@@ -244,8 +248,17 @@ export default function MyApp({ Component, pageProps }) {
         setSystemStatus(`System Status Ok.`);
         setPage(window.location.pathname.replace(`/`,``));
         setDevEnv(window.location.host.includes(`localhost`));
+        // setBoard(JSON.parse(localStorage.getItem(`board`)) || initialData);
         setLists(JSON.parse(localStorage.getItem(`lists`)) || defaultLists);
         setMobile((typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1));
+
+        let toc = document.querySelector(`.nextra-toc`);
+        let tocMinimized = JSON.parse(localStorage.getItem(`tocMinimized`));
+        if (tocMinimized) {
+          toc.classList.add(`minimized`);
+        } else {
+          toc.classList.remove(`minimized`);
+        };
 
         setLoading(false);
         setSystemStatus(`${getPage()} Loaded.`);
@@ -258,8 +271,8 @@ export default function MyApp({ Component, pageProps }) {
         }
       }, [user, users, authState, dark])
 
-    return <StateContext.Provider value={{ updates, setUpdates, content, setContent, width, setWidth, user, setUser, page, setPage, mobileMenu, setMobileMenu, users, setUsers, authState, setAuthState, emailField, setEmailField, devEnv, setDevEnv, mobileMenuBreakPoint, platform, setPlatform, focus, setFocus, highScore, setHighScore, color, setColor, dark, setDark, colorPref, setColorPref, lists, setLists, showLeaders, setShowLeaders, items, setItems, qotd, setQotd, alertOpen, setAlertOpen, mobile, setMobile, systemStatus, setSystemStatus, loading, setLoading, anim, setAnimComplete, IDs, setIDs }}>
-      <div className={`pageWrapContainer ${page}`}>
+    return <StateContext.Provider value={{ updates, setUpdates, content, setContent, width, setWidth, user, setUser, page, setPage, mobileMenu, setMobileMenu, users, setUsers, authState, setAuthState, emailField, setEmailField, devEnv, setDevEnv, mobileMenuBreakPoint, platform, setPlatform, focus, setFocus, highScore, setHighScore, color, setColor, dark, setDark, colorPref, setColorPref, lists, setLists, showLeaders, setShowLeaders, items, setItems, qotd, setQotd, alertOpen, setAlertOpen, mobile, setMobile, systemStatus, setSystemStatus, loading, setLoading, anim, setAnimComplete, IDs, setIDs, boardLoaded, setBoardLoaded, }}>
+      <div className={`pageWrapContainer ${page.toUpperCase()}`}>
         <Component {...pageProps} />
       </div>
     </StateContext.Provider>

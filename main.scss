@@ -152,10 +152,40 @@ article {
     }
 }
 
+#minimizeTOCButton {
+    padding: 1em;
+    max-width: 30px;
+    filter: invert(1);
+    align-self: baseline;
+    // color: var(--gameBlue);
+    // background: var(--softWhite);
+    transition: var(--transition);
+    span {
+        transition: var(--transition);
+    }
+}
+
 .nextra-toc {
     width: auto;
-    padding: 0 !important;
     margin: 0 !important;
+    padding: 0 !important;
+    transition: var(--transition);
+    &.minimized {
+        width: 50px;
+        p, ul, .loading, h2, form, blockquote, div a  {
+            display: none !important;
+        }
+        .nextra-scrollbar div {
+            padding: 13px !important;
+        }
+        #minimizeTOCButton {
+            padding: 0 15px 0 10px;
+            span {
+                min-width: min-content;
+                transform: rotateZ(180deg);
+            }
+        }
+    }
     .nextra-scrollbar {
         overflow: visible !important;
         p, ul {
@@ -862,7 +892,7 @@ form {
             width: 100% !important;
 
             &.overflowingList {
-                padding: 0 10px 0 0;
+                padding: 0 10px 0 0 !important;
             }
 
             transition: var(--transition);
@@ -1284,19 +1314,26 @@ footer {
 .board {
     display: flex;
     align-items: center;
-    &.clipColumns {
-        .column {
-            &.dragging {
-                max-width: 15% !important;
+    // &.clipColumns {
+    //     .column {
+    //         &.dragging {
+    //             max-width: 1% !important;
+    //         }
+    //     }
+    // }
+    &.overflowingBoard {
+        overflow-x: scroll;
+        *:not(.dragging) {
+            @media (max-width: 1390px) {
+                .listNameRow {
+                    max-width: 100px;
+                }
             }
         }
     }
-    &.overflowingBoard {
-        overflow-x: scroll;
-    }
     .column {
         &.dragging {
-            max-width: 33% !important;
+            max-width: 25px !important;
         }
         user-select: none;
         min-height: 500px;
@@ -1332,6 +1369,7 @@ footer {
             min-height: 400px;
             padding: 0 !important;
             .item {
+                min-height: 45px;
                 background: linear-gradient(90deg, white 35px, var(--blackGlass) 35px);
                 .itemOrder {
                     width: 35px;

@@ -6,6 +6,13 @@ import Status from './components/status';
 import Footer from './components/footer';
 import { DocsThemeConfig } from 'nextra-theme-docs';
 
+const setToc = (e) => {
+  let toc = document.querySelector(`.nextra-toc`);
+  toc.classList.toggle(`minimized`);
+
+  toc.classList.contains(`minimized`) ? localStorage.setItem(`tocMinimized`, JSON.stringify(true)) : localStorage.setItem(`tocMinimized`, JSON.stringify(false));
+}
+
 const config: DocsThemeConfig = {
   // primaryHue: 75, // Yellow
   // primaryHue: 155, // Soft Green
@@ -18,13 +25,13 @@ const config: DocsThemeConfig = {
     }
   },
   feedback: {
-    // content: null,
-    content: `Report a Bug  →`,
+    content: null,
+    // content: `Report a Bug  →`,
   },
   editLink: {
     text: null,
-    // text: `Quote goes here`,
-    // component: <a className={`hoverLink`} style={{fontSize: 12}} href={`https://github.com/strawhat19/ProductIVF`} target={`_blank`}>Github  →</a> as any,
+    // component: <SidebarLink children={<a>hello</a>} />,
+    // component: <EditLink href={`https://piratechs.com/`} children={<a>Hello</a> as any} />,
   },
   // sidebar: {
   //   titleComponent: <Form />
@@ -38,11 +45,14 @@ const config: DocsThemeConfig = {
     </div>,
   },
   toc: {
-    extraContent: <section style={{padding: `0 20px 0 0 !important`, display: `flex`, flexDirection: `column`, margin: 0, order: -2 }}>
+    // float: true,
+    // component: null,
+    extraContent: <section id={`tocSection`} style={{padding: `0 20px 0 0 !important`, display: `flex`, flexDirection: `column`, margin: 0, order: -2 }}>
       <Status />
       <h2 style={{fontSize: 18, paddingBottom: `.5em`, borderBottom: `1px solid var(--gameBlueSoft)`}}><i>Sign In or Sign Up</i></h2>
       <Form id="sidebarForm" />
       <Quote style={{margin: `20px 0`}} id="sidebarQotd" />
+      <button id={`minimizeTOCButton`} onClick={(e) => setToc(e)} className="iconButton"><span>{`>`}</span></button>
     </section>,
   },
   head: <>
