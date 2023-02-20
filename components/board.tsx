@@ -7,7 +7,7 @@ function Board(props) {
     const [updates, setUpdates] = useState(0);
     const initialData = { items: {}, columns: {}, columnOrder: [] };
     const [board, setBoard] = useState(initialData);
-    const { setLoading, setSystemStatus } = useContext<any>(StateContext);
+    const { setLoading, setSystemStatus, devEnv } = useContext<any>(StateContext);
 
     const addNewColumn = (e) => {
         e.preventDefault();
@@ -116,6 +116,11 @@ function Board(props) {
         });
     }
 
+    const filterCompleted = (e) => {
+        dev() && console.log(`filterCompleted`, e, board);
+        // dev() && console.log(Object.entries(board.items));
+    }
+
     useEffect(() => {
         // console.clear();
         let storedBoard = JSON.parse(localStorage.getItem(`board`));
@@ -164,6 +169,12 @@ function Board(props) {
                             </section>
                         </div>
                     </div>
+                    {devEnv && <div className="filterButtons itemButtons">
+                        <button onClick={(e) => filterCompleted(e)} id={`filter_completed`} style={{ pointerEvents: `all` }} title={`Filter Completed`} className={`iconButton deleteButton filterButton`}>
+                            <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-filter"></i>
+                            <span className={`iconButtonText textOverflow extended`}>Filter Completed</span>
+                        </button>
+                    </div>}
                 </div>
             </div>
             <Droppable droppableId={`all-columns`} direction="horizontal" type="column">

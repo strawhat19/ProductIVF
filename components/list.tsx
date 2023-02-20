@@ -3,7 +3,6 @@ import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { showAlert, formatDate, generateUniqueID, StateContext } from '../pages/_app';
 
 function List(props) {
-    let scrollDiv = React.createRef();
     const { setLoading, setSystemStatus } = useContext<any>(StateContext);
 
     const addNewItem = (e) => {
@@ -68,44 +67,32 @@ function List(props) {
     }
 
     const deleteItem = (item, columnId, index, itemId) => {
-        // if (item.complete) {
-            setLoading(true);
-            setSystemStatus(`Deleting Item ${index + 1}.`);
-            const column = props.state.columns[columnId];
-            const newItemIds = Array.from(column.itemIds);
-            newItemIds.splice(index, 1);
+        setLoading(true);
+        setSystemStatus(`Deleting Item ${index + 1}.`);
+        const column = props.state.columns[columnId];
+        const newItemIds = Array.from(column.itemIds);
+        newItemIds.splice(index, 1);
 
-            const items = props.state.items;
-            const { [itemId]: oldItem, ...newItems } = items;
+        const items = props.state.items;
+        const { [itemId]: oldItem, ...newItems } = items;
 
-            props.setState({
-                ...props.state,
-                items: {
-                    ...newItems
-                },
-                columns: {
-                    ...props.state.columns,
-                    [columnId]: {
-                        ...column,
-                        itemIds: newItemIds
-                    }
+        props.setState({
+            ...props.state,
+            items: {
+                ...newItems
+            },
+            columns: {
+                ...props.state.columns,
+                [columnId]: {
+                    ...column,
+                    itemIds: newItemIds
                 }
-            });
-            setTimeout(() => {
-                setSystemStatus(`Deleted Item ${index + 1}.`);
-                setLoading(false);
-            }, 1000);
-        // } else {
-            
-        //     props.state.items[itemId].complete = true;
-
-        //     props.setState({
-        //         ...props.state,
-        //         items: {
-        //             ...props.state.items
-        //         },
-        //     });
-        // }
+            }
+        });
+        setTimeout(() => {
+            setSystemStatus(`Deleted Item ${index + 1}.`);
+            setLoading(false);
+        }, 1000);
     }
 
     const deleteColumn = (columnId, index) => {

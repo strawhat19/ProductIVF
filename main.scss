@@ -1310,6 +1310,12 @@ footer {
 //     }
 // }
 
+.filterButtons {
+    padding-top: 15px;
+    button {
+        width: 100%;
+    }
+}
 
 .board {
     display: flex;
@@ -1371,6 +1377,9 @@ footer {
             .item {
                 min-height: min-content;
                 background: linear-gradient(90deg, white 35px, var(--blackGlass) 35px);
+                &:hover {
+                    cursor: move;
+                }
                 &.complete {
                     background: linear-gradient(90deg, white 35px, var(--blackGlass) 35px) !important;
                 }
