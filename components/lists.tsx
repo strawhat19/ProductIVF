@@ -276,7 +276,7 @@ export default function Lists(props) {
     }, [lists])
 
     return <>
-    {devEnv && <Board />}
+    {devEnv && <Board style={{marginBottom: 15}} />}
     <div className="createList lists extended">
         <div id={props.id} className={`list items addListDiv`}>
             <div className="formItems items">

@@ -1,179 +1,175 @@
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import { getItemStyle, getListStyle } from "./lists";
+import React, { useContext } from 'react';
+import { Droppable, Draggable } from 'react-beautiful-dnd';
+import { showAlert, formatDate, generateUniqueID, StateContext } from '../pages/_app';
 
-export const List = (props) => {
+function List(props) {
+    const { setLoading, setSystemStatus } = useContext<any>(StateContext);
 
-    const onDragEnd = (dragEndResults) => {
-        console.log(dragEndResults);
-    };
+    const addNewItem = (e) => {
+        e.preventDefault();
+        let formFields = e.target.children;
+        
+        const column = props.state.columns[props.column.id];
+        let newItemID = `item_${column.itemIds.length + 1}`;
+        let itemID = `${newItemID}_${generateUniqueID()}`;
+        const newItemIds = Array.from(column.itemIds);
+        newItemIds.push(itemID);
 
-    return <DragDropContext onDragEnd={(e) => onDragEnd(e)}>
-        <Droppable id={`list.id-hhkmk`} droppableId={`libhbhbhst.id`}>
+        const newItem = {
+            id: itemID,
+            complete: false,
+            content: formFields[0].value,
+            created: formatDate(new Date()),
+        }
+
+        props.setState({
+            ...props.state,
+            items: {
+                ...props.state.items,
+                [itemID]: newItem
+            },
+            columns: {
+                ...props.state.columns,
+                [column.id]: {
+                    ...props.state.columns[column.id],
+                    itemIds: newItemIds
+                }
+            }
+        });
+
+        e.target.reset();
+    }
+
+    const deleteItem = (columnId, index, itemId) => {
+        const column = props.state.columns[columnId];
+        const newItemIds = Array.from(column.itemIds);
+        newItemIds.splice(index, 1);
+
+        const items = props.state.items;
+        const { [itemId]: oldItem, ...newItems } = items;
+
+        props.setState({
+            ...props.state,
+            items: {
+                ...newItems
+            },
+            columns: {
+                ...props.state.columns,
+                [columnId]: {
+                    ...column,
+                    itemIds: newItemIds
+                }
+            }
+        });
+    }
+
+    const deleteColumn = (columnId, index) => {
+        setLoading(true);
+        setSystemStatus(`Deleting List.`);
+        const columnItems = props.state.columns[columnId].itemIds;
+
+        const finalItems = columnItems.reduce((previousValue, currentValue) => {
+            const { [currentValue]: oldItem, ...newItem } = previousValue;
+            return newItem;
+        }, props.state.items);
+
+        const columns = props.state.columns;
+        const { [columnId]: oldColumn, ...newColumns } = columns;
+
+        const newColumnOrder = Array.from(props.state.columnOrder);
+        newColumnOrder.splice(index, 1);
+
+        props.setState({
+            items: {
+                ...finalItems
+            },
+            columns: {
+                ...newColumns
+            },
+            columnOrder: newColumnOrder
+        });
+
+        setLoading(false);
+        setSystemStatus(`Deleted List ${newColumnOrder.length + 1}.`);
+    }
+
+    return (
+        <Draggable draggableId={props.column.id} index={props.index}>
             {(provided, snapshot) => (
-                <div
-                    id={`list.id`}
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                    className={`list items draggableDiv`}
-                    style={getListStyle(snapshot.isDraggingOver)}
-                >
-                    <Draggable draggableId={`item.id`} index={`index`}>
-                        {(provided, snapshot) => (
-                            <div
-                                id={`rtrtrdrdd.id`}
-                                className={`item`}
-                                {...provided.dragHandleProps}
-                                {...provided.draggableProps}
-                                ref={provided.innerRef}
-                                title={`item.content`}
-                                style={getItemStyle(
-                                    snapshot.isDragging,
-                                    provided.draggableProps.style
-                                )}
-                            >
-                                <Droppable id={`list.id`} droppableId={`list.id`}>
-                                    {(provided, snapshot) => (
-                                        <div
-                                            id={`list.id`}
-                                            ref={provided.innerRef}
-                                            {...provided.droppableProps}
-                                            className={`list items draggableDiv`}
-                                            style={getListStyle(snapshot.isDraggingOver)}
-                                        >
-                                            <div style={{ pointerEvents: `none`, position: `relative` }} id={`name_of_`} title={`Title`} className={`flex row iconButton item listTitleButton`}>
-                                                <div className="itemOrder listOrder" style={{ maxWidth: `fit-content` }}>
-                                                    <i style={{ color: `var(--gameBlue)`, fontSize: 18, padding: `0 15px`, maxWidth: `fit-content` }} className="fas fa-list"></i>
-                                                </div>
-                                                <h3 className={`listNameRow nx-tracking-light`} id={`list_name_of_`} style={{ position: `relative` }}>
-                                                    <i className={`listName textOverflow extended`} style={{ fontSize: 13, fontWeight: 600 }}>
-                                                        List Name
-                                                    </i>
-                                                </h3>
-                                                <div className="itemButtons customButtons">
-                                                    {/* <button title={`Edit List`} className={`iconButton editButton`}><i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-edit"></i></button> */}
-                                                    <button id={`delete_`} style={{ pointerEvents: `all` }} title={`Delete List`} className={`iconButton deleteButton`}>
-                                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-trash"></i>
-                                                        <span className={`iconButtonText textOverflow extended`}>Delete
+                <div id={props.column.id} className={`container column list ${snapshot.isDragging ? `dragging` : ``}`} {...provided.draggableProps} ref={provided.innerRef}>
+                    <div {...provided.dragHandleProps} style={{ position: `relative` }} id={`name_of_${props.column.id}`} title={`${props.column.title}`} className={`columnTitle flex row iconButton item listTitleButton`}>
+                        <div onClick={(e) => showAlert(`Manage List`, `You can manage how you would like this list to function.`)} className="itemOrder listOrder" style={{ maxWidth: `fit-content` }}>
+                            <i style={{ color: `var(--gameBlue)`, fontSize: 15, padding: `0 9px`, maxWidth: `fit-content` }} className="fas fa-list"></i>
+                        </div>
+                        <h3 className={`listNameRow nx-tracking-light ${props.column.title.length > 25 ? `longName` : ``}`} id={`list_name_of_${props.column.id}`} style={{ position: `relative` }}>
+                            <i className={`listName textOverflow extended`} style={{ fontSize: 13, fontWeight: 600 }}>
+                                {props.column.title}
+                            </i>
+                        </h3>
+                        <div className="itemButtons customButtons">
+                            {/* <button title={`Edit List`} className={`iconButton editButton`}><i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-edit"></i></button> */}
+                            <button id={`delete_${props.column.id}`} style={{ pointerEvents: `all` }} onClick={(e) => deleteColumn(props.column.id, props.index)} title={`Delete List`} className={`iconButton deleteButton`}>
+                                <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-trash"></i>
+                                <span className={`iconButtonText textOverflow extended`}>Delete</span>
+                            </button>
+                        </div>
+                    </div>
+                    <Droppable droppableId={props.column.id} type="task">
+                        {provided => (
+                            <div id={`items_of_${props.column.id}`} className={`items listItems`} {...provided.droppableProps} ref={provided.innerRef}>
+                                {
+                                    props.items.map((item, index) =>
+                                        (<Draggable draggableId={item.id} index={index}>
+                                            {provided => (
+                                                <div className={`item ${item.complete ? `complete` : ``} container`} title={item.content} {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
+                                                    <span className="itemOrder">
+                                                        <i className="itemIndex">{index + 1}</i>
+                                                    </span>
+                                                    <div className="itemContent">
+                                                        <span className="itemName textOverflow extended">{item.content}</span>
+                                                        {item.created && !item.updated ? (
+                                                        <span className="itemDate itemName itemCreated textOverflow extended flex row">
+                                                            <i className={`status`}>Created</i> 
+                                                            <span className={`itemDateTime`}>{formatDate(new Date(item.created))}</span>
                                                         </span>
-                                                    </button>
+                                                        ) : item.updated ? (
+                                                        <span className="itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
+                                                            <i className={`status`}>Updated</i> 
+                                                            <span className={`itemDateTime`}>{formatDate(new Date(item.updated))}</span>
+                                                        </span>
+                                                        ) : null}
+                                                    </div>
+                                                    <div className="itemButtons customButtons">
+                                                        {/* <button title={`Edit Item`} className={`iconButton editButton`}><i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-edit"></i></button> */}
+                                                        <button id={`delete_${item.id}`} onClick={() => deleteItem(props.column.id, index, item.id)} title={`Delete Item`} className={`iconButton deleteButton wordIconButton`}>
+                                                            <i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-trash"></i>
+                                                         </button>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div id={`items_of_`} className={`items listItems`}>
-                                                <Draggable draggableId={`item.id`} index={`index`}>
-                                                    {(provided, snapshot) => (
-                                                        <div
-                                                            id={`item.id`}
-                                                            className={`item`}
-                                                            {...provided.dragHandleProps}
-                                                            {...provided.draggableProps}
-                                                            ref={provided.innerRef}
-                                                            title={`item.content`}
-                                                            style={getItemStyle(
-                                                                snapshot.isDragging,
-                                                                provided.draggableProps.style
-                                                            )}
-                                                        >
-                                                            <span className="itemOrder">
-                                                                <i className="itemIndex">{1}</i>
-                                                            </span>
-                                                            <span className="itemName textOverflow extended">{`item.content`}</span>
-                                                            <div className="itemButtons customButtons">
-                                                                {/* <button title={`Edit Item`} className={`iconButton editButton`}><i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-edit"></i></button> */}
-                                                                <button id={`delete_b`} title={`Delete Item`} className={`iconButton deleteButton wordIconButton`}>
-                                                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-trash"></i>
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </Draggable>
-                                            </div>
-                                            {provided.placeholder}
-                                        </div>
-                                    )}
-                                </Droppable>
+                                            )}
+                                        </Draggable>)
+                                    )
+                                }
+                                {provided.placeholder}
                             </div>
                         )}
-                    </Draggable>
-
-                    <Draggable draggableId={`item.id`} index={`index`}>
-                        {(provided, snapshot) => (
-                            <div
-                                id={`rtrtrdrdd.id`}
-                                className={`item`}
-                                {...provided.dragHandleProps}
-                                {...provided.draggableProps}
-                                ref={provided.innerRef}
-                                title={`item.content`}
-                                style={getItemStyle(
-                                    snapshot.isDragging,
-                                    provided.draggableProps.style
-                                )}
-                            >
-                                <Droppable id={`list.id`} droppableId={`list.id`}>
-                                    {(provided, snapshot) => (
-                                        <div
-                                            id={`list.id`}
-                                            ref={provided.innerRef}
-                                            {...provided.droppableProps}
-                                            className={`list items draggableDiv`}
-                                            style={getListStyle(snapshot.isDraggingOver)}
-                                        >
-                                            <div style={{ pointerEvents: `none`, position: `relative` }} id={`name_of_`} title={`Title`} className={`flex row iconButton item listTitleButton`}>
-                                                <div className="itemOrder listOrder" style={{ maxWidth: `fit-content` }}>
-                                                    <i style={{ color: `var(--gameBlue)`, fontSize: 18, padding: `0 15px`, maxWidth: `fit-content` }} className="fas fa-list"></i>
-                                                </div>
-                                                <h3 className={`listNameRow nx-tracking-light`} id={`list_name_of_`} style={{ position: `relative` }}>
-                                                    <i className={`listName textOverflow extended`} style={{ fontSize: 13, fontWeight: 600 }}>
-                                                        List Name
-                                                    </i>
-                                                </h3>
-                                                <div className="itemButtons customButtons">
-                                                    {/* <button title={`Edit List`} className={`iconButton editButton`}><i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-edit"></i></button> */}
-                                                    <button id={`delete_`} style={{ pointerEvents: `all` }} title={`Delete List`} className={`iconButton deleteButton`}>
-                                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-trash"></i>
-                                                        <span className={`iconButtonText textOverflow extended`}>Delete
-                                                        </span>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            <div id={`items_of_`} className={`items listItems`}>
-                                                <Draggable draggableId={`item.id`} index={`index`}>
-                                                    {(provided, snapshot) => (
-                                                        <div
-                                                            id={`item.id`}
-                                                            className={`item`}
-                                                            {...provided.dragHandleProps}
-                                                            {...provided.draggableProps}
-                                                            ref={provided.innerRef}
-                                                            title={`item.content`}
-                                                            style={getItemStyle(
-                                                                snapshot.isDragging,
-                                                                provided.draggableProps.style
-                                                            )}
-                                                        >
-                                                            <span className="itemOrder">
-                                                                <i className="itemIndex">{1}</i>
-                                                            </span>
-                                                            <span className="itemName textOverflow extended">{`item.content`}</span>
-                                                            <div className="itemButtons customButtons">
-                                                                {/* <button title={`Edit Item`} className={`iconButton editButton`}><i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-edit"></i></button> */}
-                                                                <button id={`delete_b`} title={`Delete Item`} className={`iconButton deleteButton wordIconButton`}>
-                                                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-trash"></i>
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </Draggable>
-                                            </div>
-                                            {provided.placeholder}
-                                        </div>
-                                    )}
-                                </Droppable>
-                            </div>
-                        )}
-                    </Draggable>
+                    </Droppable>
+                    <form title={`Add Item`} id={`add_item_form_${props.columnId}`} className={`flex addItemForm itemButtons unset addForm`} style={{ width: `100%`, flexDirection: `row` }} onSubmit={(e) => addNewItem(e)}>
+                        <input placeholder={`Name of Item`} type="text" name="createItem" required />
+                        <button type={`submit`} title={`Add Item`} className={`iconButton createList wordIconButton`}>
+                            <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-plus"></i>
+                            <span className={`iconButtonText textOverflow extended`}>
+                                <span style={{ fontSize: 12 }}>Add</span>
+                                <span className={`itemLength index`} style={{ fontSize: 14, fontWeight: 700, padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content` }}>
+                                    {/* {list.items.length + 1} */}
+                                </span>
+                            </span>
+                        </button>
+                    </form>
                 </div>
             )}
-        </Droppable>
-    </DragDropContext>
+        </Draggable>
+    )
 }
+
+export default List;

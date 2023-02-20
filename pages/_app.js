@@ -172,8 +172,8 @@ export const defaultLists = [
 ];
 
 export const showAlert = async (alertTitle, alertMessage, additionalInfo) => {
-  if (alertOpen) return;
-  setAlertOpen(true);
+  // if (alertOpen) return;
+  // setAlertOpen(true);
   let alertDialog = document.createElement(`div`);
   alertDialog.className = `alert`;
   if ((!alertMessage && !additionalInfo) || (additionalInfo && additionalInfo?.length == 0)) alertDialog.classList.add(`slim`);
@@ -181,10 +181,10 @@ export const showAlert = async (alertTitle, alertMessage, additionalInfo) => {
       ${alertMessage ? additionalInfo ? `` : alertMessage : ``}
   `;
   if (additionalInfo?.length > 0) {
-  additionalInfo?.forEach((info, index) => {
-      let element = createXML(`<p>${index+1}. ${alertMessage} ${info}</p>`);
-      alertDialog.append(element);
-  });
+    additionalInfo?.forEach((info, index) => {
+        let element = createXML(`<p>${index+1}. ${alertMessage} ${info}</p>`);
+        alertDialog.append(element);
+    });
   }
   document.body.appendChild(alertDialog);
   let closeButton = document.createElement(`button`);
@@ -192,8 +192,8 @@ export const showAlert = async (alertTitle, alertMessage, additionalInfo) => {
   closeButton.classList.add(`alertButton`);
   closeButton.innerHTML = `X`;
   closeButton.onclick = () => {
-  document.body.removeChild(alertDialog);
-  setAlertOpen(false);
+    document.body.removeChild(alertDialog);
+    // setAlertOpen(false);
   };
   alertDialog.appendChild(closeButton);
 }
