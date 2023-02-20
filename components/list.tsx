@@ -3,6 +3,7 @@ import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { showAlert, formatDate, generateUniqueID, StateContext } from '../pages/_app';
 
 function List(props) {
+    let scrollDiv = React.createRef();
     const { setLoading, setSystemStatus } = useContext<any>(StateContext);
 
     const addNewItem = (e) => {
@@ -11,6 +12,8 @@ function List(props) {
         const column = props.state.columns[props.column.id];
         setLoading(true);
         setSystemStatus(`Creating Item ${column.itemIds.length + 1}.`);
+        let listItems = e.target.previousSibling;
+        console.log(listItems);
         let newItemID = `item_${column.itemIds.length + 1}`;
         let itemID = `${newItemID}_${generateUniqueID()}`;
         const newItemIds = Array.from(column.itemIds);
@@ -43,6 +46,9 @@ function List(props) {
             setSystemStatus(`Created Item ${column.itemIds.length + 1}.`);
             setLoading(false);
         }, 1000);
+        window.requestAnimationFrame(() => {
+            return listItems.scrollTop = listItems.scrollHeight;
+        });
     }
 
     const completeItem = (itemId, index, item) => {
@@ -158,7 +164,7 @@ function List(props) {
                     </div>
                     <Droppable droppableId={props.column.id} type="task">
                         {provided => (
-                            <div id={`items_of_${props.column.id}`} className={`items listItems`} {...provided.droppableProps} ref={provided.innerRef}>
+                            <div id={`items_of_${props.column.id}`} className={`items boardColumnItems listItems`} {...provided.droppableProps} ref={provided.innerRef}>
                                 {props.items.map((item, index) =>
                                     (<Draggable key={item.id} draggableId={item.id} index={index}>
                                         {provided => (

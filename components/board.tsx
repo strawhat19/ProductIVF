@@ -7,7 +7,7 @@ function Board(props) {
     const [updates, setUpdates] = useState(0);
     const initialData = { items: {}, columns: {}, columnOrder: [] };
     const [board, setBoard] = useState(initialData);
-    const { lists, setLoading, setSystemStatus } = useContext<any>(StateContext);
+    const { setLoading, setSystemStatus } = useContext<any>(StateContext);
 
     const addNewColumn = (e) => {
         e.preventDefault();
@@ -117,7 +117,7 @@ function Board(props) {
     }
 
     useEffect(() => {
-        console.clear();
+        // console.clear();
         let storedBoard = JSON.parse(localStorage.getItem(`board`));
         if (storedBoard && updates < 1) {
             setBoard(storedBoard);
@@ -125,17 +125,19 @@ function Board(props) {
 
         localStorage.setItem(`board`, JSON.stringify(board));
 
-        let listItems = document.querySelectorAll(`.listItems`);
-        listItems.forEach(listOfItems => {
-            if (listOfItems.scrollHeight > listOfItems.clientHeight) {
-                listOfItems.classList.add(`overflowingList`);
-            } else {
-                listOfItems.classList.remove(`overflowingList`);
-            }
-        })
+        let boardColumnItems = document.querySelectorAll(`.boardColumnItems`);
+        boardColumnItems.forEach(columnItems => {
+            setTimeout(() => {
+                if (columnItems.scrollHeight > columnItems.clientHeight) {
+                    columnItems.classList.add(`overflowingList`);
+                } else {
+                    columnItems.classList.remove(`overflowingList`);
+                }
+            }, 250);
+        });
 
         setUpdates(updates + 1);
-        dev() && console.log(`Updates`, updates);
+        // dev() && console.log(`Updates`, updates);
         dev() && console.log(`Board`, board);
 
     },  [board])
@@ -166,7 +168,7 @@ function Board(props) {
             </div>
             <Droppable droppableId={`all-columns`} direction="horizontal" type="column">
                 {provided => (
-                    <section id={`board`} className={`board lists container ${board.columnOrder.length == 2 ? `clipColumns` : board.columnOrder.length > 3 ? `overflowingBoard` : ``}`} {...provided.droppableProps} ref={provided.innerRef} style={props.style}>
+                    <section id={`board`} className={`board lists container ${board.columnOrder.length == 2 ? `clipColumns` : board.columnOrder.length >= 3 ? `overflowingBoard` : ``}`} {...provided.droppableProps} ref={provided.innerRef} style={props.style}>
                         {
                             board.columnOrder.map((columnId, index) => {
                                 const column = board.columns[columnId];

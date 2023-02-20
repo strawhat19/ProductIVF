@@ -1369,8 +1369,11 @@ footer {
             min-height: 400px;
             padding: 0 !important;
             .item {
-                min-height: 45px;
+                min-height: min-content;
                 background: linear-gradient(90deg, white 35px, var(--blackGlass) 35px);
+                &.complete {
+                    background: linear-gradient(90deg, white 35px, var(--blackGlass) 35px) !important;
+                }
                 .itemOrder {
                     width: 35px;
                     min-width: 35px;
