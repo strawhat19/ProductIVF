@@ -12,7 +12,7 @@ function Board(props) {
     const addNewColumn = (e) => {
         e.preventDefault();
         setLoading(true);
-        setSystemStatus(`Creating List.`);
+        setSystemStatus(`Creating Column.`);
         let newListID = `list_${board.columnOrder.length + 1}`;
         let columnID = `${newListID}_${generateUniqueID()}`;
         let formFields = e.target.children;
@@ -42,8 +42,8 @@ function Board(props) {
         }, 500);
         setTimeout(() => {
             setLoading(false);
-            setSystemStatus(`Created List ${board.columnOrder.length + 1}.`);
-        }, 1500);
+            setSystemStatus(`Created Column ${board.columnOrder.length + 1}.`);
+        }, 1000);
     }
 
     const onDragEnd = (result) => {

@@ -8,8 +8,9 @@ function List(props) {
     const addNewItem = (e) => {
         e.preventDefault();
         let formFields = e.target.children;
-        
         const column = props.state.columns[props.column.id];
+        setLoading(true);
+        setSystemStatus(`Creating Item ${column.itemIds.length + 1}.`);
         let newItemID = `item_${column.itemIds.length + 1}`;
         let itemID = `${newItemID}_${generateUniqueID()}`;
         const newItemIds = Array.from(column.itemIds);
@@ -38,10 +39,33 @@ function List(props) {
         });
 
         e.target.reset();
+        setTimeout(() => {
+            setSystemStatus(`Created Item ${column.itemIds.length + 1}.`);
+            setLoading(false);
+        }, 1000);
+    }
+
+    const completeItem = (itemId, index, item) => {
+        setLoading(true);
+        setSystemStatus(`Marking Item ${index + 1} as Complete.`);
+        props.state.items[itemId].complete = !props.state.items[itemId].complete;
+
+        props.setState({
+            ...props.state,
+            items: {
+                ...props.state.items
+            },
+        });
+        setTimeout(() => {
+            setSystemStatus(item.complete ? `Marked Item ${index + 1} as Complete` : `Reopened Item ${index + 1}`);
+            setLoading(false);
+        }, 1000);
     }
 
     const deleteItem = (item, columnId, index, itemId) => {
-        if (item.complete) {
+        // if (item.complete) {
+            setLoading(true);
+            setSystemStatus(`Deleting Item ${index + 1}.`);
             const column = props.state.columns[columnId];
             const newItemIds = Array.from(column.itemIds);
             newItemIds.splice(index, 1);
@@ -62,22 +86,26 @@ function List(props) {
                     }
                 }
             });
-        } else {
+            setTimeout(() => {
+                setSystemStatus(`Deleted Item ${index + 1}.`);
+                setLoading(false);
+            }, 1000);
+        // } else {
             
-            props.state.items[itemId].complete = true;
+        //     props.state.items[itemId].complete = true;
 
-            props.setState({
-                ...props.state,
-                items: {
-                    ...props.state.items
-                },
-            });
-        }
+        //     props.setState({
+        //         ...props.state,
+        //         items: {
+        //             ...props.state.items
+        //         },
+        //     });
+        // }
     }
 
     const deleteColumn = (columnId, index) => {
         setLoading(true);
-        setSystemStatus(`Deleting List.`);
+        setSystemStatus(`Deleting column.`);
         const columnItems = props.state.columns[columnId].itemIds;
 
         const finalItems = columnItems.reduce((previousValue, currentValue) => {
@@ -101,8 +129,10 @@ function List(props) {
             columnOrder: newColumnOrder
         });
 
-        setLoading(false);
-        setSystemStatus(`Deleted List ${newColumnOrder.length + 1}.`);
+        setTimeout(() => {
+            setSystemStatus(`Deleted Column ${newColumnOrder.length + 1}.`);
+            setLoading(false);
+        }, 1000);
     }
 
     return (
@@ -152,9 +182,12 @@ function List(props) {
                                                 </div>
                                                 <div className="itemButtons customButtons">
                                                     {/* <button title={`Edit Item`} className={`iconButton editButton`}><i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-edit"></i></button> */}
+                                                    <button id={`complete_${item.id}`} onClick={() => completeItem(item.id, index, item)} title={`Complete Item`} className={`iconButton deleteButton wordIconButton completeButton`}>
+                                                        <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas ${item.complete ? `fa-history` : `fa-check-circle`}`}></i>
+                                                    </button>
                                                     <button id={`delete_${item.id}`} onClick={() => deleteItem(item, props.column.id, index, item.id)} title={`Delete Item`} className={`iconButton deleteButton wordIconButton`}>
                                                         <i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-trash"></i>
-                                                        </button>
+                                                    </button>
                                                 </div>
                                             </div>
                                         )}
