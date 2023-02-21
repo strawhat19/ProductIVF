@@ -1,12 +1,11 @@
 import List from './list';
 import React, { useState, useContext, useEffect } from 'react';
-import { dev, generateUniqueID, StateContext } from '../pages/_app';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
+import { dev, formatDate, generateUniqueID, StateContext } from '../pages/_app';
 
 function Board(props) {
     const [updates, setUpdates] = useState(0);
-    // const initialData = { items: {}, columns: {}, columnOrder: [] };
-    // const [board, setBoard] = useState(initialData);
+    const [filtered, setFiltered] = useState(false);
     const { board, setBoard, setLoading, setSystemStatus, devEnv } = useContext<any>(StateContext);
 
     const addNewColumn = (e) => {
@@ -92,6 +91,9 @@ function Board(props) {
             return;
         }
 
+        const thisItem = board.items[draggableId];
+        thisItem.updated = formatDate(new Date());
+
         const startItemIds = Array.from(start.itemIds);
         startItemIds.splice(source.index, 1);
         const newStart = {
@@ -117,12 +119,35 @@ function Board(props) {
     }
 
     const filterCompleted = (e) => {
-        dev() && console.log(`filterCompleted`, e, board);
-        // dev() && console.log(Object.entries(board.items));
+
+        setFiltered(!filtered);
+
+        let completedItems = document.querySelectorAll(`.complete`);
+        let boardItems = document.querySelectorAll(`.boardColumnItems`);
+
+        if (!filtered) {
+            completedItems.forEach((completedItem: any) => {
+                completedItem.style.display = `none`;
+            });
+            boardItems.forEach(listOfItems => {
+                listOfItems.querySelectorAll(`.activeIndex`).forEach((itemIndex: any, index) => {
+                    itemIndex.innerHTML = index + 1;
+                })
+            });
+        } else {
+            completedItems.forEach((completedItem: any) => {
+                completedItem.style.display = `flex`;
+            });
+            boardItems.forEach(listOfItems => {
+                listOfItems.querySelectorAll(`.itemIndex`).forEach((itemIndex: any, index) => {
+                    itemIndex.innerHTML = index + 1;
+                })
+            });
+        }
     }
 
     useEffect(() => {
-        if (updates > 1 && board.columnOrder.length > 0) localStorage.setItem(`board`, JSON.stringify(board));
+        if (updates > 1) localStorage.setItem(`board`, JSON.stringify(board));
 
         let boardColumnItems = document.querySelectorAll(`.boardColumnItems`);
         boardColumnItems.forEach(columnItems => {
@@ -163,12 +188,12 @@ function Board(props) {
                             </section>
                         </div>
                     </div>
-                    {devEnv && <div className="filterButtons itemButtons">
-                        <button onClick={(e) => filterCompleted(e)} id={`filter_completed`} style={{ pointerEvents: `all` }} title={`Filter Completed`} className={`iconButton deleteButton filterButton`}>
+                    <div className="filterButtons itemButtons">
+                        <button onClick={(e) => filterCompleted(e)} id={`filter_completed`} style={{ pointerEvents: `all` }} title={`Filter Completed`} className={`iconButton deleteButton filterButton ${filtered ? `filterActive` : `filterInactive`}`}>
                             <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-filter"></i>
                             <span className={`iconButtonText textOverflow extended`}>Filter Completed</span>
                         </button>
-                    </div>}
+                    </div>
                 </div>
             </div>
             <Droppable droppableId={`all-columns`} direction="horizontal" type="column">

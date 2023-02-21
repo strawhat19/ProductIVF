@@ -12,7 +12,66 @@ export const getCurrentPageName = () => {
   return window.location.hash.slice(window.location.hash.lastIndexOf(`/`)).replace(`/`, ``);
 };
 
-export const initialData = { items: {}, columns: {}, columnOrder: [] };
+export const initialData = {
+  items:{
+    item_1_1_06_AM_2_21_2023_puvkbf5jt: {
+      complete: false,
+      content: `AdHoc Bug Fixes`,
+      created: `1:06 AM 2/21/2023`,
+      updated: `1:07 AM 2/21/2023`,
+      id: `item_1_1_06_AM_2_21_2023_puvkbf5jt`,
+    },
+    item_2_1_07_AM_2_21_2023_qmpi9w53n: {
+      complete: false,
+      created: `1:07 AM 2/21/2023`,
+      updated: `1:08 AM 2/21/2023`,
+      content: `Deploy New Code Changes`,
+      id: `item_2_1_07_AM_2_21_2023_qmpi9w53n`,
+    },
+    item_2_1_07_AM_2_21_2023_x1qs0ba58: {
+      complete: true,
+      content: `Release 1.5`,
+      created: `1:07 AM 2/21/2023`,
+      updated: `1:07 AM 2/21/2023`,
+      id: `item_2_1_07_AM_2_21_2023_x1qs0ba58`,
+    },
+    item_2_1_07_AM_2_21_2023_cod2k6ysu: {
+      complete: true,
+      created: `1:07 AM 2/21/2023`,
+      updated: `1:07 AM 2/21/2023`,
+      content: `Fix Notification Bugs`,
+      id: `item_2_1_07_AM_2_21_2023_cod2k6ysu`,
+    },
+    item_2_1_08_AM_2_21_2023_cph525xnf: {
+      complete: false,
+      created: `1:08 AM 2/21/2023`,
+      content: `Refine Items In Board`,
+      id: `item_2_1_08_AM_2_21_2023_cph525xnf`,
+    }
+  },
+  columns: {
+    list_1_1_06_AM_2_21_2023_0fl98rv5v: {
+      title: `To Do`,
+      id: `list_1_1_06_AM_2_21_2023_0fl98rv5v`,
+      itemIds: [`item_2_1_08_AM_2_21_2023_cph525xnf`],
+    },
+    list_2_1_06_AM_2_21_2023_rvptjgqw1: {
+      title: `Active`,
+      id: `list_2_1_06_AM_2_21_2023_rvptjgqw1`,
+      itemIds: [`item_1_1_06_AM_2_21_2023_puvkbf5jt`, `item_2_1_07_AM_2_21_2023_qmpi9w53n`],
+    },
+    list_3_1_06_AM_2_21_2023_dv0ld5pot: {
+      title: `Complete`,
+      id: `list_3_1_06_AM_2_21_2023_dv0ld5pot`, 
+      itemIds: [`item_2_1_07_AM_2_21_2023_cod2k6ysu`, `item_2_1_07_AM_2_21_2023_x1qs0ba58`],
+    }
+  },
+  columnOrder: [
+    `list_1_1_06_AM_2_21_2023_0fl98rv5v`,
+    `list_2_1_06_AM_2_21_2023_rvptjgqw1`,
+    `list_3_1_06_AM_2_21_2023_dv0ld5pot`,
+  ],
+};
 
 export const dev = (item, source) => {
   if (window.location.host.includes(`local`)) {

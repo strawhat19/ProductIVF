@@ -3,7 +3,7 @@ import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { showAlert, formatDate, generateUniqueID, StateContext } from '../pages/_app';
 
 function List(props) {
-    const { setLoading, setSystemStatus } = useContext<any>(StateContext);
+    const { setLoading, setSystemStatus, devEnv } = useContext<any>(StateContext);
 
     const addNewItem = (e) => {
         e.preventDefault();
@@ -52,6 +52,8 @@ function List(props) {
     const completeItem = (itemId, index, item) => {
         setLoading(true);
         setSystemStatus(`Marking Item ${index + 1} as Complete.`);
+
+        props.state.items[itemId].updated = formatDate(new Date());
         props.state.items[itemId].complete = !props.state.items[itemId].complete;
 
         props.setState({
@@ -60,6 +62,7 @@ function List(props) {
                 ...props.state.items
             },
         });
+
         setTimeout(() => {
             setSystemStatus(item.complete ? `Marked Item ${index + 1} as Complete` : `Reopened Item ${index + 1}`);
             setLoading(false);
@@ -156,21 +159,21 @@ function List(props) {
                                         {provided => (
                                             <div id={item.id} className={`item ${item.complete ? `complete` : ``} container`} title={item.content} {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
                                                 <span className="itemOrder">
-                                                    <i className="itemIndex">{index + 1}</i>
+                                                    <i className={`itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>{index + 1}</i>
                                                 </span>
                                                 <div className="itemContent">
                                                     <span className="itemName textOverflow extended">{item.content}</span>
-                                                    {/* {item.created && !item.updated ? (
+                                                    {devEnv && item.created && !item.updated ? (
                                                     <span className="itemDate itemName itemCreated textOverflow extended flex row">
                                                         <i className={`status`}>Created</i> 
                                                         <span className={`itemDateTime`}>{formatDate(new Date(item.created))}</span>
                                                     </span>
-                                                    ) : item.updated ? (
+                                                    ) : devEnv && item.updated ? (
                                                     <span className="itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
                                                         <i className={`status`}>Updated</i> 
                                                         <span className={`itemDateTime`}>{formatDate(new Date(item.updated))}</span>
                                                     </span>
-                                                    ) : null} */}
+                                                    ) : null}
                                                 </div>
                                                 <div className="itemButtons customButtons">
                                                     {/* <button title={`Edit Item`} className={`iconButton editButton`}><i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-edit"></i></button> */}
