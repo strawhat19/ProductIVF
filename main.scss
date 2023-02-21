@@ -187,6 +187,8 @@ article {
         }
     }
     .nextra-scrollbar {
+        padding-left: 1em;
+        margin: 0 !important;
         overflow: visible !important;
         p, ul {
             padding: 0 0 1em 2em;
@@ -201,9 +203,6 @@ article {
                     text-overflow: ellipsis;
                 }
             }
-        }
-        div {
-            padding: 2em 0 0 2em !important;
         }
     }
 }
