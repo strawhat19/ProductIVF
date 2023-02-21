@@ -22,6 +22,7 @@
     "ag-grid-react": "^29.1.0",
     "antd": "^5.2.1",
     "firebase": "^9.17.1",
+    "framer-motion": "^9.0.4",
     "immutability-helper": "^3.1.1",
     "jquery": "^3.6.3",
     "next": "^13.0.6",

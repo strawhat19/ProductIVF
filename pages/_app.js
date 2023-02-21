@@ -1,4 +1,5 @@
 import '../main.scss';
+import { AnimatePresence, motion } from 'framer-motion';
 import { createContext, useRef, useState, useEffect } from 'react';
 
 export const StateContext = createContext({});
@@ -200,7 +201,7 @@ export const showAlert = async (alertTitle, alertMessage, additionalInfo) => {
   alertDialog.appendChild(closeButton);
 }
 
-export default function MyApp({ Component, pageProps }) {
+export default function MyApp({ Component, pageProps, router }) {
     let loaded = useRef(false);
     let mobileMenuBreakPoint = 697;
     let [IDs, setIDs] = useState([]);
@@ -222,7 +223,7 @@ export default function MyApp({ Component, pageProps }) {
     let [highScore, setHighScore] = useState(0);
     let [platform, setPlatform] = useState(null);
     let [anim, setAnimComplete] = useState(false);
-    // let [board, setBoard] = useState(initialData);
+    let [board, setBoard] = useState(initialData);
     let [colorPref, setColorPref] = useState(user);
     let [alertOpen, setAlertOpen] = useState(false);
     let [authState, setAuthState] = useState(`Next`);
@@ -248,7 +249,7 @@ export default function MyApp({ Component, pageProps }) {
         setSystemStatus(`System Status Ok.`);
         setPage(window.location.pathname.replace(`/`,``));
         setDevEnv(window.location.host.includes(`localhost`));
-        // setBoard(JSON.parse(localStorage.getItem(`board`)) || initialData);
+        setBoard(JSON.parse(localStorage.getItem(`board`)) || initialData);
         setLists(JSON.parse(localStorage.getItem(`lists`)) || defaultLists);
         setMobile((typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1));
 
@@ -271,9 +272,24 @@ export default function MyApp({ Component, pageProps }) {
         }
       }, [user, users, authState, dark])
 
-    return <StateContext.Provider value={{ updates, setUpdates, content, setContent, width, setWidth, user, setUser, page, setPage, mobileMenu, setMobileMenu, users, setUsers, authState, setAuthState, emailField, setEmailField, devEnv, setDevEnv, mobileMenuBreakPoint, platform, setPlatform, focus, setFocus, highScore, setHighScore, color, setColor, dark, setDark, colorPref, setColorPref, lists, setLists, showLeaders, setShowLeaders, items, setItems, qotd, setQotd, alertOpen, setAlertOpen, mobile, setMobile, systemStatus, setSystemStatus, loading, setLoading, anim, setAnimComplete, IDs, setIDs, boardLoaded, setBoardLoaded, }}>
-      <div className={`pageWrapContainer ${page.toUpperCase()}`}>
-        <Component {...pageProps} />
-      </div>
+    return <StateContext.Provider value={{ updates, setUpdates, content, setContent, width, setWidth, user, setUser, page, setPage, mobileMenu, setMobileMenu, users, setUsers, authState, setAuthState, emailField, setEmailField, devEnv, setDevEnv, mobileMenuBreakPoint, platform, setPlatform, focus, setFocus, highScore, setHighScore, color, setColor, dark, setDark, colorPref, setColorPref, lists, setLists, showLeaders, setShowLeaders, items, setItems, qotd, setQotd, alertOpen, setAlertOpen, mobile, setMobile, systemStatus, setSystemStatus, loading, setLoading, anim, setAnimComplete, IDs, setIDs, boardLoaded, setBoardLoaded, board, setBoard }}>
+      <AnimatePresence exitBeforeEnter={true}>
+        <motion.div className={`pageWrapContainer ${page.toUpperCase()}`} key={router.route} initial="pageInitial" animate="pageAnimate" exit="pageExit" transition={{ duration: 0.75 }} variants={{
+          pageInitial: {
+            opacity: 0,
+            clipPath: `polygon(0 0, 100% 0, 100% 100%, 0% 100%)`,
+          },
+          pageAnimate: {
+            opacity: 1,
+            clipPath: `polygon(0 0, 100% 0, 100% 100%, 0% 100%)`,
+          },
+          pageExit: {
+            opacity: 0,
+            clipPath: `polygon(50% 0, 50% 0, 50% 100%, 50% 100%)`,
+          },
+        }}>
+          <Component {...pageProps} />
+        </motion.div>
+      </AnimatePresence>
     </StateContext.Provider>
 }

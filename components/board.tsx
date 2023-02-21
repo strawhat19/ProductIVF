@@ -5,9 +5,9 @@ import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 
 function Board(props) {
     const [updates, setUpdates] = useState(0);
-    const initialData = { items: {}, columns: {}, columnOrder: [] };
-    const [board, setBoard] = useState(initialData);
-    const { setLoading, setSystemStatus, devEnv } = useContext<any>(StateContext);
+    // const initialData = { items: {}, columns: {}, columnOrder: [] };
+    // const [board, setBoard] = useState(initialData);
+    const { board, setBoard, setLoading, setSystemStatus, devEnv } = useContext<any>(StateContext);
 
     const addNewColumn = (e) => {
         e.preventDefault();
@@ -122,13 +122,7 @@ function Board(props) {
     }
 
     useEffect(() => {
-        // console.clear();
-        let storedBoard = JSON.parse(localStorage.getItem(`board`));
-        if (storedBoard && updates < 1) {
-            setBoard(storedBoard);
-        }
-
-        localStorage.setItem(`board`, JSON.stringify(board));
+        if (updates > 1 && board.columnOrder.length > 0) localStorage.setItem(`board`, JSON.stringify(board));
 
         let boardColumnItems = document.querySelectorAll(`.boardColumnItems`);
         boardColumnItems.forEach(columnItems => {
@@ -143,7 +137,7 @@ function Board(props) {
 
         setUpdates(updates + 1);
         // dev() && console.log(`Updates`, updates);
-        dev() && console.log(`Board`, board);
+        dev() && board.columnOrder.length > 0 && console.log(`Board`, board);
 
     },  [board])
 
