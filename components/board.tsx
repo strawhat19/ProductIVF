@@ -5,8 +5,7 @@ import { dev, formatDate, generateUniqueID, StateContext } from '../pages/_app';
 
 function Board(props) {
     const [updates, setUpdates] = useState(0);
-    const [filtered, setFiltered] = useState(false);
-    const { board, setBoard, setLoading, setSystemStatus, devEnv } = useContext<any>(StateContext);
+    const { board, setBoard, setLoading, setSystemStatus, devEnv, completeFiltered, setCompleteFiltered, boardCategories, setBoardCategories, setCategories } = useContext<any>(StateContext);
 
     const addNewColumn = (e) => {
         e.preventDefault();
@@ -118,33 +117,77 @@ function Board(props) {
         });
     }
 
-    const filterCompleted = (e) => {
+    const getCommonWords = (arrayOfSentences) => {
+        // Join all sentences into a single string
+        const text = arrayOfSentences.join(' ');
+        
+        // Split the text into an array of words
+        const words = text.split(/\W+/);
+        
+        // Count the frequency of each word
+        const wordCounts = {};
 
-        setFiltered(!filtered);
-
-        let completedItems = document.querySelectorAll(`.complete`);
-        let boardItems = document.querySelectorAll(`.boardColumnItems`);
-
-        if (!filtered) {
-            completedItems.forEach((completedItem: any) => {
-                completedItem.style.display = `none`;
-            });
-            boardItems.forEach(listOfItems => {
-                listOfItems.querySelectorAll(`.activeIndex`).forEach((itemIndex: any, index) => {
-                    itemIndex.innerHTML = index + 1;
-                })
-            });
-        } else {
-            completedItems.forEach((completedItem: any) => {
-                completedItem.style.display = `flex`;
-            });
-            boardItems.forEach(listOfItems => {
-                listOfItems.querySelectorAll(`.itemIndex`).forEach((itemIndex: any, index) => {
-                    itemIndex.innerHTML = index + 1;
-                })
-            });
+        for (const word of words) {
+            if (word.slice(0,word.length) in wordCounts) {
+              wordCounts[word.slice(0,word.length)] += 1;
+            } else {
+              wordCounts[word.slice(0,word.length)] = 1;
+            }
         }
+
+        for (const word of words) {
+            if (word.slice(0,word.length - 1) in wordCounts) {
+              wordCounts[word.slice(0,word.length - 1)] += 1;
+            } else {
+              wordCounts[word.slice(0,word.length - 1)] = 1;
+            }
+        }
+
+        for (const word of words) {
+          if (word.slice(0,word.length - 2) in wordCounts) {
+            wordCounts[word.slice(0,word.length - 2)] += 1;
+          } else {
+            wordCounts[word.slice(0,word.length - 2)] = 1;
+          }
+        }
+        
+        // Convert the word counts to an array of {value, occurrences} objects
+        const commonWords = [];
+        for (const [word, count] of Object.entries(wordCounts)) {
+          commonWords.push({ word: word, occurences: count });
+        }
+        
+        // Sort the common words array in descending order by occurrences
+        commonWords.sort((a, b) => b.occurrences - a.occurrences);
+        
+        return commonWords.filter(word => word.word != `` && word.word.length > 2 && word.occurences > 1);
     }
+
+    // const filterCompleted = (e) => {
+
+        // let completedItems = document.querySelectorAll(`.complete`);
+        // let boardItems = document.querySelectorAll(`.boardColumnItems`);
+
+        // if (!filtered) {
+        //     completedItems.forEach((completedItem: any) => {
+        //         completedItem.style.display = `none`;
+        //     });
+        //     boardItems.forEach(listOfItems => {
+        //         listOfItems.querySelectorAll(`.activeIndex`).forEach((itemIndex: any, index) => {
+        //             itemIndex.innerHTML = index + 1;
+        //         })
+        //     });
+        // } else {
+        //     completedItems.forEach((completedItem: any) => {
+        //         completedItem.style.display = `flex`;
+        //     });
+        //     boardItems.forEach(listOfItems => {
+        //         listOfItems.querySelectorAll(`.itemIndex`).forEach((itemIndex: any, index) => {
+        //             itemIndex.innerHTML = index + 1;
+        //         })
+        //     });
+        // }
+    // }
 
     useEffect(() => {
         if (updates > 1) localStorage.setItem(`board`, JSON.stringify(board));
@@ -159,6 +202,16 @@ function Board(props) {
                 }
             }, 250);
         });
+
+        let itemContents = document.querySelectorAll(`.boardItemContent`);
+        let arrayOfItemContents = Array.from(itemContents).map(content => content.innerHTML.toLowerCase());
+
+        // console.clear();
+        // console.log(arrayOfItemContents);
+        // console.log(getCommonWords(arrayOfItemContents));
+
+        setBoardCategories(getCommonWords(arrayOfItemContents));
+        setCategories(boardCategories.map(cat => cat.word));
 
         setUpdates(updates + 1);
         // dev() && console.log(`Updates`, updates);
@@ -189,8 +242,8 @@ function Board(props) {
                         </div>
                     </div>
                     <div className="filterButtons itemButtons">
-                        <button onClick={(e) => filterCompleted(e)} id={`filter_completed`} style={{ pointerEvents: `all` }} title={`Filter Completed`} className={`iconButton deleteButton filterButton ${filtered ? `filterActive` : `filterInactive`}`}>
-                            <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-filter"></i>
+                        <button onClick={(e) =>  setCompleteFiltered(!completeFiltered)} id={`filter_completed`} style={{ pointerEvents: `all` }} title={`Filter Completed`} className={`iconButton deleteButton filterButton ${completeFiltered ? `filterActive` : `filterInactive`}`}>
+                            <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${completeFiltered ? `fa-times-circle` : `fa-filter`}`}></i>
                             <span className={`iconButtonText textOverflow extended`}>Filter Completed</span>
                         </button>
                     </div>
@@ -198,7 +251,7 @@ function Board(props) {
             </div>
             <Droppable droppableId={`all-columns`} direction="horizontal" type="column">
                 {provided => (
-                    <section id={`board`} className={`board lists container ${board.columnOrder.length == 2 ? `clipColumns` : board.columnOrder.length >= 3 ? `overflowingBoard` : ``}`} {...provided.droppableProps} ref={provided.innerRef} style={props.style}>
+                    <section id={`board`} className={`board lists container ${board.columnOrder.length == 2 ? `clipColumns` : board.columnOrder.length == 3 ? `threeBoard overflowingBoard` : board.columnOrder.length > 3 ? `moreBoard overflowingBoard` : ``}`} {...provided.droppableProps} ref={provided.innerRef} style={props.style}>
                         {
                             board.columnOrder.map((columnId, index) => {
                                 const column = board.columns[columnId];

@@ -283,6 +283,7 @@ export default function MyApp({ Component, pageProps, router }) {
     let [platform, setPlatform] = useState(null);
     let [anim, setAnimComplete] = useState(false);
     let [board, setBoard] = useState(initialData);
+    let [categories, setCategories] = useState([]);
     let [colorPref, setColorPref] = useState(user);
     let [alertOpen, setAlertOpen] = useState(false);
     let [authState, setAuthState] = useState(`Next`);
@@ -293,7 +294,9 @@ export default function MyApp({ Component, pageProps, router }) {
     let [showLeaders, setShowLeaders] = useState(false);
     let [content, setContent] = useState(`defaultContent`);
     let [animCompleted, setAnimCompleted] = useState(false);
+    let [boardCategories, setBoardCategories] = useState([]);
     let [year, setYear] = useState(new Date().getFullYear());
+    let [completeFiltered, setCompleteFiltered] = useState(false);
 
     useEffect(() => {
       setAnimComplete(false);
@@ -331,7 +334,7 @@ export default function MyApp({ Component, pageProps, router }) {
         }
       }, [user, users, authState, dark])
 
-    return <StateContext.Provider value={{ updates, setUpdates, content, setContent, width, setWidth, user, setUser, page, setPage, mobileMenu, setMobileMenu, users, setUsers, authState, setAuthState, emailField, setEmailField, devEnv, setDevEnv, mobileMenuBreakPoint, platform, setPlatform, focus, setFocus, highScore, setHighScore, color, setColor, dark, setDark, colorPref, setColorPref, lists, setLists, showLeaders, setShowLeaders, items, setItems, qotd, setQotd, alertOpen, setAlertOpen, mobile, setMobile, systemStatus, setSystemStatus, loading, setLoading, anim, setAnimComplete, IDs, setIDs, boardLoaded, setBoardLoaded, board, setBoard }}>
+    return <StateContext.Provider value={{ updates, setUpdates, content, setContent, width, setWidth, user, setUser, page, setPage, mobileMenu, setMobileMenu, users, setUsers, authState, setAuthState, emailField, setEmailField, devEnv, setDevEnv, mobileMenuBreakPoint, platform, setPlatform, focus, setFocus, highScore, setHighScore, color, setColor, dark, setDark, colorPref, setColorPref, lists, setLists, showLeaders, setShowLeaders, items, setItems, qotd, setQotd, alertOpen, setAlertOpen, mobile, setMobile, systemStatus, setSystemStatus, loading, setLoading, anim, setAnimComplete, IDs, setIDs, boardLoaded, setBoardLoaded, board, setBoard, completeFiltered, setCompleteFiltered, boardCategories, setBoardCategories, categories, setCategories }}>
       <AnimatePresence exitBeforeEnter={true}>
         <motion.div className={`pageWrapContainer ${page.toUpperCase()}`} key={router.route} initial="pageInitial" animate="pageAnimate" exit="pageExit" transition={{ duration: 0.75 }} variants={{
           pageInitial: {

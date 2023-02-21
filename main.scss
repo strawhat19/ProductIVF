@@ -1330,7 +1330,9 @@ footer {
     //     }
     // }
     &.overflowingBoard {
-        overflow-x: scroll;
+        &.moreBoard {
+            overflow-x: scroll;
+        }
         *:not(.dragging) {
             @media (max-width: 1390px) {
                 .listNameRow {
@@ -1379,6 +1381,10 @@ footer {
             .item {
                 min-height: min-content;
                 background: linear-gradient(90deg, white 35px, var(--blackGlass) 35px);
+                .itemDate {
+                    font-size: 9px;
+                    max-width: 115px !important;
+                }
                 &:hover {
                     cursor: move;
                 }
@@ -1396,6 +1402,16 @@ footer {
                     padding: 10px 0;
                     .itemName {
                         padding: 0 !important;
+                    }
+                    .itemCategory {
+                        max-width: min-content !important;
+                        background: white;
+                        color: black;
+                        border-radius: 4px;
+                        font-weight: 800 !important;
+                        justify-content: flex-start !important;
+                        grid-gap: 5px !important;
+                        padding: 5px !important;
                     }
                 }
                 .itemButtons {

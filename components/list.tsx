@@ -3,7 +3,104 @@ import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { showAlert, formatDate, generateUniqueID, StateContext } from '../pages/_app';
 
 function List(props) {
-    const { setLoading, setSystemStatus, devEnv } = useContext<any>(StateContext);
+    const { setLoading, setSystemStatus, devEnv, completeFiltered, boardCategories } = useContext<any>(StateContext);
+
+    const itemActiveFilters = (itm) => {
+        if (completeFiltered) {
+            if (!itm.complete) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return true;
+        }
+    }
+
+    const kmpSearch = (pattern, text) => {
+        if (pattern.length == 0) return false; // Immediate match
+      
+        // Compute longest suffix-prefix table
+        var lsp = [0]; // Base case
+        for (var i = 1; i < pattern.length; i++) {
+          var j = lsp[i - 1]; // Start by assuming we're extending the previous LSP
+          while (j > 0 && pattern[i] !== pattern[j])
+            j = lsp[j - 1];
+          if (pattern[i] === pattern[j])
+            j++;
+          lsp.push(j);
+        }
+      
+        // Walk through text string
+        var j = 0; // Number of chars matched in pattern
+        for (var i = 0; i < text.length; i++) {
+          while (j > 0 && text[i] != pattern[j])
+            j = lsp[j - 1]; // Fall back in the pattern
+          if (text[i]  == pattern[j]) {
+            j++; // Next char matched, increment position
+            if (j == pattern.length)
+              return i - (j - 1) ? true : false;
+          }
+        }
+        return false; // Not found
+      }
+
+    const matchCriteria = (itm) => {
+        let text = itm.content;
+        boardCategories.map(cat => cat.word).forEach(pattern => {
+            if (pattern.length == 0) return 0; // Immediate match
+        
+            // Compute longest suffix-prefix table
+            let lsp = [0]; // Base case
+            for (let i = 1; i < pattern.length; i++) {
+                let j = lsp[i - 1]; // Start by assuming we're extending the previous LSP
+                while (j > 0 && pattern[i] !== pattern[j])
+                j = lsp[j - 1];
+                if (pattern[i] === pattern[j])
+                j++;
+                lsp.push(j);
+            }
+            
+            // Walk through text string
+            let j = 0; // Number of chars matched in pattern
+            for (let i = 0; i < text.length; i++) {
+                while (j > 0 && text[i] != pattern[j])
+                j = lsp[j - 1]; // Fall back in the pattern
+                if (text[i]  == pattern[j]) {
+                j++; // Next char matched, increment position
+                if (j == pattern.length)
+                    return i - (j - 1);
+                }
+            }
+            return -1; // Not found
+        })
+    }
+
+    const wordInCategories = itm => {
+        // console.log(matchCriteria(itm));
+        // boardCategories.forEach(cat => {
+        //     return kmpSearch(cat.word, itm.content);
+        // });
+        let condition =  boardCategories.map(cat => cat.word).includes(itm.content.toLowerCase().slice(0,3))
+        || boardCategories.map(cat => cat.word).includes(itm.content.toLowerCase().slice(0,4)) || boardCategories.map(cat => cat.word).includes(itm.content.toLowerCase().slice(5));
+        // console.log(itm.content, condition);
+        return (
+            condition
+        );
+        // itm.content.toLowerCase().split(` `).forEach(wrd => {
+        //    boardCategories.map(cat => cat.word).includes(wrd);
+        // })
+        // boardCategories.map(cat => {
+        //     console.log(cat.word);
+        //     console.log(itm.content.toLowerCase().split(` `));
+        //     console.log(itm.content.toLowerCase().split(` `).includes(cat.word));
+        //     return itm.content.toLowerCase().split(` `).includes(cat.word);
+        // });
+    }
+
+    const wordOfCategory = itm => {
+        return itm.content.slice(0,4);
+    }
 
     const addNewItem = (e) => {
         e.preventDefault();
@@ -154,7 +251,7 @@ function List(props) {
                     <Droppable droppableId={props.column.id} type="task">
                         {provided => (
                             <div id={`items_of_${props.column.id}`} className={`items boardColumnItems listItems`} {...provided.droppableProps} ref={provided.innerRef}>
-                                {props.items.map((item, index) =>
+                                {props.items.filter(itm => itemActiveFilters(itm)).map((item, index) =>
                                     (<Draggable key={item.id} draggableId={item.id} index={index}>
                                         {provided => (
                                             <div id={item.id} className={`item ${item.complete ? `complete` : ``} container`} title={item.content} {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
@@ -162,15 +259,19 @@ function List(props) {
                                                     <i className={`itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>{index + 1}</i>
                                                 </span>
                                                 <div className="itemContent">
-                                                    <span className="itemName textOverflow extended">{item.content}</span>
+                                                    <span className="boardItemContent itemName textOverflow extended">{item.content}</span>
+                                                    {devEnv && wordInCategories(item) && <span className="itemCategory itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
+                                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-hashtag"></i> 
+                                                        <span className={`itemDateTime`}>{wordOfCategory(item)}</span>
+                                                    </span>}
                                                     {devEnv && item.created && !item.updated ? (
                                                     <span className="itemDate itemName itemCreated textOverflow extended flex row">
-                                                        <i className={`status`}>Created</i> 
+                                                        <i className={`status`}>Cre.</i> 
                                                         <span className={`itemDateTime`}>{formatDate(new Date(item.created))}</span>
                                                     </span>
                                                     ) : devEnv && item.updated ? (
                                                     <span className="itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
-                                                        <i className={`status`}>Updated</i> 
+                                                        <i className={`status`}>Upd.</i> 
                                                         <span className={`itemDateTime`}>{formatDate(new Date(item.updated))}</span>
                                                     </span>
                                                     ) : null}
