@@ -1,5 +1,4 @@
 import Board from './board';
-import Title from './title';
 import React, { useState, useContext, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { capitalizeAllWords, dev, formatDate, generateUniqueID, StateContext } from '../pages/_app';
@@ -27,26 +26,26 @@ export enum RowTypes {
 declare global {
     interface Board {
       id: string;
-      rows: Row[];
       name: string;
       created: string;
       updated?: string;
       columns: Column[];
+      rows: ColumnRow[];
       [key: string]: any;
       type: keyof typeof BoardTypes;
     }
 
     interface Column {
         id: string;
-        rows: Row[];
         name: string;
         type: string;
         created: string;
         updated?: string;
+        rows: ColumnRow[];
         [key: string]: any;
     }
 
-    interface Row {
+    interface ColumnRow {
       id: string;
       content: string;
       created: string;
