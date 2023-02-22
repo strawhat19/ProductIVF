@@ -221,81 +221,88 @@ export default function Boards(props) {
             <DragDropContext onDragEnd={(e) => onDragEnd(e)}>
                 <Droppable droppableId={`droppable_boards`}>
                     {(provided, snapshot) => {
-                        return <>
-                            <section className={`boards ${snapshot.isDraggingOver ? `isDraggingOver` : ``}`} id={`boards`} ref={provided.innerRef} {...provided.droppableProps}>
-                                {boards.filter(board => boardFilters.includes(board.type)).map((board, boardIndex) => {
-                                    return (
-                                        <Draggable draggableId={`draggable_board_${board.id}`} key={`key_of_${board.id}`} index={boardIndex}>
-                                            {(provided, snapshot) => (
-                                                <article id={board.id} className={`board ${snapshot.isDragging ? `dragging` : ``}`} {...provided.draggableProps} ref={provided.innerRef}>
-                                                    <div id={`titleRowOf${board.id}`} className={`titleRow flex row`} {...provided.dragHandleProps}>
-                                                        <div className="flex row innerRow">
-                                                            <div className="flex row left">
-                                                                <h2>{board.name}</h2>
-                                                            </div>
-                                                            <div className="flex row middle" style={{textAlign: `center`}}>
-                                                                <h4><i>{board.type}</i></h4>
-                                                            </div>
-                                                            <div className="flex row right">
-                                                                <h3>{board.columns.length} <span className={`subscript`}>Columns</span></h3>
-                                                                <div className="itemButtons customButtons">
-                                                                    <button id={`delete_${board.id}`} onClick={(e) => deleteBoard(e, board)} title={`Delete Board`} className={`iconButton deleteButton`}>
-                                                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-trash"></i>
-                                                                        <span className={`iconButtonText textOverflow extended`}>Delete</span>
-                                                                    </button>
-                                                                </div>
-                                                            </div>
+                        return <section className={`boards ${snapshot.isDraggingOver ? `isDraggingOver` : ``}`} id={`boards`} ref={provided.innerRef} {...provided.droppableProps}>
+                        {boards.filter(board => boardFilters.includes(board.type)).map((board, boardIndex) => {
+                            return (
+                                <Draggable draggableId={`draggable_board_${board.id}`} key={`key_of_${board.id}`} index={boardIndex}>
+                                    {(provided, snapshot) => (
+                                        <article id={board.id} className={`board ${snapshot.isDragging ? `dragging` : ``}`} {...provided.draggableProps} ref={provided.innerRef}>
+                                            <div id={`titleRowOf${board.id}`} className={`titleRow flex row`} {...provided.dragHandleProps}>
+                                                <div className="flex row innerRow">
+                                                    <div className="flex row left">
+                                                        <h2>{board.name}</h2>
+                                                    </div>
+                                                    <div className="flex row middle" style={{textAlign: `center`}}>
+                                                        <h4><i>{board.type}</i></h4>
+                                                    </div>
+                                                    <div className="flex row right">
+                                                        <h3>{board.columns.length} <span className={`subscript`}>Columns</span></h3>
+                                                        <div className="itemButtons customButtons">
+                                                            <button id={`delete_${board.id}`} onClick={(e) => deleteBoard(e, board)} title={`Delete Board`} className={`iconButton deleteButton`}>
+                                                                <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-trash"></i>
+                                                                <span className={`iconButtonText textOverflow extended`}>Delete</span>
+                                                            </button>
                                                         </div>
                                                     </div>
-                                                    {/* <Droppable droppableId={`${board.id}_droppable_columns`}>
-                                                        {(provided, snapshot) => {
-                                                            return <>
-                                                                <div className={`boardColumns flex row`}>
-                                                                    {board.columns.map((column, columnIndex) => {
-                                                                        return <Draggable draggableId={`draggable_column_${column.id}`} key={`key_of_${column.id}`} index={columnIndex}>
-                                                                             {(provided, snapshot) => (
-                                                                                <figure className={`column`}>
-                                                                                    <div id={`title_of_${column.id}`} className={`titleRow flex row`} {...provided.dragHandleProps}>
-                                                                                        <div className="flex row innerRow">
-                                                                                            <div className="flex row left">
-                                                                                                <h2>{column.name}</h2>
-                                                                                            </div>
-                                                                                            <div className="flex row middle" style={{textAlign: `center`}}>
-                                                                                                <h4><i>{``}</i></h4>
-                                                                                            </div>
-                                                                                            <div className="flex row right">
-                                                                                                <h3>{``}</h3>
-                                                                                                <div className="itemButtons customButtons">
-                                                                                                    <button id={`delete_${column.id}`} onClick={(e) => deleteColumn(e, column)} title={`Delete Column`} className={`iconButton deleteButton`}>
-                                                                                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-trash"></i>
-                                                                                                        <span className={`iconButtonText textOverflow extended`}>Delete</span>
-                                                                                                    </button>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        </div>
+                                                </div>
+                                            </div>
+                                            <Droppable droppableId={`${board.id}_droppable_columns`} direction="horizontal" type="column">
+                                                {(provided, snapshot) => {
+                                                    return <div className={`boardColumns flex row ${snapshot.isDraggingOver ? `isDraggingOver` : ``}`} ref={provided.innerRef} {...provided.droppableProps}>
+                                                    {board.columns.map((column, columnIndex) => {
+                                                        return (
+                                                            <Draggable draggableId={`draggable_column_figure_${column.id}`} key={`key_of_${columnIndex}`} index={columnIndex}>
+                                                                {(provided, snapshot) => (
+                                                                    <figure className={`column ${snapshot.isDragging ? `dragging` : ``}`} id={`column_figure_${column.id}`} {...provided.draggableProps} ref={provided.innerRef}>
+                                                                        <div id={`title_of_${column.id}`} className={`titleRow flex row`} {...provided.dragHandleProps}>
+                                                                            <div className="flex row innerRow">
+                                                                                <div className="flex row left">
+                                                                                    <h2>{column.name}</h2>
+                                                                                </div>
+                                                                                <div className="flex row middle" style={{textAlign: `center`}}>
+                                                                                    <h4><i>{``}</i></h4>
+                                                                                </div>
+                                                                                <div className="flex row right">
+                                                                                    <h3>{``}</h3>
+                                                                                    <div className="itemButtons customButtons">
+                                                                                        <button id={`delete_${column.id}`} onClick={(e) => deleteColumn(e, column)} title={`Delete Column`} className={`iconButton deleteButton`}>
+                                                                                            <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-trash"></i>
+                                                                                            <span className={`iconButtonText textOverflow extended`}>Delete</span>
+                                                                                        </button>
                                                                                     </div>
-                                                                                    Column Rows
-                                                                                    Column Rows
-                                                                                    Column Rows
-                                                                                    Column Rows
-                                                                                    Column Rows
-                                                                                </figure>
-                                                                             )}
-                                                                        </Draggable>
-                                                                    })}
-                                                                    {provided.placeholder}
-                                                                </div>
-                                                            </>
-                                                        }}
-                                                    </Droppable> */}
-                                                </article>
-                                            )}
-                                        </Draggable>
-                                    )
-                                })}
-                                {provided.placeholder}
-                            </section>
-                        </>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className="list items">
+                                                                            <div className="item">
+                                                                                Column Rows
+                                                                            </div>
+                                                                            <div className="item">
+                                                                                Column Rows
+                                                                            </div>
+                                                                            <div className="item">
+                                                                                Column Rows
+                                                                            </div>
+                                                                            <div className="item">
+                                                                                Column Rows
+                                                                            </div>
+                                                                        </div>
+                                                                    </figure>
+                                                                )}
+                                                            </Draggable>
+                                                        )
+                                                    })}
+                                                    {provided.placeholder}
+                                                </div>
+                                                }}
+                                            </Droppable>
+                                        </article>
+                                    )}
+                                </Draggable>
+                            )
+                        })}
+                        {provided.placeholder}
+                    </section>
                     }}
                 </Droppable>
             </DragDropContext>
