@@ -1,20 +1,22 @@
+import Board from './board';
+import Title from './title';
 import React, { useState, useContext, useEffect } from 'react';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
-import { dev, formatDate, generateUniqueID, StateContext } from '../pages/_app';
-import Board from './board';
+import { capitalizeAllWords, dev, formatDate, generateUniqueID, StateContext } from '../pages/_app';
 
 export enum BoardTypes {
-    Spreadsheet = `Spreadsheet`,
     Kanban = `Kanban`,
+    TierList = `Tier List`,
+    Spreadsheet = `Spreadsheet`,
 }
 
 export enum ColumnTypes {
     Todo = `To Do`,
     Active = `Active`,
-    In_Progress = `In Progress`,
-    Coded_Not_Deployed = `Coded Not Deployed`,
     Testing = `Testing`,
     Complete = `Complete`,
+    InProgress = `In Progress`,
+    CodedNotDeployed = `Coded Not Deployed`,
 }
 
 export enum RowTypes {
@@ -26,6 +28,7 @@ declare global {
     interface Board {
       id: string;
       rows: Row[];
+      name: string;
       created: string;
       updated?: string;
       columns: Column[];
@@ -35,12 +38,12 @@ declare global {
 
     interface Column {
         id: string;
-        name: string;
         rows: Row[];
+        name: string;
+        type: string;
         created: string;
         updated?: string;
         [key: string]: any;
-        type: keyof typeof ColumnTypes;
     }
 
     interface Row {
@@ -54,35 +57,106 @@ declare global {
     }
 }
 
+export const kanBanColumns: Column[] = [
+    {
+        id: `col-1`,
+        name: `To Do`,
+        type: ColumnTypes.Todo,
+        created: formatDate(new Date()),
+        rows: [],
+    },
+    {
+        id: `col-2`,
+        name: `In Progress`,
+        type: ColumnTypes.Active,
+        created: formatDate(new Date()),
+        rows: [],
+    },
+    {
+        id: `col-3`,
+        name: `Completed`,
+        type: ColumnTypes.Complete,
+        created: formatDate(new Date()),
+        rows: [],
+    },
+]
+
 export default function Boards(props) {
     let [filterCompletedItems, setFilterCompletedItems] = useState(false);
     let [boardFilters, setBoardFilters] = useState(Object.values(BoardTypes));
     const { boards, setBoards, setLoading, setSystemStatus, IDs, setIDs, devEnv } = useContext<any>(StateContext);
 
+    const getBoardColumns = (boardType) => {
+        switch (boardType) {
+            case BoardTypes.Kanban:
+                return kanBanColumns;
+        }
+    }
+
     const addNewBoard = (e) => {
         e.preventDefault();
         setLoading(true);
-        let formFields = e.target.children;
-        let boardName = formFields.createBoard.value;
+        let formFields = e.target.children[0].children;
+        let boardType = formFields.selectBoardType.value;
+        let boardName = capitalizeAllWords(formFields.createBoard.value);
         let newBoardID = `board_${boards.length + 1}_${generateUniqueID(IDs)}`;
         setSystemStatus(`Creating Board ${boardName}.`);
 
         let newBoard = {
             created: formatDate(new Date()),
-            type: BoardTypes.Spreadsheet,
+            type: boardType,
+            name: boardName,
             id: newBoardID,
-            columns: [],
+            columns: getBoardColumns(boardType),
             rows: []
         }
 
         setBoards([...boards, newBoard]);
+        setIDs([...IDs, newBoard.id]);
 
         if (dev()) {
             // console.log(`addNewBoard Event`, e);
+            // console.log(`addNewBoard type`, boardType);
             // console.log(`addNewBoard Boards`, boards);
         }
 
         e.target.reset();
+        setTimeout(() => {
+            setLoading(false);
+            setSystemStatus(`Created Board ${newBoard.name}.`);
+        }, 1000);
+    }
+
+    const deleteBoard = (e, board) => {
+        setLoading(true);
+        setSystemStatus(`Deleting Board ${board.name}.`);
+
+        setBoards([...boards.filter(brd => brd.id != board.id)]);
+
+        if (dev()) {
+            console.log(`Delete Board`, e, board);
+        }
+
+        setTimeout(() => {
+            setLoading(false);
+            setSystemStatus(`Deleted Board ${board.name}.`);
+        }, 1000);
+    }
+  
+    const deleteCol = (e, col) => {
+        setLoading(true);
+        setSystemStatus(`Deleting Column ${col.name}.`);
+
+        // setBoards([...boards.filter(brd => brd.id != col.id)]);
+
+        if (dev()) {
+            console.log(`Delete Column`, e, col);
+        }
+
+        setTimeout(() => {
+            setLoading(false);
+            setSystemStatus(`Deleted column ${col.name}.`);
+        }, 1000);
     }
 
     const onDragEnd = (e) => {
@@ -95,9 +169,12 @@ export default function Boards(props) {
 
     useEffect(() => {
 
+        // setBoardFilters([...Object.values(BoardTypes), `Default`]);
+
         if (dev()) {
-            IDs.length > 0 && console.log(`IDs`, IDs);
+            // IDs.length > 0 && console.log(`IDs`, IDs);
             boards.length > 0 && console.log(`Boards`, boards);
+            // boardFilters.length > 0 && console.log(`Board Filters`, boardFilters);
         }
 
     }, [boards, IDs]);
@@ -111,7 +188,15 @@ export default function Boards(props) {
                             <h2 style={{ fontWeight: 600, fontSize: 22, minWidth: `fit-content` }}>Create Board {boards.length + 1}</h2>
                             <section className={`addListFormItemSection`} style={{ margin: 0 }}>
                                 <form onSubmit={(e) => addNewBoard(e)} title={`Add Board`} id={`addListForm`} className={`flex addListForm itemButtons addForm`} style={{ width: `100%`, flexDirection: `row` }}>
-                                    <input maxLength={35} placeholder={`Name of Board`} type="text" name="createBoard" required />
+                                    <div className={`inputGroup flex row`}>
+                                        <input maxLength={35} placeholder={`Name of Board`} type="text" name="createBoard" required />
+                                        <select id={`select_board_type`} name={`selectBoardType`}>
+                                            <option id={`board_option_default`} value={`Spreadsheet`}>Select Board Type</option>
+                                            {Object.values(BoardTypes).map(type => {
+                                                return <option key={type} id={`board_option_${type}`} value={type}>{type}</option>
+                                            })}
+                                        </select>
+                                    </div>
                                     <button type={`submit`} title={`Create Board`} className={`iconButton createList`}>
                                         <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-list"></i>
                                         <span className={`iconButtonText textOverflow extended`}>
@@ -124,12 +209,12 @@ export default function Boards(props) {
                             </section>
                         </div>
                     </div>
-                    <div className="filterButtons itemButtons">
+                    {/* <div className="filterButtons itemButtons">
                         <button onClick={(e) =>  setFilterCompletedItems(!filterCompletedItems)} id={`filter_completed`} style={{ pointerEvents: `all` }} title={`Filter Completed`} className={`iconButton deleteButton filterButton ${filterCompletedItems ? `filterActive` : `filterInactive`}`}>
                             <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${filterCompletedItems ? `fa-times-circle` : `fa-filter`}`}></i>
                             <span className={`iconButtonText textOverflow extended`}>Filter Completed</span>
                         </button>
-                    </div>
+                    </div> */}
                 </div>
             </div>
             <div className={`boards`} id={`boards`}>
@@ -141,8 +226,12 @@ export default function Boards(props) {
                                 {(provided, snapshot) => {
                                     return <>
                                         <section id={`board`} className={`board columns container ${board.columns.length == 2 ? `clipColumns` : board.columns.length == 3 ? `threeBoard overflowingBoard` : board.columns.length > 3 ? `moreBoard overflowingBoard` : ``}`} {...provided.droppableProps} ref={provided.innerRef} style={props.style}>
-                                            {board.columns}
-                                            {provided.placeholder}
+                                            <Title id={`title_of_${board.id}`} className={`boardTitle`} left={board.name} right={`${board.columns.length} Columns`} buttonFunction={deleteBoard} itemID={board.id} item={board} middle={board.type} />
+                                            <div className={`boardColumns flex row`}>
+                                                {board.columns.map(col => {
+                                                    return <Title id={`title_of_${col.id}`} className={`colTitle`} left={col.name} buttonFunction={deleteCol} itemID={col.id} item={col} key={col.id} />
+                                                })}
+                                            </div>
                                         </section>
                                     </>
                                 }}
@@ -152,6 +241,7 @@ export default function Boards(props) {
                 </DragDropContext>
             </div>
         </> : <>
+            {/* Board */}
             <Board />
         </>}
     </>

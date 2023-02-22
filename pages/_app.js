@@ -100,9 +100,19 @@ export const createXML = (xmlString) => {
   return div.firstChild;
 }
 
-export const capitalizeAllWords = (string) => {
-  if (string != null || string != undefined) {
-    return string.replace(`  `,` `).split(` `).map((word) => word?.charAt(0)?.toUpperCase() + word?.slice(1).toLowerCase()).join();
+export const capitalizeAllWords = (string, underScores) => {
+  if (underScores) {
+    if (string != null || string != undefined) {
+      const words = string.replace(/_/g, ` `).split(` `);
+      const capitalizedWords = words.map((word) => {
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+      });
+      return capitalizedWords.join(`_`);
+    }
+  } else {
+    if (string != null || string != undefined) {
+      return string.replace(`  `,` `).split(` `).map((word) => word?.charAt(0)?.toUpperCase() + word?.slice(1).toLowerCase()).join();
+    }
   }
 };
 

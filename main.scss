@@ -33,6 +33,7 @@
     --react: #0fccce;
     --silver: #f2f2f2;
     --ground: #00b900;
+    --containerWidth: 95%;
     --gameBlue: #00c2ff;
     --softBlack: #1a1a1a;
     --secondary: #3c3c3c;
@@ -54,6 +55,24 @@
     --menuBackground: var(--blackGlass) !important;
     --softSkyBlue: rgba(132, 169, 177, 1) !important;
     --transition: 0.24s cubic-bezier(0.77, 0.2, 0.05, 1) !important;
+}
+
+.titleRow {
+    padding: 10px;
+    color: white;
+    font-weight: 600;
+    font-size: 1.2em;
+    border-radius: 4px;
+    background: var(--gameBlueSoft);
+    .innerRow {
+        background: var(--blackGlass);
+        h3 {
+            font-size: 16px;
+        }
+        h4 {
+            font-size: 14px;
+        }
+    }
 }
 
 .light {
@@ -276,8 +295,28 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
     border-radius: 4px;
     position: relative;
     max-height: 35px;
+    .inputGroup {
+        grid-gap: 5px !important;
+    }
     input {
         padding: 10px 0px 10px 65px;
+    }
+    select {
+        display: flex;
+        max-width: 27%;
+        font-size: 12px;
+        min-height: 33px;
+        border-radius: 4px;
+        flex-direction: row;
+        align-items: center;
+        text-transform: none;
+        justify-content: center;
+        padding: 5px 15px 5px 15px;
+        background: var(--blackGlass);
+        &:focus-visible {
+            border: 0 !important;
+            outline: none !important;
+        }
     }
     &::before {
         content: "+";
@@ -692,6 +731,21 @@ form {
     justify-content: space-between;
     &.row {
         flex-direction: row !important;
+        .innerRow {
+            width: 100%;
+            margin: 0 auto;
+            border-radius: 4px;
+            padding: 10px 15px;
+            align-items: center;
+        }
+        .left {
+            text-align: left;
+            justify-content: flex-start;
+        }
+        .right {
+            text-align: right;
+            justify-content: flex-end;
+        }
     }
 }
 
@@ -1315,6 +1369,22 @@ footer {
         width: 100%;
         &.filterActive {
             box-shadow: inset 0 0 9px 2px rgba(0, 0, 0, 0.39);
+        }
+    }
+}
+
+.boards {
+    .board {
+        padding: 15px 0 0;
+        flex-direction: column;
+        .boardColumns {
+            h2 {
+                font-size: 14px;
+                min-width: max-content;
+            }
+        }
+        .deleteButton {
+            font-size: 12px;
         }
     }
 }
