@@ -1,7 +1,7 @@
 import Board from './board';
 import Title from './title';
 import React, { useState, useContext, useEffect } from 'react';
-import { DragDropContext, Droppable } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { capitalizeAllWords, dev, formatDate, generateUniqueID, StateContext } from '../pages/_app';
 
 export enum BoardTypes {
@@ -88,6 +88,8 @@ export default function Boards(props) {
 
     const getBoardColumns = (boardType) => {
         switch (boardType) {
+            default:
+                return [];
             case BoardTypes.Kanban:
                 return kanBanColumns;
         }
@@ -103,11 +105,11 @@ export default function Boards(props) {
         setSystemStatus(`Creating Board ${boardName}.`);
 
         let newBoard = {
+            columns: getBoardColumns(boardType),
             created: formatDate(new Date()),
             type: boardType,
             name: boardName,
             id: newBoardID,
-            columns: getBoardColumns(boardType),
             rows: []
         }
 
@@ -143,7 +145,7 @@ export default function Boards(props) {
         }, 1000);
     }
   
-    const deleteCol = (e, col) => {
+    const deleteColumn = (e, col) => {
         setLoading(true);
         setSystemStatus(`Deleting Column ${col.name}.`);
 
@@ -181,7 +183,7 @@ export default function Boards(props) {
 
     return <>
         {devEnv ? <>
-            <div className="createList lists extended">
+            <div className="createBoard lists extended">
                 <div className={`list items addListDiv`}>
                     <div className="formItems items">
                         <div className="addListFormItem">
@@ -209,37 +211,95 @@ export default function Boards(props) {
                             </section>
                         </div>
                     </div>
-                    {/* <div className="filterButtons itemButtons">
+                    <div className="filterButtons itemButtons">
                         <button onClick={(e) =>  setFilterCompletedItems(!filterCompletedItems)} id={`filter_completed`} style={{ pointerEvents: `all` }} title={`Filter Completed`} className={`iconButton deleteButton filterButton ${filterCompletedItems ? `filterActive` : `filterInactive`}`}>
                             <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${filterCompletedItems ? `fa-times-circle` : `fa-filter`}`}></i>
                             <span className={`iconButtonText textOverflow extended`}>Filter Completed</span>
                         </button>
-                    </div> */}
+                    </div>
                 </div>
             </div>
-            <div className={`boards`} id={`boards`}>
-                <DragDropContext onDragEnd={(e) => onDragEnd(e)}>
-                    {boards.filter(board => boardFilters.includes(board.type)).map(board => {
-                        // dev() && console.log(`render board`, board);
-                        return (
-                            <Droppable key={board.id} droppableId={`droppable-${board.id}`} direction="horizontal" type="column">
-                                {(provided, snapshot) => {
-                                    return <>
-                                        <section id={`board`} className={`board columns container ${board.columns.length == 2 ? `clipColumns` : board.columns.length == 3 ? `threeBoard overflowingBoard` : board.columns.length > 3 ? `moreBoard overflowingBoard` : ``}`} {...provided.droppableProps} ref={provided.innerRef} style={props.style}>
-                                            <Title id={`title_of_${board.id}`} className={`boardTitle`} left={board.name} right={`${board.columns.length} Columns`} buttonFunction={deleteBoard} itemID={board.id} item={board} middle={board.type} />
-                                            <div className={`boardColumns flex row`}>
-                                                {board.columns.map(col => {
-                                                    return <Title id={`title_of_${col.id}`} className={`colTitle`} left={col.name} buttonFunction={deleteCol} itemID={col.id} item={col} key={col.id} />
-                                                })}
-                                            </div>
-                                        </section>
-                                    </>
-                                }}
-                            </Droppable>
-                        )
-                    })}
-                </DragDropContext>
-            </div>
+            <DragDropContext onDragEnd={(e) => onDragEnd(e)}>
+                <Droppable droppableId={`droppable_boards`}>
+                    {(provided, snapshot) => {
+                        return <>
+                            <section className={`boards ${snapshot.isDraggingOver ? `isDraggingOver` : ``}`} id={`boards`} ref={provided.innerRef} {...provided.droppableProps}>
+                                {boards.filter(board => boardFilters.includes(board.type)).map((board, boardIndex) => {
+                                    return (
+                                        <Draggable draggableId={`draggable_board_${board.id}`} key={`key_of_${board.id}`} index={boardIndex}>
+                                            {(provided, snapshot) => (
+                                                <article id={board.id} className={`board ${snapshot.isDragging ? `dragging` : ``}`} {...provided.draggableProps} ref={provided.innerRef}>
+                                                    <div id={`titleRowOf${board.id}`} className={`titleRow flex row`} {...provided.dragHandleProps}>
+                                                        <div className="flex row innerRow">
+                                                            <div className="flex row left">
+                                                                <h2>{board.name}</h2>
+                                                            </div>
+                                                            <div className="flex row middle" style={{textAlign: `center`}}>
+                                                                <h4><i>{board.type}</i></h4>
+                                                            </div>
+                                                            <div className="flex row right">
+                                                                <h3>{board.columns.length} <span className={`subscript`}>Columns</span></h3>
+                                                                <div className="itemButtons customButtons">
+                                                                    <button id={`delete_${board.id}`} onClick={(e) => deleteBoard(e, board)} title={`Delete Board`} className={`iconButton deleteButton`}>
+                                                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-trash"></i>
+                                                                        <span className={`iconButtonText textOverflow extended`}>Delete</span>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    {/* <Droppable droppableId={`${board.id}_droppable_columns`}>
+                                                        {(provided, snapshot) => {
+                                                            return <>
+                                                                <div className={`boardColumns flex row`}>
+                                                                    {board.columns.map((column, columnIndex) => {
+                                                                        return <Draggable draggableId={`draggable_column_${column.id}`} key={`key_of_${column.id}`} index={columnIndex}>
+                                                                             {(provided, snapshot) => (
+                                                                                <figure className={`column`}>
+                                                                                    <div id={`title_of_${column.id}`} className={`titleRow flex row`} {...provided.dragHandleProps}>
+                                                                                        <div className="flex row innerRow">
+                                                                                            <div className="flex row left">
+                                                                                                <h2>{column.name}</h2>
+                                                                                            </div>
+                                                                                            <div className="flex row middle" style={{textAlign: `center`}}>
+                                                                                                <h4><i>{``}</i></h4>
+                                                                                            </div>
+                                                                                            <div className="flex row right">
+                                                                                                <h3>{``}</h3>
+                                                                                                <div className="itemButtons customButtons">
+                                                                                                    <button id={`delete_${column.id}`} onClick={(e) => deleteColumn(e, column)} title={`Delete Column`} className={`iconButton deleteButton`}>
+                                                                                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-trash"></i>
+                                                                                                        <span className={`iconButtonText textOverflow extended`}>Delete</span>
+                                                                                                    </button>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    Column Rows
+                                                                                    Column Rows
+                                                                                    Column Rows
+                                                                                    Column Rows
+                                                                                    Column Rows
+                                                                                </figure>
+                                                                             )}
+                                                                        </Draggable>
+                                                                    })}
+                                                                    {provided.placeholder}
+                                                                </div>
+                                                            </>
+                                                        }}
+                                                    </Droppable> */}
+                                                </article>
+                                            )}
+                                        </Draggable>
+                                    )
+                                })}
+                                {provided.placeholder}
+                            </section>
+                        </>
+                    }}
+                </Droppable>
+            </DragDropContext>
         </> : <>
             {/* Board */}
             <Board />

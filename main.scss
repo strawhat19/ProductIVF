@@ -1374,7 +1374,18 @@ footer {
 }
 
 .boards {
+    flex-direction: column;
     .board {
+        h3 {
+            display: inline-flex;
+            flex-direction: row !important;
+            max-width: min-content;
+            align-items: center;
+            grid-gap: 7px;
+            .subscript {
+                font-size: 0.7em;
+            }
+        }
         padding: 15px 0 0;
         flex-direction: column;
         .boardColumns {
