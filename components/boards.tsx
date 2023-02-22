@@ -431,8 +431,8 @@ export default function Boards(props) {
                 </Droppable>
             </DragDropContext>
         </> : <>
-            Board
-            {/* <Board /> */}
+            {/* Board */}
+            <Board />
         </>}
     </>
 }
