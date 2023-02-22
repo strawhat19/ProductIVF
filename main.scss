@@ -1386,6 +1386,9 @@ footer {
                 font-size: 0.7em;
             }
         }
+        .itemButtons {
+            padding: 0 !important;
+        }
         padding: 15px 0 0;
         flex-direction: column;
         .boardColumns {
@@ -1401,6 +1404,7 @@ footer {
 }
 
 .board {
+    width: 100%;
     display: flex;
     align-items: center;
     // &.clipColumns {
