@@ -852,6 +852,7 @@ form {
 .addListFormItem {
     grid-gap: 1em;
     display: flex;
+    flex-direction: row;
     // flex-direction: column;
     .addListFormItemSection {
         padding: 0;
@@ -927,6 +928,7 @@ form {
 
         h2 {
             color: white;
+            max-width: fit-content !important;
         }
 
         /* Neumorphic Inner shadow */
@@ -1391,7 +1393,12 @@ footer {
         }
         padding: 15px 0 0;
         flex-direction: column;
+        .addColumnForm {
+            max-width: none;
+            overflow-y: hidden;
+        }
         .boardColumns {
+            align-items: baseline;
             h2 {
                 font-size: 14px;
                 min-width: max-content;
