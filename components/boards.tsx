@@ -1,20 +1,23 @@
 import Board from './board';
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { capitalizeAllWords, dev, formatDate, generateUniqueID, StateContext } from '../pages/_app';
 
 export enum BoardTypes {
+    ToDo = `To Do`,
     Kanban = `Kanban`,
     TierList = `Tier List`,
     Spreadsheet = `Spreadsheet`,
+    SelectBoardType = `Select Board Type`,
 }
 
 export enum ColumnTypes {
-    Item = `To Do`,
+    ToDo = `To Do`,
     Active = `Active`,
     Testing = `Testing`,
     Complete = `Complete`,
     InProgress = `In Progress`,
+    SelectColumnType = `Select Column Type`,
     CodedNotDeployed = `Coded Not Deployed`,
 }
 
@@ -60,16 +63,16 @@ declare global {
 
 export const kanBanColumns: Column[] = [
     {
-        id: `col-1`,
         name: `To Do`,
-        type: ColumnTypes.Item,
+        type: ColumnTypes.ToDo,
+        id: generateUniqueID(false, `column`),
         created: formatDate(new Date()),
         rows: [
             {
                 id: `item_1_2_20_AM_2_21_2023_5vfc49t8p`,
                 complete: false,
                 type: RowTypes.Item,
-                content: `ayooo`,
+                content: `Finish Making ProductIVF App`,
                 created: `2:20 AM 2/21/2023`,
                 updated: `2:20 AM 2/21/2023`
             },
@@ -77,7 +80,7 @@ export const kanBanColumns: Column[] = [
                 id: `item_7_2_20_AM_2_21_2023_hmhsll51c`,
                 complete: true,
                 type: RowTypes.Item,
-                content: `whaddup`,
+                content: `Drag This Ticket, since its complete`,
                 created: `2:20 AM 2/21/2023`,
                 updated: `2:20 AM 2/21/2023`
             },
@@ -85,32 +88,32 @@ export const kanBanColumns: Column[] = [
                 id: `item_2_2_24_AM_2_21_2023_v7vdvq7xb`,
                 complete: false,
                 type: RowTypes.Item,
-                content: `test item`,
+                content: `Testing Initials RUA`,
                 created: `2:24 AM 2/21/2023`,
                 updated: `7:12 PM 2/21/2023`
             },
         ],
     },
     {
-        id: `col-2`,
         name: `In Progress`,
         type: ColumnTypes.Active,
+        id: generateUniqueID(false, `column`),
         created: formatDate(new Date()),
         rows: [
             {
                 id: `item_1_2_47_AM_2_21_2023_ufobm8gds`,
                 complete: true,
                 type: RowTypes.Active,
-                content: `detect categories`,
+                content: `Detect Categories`,
                 created: `2:47 AM 2/21/2023`,
                 updated: `7:12 PM 2/21`,
             }
         ],
     },
     {
-        id: `col-3`,
         name: `Completed`,
         type: ColumnTypes.Complete,
+        id: generateUniqueID(false, `column`),
         created: formatDate(new Date()),
         rows: [
             {
@@ -166,11 +169,12 @@ export const kanBanColumns: Column[] = [
 ]
 
 export default function Boards(props) {
+    // let boardsColumnRowsRef = useRef<any>(null);
     let [filterCompletedItems, setFilterCompletedItems] = useState(false);
     let [boardFilters, setBoardFilters] = useState(Object.values(BoardTypes));
     const { boards, setBoards, setLoading, setSystemStatus, IDs, setIDs, devEnv } = useContext<any>(StateContext);
 
-    const getBoardColumns = (boardType) => {
+    const getBoardColumnsFromType = (boardType) => {
         switch (boardType) {
             default:
                 return [];
@@ -185,31 +189,143 @@ export default function Boards(props) {
         let formFields = e.target.children[0].children;
         let boardType = formFields.selectBoardType.value;
         let boardName = capitalizeAllWords(formFields.createBoard.value);
+        // let boardsSection = e.target.parentElement.parentElement.parentElement.parentElement.parentElement.nextSibling;
+
+        if (boardType == BoardTypes.SelectBoardType) {
+            boardType = BoardTypes.ToDo;
+            if (boardName.includes(`Spread`)) boardType = BoardTypes.Spreadsheet;
+            if (boardName.includes(`Sheet`)) boardType = BoardTypes.Spreadsheet;
+            if (boardName.includes(`Tier`)) boardType = BoardTypes.TierList;
+            if (boardName.includes(`Kan`)) boardType = BoardTypes.Kanban;
+        }
+
         let newBoardID = `board_${boards.length + 1}_${generateUniqueID(IDs)}`;
         setSystemStatus(`Creating Board ${boardName}.`);
 
         let newBoard = {
-            columns: getBoardColumns(boardType),
+            rows: [].concat(...getBoardColumnsFromType(boardType).map(col => col.rows)),
+            columns: getBoardColumnsFromType(boardType),
             created: formatDate(new Date()),
             type: boardType,
             name: boardName,
             id: newBoardID,
-            rows: []
+        }
+
+        if (dev()) {
+            console.log(`addNewBoard Event`, e);
+            // console.log(`addNewBoard type`, boardType);
+            // console.log(`addNewBoard Boards`, boards);
         }
 
         setBoards([...boards, newBoard]);
         setIDs([...IDs, newBoard.id]);
 
+        e.target.reset();
+        // window.requestAnimationFrame(() => {
+        //     return boardsSection.scrollTop = boardsSection.scrollHeight;
+        // });
+        setTimeout(() => {
+            setLoading(false);
+            setSystemStatus(`Created Board ${newBoard.name}.`);
+        }, 1000);
+    }
+
+    const addNewColumn = (e, board) => {
+        e.preventDefault();
+        setLoading(true);
+        let formFields = e.target.children[0].children;
+        let columnType = formFields.selectColumnType.value;
+        let columnName = capitalizeAllWords(formFields.createColumn.value);
+        let newColumnID = `column_${board.columns.length + 1}_${generateUniqueID(IDs)}_ofBoard_${board.id}`;
+        let boardColumns = e.target.parentElement.parentElement.parentElement.parentElement.nextSibling;
+
+        if (columnType == ColumnTypes.SelectColumnType) {
+            columnType = ColumnTypes.ToDo;
+        }
+
+        setSystemStatus(`Creating Column ${columnName}.`);
+
+        let newColumn: Column = {
+            rows: [].concat(...getBoardColumnsFromType(columnType).map(col => col.rows)),
+            created: formatDate(new Date()),
+            type: columnType,
+            name: columnName,
+            id: newColumnID,
+        }
+
+        setBoards(previousBoards => {
+            return previousBoards.map((bord, bordIndex) => {
+                if (bord.id == board.id) {
+                    return {
+                        ...bord,
+                        updated: formatDate(new Date()),
+                        columns: [...bord.columns, newColumn]
+                    }
+                } else {
+                    return bord;
+                }
+            })
+        });
+
+        setIDs([...IDs, newColumn.id]);
+
+        e.target.reset();
+        window.requestAnimationFrame(() => {
+            return boardColumns.scrollLeft = boardColumns.scrollWidth - boardColumns.clientWidth;
+        });
+        setTimeout(() => {
+            setLoading(false);
+            setSystemStatus(`Created Column ${newColumn.name}.`);
+        }, 1000);
+    }
+    
+    const addNewRow = (e, column) => {
+        e.preventDefault();
+        setLoading(true);
+        let formFields = e.target.children;
+        let rowIndex = parseInt(formFields.rowInsertIndex.value);
+        let rowContent = capitalizeAllWords(formFields.createRow.value);
+        let newRowID = `row_${column.rows.length + 1}_${generateUniqueID(IDs)}`;
+        setSystemStatus(`Creating Row.`);
+
+        let newRow: ColumnRow = {
+            created: formatDate(new Date()),
+            content: rowContent,
+            type: RowTypes.Item,
+            complete: false,
+            id: newRowID,
+        }
+
+        // setBoards([...boards, newRow]);
+        setIDs([...IDs, newRow.id]);
+
         if (dev()) {
-            // console.log(`addNewBoard Event`, e);
-            // console.log(`addNewBoard type`, boardType);
-            // console.log(`addNewBoard Boards`, boards);
+            console.log(`addNewRow`, {rowContent, rowIndex, newRow, boards});
+            // console.log(`addNewRow Event`, e);
+            // console.log(`addNewRow type`, boardType);
+            // console.log(`addNewRow Boards`, boards);
         }
 
         e.target.reset();
         setTimeout(() => {
             setLoading(false);
-            setSystemStatus(`Created Board ${newBoard.name}.`);
+            setSystemStatus(`Created Row.`);
+        }, 1000);
+    }
+
+    const completeRow = (e, row, rowIndex) => {
+        setLoading(true);
+        setSystemStatus(`Marking Row ${rowIndex + 1} as Complete.`);
+
+        // setBoards([...boards.filter(brd => brd.id != col.id)]);
+
+        if (dev()) {
+            console.log(`Complete Row`, e, row);
+        }
+
+        setTimeout(() => {
+            setLoading(false);
+            setSystemStatus(`Marked Row ${rowIndex + 1} as Complete.`);
         }, 1000);
     }
 
@@ -219,9 +335,9 @@ export default function Boards(props) {
 
         setBoards([...boards.filter(brd => brd.id != board.id)]);
 
-        if (dev()) {
-            console.log(`Delete Board`, e, board);
-        }
+        // if (dev()) {
+        //     console.log(`Delete Board`, e, board);
+        // }
 
         setTimeout(() => {
             setLoading(false);
@@ -245,11 +361,45 @@ export default function Boards(props) {
         }, 1000);
     }
 
-    const onDragEnd = (e) => {
+    const deleteRow = (e, row) => {
+        setLoading(true);
+        setSystemStatus(`Deleting Row ${row.content}.`);
+
+        // setBoards([...boards.filter(brd => brd.id != col.id)]);
+
+        if (dev()) {
+            console.log(`Delete Row`, e, row);
+        }
+
+        setTimeout(() => {
+            setLoading(false);
+            setSystemStatus(`Deleted Row ${row.content}.`);
+        }, 1000);
+    }
+
+    const onDragEnd = ({ destination, source, draggableId, type, mode, reason, combine }, e?) => {
+        if (!destination) return;
+        if (destination.droppableId === source.droppableId && destination.index === source.index) return;
+        let newBoards = [...boards];
+
+        if (type == `DEFAULT`) {
+            if (draggableId.includes(`draggable_board`)) {
+                let [removedBoard] = newBoards.splice(source.index, 1);
+                newBoards.splice(destination.index, 0, removedBoard);
+            }
+        } else if (type == `column`) {
+            if (dev()) {
+                console.log(`Column Move`, {draggableId, destination, source, type, mode, reason});
+            }
+            // let [removedColumn] = newBoards.columns.splice(source.index, 1);
+            // console.log(removedColumn);
+            // newBoards.splice(destination.index, 0, removedColumn);
+        }
+
+        setBoards(newBoards);
 
         if (dev()) {
             console.log(`onDragEnd Event`, e);
-            console.log(`onDragEnd Boards`, boards);
         }
     }
 
@@ -257,13 +407,24 @@ export default function Boards(props) {
 
         // setBoardFilters([...Object.values(BoardTypes), `Default`]);
 
+        let allRows = document.querySelectorAll(`.rows`);
+        allRows.forEach(rowOfItems => {
+            // setTimeout(() => {
+                if (rowOfItems.scrollHeight > rowOfItems.clientHeight) {
+                    rowOfItems.classList.add(`overflowingList`);
+                } else {
+                    rowOfItems.classList.remove(`overflowingList`);
+                }
+            // }, 250);
+        });
+
         if (dev()) {
             // IDs.length > 0 && console.log(`IDs`, IDs);
             boards.length > 0 && console.log(`Boards`, boards);
             // boardFilters.length > 0 && console.log(`Board Filters`, boardFilters);
         }
 
-    }, [boards, IDs]);
+    }, [boards]);
 
     return <>
         {devEnv ? <>
@@ -272,12 +433,12 @@ export default function Boards(props) {
                     <div className="formItems items">
                         <div className="addListFormItem">
                             <h2 style={{ fontWeight: 600, fontSize: 22, minWidth: `fit-content` }}>Create Board {boards.length + 1}</h2>
-                            <section className={`addListFormItemSection`} style={{ margin: 0 }}>
-                                <form onSubmit={(e) => addNewBoard(e)} title={`Add Board`} id={`addListForm`} className={`flex addListForm itemButtons addForm`} style={{ width: `100%`, flexDirection: `row` }}>
+                            <section className={`addBoardFormSection addListFormItemSection`} style={{ margin: 0 }}>
+                                <form onSubmit={(e) => addNewBoard(e)} title={`Add Board`} id={`addBoardForm`} className={`addBoardForm flex addListForm itemButtons addForm`} style={{ width: `100%`, flexDirection: `row` }}>
                                     <div className={`inputGroup flex row`}>
                                         <input maxLength={35} placeholder={`Name of Board`} type="text" name="createBoard" required />
                                         <select id={`select_board_type`} name={`selectBoardType`}>
-                                            <option id={`board_option_default`} value={`Spreadsheet`}>Select Board Type</option>
+                                            <option id={`board_option_default`} value={`Select Board Type`}>Select Board Type</option>
                                             {Object.values(BoardTypes).map(type => {
                                                 return <option key={type} id={`board_option_${type}`} value={type}>{type}</option>
                                             })}
@@ -303,25 +464,34 @@ export default function Boards(props) {
                     </div> */}
                 </div>
             </div>
-            <DragDropContext onDragEnd={(e) => onDragEnd(e)}>
+            <DragDropContext onDragEnd={(e) => onDragEnd(e, e)}>
                 <Droppable droppableId={`droppable_boards`}>
                     {(provided, snapshot) => {
                         return <section className={`boards ${snapshot.isDraggingOver ? `isDraggingOver` : ``}`} id={`boards`} ref={provided.innerRef} {...provided.droppableProps}>
                         {boards.filter(board => boardFilters.includes(board.type)).map((board, boardIndex) => {
                             return (
-                                <Draggable draggableId={`draggable_board_${board.id}`} key={`key_of_${board.id}`} index={boardIndex}>
+                                <Draggable draggableId={`draggable_${board.id}`} key={`key_of_${board.id}`} index={boardIndex}>
                                     {(provided, snapshot) => (
-                                        <article id={board.id} className={`board ${snapshot.isDragging ? `dragging` : ``}`} {...provided.draggableProps} ref={provided.innerRef}>
+                                        <article id={board.id} className={`board lists ${snapshot.isDragging ? `dragging` : ``}`} {...provided.draggableProps} ref={provided.innerRef}>
                                             <div id={`titleRowOf${board.id}`} className={`titleRow flex row`} {...provided.dragHandleProps}>
                                                 <div className="flex row innerRow">
                                                     <div className="flex row left">
+                                                        <h3><span className="subscript">({boardIndex + 1})</span></h3>
                                                         <h2>{board.name}</h2>
+                                                        <h3 className="boardDate">
+                                                            <span className="subscript rowDate itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
+                                                                <i> - </i>
+                                                                <i className={`status`}>{board.created && !board.updated ? `Cre.` : `Upd.` }</i> 
+                                                                <i><span className={`itemDateTime`}>{board?.updated ?? board?.created}</span></i>
+                                                            </span>
+                                                        </h3>
                                                     </div>
                                                     <div className="flex row middle" style={{textAlign: `center`}}>
                                                         <h4><i>{board.type}</i></h4>
                                                     </div>
                                                     <div className="flex row right">
-                                                        <h3>{board.columns.length} <span className={`subscript`}>Columns</span></h3>
+                                                        <h3>{board.columns.length} <span className={`subscript`}>Column(s)</span></h3>
+                                                        <h3>{board.rows.length} <span className={`subscript`}>Row(s)</span></h3>
                                                         <div className="itemButtons customButtons">
                                                             <button id={`delete_${board.id}`} onClick={(e) => deleteBoard(e, board)} title={`Delete Board`} className={`iconButton deleteButton`}>
                                                                 <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-trash"></i>
@@ -331,16 +501,16 @@ export default function Boards(props) {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="createColumn createList lists extended">
+                                            <div id={`${board.id}_createColumn`} className="createColumn createList lists extended">
                                                 <div id={`addColumnFor${board.id}`} className={`list items addListDiv`}>
                                                     <div className="formItems items">
-                                                        <div className="addListFormItem">
-                                                            <h2 style={{ fontWeight: 600, fontSize: 22, minWidth: `fit-content` }}>Create Column {board.columns.length + 1}</h2>
-                                                            <form onSubmit={(e) => addNewBoard(e)} title={`Add Column`} id={`addColumnForm`} className={`flex addListForm itemButtons addForm addColumnForm`} style={{ width: `100%`, flexDirection: `row` }}>
+                                                        <div className="addColumnFormItem addListFormItem">
+                                                            <h3 style={{ fontWeight: 600, fontSize: 20, minWidth: `fit-content` }}>{board.type} Column {board.columns.length + 1}</h3>
+                                                            <form onSubmit={(e) => addNewColumn(e, board)} title={`Add Column`} id={`addColumnForm`} className={`flex addListForm itemButtons addForm addColumnForm`} style={{ width: `100%`, flexDirection: `row` }}>
                                                                 <div className={`inputGroup flex row`}>
                                                                     <input maxLength={35} placeholder={`Name of Column`} type="text" name="createColumn" required />
                                                                     <select id={`select_column_type`} name={`selectColumnType`}>
-                                                                        <option id={`column_option_item`} value={`Active`}>Select Column Type</option>
+                                                                        <option id={`column_option_item`} value={`Select Column Type`}>Select Column Type</option>
                                                                         {Object.values(ColumnTypes).map(type => {
                                                                             return <option key={type} id={`column_option_${type}`} value={type}>{type}</option>
                                                                         })}
@@ -357,24 +527,27 @@ export default function Boards(props) {
                                                             </form>
                                                         </div>
                                                     </div>
-                                                    <div className="filterButtons itemButtons">
+                                                    {/* <div className="filterButtons itemButtons">
                                                         <button id={`filter_completed`} style={{ pointerEvents: `all` }} title={`Filter Completed`} className={`iconButton deleteButton filterButton`}>
                                                             <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-filter`}></i>
                                                             <span className={`iconButtonText textOverflow extended`}>Filter Completed</span>
                                                         </button>
-                                                    </div>
+                                                    </div> */}
                                                 </div>
                                             </div>
                                             <Droppable droppableId={`${board.id}_droppable_columns`} direction="horizontal" type="column">
                                                 {(provided, snapshot) => {
-                                                    return <div className={`boardColumns flex row ${snapshot.isDraggingOver ? `isDraggingOver` : ``}`} ref={provided.innerRef} {...provided.droppableProps}>
+                                                    return <div className={`board innerBoard boardColumns flex row ${board.columns.length == 2 ? `clipColumns` : board.columns.length == 3 ? `threeBoard overflowingBoard` : board.columns.length > 3 ? `moreBoard overflowingBoard` : ``} ${snapshot.isDraggingOver ? `isDraggingOver` : ``}`} ref={provided.innerRef} {...provided.droppableProps}>
                                                     {board.columns.map((column, columnIndex) => {
                                                         return (
                                                             <Draggable draggableId={`draggable_column_figure_${column.id}`} key={`key_of_${columnIndex}`} index={columnIndex}>
                                                                 {(provided, snapshot) => (
-                                                                    <figure className={`column ${snapshot.isDragging ? `dragging` : ``}`} id={`column_figure_${column.id}`} {...provided.draggableProps} ref={provided.innerRef}>
+                                                                    <figure className={`column  list ${snapshot.isDragging ? `dragging` : ``}`} id={`column_figure_${column.id}`} {...provided.draggableProps} ref={provided.innerRef}>
                                                                         <div id={`title_of_${column.id}`} className={`titleRow flex row`} {...provided.dragHandleProps}>
                                                                             <div className="flex row innerRow">
+                                                                                <div className="itemOrder listOrder" style={{ maxWidth: `fit-content` }}>
+                                                                                    <i style={{ color: `var(--gameBlue)`, fontSize: 15, padding: `0 9px`, maxWidth: `fit-content` }} className="fas fa-list"></i>
+                                                                                </div>
                                                                                 <div className="flex row left">
                                                                                     <h2>{column.name}</h2>
                                                                                 </div>
@@ -394,15 +567,39 @@ export default function Boards(props) {
                                                                         </div>
                                                                         <Droppable droppableId={`${column.id}_droppable_row_items`}>
                                                                         {(provided, snapshot) => {
-                                                                            return <div className={`list items ${snapshot.isDraggingOver ? `isDraggingOver` : ``}`} ref={provided.innerRef} {...provided.droppableProps}>
+                                                                            return <div className={`rows list items ${snapshot.isDraggingOver ? `isDraggingOver` : ``}`} ref={provided.innerRef} {...provided.droppableProps}>
                                                                                 {column.rows.map((row, rowIndex) => {
-                                                                                    return <div key={rowIndex} id={row.id} className={`item flex row`}>
+                                                                                    return <div key={rowIndex} id={row.id} className={`boardRow item flex row ${row.complete ? `complete` : ``}`}>
                                                                                         <div className="inner">
-                                                                                            <div className="itemOrder">
-                                                                                                <div className="itemIndex">{rowIndex + 1}</div>
+                                                                                            <div className="rowOrder itemOrder">
+                                                                                                <div className="rowIndex itemIndex">{rowIndex + 1}</div>
                                                                                             </div>
-                                                                                            <div className="itemContent">
-                                                                                                {row.content}
+                                                                                            <div className="rowContent itemContent">
+                                                                                                <span className="colRowContent itemName textOverflow extended">{row.content}</span>
+                                                                                                {/* {devEnv && wordInCategories(item) && <span className="itemCategory itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
+                                                                                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-hashtag"></i> 
+                                                                                                    <span className={`itemDateTime`}>{wordOfCategory(item)}</span>
+                                                                                                </span>} */}
+                                                                                                {devEnv && row.created && !row.updated ? (
+                                                                                                <span className="rowDate itemDate itemName itemCreated textOverflow extended flex row">
+                                                                                                    <i className={`status`}>Cre.</i> 
+                                                                                                    <span className={`itemDateTime`}>{formatDate(new Date(row.created))}</span>
+                                                                                                </span>
+                                                                                                ) : devEnv && row.updated ? (
+                                                                                                <span className="rowDate itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
+                                                                                                    <i className={`status`}>Upd.</i> 
+                                                                                                    <span className={`itemDateTime`}>{formatDate(new Date(row.updated))}</span>
+                                                                                                </span>
+                                                                                                ) : null}
+                                                                                            </div>
+                                                                                            <div className="itemButtons customButtons">
+                                                                                                {/* <button title={`Edit Item`} className={`iconButton editButton`}><i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-edit"></i></button> */}
+                                                                                                <button id={`complete_${row.id}`} onClick={(e) => completeRow(e, row,  rowIndex)} title={`Complete Item`} className={`iconButton deleteButton wordIconButton completeButton`}>
+                                                                                                    <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas ${row.complete ? `fa-history` : `fa-check-circle`}`}></i>
+                                                                                                </button>
+                                                                                                <button id={`delete_${row.id}`} onClick={(e) => deleteRow(e, row)} title={`Delete Row`} className={`iconButton deleteButton wordIconButton`}>
+                                                                                                    <i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-trash"></i>
+                                                                                                </button>
                                                                                             </div>
                                                                                         </div>
                                                                                     </div>
@@ -411,6 +608,19 @@ export default function Boards(props) {
                                                                             </div>
                                                                         }}
                                                                         </Droppable>
+                                                                        <form title={`Add Item`} id={`add_item_form_${column.id}`} className={`flex addItemForm itemButtons unset addForm`} style={{ width: `100%`, flexDirection: `row` }} onSubmit={(e) => addNewRow(e, column)}>
+                                                                            <input placeholder={`Item`} type="text" name="createRow" required />
+                                                                            <input name={`rowInsertIndex`} placeholder={column.rows.length + 1} type={`number`} max={column.rows.length + 1} min={1} />
+                                                                            <button type={`submit`} title={`Add Item`} className={`iconButton createList wordIconButton`}>
+                                                                                <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-plus"></i>
+                                                                                <span className={`iconButtonText textOverflow extended`}>
+                                                                                    <span style={{ fontSize: 12 }}>Add</span>
+                                                                                    <span className={`itemLength index`} style={{ fontSize: 14, fontWeight: 700, padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content` }}>
+                                                                                        {/* {list.items.length + 1} */}
+                                                                                    </span>
+                                                                                </span>
+                                                                            </button>
+                                                                        </form>
                                                                     </figure>
                                                                 )}
                                                             </Draggable>
@@ -434,5 +644,6 @@ export default function Boards(props) {
             {/* Board */}
             <Board />
         </>}
+        {/* <Board /> */}
     </>
 }

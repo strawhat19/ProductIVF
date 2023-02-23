@@ -300,10 +300,15 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
     }
     input {
         padding: 10px 0px 10px 65px;
+        &[type="number"] {
+            max-width: 15%;
+            min-width: inherit !important;
+            padding: 10px 0px 10px 17px !important;
+        }
     }
     select {
         display: flex;
-        max-width: 27%;
+        max-width: 29%;
         font-size: 12px;
         min-height: 33px;
         border-radius: 4px;
@@ -739,10 +744,16 @@ form {
             align-items: center;
         }
         .left {
+            * {
+                max-width: min-content;
+            }
             text-align: left;
             justify-content: flex-start;
         }
         .right {
+            * {
+                max-width: min-content;
+            }
             text-align: right;
             justify-content: flex-end;
         }
@@ -1378,6 +1389,16 @@ footer {
 .boards {
     flex-direction: column;
     .board {
+        padding: 0;
+        flex-direction: column;
+        &.innerBoard {
+            padding: 0 0 1em 0;
+        }
+        .titleRow {
+            .deleteButton {
+                font-size: 12px;
+            }
+        }
         h3 {
             display: inline-flex;
             flex-direction: row !important;
@@ -1391,21 +1412,57 @@ footer {
         .itemButtons {
             padding: 0 !important;
         }
-        padding: 15px 0 0;
-        flex-direction: column;
         .addColumnForm {
             max-width: none;
             overflow-y: hidden;
         }
         .boardColumns {
             // align-items: baseline;
-            h2 {
-                font-size: 14px;
-                min-width: max-content;
-            }
-        }
-        .deleteButton {
-            font-size: 12px;
+            .column {
+                max-height: 500px;
+                min-height: 500px;
+                .titleRow {
+                    padding: 0;
+                    background: transparent;
+                    .innerRow {
+                        padding: 0;
+                        .listOrder {
+                            max-width: 35px !important;
+                            min-width: max-content;
+                            padding: 9px 0;
+                        }
+                        .deleteButton {
+                            font-size: 12px;
+                            border-top-left-radius: 0px;
+                            border-bottom-left-radius: 0px;
+                        }
+                    }
+                    }
+                }
+                .rows {
+                    box-shadow: none;
+                    min-height: 365px;
+                    background: transparent !important;
+                    .boardRow {
+                        padding: 1em 0;
+                    }
+                    .row {
+                        &:not(.rowDate) {
+                            min-height: 45px;
+                        }
+                        .inner {
+                            display: flex;
+                            padding: 0 10px 0 0;
+                            flex-direction: row;
+                            align-items: center;
+                            justify-content: space-between;
+                        }
+                    }
+                }
+                h2 {
+                    font-size: 14px;
+                    min-width: max-content;
+                }
         }
     }
 }
@@ -1442,10 +1499,8 @@ footer {
         position: relative;
         border-radius: 4px;
         align-items: center;
-        // width: 100% !important;
-        min-width: 32% !important;
         padding: 1em !important;
-        // min-width: 100% !important;
+        min-width: 32.25% !important;
         justify-content: space-between;
         background: var(--gameBlueSoft) !important;
         box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.2);

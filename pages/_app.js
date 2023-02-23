@@ -143,14 +143,22 @@ export const getFormValuesFromFields = (formFields) => {
 };
 
 export const generateUniqueID = (existingIDs, name) => {
+
   let newID = Math.random().toString(36).substr(2, 9);
   if (existingIDs && existingIDs.length > 0) {
     while (existingIDs.includes(newID)) {
       newID = Math.random().toString(36).substr(2, 9);
     }
   }
-  if (name) return `${name}_${formatDate(new Date())}_${newID}`.replace(/\s+/g, `_`).replace(/[:/]/g, `_`);
-  return `${formatDate(new Date())}_${newID}`.replace(/\s+/g, `_`).replace(/[:/]/g, `_`);
+
+  if (name && existingIDs && existingIDs.length > 0) {
+    return `${name}_${existingIDs.length + 1}_${formatDate(new Date())}_${newID}`.replace(/\s+/g, `_`).replace(/[:/]/g, `_`);
+  } else if (name && !existingIDs) {
+    return `${name}_${formatDate(new Date())}_${newID}`.replace(/\s+/g, `_`).replace(/[:/]/g, `_`);
+  } else {
+    return `${formatDate(new Date())}_${newID}`.replace(/\s+/g, `_`).replace(/[:/]/g, `_`);
+  }
+
 };
 
 export const updateOrAdd = (obj, arr) => {
@@ -285,7 +293,200 @@ export default function MyApp({ Component, pageProps, router }) {
     let [dark, setDark] = useState(false);
     let [height, setHeight] = useState(0);
     let [updates, setUpdates] = useState(0);
-    let [boards, setBoards] = useState([]);
+    let [boards, setBoards] = useState([{
+      "rows": [
+          {
+              "id": "item_1_2_20_AM_2_21_2023_5vfc49t8p",
+              "complete": false,
+              "type": "To Do",
+              "content": "Ayooo",
+              "created": "2:20 AM 2/21/2023",
+              "updated": "2:20 AM 2/21/2023"
+          },
+          {
+              "id": "item_7_2_20_AM_2_21_2023_hmhsll51c",
+              "complete": true,
+              "type": "To Do",
+              "content": "Whaddup",
+              "created": "2:20 AM 2/21/2023",
+              "updated": "2:20 AM 2/21/2023"
+          },
+          {
+              "id": "item_2_2_24_AM_2_21_2023_v7vdvq7xb",
+              "complete": false,
+              "type": "To Do",
+              "content": "Test Item",
+              "created": "2:24 AM 2/21/2023",
+              "updated": "7:12 PM 2/21/2023"
+          },
+          {
+              "id": "item_1_2_47_AM_2_21_2023_ufobm8gds",
+              "complete": true,
+              "type": "Active",
+              "content": "Detect Categories",
+              "created": "2:47 AM 2/21/2023",
+              "updated": "7:12 PM 2/21"
+          },
+          {
+              "id": "item_1_1_06_AM_2_21_2023_puvkbf5jt",
+              "complete": true,
+              "type": "Completed",
+              "content": "AdHoc Bug Fixes",
+              "created": "1:06 AM 2/21/2023",
+              "updated": "2:19 AM 2/21/2023"
+          },
+          {
+              "id": "item_2_1_07_AM_2_21_2023_qmpi9w53n",
+              "complete": true,
+              "type": "Completed",
+              "content": "Deploy New Code Changes",
+              "created": "1:07 AM 2/21/2023",
+              "updated": "1:46 AM 2/21/2023"
+          },
+          {
+              "id": "item_2_1_07_AM_2_21_2023_x1qs0ba58",
+              "complete": true,
+              "type": "Completed",
+              "content": "Release 1.5",
+              "created": "1:07 AM 2/21/2023",
+              "updated": "1:45 AM 2/21/2023"
+          },
+          {
+              "id": "item_2_1_07_AM_2_21_2023_cod2k6ysu",
+              "complete": true,
+              "type": "Completed",
+              "content": "Fix Notification Bugs",
+              "created": "1:07 AM 2/21/2023",
+              "updated": "1:07 AM 2/21/2023"
+          },
+          {
+              "id": "item_2_1_08_AM_2_21_2023_cph525xnf",
+              "complete": true,
+              "type": "Completed",
+              "content": "Refine Items In Board",
+              "created": "1:08 AM 2/21/2023",
+              "updated": "2:20 AM 2/21/2023"
+          },
+          {
+              "id": "item_2_1_46_AM_2_21_2023_vqp5ysdv4",
+              "complete": true,
+              "type": "Completed",
+              "content": "Filter Completed",
+              "created": "1:46 AM 2/21/2023",
+              "updated": "1:46 AM 2/21/2023"
+          }
+      ],
+      "columns": [
+          {
+              "id": "col-1",
+              "name": "To Do",
+              "type": "To Do",
+              "created": "1:59 AM 2/23/2023",
+              "rows": [
+                  {
+                      "id": "item_1_2_20_AM_2_21_2023_5vfc49t8p",
+                      "complete": false,
+                      "type": "To Do",
+                      "content": "Ayooo",
+                      "created": "2:20 AM 2/21/2023",
+                      "updated": "2:20 AM 2/21/2023"
+                  },
+                  {
+                      "id": "item_7_2_20_AM_2_21_2023_hmhsll51c",
+                      "complete": true,
+                      "type": "To Do",
+                      "content": "Whaddup",
+                      "created": "2:20 AM 2/21/2023",
+                      "updated": "2:20 AM 2/21/2023"
+                  },
+                  {
+                      "id": "item_2_2_24_AM_2_21_2023_v7vdvq7xb",
+                      "complete": false,
+                      "type": "To Do",
+                      "content": "Test Item",
+                      "created": "2:24 AM 2/21/2023",
+                      "updated": "7:12 PM 2/21/2023"
+                  }
+              ]
+          },
+          {
+              "id": "col-2",
+              "name": "In Progress",
+              "type": "Active",
+              "created": "1:59 AM 2/23/2023",
+              "rows": [
+                  {
+                      "id": "item_1_2_47_AM_2_21_2023_ufobm8gds",
+                      "complete": true,
+                      "type": "Active",
+                      "content": "Detect Categories",
+                      "created": "2:47 AM 2/21/2023",
+                      "updated": "7:12 PM 2/21"
+                  }
+              ]
+          },
+          {
+              "id": "col-3",
+              "name": "Completed",
+              "type": "Complete",
+              "created": "1:59 AM 2/23/2023",
+              "rows": [
+                  {
+                      "id": "item_1_1_06_AM_2_21_2023_puvkbf5jt",
+                      "complete": true,
+                      "type": "Completed",
+                      "content": "AdHoc Bug Fixes",
+                      "created": "1:06 AM 2/21/2023",
+                      "updated": "2:19 AM 2/21/2023"
+                  },
+                  {
+                      "id": "item_2_1_07_AM_2_21_2023_qmpi9w53n",
+                      "complete": true,
+                      "type": "Completed",
+                      "content": "Deploy New Code Changes",
+                      "created": "1:07 AM 2/21/2023",
+                      "updated": "1:46 AM 2/21/2023"
+                  },
+                  {
+                      "id": "item_2_1_07_AM_2_21_2023_x1qs0ba58",
+                      "complete": true,
+                      "type": "Completed",
+                      "content": "Release 1.5",
+                      "created": "1:07 AM 2/21/2023",
+                      "updated": "1:45 AM 2/21/2023"
+                  },
+                  {
+                      "id": "item_2_1_07_AM_2_21_2023_cod2k6ysu",
+                      "complete": true,
+                      "type": "Completed",
+                      "content": "Fix Notification Bugs",
+                      "created": "1:07 AM 2/21/2023",
+                      "updated": "1:07 AM 2/21/2023"
+                  },
+                  {
+                      "id": "item_2_1_08_AM_2_21_2023_cph525xnf",
+                      "complete": true,
+                      "type": "Completed",
+                      "content": "Refine Items In Board",
+                      "created": "1:08 AM 2/21/2023",
+                      "updated": "2:20 AM 2/21/2023"
+                  },
+                  {
+                      "id": "item_2_1_46_AM_2_21_2023_vqp5ysdv4",
+                      "complete": true,
+                      "type": "Completed",
+                      "content": "Filter Completed",
+                      "created": "1:46 AM 2/21/2023",
+                      "updated": "1:46 AM 2/21/2023"
+                  }
+              ]
+          }
+      ],
+      "created": "1:59 AM 2/23/2023",
+      "type": "Kanban",
+      "name": "Kan",
+      "id": "board_1_1_59_AM_2_23_2023_da2xnq26s"
+  }]);
     let [focus, setFocus] = useState(false);
     let [devEnv, setDevEnv] = useState(false);
     let [mobile, setMobile] = useState(false);
@@ -346,6 +547,9 @@ export default function MyApp({ Component, pageProps, router }) {
       }, [user, users, authState, dark])
 
     return <StateContext.Provider value={{ updates, setUpdates, content, setContent, width, setWidth, user, setUser, page, setPage, mobileMenu, setMobileMenu, users, setUsers, authState, setAuthState, emailField, setEmailField, devEnv, setDevEnv, mobileMenuBreakPoint, platform, setPlatform, focus, setFocus, highScore, setHighScore, color, setColor, dark, setDark, colorPref, setColorPref, lists, setLists, showLeaders, setShowLeaders, items, setItems, qotd, setQotd, alertOpen, setAlertOpen, mobile, setMobile, systemStatus, setSystemStatus, loading, setLoading, anim, setAnimComplete, IDs, setIDs, boardLoaded, setBoardLoaded, board, setBoard, completeFiltered, setCompleteFiltered, boardCategories, setBoardCategories, categories, setCategories, boards, setBoards }}>
+      {/* <div className={`pageWrapContainer ${page.toUpperCase()}`}>
+        <Component {...pageProps} />
+      </div> */}
       <AnimatePresence mode={`wait`}>
         <motion.div className={`pageWrapContainer ${page.toUpperCase()}`} key={router.route} initial="pageInitial" animate="pageAnimate" exit="pageExit" transition={{ duration: 0.75 }} variants={{
           pageInitial: {
