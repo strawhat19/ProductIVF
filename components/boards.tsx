@@ -317,10 +317,12 @@ export default function Boards(props) {
         setLoading(true);
         setSystemStatus(`Marking Row ${rowIndex + 1} as Complete.`);
 
+        row.complete = !row.complete;
+
         // setBoards([...boards.filter(brd => brd.id != col.id)]);
 
         if (dev()) {
-            console.log(`Complete Row`, e, row);
+            console.log(`Complete Row`, e, row, boards);
         }
 
         setTimeout(() => {
@@ -470,7 +472,7 @@ export default function Boards(props) {
                         return <section className={`boards ${snapshot.isDraggingOver ? `isDraggingOver` : ``}`} id={`boards`} ref={provided.innerRef} {...provided.droppableProps}>
                         {boards.filter(board => boardFilters.includes(board.type)).map((board, boardIndex) => {
                             return (
-                                <Draggable draggableId={`draggable_${board.id}`} key={`key_of_${board.id}`} index={boardIndex}>
+                                <Draggable draggableId={`draggable_${board.id}`} key={`key_of_${boardIndex}`} index={boardIndex}>
                                     {(provided, snapshot) => (
                                         <article id={board.id} className={`board lists ${snapshot.isDragging ? `dragging` : ``}`} {...provided.draggableProps} ref={provided.innerRef}>
                                             <div id={`titleRowOf${board.id}`} className={`titleRow flex row`} {...provided.dragHandleProps}>
@@ -567,9 +569,10 @@ export default function Boards(props) {
                                                                         </div>
                                                                         <Droppable droppableId={`${column.id}_droppable_row_items`}>
                                                                         {(provided, snapshot) => {
-                                                                            return <div className={`rows list items ${snapshot.isDraggingOver ? `isDraggingOver` : ``}`} ref={provided.innerRef} {...provided.droppableProps}>
+                                                                            return <div className={`rows list items`} ref={provided.innerRef} {...provided.droppableProps}>
                                                                                 {column.rows.map((row, rowIndex) => {
-                                                                                    return <div key={rowIndex} id={row.id} className={`boardRow item flex row ${row.complete ? `complete` : ``}`}>
+                                                                                    return (
+                                                                                    <div key={`key_of_${rowIndex}`} id={row.id} className={`boardRow item flex row ${row.complete ? `complete` : ``}`}>
                                                                                         <div className="inner">
                                                                                             <div className="rowOrder itemOrder">
                                                                                                 <div className="rowIndex itemIndex">{rowIndex + 1}</div>
@@ -603,6 +606,45 @@ export default function Boards(props) {
                                                                                             </div>
                                                                                         </div>
                                                                                     </div>
+                                                                                    // <Draggable draggableId={`draggable_row_item_${row.id}`} key={`key_of_${rowIndex}`} index={rowIndex}>
+                                                                                    //     {(provided, snapshot) => (
+                                                                                    //         <div id={row.id} className={`boardRow item flex row ${row.complete ? `complete` : ``} ${snapshot.isDragging ? `dragging` : ``}`} {...provided.draggableProps} ref={provided.innerRef}>
+                                                                                    //             <div className="inner">
+                                                                                    //                 <div className="rowOrder itemOrder">
+                                                                                    //                     <div className="rowIndex itemIndex">{rowIndex + 1}</div>
+                                                                                    //                 </div>
+                                                                                    //                 <div className="rowContent itemContent">
+                                                                                    //                     <span className="colRowContent itemName textOverflow extended">{row.content}</span>
+                                                                                    //                     {/* {devEnv && wordInCategories(item) && <span className="itemCategory itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
+                                                                                    //                         <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-hashtag"></i> 
+                                                                                    //                         <span className={`itemDateTime`}>{wordOfCategory(item)}</span>
+                                                                                    //                     </span>} */}
+                                                                                    //                     {devEnv && row.created && !row.updated ? (
+                                                                                    //                     <span className="rowDate itemDate itemName itemCreated textOverflow extended flex row">
+                                                                                    //                         <i className={`status`}>Cre.</i> 
+                                                                                    //                         <span className={`itemDateTime`}>{formatDate(new Date(row.created))}</span>
+                                                                                    //                     </span>
+                                                                                    //                     ) : devEnv && row.updated ? (
+                                                                                    //                     <span className="rowDate itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
+                                                                                    //                         <i className={`status`}>Upd.</i> 
+                                                                                    //                         <span className={`itemDateTime`}>{formatDate(new Date(row.updated))}</span>
+                                                                                    //                     </span>
+                                                                                    //                     ) : null}
+                                                                                    //                 </div>
+                                                                                    //                 <div className="itemButtons customButtons">
+                                                                                    //                     {/* <button title={`Edit Item`} className={`iconButton editButton`}><i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-edit"></i></button> */}
+                                                                                    //                     <button id={`complete_${row.id}`} onClick={(e) => completeRow(e, row,  rowIndex)} title={`Complete Item`} className={`iconButton deleteButton wordIconButton completeButton`}>
+                                                                                    //                         <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas ${row.complete ? `fa-history` : `fa-check-circle`}`}></i>
+                                                                                    //                     </button>
+                                                                                    //                     <button id={`delete_${row.id}`} onClick={(e) => deleteRow(e, row)} title={`Delete Row`} className={`iconButton deleteButton wordIconButton`}>
+                                                                                    //                         <i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-trash"></i>
+                                                                                    //                     </button>
+                                                                                    //                 </div>
+                                                                                    //             </div>
+                                                                                    //         </div>
+                                                                                    //     )}
+                                                                                    // </Draggable>
+                                                                                    )
                                                                                 })}
                                                                                 {provided.placeholder}
                                                                             </div>

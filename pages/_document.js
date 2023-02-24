@@ -36,25 +36,6 @@ export default class MyDocument extends Document {
           <Main />
           <NextScript />
         </body>
-        {/* <AnimatePresence mode={`wait`}>
-          <motion.body id={`ProductIVF`} key={generateUniqueID()} initial="pageInitial" animate="pageAnimate" exit="pageExit" transition={{ duration: 0.75 }} variants={{
-            pageInitial: {
-              opacity: 0,
-              clipPath: `polygon(0 0, 100% 0, 100% 100%, 0% 100%)`,
-            },
-            pageAnimate: {
-              opacity: 1,
-              clipPath: `polygon(0 0, 100% 0, 100% 100%, 0% 100%)`,
-            },
-            pageExit: {
-              opacity: 0,
-              clipPath: `polygon(50% 0, 50% 0, 50% 100%, 50% 100%)`,
-            },
-          }}>
-            <Main />
-            <NextScript />
-          </motion.body>
-        </AnimatePresence> */}
       </Html>
     );
   }
