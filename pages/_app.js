@@ -12,7 +12,48 @@ export const getCurrentPageName = () => {
   return window.location.hash.slice(window.location.hash.lastIndexOf(`/`)).replace(`/`, ``);
 };
 
+export const formatDate = (date, specificPortion) => {
+  let hours = date.getHours();
+  let minutes = date.getMinutes();
+  let ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12;
+  hours = hours ? hours : 12; // the hour '0' should be '12'
+  minutes = minutes < 10 ? '0' + minutes : minutes;
+  let strTime = hours + ':' + minutes + ' ' + ampm;
+  let completedDate = strTime + ` ` + (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
+  if (specificPortion == `time`) {
+    completedDate = strTime;
+  } else if (specificPortion == `date`) {
+    completedDate = (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
+  } else {
+    completedDate = strTime + ` ` + (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
+  }
+  return completedDate;
+};
+
+export const generateUniqueID = (existingIDs, name) => {
+
+  let newID = Math.random().toString(36).substr(2, 9);
+  if (existingIDs && existingIDs.length > 0) {
+    while (existingIDs.includes(newID)) {
+      newID = Math.random().toString(36).substr(2, 9);
+    }
+  }
+
+  if (name && existingIDs && existingIDs.length > 0) {
+    return `${name}_${existingIDs.length + 1}_${formatDate(new Date())}_${newID}`.replace(/\s+/g, `_`).replace(/[:/]/g, `_`);
+  } else if (name && !existingIDs) {
+    return `${name}_${formatDate(new Date())}_${newID}`.replace(/\s+/g, `_`).replace(/[:/]/g, `_`);
+  } else {
+    return `${formatDate(new Date())}_${newID}`.replace(/\s+/g, `_`).replace(/[:/]/g, `_`);
+  }
+
+};
+
 export const initialBoardData = {
+  name: `Board`,
+  created: formatDate(new Date()),
+  id: generateUniqueID(false, `board`),
   items:{
     item_1_1_06_AM_2_21_2023_puvkbf5jt: {
       complete: false,
@@ -337,25 +378,6 @@ export const getFormValuesFromFields = (formFields) => {
   }
 };
 
-export const generateUniqueID = (existingIDs, name) => {
-
-  let newID = Math.random().toString(36).substr(2, 9);
-  if (existingIDs && existingIDs.length > 0) {
-    while (existingIDs.includes(newID)) {
-      newID = Math.random().toString(36).substr(2, 9);
-    }
-  }
-
-  if (name && existingIDs && existingIDs.length > 0) {
-    return `${name}_${existingIDs.length + 1}_${formatDate(new Date())}_${newID}`.replace(/\s+/g, `_`).replace(/[:/]/g, `_`);
-  } else if (name && !existingIDs) {
-    return `${name}_${formatDate(new Date())}_${newID}`.replace(/\s+/g, `_`).replace(/[:/]/g, `_`);
-  } else {
-    return `${formatDate(new Date())}_${newID}`.replace(/\s+/g, `_`).replace(/[:/]/g, `_`);
-  }
-
-};
-
 export const updateOrAdd = (obj, arr) => {
   let index = arr.findIndex((item) => item.name === obj.name);
   if (index !== -1) {
@@ -419,25 +441,6 @@ export const getRGBAColorFromHue = (hue, alpha) => {
 
   return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
 }
-
-export const formatDate = (date, specificPortion) => {
-  let hours = date.getHours();
-  let minutes = date.getMinutes();
-  let ampm = hours >= 12 ? 'PM' : 'AM';
-  hours = hours % 12;
-  hours = hours ? hours : 12; // the hour '0' should be '12'
-  minutes = minutes < 10 ? '0' + minutes : minutes;
-  let strTime = hours + ':' + minutes + ' ' + ampm;
-  let completedDate = strTime + ` ` + (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
-  if (specificPortion == `time`) {
-    completedDate = strTime;
-  } else if (specificPortion == `date`) {
-    completedDate = (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
-  } else {
-    completedDate = strTime + ` ` + (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
-  }
-  return completedDate;
-};
 
 export const defaultLists = [
   {id: `list_1_9_21_PM_2_17_2023_69zscemwk`, name: `ProductIVF Features`, created: formatDate(new Date()), items: [

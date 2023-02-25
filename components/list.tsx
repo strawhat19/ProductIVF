@@ -129,6 +129,7 @@ function List(props) {
 
         props.setState({
             ...props.state,
+            updated: formatDate(new Date()),
             items: {
                 ...props.state.items,
                 [itemID]: newItem
@@ -161,6 +162,7 @@ function List(props) {
 
         props.setState({
             ...props.state,
+            updated: formatDate(new Date()),
             items: {
                 ...props.state.items
             },
@@ -184,6 +186,7 @@ function List(props) {
 
         props.setState({
             ...props.state,
+            updated: formatDate(new Date()),
             items: {
                 ...newItems
             },
@@ -217,14 +220,18 @@ function List(props) {
         const newColumnOrder = Array.from(props.state.columnOrder);
         newColumnOrder.splice(index, 1);
 
-        props.setState({
-            items: {
-                ...finalItems
-            },
-            columns: {
-                ...newColumns
-            },
-            columnOrder: newColumnOrder
+        props.setState(prevBoard => {
+            return {
+                ...prevBoard,
+                updated: formatDate(new Date()),
+                items: {
+                    ...finalItems
+                },
+                columns: {
+                    ...newColumns
+                },
+                columnOrder: newColumnOrder
+            }
         });
 
         setTimeout(() => {

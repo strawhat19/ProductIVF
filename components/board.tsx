@@ -27,6 +27,7 @@ function Board(props) {
         setBoard({
             ...board,
             columnOrder: newColumnOrder,
+            updated: formatDate(new Date()),
             columns: {
                 ...board.columns,
                 [columnID]: newColumn
@@ -109,6 +110,7 @@ function Board(props) {
 
         setBoard({
             ...board,
+            updated: formatDate(new Date()),
             columns: {
                 ...board.columns,
                 [newStart.id]: newStart,
@@ -221,15 +223,15 @@ function Board(props) {
 
     return (
         <DragDropContext onDragEnd={onDragEnd}>
-            <div className="createList lists extended">
+            {/* <div className="createList lists extended">
                 <div id={props.id} className={`list items addListDiv`}>
                     <div className="formItems items">
                         <div className="addListFormItem">
-                            <h2 style={{ fontWeight: 600, fontSize: 22, minWidth: `fit-content` }}>Create Column {board.columnOrder && board.columnOrder.length + 1}</h2>
+                            <h2 style={{ fontWeight: 600, fontSize: 22, minWidth: `fit-content` }}>Create List {board.columnOrder && board.columnOrder.length + 1}</h2>
                             <section className={`addListFormItemSection`} style={{ margin: 0 }}>
                                 <form onSubmit={addNewColumn} title={`Add Column`} id={`addListForm`} className={`flex addListForm itemButtons addForm`} style={{ width: `100%`, flexDirection: `row` }}>
-                                    <input maxLength={35} placeholder={`Name of Column`} type="text" name="createItem" required />
-                                    <button type={`submit`} title={`Create Column`} className={`iconButton createList`}>
+                                    <input maxLength={35} placeholder={`New Column`} type="text" name="createItem" required />
+                                    <button type={`submit`} title={`Create List`} className={`iconButton createList`}>
                                         <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-list"></i>
                                         <span className={`iconButtonText textOverflow extended`}>
                                             <span style={{ fontSize: 12 }}>Create List</span><span className={`itemLength index`} style={{ fontSize: 14, fontWeight: 700, padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content` }}>
@@ -248,7 +250,57 @@ function Board(props) {
                         </button>
                     </div>
                 </div>
-            </div>
+            </div> */}
+            <section className="boardsTitle boards" style={{paddingBottom: 0}}>
+                <div className="board boardTitle">
+                    <div id={`titleRowOf${board.id}`} className={`titleRow flex row`}>
+                        <div className="flex row innerRow">
+                            <div className="flex row left">
+                                <h3><span className="subscript">({0 + 1})</span></h3>
+                                <h2>{board.name ?? `Board`}</h2>
+                                <h3 className="boardDate">
+                                    <span className="subscript rowDate itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
+                                        <i> - </i>
+                                        <i className={`status`}>{board.created && !board.updated ? `Cre.` : `Upd.` }</i> 
+                                        <i><span className={`itemDateTime`}>{board?.updated ?? board?.created ?? formatDate(new Date())}</span></i>
+                                    </span>
+                                </h3>
+                            </div>
+                            <div className="flex row middle" style={{textAlign: `center`}}>
+                                <div className="filterButtons itemButtons">
+                                    <section className={`addListFormItemSection`} style={{ margin: 0, padding: 0 }}>
+                                        <form onSubmit={addNewColumn} title={`Add Column`} id={`addListForm`} className={`flex addListForm itemButtons addForm`} style={{ width: `100%`, flexDirection: `row` }}>
+                                            <input maxLength={35} placeholder={`New Column`} type="text" name="createItem" required />
+                                            {/* <button type={`submit`} title={`Create Column`} className={`iconButton createList`}>
+                                                <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-list"></i>
+                                                <span className={`iconButtonText textOverflow extended`}>
+                                                    <span style={{ fontSize: 12 }}>Create List</span><span className={`itemLength index`} style={{ fontSize: 14, fontWeight: 700, padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content` }}>
+                                                        {board.columnOrder && board.columnOrder.length + 1}
+                                                    </span>
+                                                </span>
+                                            </button> */}
+                                        </form>
+                                    </section>
+                                    <button onClick={(e) =>  setCompleteFiltered(!completeFiltered)} id={`filter_completed`} style={{ pointerEvents: `all`, width: `60%` }} title={`Filter Completed`} className={`iconButton deleteButton filterButton ${completeFiltered ? `filterActive` : `filterInactive`}`}>
+                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${completeFiltered ? `fa-times-circle` : `fa-filter`}`}></i>
+                                        <span className={`iconButtonText textOverflow extended`}>Completed</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="flex row right">
+                                <h3>{board?.columnOrder?.length} <span className={`subscript`}>Column(s)</span></h3>
+                                <h3>{board.items && Object.entries(board.items).length} <span className={`subscript`}>Items(s)</span></h3>
+                                {devEnv && <div className="itemButtons customButtons">
+                                    <button id={`delete_${board.id}`} onClick={(e) => console.log(e, board)} title={`Delete Board`} className={`iconButton deleteButton`}>
+                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-trash"></i>
+                                        <span className={`iconButtonText textOverflow extended`}>Delete</span>
+                                    </button>
+                                </div>}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
             {board.columnOrder && (
                 <Droppable droppableId={`boardColumns${generateId}`} direction="horizontal" type="column">
                     {(provided, snapshot) => (
