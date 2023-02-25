@@ -341,11 +341,11 @@ function List(props) {
                                                     ) : null}
                                                 </div>
                                                 <div className="itemButtons customButtons">
-                                                    <button id={`copy_${item.id}`} onClick={(e) => copyItem(e, item)} title={`Copy Item`} className={`iconButton ${ItemActions.Copy} copyButton wordIconButton`}>
-                                                        <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-copy`}></i>
-                                                    </button>
                                                     <button id={`complete_${item.id}`} onClick={(e) => completeItem(e, item.id, itemIndex, item)} title={`Complete Item`} className={`iconButton ${ItemActions.Complete} wordIconButton completeButton`}>
                                                         <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas ${item.complete ? `fa-history` : `fa-check-circle`}`}></i>
+                                                    </button>
+                                                    <button id={`copy_${item.id}`} onClick={(e) => copyItem(e, item)} title={`Copy Item`} className={`iconButton ${ItemActions.Copy} copyButton wordIconButton`}>
+                                                        <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-copy`}></i>
                                                     </button>
                                                     <button id={`delete_${item.id}`} onClick={(e) => deleteItem(e, item, props.column.id, itemIndex, item.id)} title={`Delete Item`} className={`iconButton ${ItemActions.Delete} deleteButton wordIconButton`}>
                                                         <i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-trash"></i>

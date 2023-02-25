@@ -298,18 +298,15 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
 .authForm {
     input {
         border-radius: 8px !important;
-        background: rgba(249,250,251,.1) !important;
     }
-    // &.customButtons {
-    //     input {
-    //         &[type="submit"] {
-    //             &.submit {
-    //                 border: 1px solid #393939 !important;
-    //                 background: #1A1A1A !important;
-    //             }
-    //         }
-    //     }
-    // }
+}
+
+.dark {
+    .authForm {
+        input {
+            background: rgba(249,250,251,.1) !important;
+        }
+    }
 }
 
 .addForm {
@@ -492,6 +489,9 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
 // @media (max-width: 1600px) {
 // @media (max-width: 1420px) {
 @media (max-width: 1367px) {
+    .completeButton {
+        display: none !important;
+    }
   .lists {
     grid-template-columns: 1fr !important;
     .itemName {
@@ -546,7 +546,7 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
     .filtersSubscript {
         display: none !important;
     }
-    .completeButton {
+    .copyButton {
         display: none !important;
     }
     .status {
@@ -1005,7 +1005,7 @@ form {
         .items {
             gap: 0em;
             display: grid;
-            max-height: 400px;
+            max-height: 359px;
             overflow-x: hidden;
             overflow-y: overlay;
             width: 100% !important;
@@ -1598,7 +1598,7 @@ footer {
         .items {
             display: flex;
             grid-gap: 10px;
-            min-height: 400px;
+            min-height: 359px;
             padding: 0 !important;
             .item {
                 min-height: min-content;
