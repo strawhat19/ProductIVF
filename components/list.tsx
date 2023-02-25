@@ -303,12 +303,12 @@ function List(props) {
                                                         <span className={`itemDateTime`}>{wordOfCategory(item)}</span>
                                                     </span>} */}
                                                     <hr className={`itemSep`} style={{height: 1, borderColor: `var(--gameBlue)`}} />
-                                                    {devEnv && item.created && !item.updated ? (
+                                                    {item.created && !item.updated ? (
                                                     <span className="itemDate itemName itemCreated textOverflow extended flex row">
                                                         <i className={`status`}>Cre.</i> 
                                                         <span className={`itemDateTime`}>{formatDate(new Date(item.created))}</span>
                                                     </span>
-                                                    ) : devEnv && item.updated ? (
+                                                    ) : item.updated ? (
                                                     <span className="itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
                                                         <i className={`status`}>Upd.</i> 
                                                         <span className={`itemDateTime`}>{formatDate(new Date(item.updated))}</span>

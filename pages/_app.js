@@ -539,6 +539,9 @@ export default function MyApp({ Component, pageProps, router }) {
           if (!cachedBoard.updated) cachedBoard.updated = formatDate(new Date());
           if (!cachedBoard.id) cachedBoard.id = generateUniqueID(false, `board`);
           if (!cachedBoard.name) cachedBoard.name = `Board`;
+          if (!cachedBoard.columns) cachedBoard.columns = initialBoardData.columns;
+          if (!cachedBoard.columnOrder) cachedBoard.columnOrder = initialBoardData.columnOrder;
+          if (!cachedBoard.items) cachedBoard.items = initialBoardData.items;
           setBoard(cachedBoard);
         } else {
           setBoard(initialBoardData);

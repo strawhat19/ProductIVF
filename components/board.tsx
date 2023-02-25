@@ -193,9 +193,15 @@ function Board(props) {
 
     useEffect(() => {
         if (dev()) {
-            if (updates > 1) localStorage.setItem(`board`, JSON.stringify(board));
+            if (updates > 0) {
+                console.log(`Save Item`);
+                localStorage.setItem(`board`, JSON.stringify(board));
+            };
         } else {
-            if (updates == 0) localStorage.setItem(`board`, JSON.stringify(board));
+            if (updates == 0) {
+                console.log(`Save Item`);
+                localStorage.setItem(`board`, JSON.stringify(board));
+            };
         }
 
         let boardColumnItems = document.querySelectorAll(`.boardColumnItems`);
@@ -221,7 +227,7 @@ function Board(props) {
 
         setUpdates(updates + 1);
         // dev() && console.log(`Updates`, updates);
-        dev() && board?.columnOrder &&  board?.columnOrder.length > 0 && console.log(`Board`, board);
+        // dev() && board?.columnOrder &&  board?.columnOrder.length > 0 && console.log(`Board`, board);
 
     },  [board])
 
@@ -272,7 +278,7 @@ function Board(props) {
                             </div>
                             <h3 className={`divSep`}><span className="subscript" style={{color: `var(--gameBlue)`}}>|</span></h3>
                             <div className="flex row middle">
-                                <h3>{board?.columnOrder?.length} <span className={`subscript`}>Column(s)</span></h3>
+                                <h3>{board?.columnOrder && board?.columnOrder?.length} <span className={`subscript`}>Column(s)</span></h3>
                                 <h3>{board?.items && Object.entries(board?.items).length} <span className={`subscript`}>Items(s)</span></h3>
                             </div>
                             <h3 className={`divSep`}><span className="subscript" style={{color: `var(--gameBlue)`}}>|</span></h3>
