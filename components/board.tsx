@@ -251,7 +251,7 @@ function Board(props) {
                     </div>
                 </div>
             </div> */}
-            <section className="boardsTitle boards" style={{paddingBottom: 0}}>
+            {/* <section className="boardsTitle boards" style={{paddingBottom: 0}}>
                 <div className="board boardTitle">
                     <div id={`titleRowOf${board?.id}`} className={`titleRow flex row`}>
                         <div className="flex row innerRow">
@@ -277,7 +277,7 @@ function Board(props) {
                                 <div className="filterFormDiv filterButtons itemButtons" style={{textAlign: `center`, justifyContent: `space-between`, alignItems: `center`}}>
                                     <button onClick={(e) =>  setCompleteFiltered(!completeFiltered)} id={`filter_completed`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Filter Completed`} className={`iconButton deleteButton filterButton ${completeFiltered ? `filterActive` : `filterInactive`}`}>
                                         <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${completeFiltered ? `fa-times-circle` : `fa-check-circle`}`}></i>
-                                        {/* <span className={`iconButtonText textOverflow extended`}>Completed</span> */}
+                                        <span className={`iconButtonText textOverflow extended`}>Completed</span>
                                     </button>
                                     <section className={`addListFormItemSection`} style={{ margin: 0, padding: 0 }}>
                                         <form onSubmit={addNewColumn} title={`Add Column`} id={`addListForm`} className={`flex addListForm itemButtons addForm`} style={{ width: `100%`, flexDirection: `row` }}>
@@ -303,7 +303,7 @@ function Board(props) {
                         </div>
                     </div>
                 </div>
-            </section>
+            </section> */}
             {board?.columnOrder && (
                 <Droppable droppableId={`boardColumns${generateId}`} direction="horizontal" type="column">
                     {(provided, snapshot) => (
