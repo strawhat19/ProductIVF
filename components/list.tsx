@@ -149,7 +149,11 @@ function List(props) {
             setLoading(false);
         }, 1000);
         window.requestAnimationFrame(() => {
-            return listItems.scrollTop = listItems.scrollHeight;
+            if (rank <= 5) {
+                return listItems.scrollTop = 0;
+            } else {
+                return listItems.scrollTop = listItems.scrollHeight;
+            }
         });
     }
 
