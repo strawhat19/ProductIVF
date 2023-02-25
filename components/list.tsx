@@ -105,19 +105,25 @@ function List(props) {
     const addNewItem = (e) => {
         e.preventDefault();
         let formFields = e.target.children;
-        const column = props.state.columns[props.column.id];
         setLoading(true);
-        setSystemStatus(`Creating Item ${column.itemIds.length + 1}.`);
+        const column = props.state.columns[props.column.id];
+        let nextIndex = column.itemIds.length + 1;
+        setSystemStatus(`Creating Item ${nextIndex}.`);
         let listItems = e.target.previousSibling;
-        let newItemID = `item_${column.itemIds.length + 1}`;
+        let newItemID = `item_${nextIndex}`;
         let itemID = `${newItemID}_${generateUniqueID()}`;
+        let content = formFields[0].value;
+        let rank = formFields.rank.value;
+        if (!rank || rank == ``) rank = nextIndex;
+        rank = parseInt(rank);
+        rank = rank > nextIndex ? nextIndex : rank; 
         const newItemIds = Array.from(column.itemIds);
-        newItemIds.push(itemID);
+        newItemIds.splice(rank - 1,0,itemID);
 
         const newItem = {
             id: itemID,
             complete: false,
-            content: formFields[0].value,
+            content: content,
             created: formatDate(new Date()),
         }
 
@@ -138,7 +144,7 @@ function List(props) {
 
         e.target.reset();
         setTimeout(() => {
-            setSystemStatus(`Created Item ${column.itemIds.length + 1}.`);
+            setSystemStatus(`Created Item ${rank}.`);
             setLoading(false);
         }, 1000);
         window.requestAnimationFrame(() => {
@@ -260,10 +266,11 @@ function List(props) {
                                                 </span>
                                                 <div className="itemContent">
                                                     <span className="boardItemContent itemName textOverflow extended">{item.content}</span>
-                                                    {devEnv && wordInCategories(item) && <span className="itemCategory itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
+                                                    {/* {devEnv && wordInCategories(item) && <span className="itemCategory itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
                                                         <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-hashtag"></i> 
                                                         <span className={`itemDateTime`}>{wordOfCategory(item)}</span>
-                                                    </span>}
+                                                    </span>} */}
+                                                    <hr className={`itemSep`} style={{height: 1, borderColor: `var(--gameBlue)`}} />
                                                     {devEnv && item.created && !item.updated ? (
                                                     <span className="itemDate itemName itemCreated textOverflow extended flex row">
                                                         <i className={`status`}>Cre.</i> 
@@ -278,7 +285,7 @@ function List(props) {
                                                 </div>
                                                 <div className="itemButtons customButtons">
                                                     <button id={`complete_${item.id}`} onClick={() => completeItem(item.id, itemIndex, item)} title={`Complete Item`} className={`iconButton deleteButton wordIconButton completeButton`}>
-                                                        <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas ${item.complete ? `fa-history` : `fa-check-circle`}`}></i>
+                                                        <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas ${item.complete ? `fa-history` : `fa-check`}`}></i>
                                                     </button>
                                                     <button id={`delete_${item.id}`} onClick={() => deleteItem(item, props.column.id, itemIndex, item.id)} title={`Delete Item`} className={`iconButton deleteButton wordIconButton`}>
                                                         <i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-trash"></i>
@@ -293,7 +300,8 @@ function List(props) {
                         )}
                     </Droppable>
                     <form title={`Add Item`} id={`add_item_form_${props.column.id}`} className={`flex addItemForm itemButtons unset addForm`} style={{ width: `100%`, flexDirection: `row` }} onSubmit={(e) => addNewItem(e)}>
-                        <input placeholder={`Name of Item`} type="text" name="createItem" required />
+                        <input placeholder={`Add`} type="text" name="createItem" required />
+                        <input name={`rank`} placeholder={props.column.itemIds.length + 1} defaultValue={props.column.itemIds.length + 1} type={`number`} min={1} />
                         <button type={`submit`} title={`Add Item`} className={`iconButton createList wordIconButton`}>
                             <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-plus"></i>
                             <span className={`iconButtonText textOverflow extended`}>

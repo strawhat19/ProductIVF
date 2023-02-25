@@ -190,7 +190,7 @@ article {
     padding: 0 !important;
     transition: var(--transition);
     &.minimized {
-        width: 50px;
+        width: 75px;
         p, ul, .loading, h2, form, blockquote, div a  {
             display: none !important;
         }
@@ -300,10 +300,13 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
     }
     input {
         padding: 10px 0px 10px 65px;
+        &::placeholder {
+            opacity: 0.5;
+        }
         &[type="number"] {
             max-width: 15%;
             min-width: inherit !important;
-            padding: 10px 0px 10px 17px !important;
+            padding: 10px 0px 10px 15px !important;
         }
     }
     select {
@@ -993,7 +996,7 @@ form {
                 width: 100%;
                 cursor: grab;
                 display: flex;
-                grid-gap: 20px;
+                grid-gap: 14px;
                 font-size: 0.8em;
                 min-height: 35px;
                 position: relative;
@@ -1111,6 +1114,10 @@ form {
                         button {
                             background: black;
                         }
+                    }
+
+                    .itemSep {
+                        filter: invert(1);
                     }
                 }
 
@@ -1530,7 +1537,8 @@ footer {
                 background: linear-gradient(90deg, white 35px, var(--blackGlass) 35px);
                 .itemDate {
                     font-size: 9px;
-                    max-width: 115px !important;
+                    max-width: 125px !important;
+                    // border-top: solid 1px var(--gameBlue);
                 }
                 &:hover {
                     cursor: move;
@@ -1549,6 +1557,9 @@ footer {
                     padding: 10px 0;
                     .itemName {
                         padding: 0 !important;
+                        // &.itemDate {
+                        //     padding: 5px 0 0 0 !important;
+                        // }
                     }
                     .itemCategory {
                         max-width: min-content !important;
@@ -1575,7 +1586,7 @@ footer {
             }
             &.addForm {
                 input {
-                    padding: 10px 0px 10px 45px; 
+                    padding: 10px 0px 10px 50px; 
                 }
                 &::before {
                     width: 35px;
