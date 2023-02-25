@@ -764,6 +764,33 @@ form {
     }
 }
 
+.addBoardForm {
+    max-height: 33px;
+}
+
+.changeLabel {
+    padding: 0 10px;
+    min-width: 135px;
+    border-radius: 8px;
+    background: transparent;
+    margin: 0 -10px !important;
+    transition: var(--transition);
+    &::selection {
+        color: white;
+        background: rgba(0, 194, 255, 0.2) !important;
+    }
+    &:not(:focus-visible) {
+        &::selection {
+            background: transparent !important;
+        }
+    }
+    &:hover {
+        &:not(:focus-visible) {
+            background: rgba(0, 194, 255, 0.2);
+        }
+    }
+}
+
 .flex {
     width: 100%;
     display: flex;
@@ -800,6 +827,7 @@ form {
                 width: 100%;
                 max-width: none;
                 form {
+                    max-height: 33px;
                     max-width: none;
                     button {
                         max-width: min-content;
@@ -1088,6 +1116,9 @@ form {
                     }
                     .itemButtons {
                         filter: invert(1);
+                        button {
+                            background: black !important;
+                        }
                     }
                 }
 
@@ -1140,7 +1171,7 @@ form {
                 }
 
                 .itemButtons {
-                    padding: 6px;
+                    padding: 6px 15px 6px 6px;
                 }
 
                 &.complete {

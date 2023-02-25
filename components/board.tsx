@@ -1,6 +1,6 @@
 import List from './list';
 import React, { useState, useContext, useEffect } from 'react';
-import { dev, formatDate, generateUniqueID, StateContext } from '../pages/_app';
+import { capitalizeAllWords, dev, formatDate, generateUniqueID, StateContext } from '../pages/_app';
 import { DragDropContext, Droppable, generateId, onDragStart } from 'react-beautiful-dnd';
 
 function Board(props) {
@@ -119,11 +119,22 @@ function Board(props) {
 
     // let dragCount = 0;
     const onDragStart = (dragStartEvent) => {
-        setLoading(true);
-        setSystemStatus(`Rearranging...`);
-        // if (dragCount == 0) {
-        //     dragCount = dragCount + 1;
-        // }
+        if (dev()) {
+            setLoading(true);
+            setSystemStatus(`Rearranging...`);
+        }
+    }
+
+    const changeLabel = (e, item, setItem) => {
+        let value = e.target.value == `` ? item.name : e.target.value;
+        if (!e.target.value || e.target.value == ``) {
+            e.target.value = item.name;
+            return;
+        };
+        if (item.id.includes(`board`)) {
+            setItem({ ...item, name: capitalizeAllWords(value)});
+        }
+        console.log(e.target.style);
     }
 
     const onDragEnd = (dragEndEvent) => {
@@ -137,8 +148,10 @@ function Board(props) {
             return;
         }
 
-        setLoading(false);
-        setSystemStatus(`Rearranged.`);
+       if (dev()) {
+           setLoading(false);
+           setSystemStatus(`Rearranged.`);
+       }
 
         if (type === `column`) {
             const newColumnOrder = Array.from(board?.columnOrder);
@@ -239,41 +252,13 @@ function Board(props) {
 
     return (
         <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
-            {/* <div className="createList lists extended">
-                <div id={props.id} className={`list items addListDiv`}>
-                    <div className="formItems items">
-                        <div className="addListFormItem">
-                            <h2 style={{ fontWeight: 600, fontSize: 22, minWidth: `fit-content` }}>Create List {board?.columnOrder && board?.columnOrder.length + 1}</h2>
-                            <section className={`addListFormItemSection`} style={{ margin: 0 }}>
-                                <form onSubmit={addNewColumn} title={`Add Column`} id={`addListForm`} className={`flex addListForm itemButtons addForm`} style={{ width: `100%`, flexDirection: `row` }}>
-                                    <input maxLength={35} placeholder={`New Column`} type="text" name="createItem" required />
-                                    <button type={`submit`} title={`Create List`} className={`iconButton createList`}>
-                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-list"></i>
-                                        <span className={`iconButtonText textOverflow extended`}>
-                                            <span style={{ fontSize: 12 }}>Create List</span><span className={`itemLength index`} style={{ fontSize: 14, fontWeight: 700, padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content` }}>
-                                                {board?.columnOrder && board?.columnOrder.length + 1}
-                                            </span>
-                                        </span>
-                                    </button>
-                                </form>
-                            </section>
-                        </div>
-                    </div>
-                    <div className="filterButtons itemButtons">
-                        <button onClick={(e) =>  setCompleteFiltered(!completeFiltered)} id={`filter_completed`} style={{ pointerEvents: `all` }} title={`Filter Completed`} className={`iconButton deleteButton filterButton ${completeFiltered ? `filterActive` : `filterInactive`}`}>
-                            <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${completeFiltered ? `fa-times-circle` : `fa-filter`}`}></i>
-                            <span className={`iconButtonText textOverflow extended`}>Filter Completed</span>
-                        </button>
-                    </div>
-                </div>
-            </div> */}
             <section className="boardsTitle boards" style={{paddingBottom: 0}}>
                 <div className="board boardTitle">
                     <div id={`titleRowOfBoard`} className={`titleRow flex row`}>
                         <div className="flex row innerRow">
                             <div className="flex row left">
                                 {devEnv && <h3><span className="subscript">(1)</span></h3>}
-                                <h2>{board?.name ?? `Board`}</h2>
+                                <h2><input onBlur={(e) => changeLabel(e, board, setBoard)} className={`changeLabel textOverflow`} name={`boardName`} defaultValue={board?.name ?? `Board`} /></h2>
                                 <h3 className="boardDate">
                                     <span className="subscript rowDate itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
                                         <i> - </i>
