@@ -539,7 +539,6 @@ export default function MyApp({ Component, pageProps, router }) {
           if (!cachedBoard.updated) cachedBoard.updated = formatDate(new Date());
           if (!cachedBoard.id) cachedBoard.id = generateUniqueID(false, `board`);
           if (!cachedBoard.name) cachedBoard.name = `Board`;
-          console.log(`cached board`, cachedBoard);
           setBoard(cachedBoard);
         } else {
           setBoard(initialBoardData);

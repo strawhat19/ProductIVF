@@ -3,6 +3,7 @@ import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { showAlert, formatDate, generateUniqueID, StateContext } from '../pages/_app';
 
 function List(props) {
+    let count = 0;
     const { setLoading, setSystemStatus, devEnv, completeFiltered, boardCategories } = useContext<any>(StateContext);
 
     const itemActiveFilters = (itm) => {
@@ -157,55 +158,75 @@ function List(props) {
         });
     }
 
-    const completeItem = (itemId, index, item) => {
-        setLoading(true);
-        setSystemStatus(`Marking Item ${index + 1} as Complete.`);
-
-        props.state.items[itemId].updated = formatDate(new Date());
-        props.state.items[itemId].complete = !props.state.items[itemId].complete;
-
-        props.setState({
-            ...props.state,
-            updated: formatDate(new Date()),
-            items: {
-                ...props.state.items
-            },
-        });
-
-        setTimeout(() => {
-            setSystemStatus(item.complete ? `Marked Item ${index + 1} as Complete` : `Reopened Item ${index + 1}`);
-            setLoading(false);
-        }, 1000);
+    const completeItem = (e, itemId, index, item) => {
+        let button = e.target;
+        let isButton = button.classList.contains(`iconButton`);
+        if (isButton) {
+            let completeButton = button.classList.contains(`completeButton`);
+            let deleteButton = button.classList.contains(`deleteButton`);
+            if (!completeButton && deleteButton) return;
+            if (completeButton && deleteButton) {
+                completeActions(item, index, itemId, isButton);
+            }
+        }
+        completeActions(item, index, itemId, isButton);
     }
 
-    const deleteItem = (item, columnId, index, itemId) => {
-        setLoading(true);
-        setSystemStatus(`Deleting Item ${index + 1}.`);
-        const column = props.state.columns[columnId];
-        const newItemIds = Array.from(column.itemIds);
-        newItemIds.splice(index, 1);
+    const completeActions = (item, index, itemId, isButton) => {
+        if (count == 0) {
+            setLoading(true);
+            setSystemStatus(`Marking Item ${index + 1} as Complete.`);
 
-        const items = props.state.items;
-        const { [itemId]: oldItem, ...newItems } = items;
+            props.state.items[itemId].updated = formatDate(new Date());
+            props.state.items[itemId].complete = !props.state.items[itemId].complete;
 
-        props.setState({
-            ...props.state,
-            updated: formatDate(new Date()),
-            items: {
-                ...newItems
-            },
-            columns: {
-                ...props.state.columns,
-                [columnId]: {
-                    ...column,
-                    itemIds: newItemIds
+            props.setState({
+                ...props.state,
+                updated: formatDate(new Date()),
+                items: {
+                    ...props.state.items
+                },
+            });
+
+            setTimeout(() => {
+                setSystemStatus(item.complete ? `Marked Item ${index + 1} as Complete` : `Reopened Item ${index + 1}`);
+                setLoading(false);
+            }, 1000);
+            if (isButton) count = count + 1;
+        }
+    }
+
+    const deleteItem = (e, item, columnId, index, itemId) => {
+        let isButton = e.target.classList.contains(`iconButton`);
+        if (isButton) {
+            setLoading(true);
+            setSystemStatus(`Deleting Item ${index + 1}.`);
+            const column = props.state.columns[columnId];
+            const newItemIds = Array.from(column.itemIds);
+            newItemIds.splice(index, 1);
+
+            const items = props.state.items;
+            const { [itemId]: oldItem, ...newItems } = items;
+
+            props.setState({
+                ...props.state,
+                updated: formatDate(new Date()),
+                items: {
+                    ...newItems
+                },
+                columns: {
+                    ...props.state.columns,
+                    [columnId]: {
+                        ...column,
+                        itemIds: newItemIds
+                    }
                 }
-            }
-        });
-        setTimeout(() => {
-            setSystemStatus(`Deleted Item ${index + 1}.`);
-            setLoading(false);
-        }, 1000);
+            });
+            setTimeout(() => {
+                setSystemStatus(`Deleted Item ${index + 1}.`);
+                setLoading(false);
+            }, 1000);   
+        }
     }
 
     const deleteColumn = (columnId, index) => {
@@ -271,7 +292,7 @@ function List(props) {
                                 {props.items.filter(itm => itemActiveFilters(itm)).map((item, itemIndex) =>
                                     (<Draggable key={item.id} draggableId={item.id} index={itemIndex}>
                                         {provided => (
-                                            <div onClick={(e) => completeItem(item.id, itemIndex, item)} id={item.id} className={`item ${item.complete ? `complete` : ``} container ${snapshot.isDragging ? `dragging` : ``}`} title={item.content} {...provided.draggableProps} ref={provided.innerRef} {...provided.dragHandleProps}>
+                                            <div onClick={(e) => completeItem(e, item.id, itemIndex, item)} id={item.id} className={`item ${item.complete ? `complete` : ``} container ${snapshot.isDragging ? `dragging` : ``}`} title={item.content} {...provided.draggableProps} ref={provided.innerRef} {...provided.dragHandleProps}>
                                                 <span className="itemOrder">
                                                     <i className={`itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>{itemIndex + 1}</i>
                                                 </span>
@@ -295,10 +316,10 @@ function List(props) {
                                                     ) : null}
                                                 </div>
                                                 <div className="itemButtons customButtons">
-                                                    <button id={`complete_${item.id}`} onClick={(e) => completeItem(item.id, itemIndex, item)} title={`Complete Item`} className={`iconButton deleteButton wordIconButton completeButton`}>
+                                                    <button id={`complete_${item.id}`} onClick={(e) => completeItem(e, item.id, itemIndex, item)} title={`Complete Item`} className={`iconButton deleteButton wordIconButton completeButton`}>
                                                         <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas ${item.complete ? `fa-history` : `fa-check-circle`}`}></i>
                                                     </button>
-                                                    <button id={`delete_${item.id}`} onClick={(e) => deleteItem(item, props.column.id, itemIndex, item.id)} title={`Delete Item`} className={`iconButton deleteButton wordIconButton`}>
+                                                    <button id={`delete_${item.id}`} onClick={(e) => deleteItem(e, item, props.column.id, itemIndex, item.id)} title={`Delete Item`} className={`iconButton deleteButton wordIconButton`}>
                                                         <i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-trash"></i>
                                                     </button>
                                                 </div>

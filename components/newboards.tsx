@@ -65,7 +65,7 @@ export default function NewBoards() {
 
     useEffect(() => {
         if (dev()) {
-            console.log(`boards`, boards);
+            // console.log(`boards`, boards);
         }
     }, [boards]);
 

@@ -192,7 +192,11 @@ function Board(props) {
     // }
 
     useEffect(() => {
-        if (updates > 1) localStorage.setItem(`board`, JSON.stringify(board));
+        if (dev()) {
+            if (updates > 1) localStorage.setItem(`board`, JSON.stringify(board));
+        } else {
+            if (updates == 0) localStorage.setItem(`board`, JSON.stringify(board));
+        }
 
         let boardColumnItems = document.querySelectorAll(`.boardColumnItems`);
         boardColumnItems.forEach(columnItems => {
