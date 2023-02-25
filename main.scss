@@ -773,6 +773,15 @@ form {
             text-align: left;
             justify-content: flex-start;
         }
+        .middle {
+            .middleFormDiv {
+                width: 100%;
+                max-width: none;
+                form {
+                    max-width: none;
+                }
+            }
+        }
         .right {
             * {
                 max-width: min-content;

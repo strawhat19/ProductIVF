@@ -266,8 +266,13 @@ function Board(props) {
                                     </span>
                                 </h3>
                             </div>
-                            <div className="flex row middle" style={{textAlign: `center`}}>
-                                <div className="filterButtons itemButtons">
+                            <div className="flex row middle" style={{textAlign: `center`, justifyContent: `space-between`, alignItems: `center`}}>
+                                <div className="middleFormDiv filterButtons itemButtons" style={{textAlign: `center`, justifyContent: `space-between`, alignItems: `center`}}>
+                                    Filters
+                                    <button onClick={(e) =>  setCompleteFiltered(!completeFiltered)} id={`filter_completed`} style={{ pointerEvents: `all`, width: `8%` }} title={`Filter Completed`} className={`iconButton deleteButton filterButton ${completeFiltered ? `filterActive` : `filterInactive`}`}>
+                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${completeFiltered ? `fa-times-circle` : `fa-check-circle`}`}></i>
+                                        {/* <span className={`iconButtonText textOverflow extended`}>Completed</span> */}
+                                    </button>
                                     <section className={`addListFormItemSection`} style={{ margin: 0, padding: 0 }}>
                                         <form onSubmit={addNewColumn} title={`Add Column`} id={`addListForm`} className={`flex addListForm itemButtons addForm`} style={{ width: `100%`, flexDirection: `row` }}>
                                             <input maxLength={35} placeholder={`New Column`} type="text" name="createItem" required />
@@ -281,10 +286,6 @@ function Board(props) {
                                             </button> */}
                                         </form>
                                     </section>
-                                    <button onClick={(e) =>  setCompleteFiltered(!completeFiltered)} id={`filter_completed`} style={{ pointerEvents: `all`, width: `60%` }} title={`Filter Completed`} className={`iconButton deleteButton filterButton ${completeFiltered ? `filterActive` : `filterInactive`}`}>
-                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${completeFiltered ? `fa-times-circle` : `fa-filter`}`}></i>
-                                        <span className={`iconButtonText textOverflow extended`}>Completed</span>
-                                    </button>
                                 </div>
                             </div>
                             <div className="flex row right">
