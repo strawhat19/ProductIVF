@@ -251,12 +251,12 @@ function Board(props) {
                     </div>
                 </div>
             </div> */}
-            {/* <section className="boardsTitle boards" style={{paddingBottom: 0}}>
+            <section className="boardsTitle boards" style={{paddingBottom: 0}}>
                 <div className="board boardTitle">
-                    <div id={`titleRowOf${board?.id}`} className={`titleRow flex row`}>
+                    <div id={`titleRowOfBoard`} className={`titleRow flex row`}>
                         <div className="flex row innerRow">
-                            <div className="flex row left">
-                                {devEnv && <h3><span className="subscript">({0 + 1})</span></h3>}
+                            {/* <div className="flex row left">
+                                {devEnv && <h3><span className="subscript">(1)</span></h3>}
                                 <h2>{board?.name ?? `Board`}</h2>
                                 <h3 className="boardDate">
                                     <span className="subscript rowDate itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
@@ -265,7 +265,7 @@ function Board(props) {
                                         <i><span className={`itemDateTime`}>{board?.updated ?? board?.created ?? formatDate(new Date())}</span></i>
                                     </span>
                                 </h3>
-                            </div>
+                            </div> */}
                             <h3 className={`divSep`}><span className="subscript" style={{color: `var(--gameBlue)`}}>|</span></h3>
                             <div className="flex row middle">
                                 <h3>{board?.columnOrder?.length} <span className={`subscript`}>Column(s)</span></h3>
@@ -303,7 +303,7 @@ function Board(props) {
                         </div>
                     </div>
                 </div>
-            </section> */}
+            </section>
             {board?.columnOrder && (
                 <Droppable droppableId={`boardColumns${generateId}`} direction="horizontal" type="column">
                     {(provided, snapshot) => (
