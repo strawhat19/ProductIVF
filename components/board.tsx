@@ -192,17 +192,10 @@ function Board(props) {
     // }
 
     useEffect(() => {
-        if (dev()) {
-            if (updates > 0) {
-                console.log(`Save Board`);
-                localStorage.setItem(`board`, JSON.stringify(board));
-            };
-        } else {
-            if (updates > 0) {
-                console.log(`Save Board`);
-                localStorage.setItem(`board`, JSON.stringify(board));
-            };
-        }
+        if (updates > 0) {
+            dev() && board?.columnOrder &&  board?.columnOrder.length > 0 && console.log(`Updated Board`, board);
+            localStorage.setItem(`board`, JSON.stringify(board));
+        };
 
         let boardColumnItems = document.querySelectorAll(`.boardColumnItems`);
         boardColumnItems.forEach(columnItems => {
