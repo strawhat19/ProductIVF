@@ -262,7 +262,7 @@ function Board(props) {
                                     <span className="subscript rowDate itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
                                         <i> - </i>
                                         <i className={`status`}>{board && board?.created && !board?.updated ? `Cre.` : `Upd.` }</i> 
-                                        <i><span className={`itemDateTime`}>{board && (board?.updated ?? board?.created ?? formatDate(new Date()))}</span></i>
+                                        {/* <i><span className={`itemDateTime`}>{board && (board?.updated ?? board?.created ?? formatDate(new Date()))}</span></i> */}
                                     </span>
                                 </h3>
                             </div>
