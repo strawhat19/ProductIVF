@@ -37,7 +37,7 @@ const config: DocsThemeConfig = {
   //   titleComponent: <Form />
   // },
   navbar: {
-    extraContent: <div className={`navFormDiv`} style={{order: -1, display: `flex`, flexDirection: `row`, gridGap: 15, alignItems: `center`}}>
+    extraContent: <div className={`navFormDiv`} style={{order: -1, display: `flex`, flexDirection: `row`, gridGap: 15, alignItems: `center`, marginRight: 10}}>
       <span className={`navFormText textOverflow extended`} style={{minWidth: `fit-content`}}>Sign In</span>
       <section className={`navFormSection`} style={{maxWidth: 300, margin: 0, padding: `0 20px 0 0 !important`, position: `relative`}}>
         <Form id="navForm" style={{display: `flex`, flexDirection: `row`}} />

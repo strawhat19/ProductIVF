@@ -33,6 +33,7 @@
     --react: #0fccce;
     --silver: #f2f2f2;
     --ground: #00b900;
+    --borderRadius: 4px;
     --containerWidth: 95%;
     --gameBlue: #00c2ff;
     --softBlack: #1a1a1a;
@@ -62,7 +63,7 @@
     color: white;
     font-weight: 600;
     font-size: 1.2em;
-    border-radius: 4px;
+    border-radius: var(--borderRadius);
     background: var(--gameBlueSoft);
     .innerRow {
         background: var(--blackGlass);
@@ -174,13 +175,15 @@ article {
 #minimizeTOCButton {
     padding: 1em;
     max-width: 30px;
-    filter: invert(1);
+    border-radius: 8px;
     align-self: baseline;
-    // color: var(--gameBlue);
-    // background: var(--softWhite);
+    /* filter: invert(1); */
     transition: var(--transition);
-    span {
-        transition: var(--transition);
+    background: rgba(0, 188, 247, 0.75);
+    &:hover {
+        color: black;
+        filter: invert(0);
+        background: white;
     }
 }
 
@@ -190,7 +193,7 @@ article {
     padding: 0 !important;
     transition: var(--transition);
     &.minimized {
-        width: 75px;
+        width: 85px;
         p, ul, .loading, h2, form, blockquote, div a  {
             display: none !important;
         }
@@ -198,7 +201,7 @@ article {
             padding: 13px !important;
         }
         #minimizeTOCButton {
-            padding: 0 15px 0 10px;
+            padding: 0 18px 0 10px;
             span {
                 min-width: min-content;
                 transform: rotateZ(180deg);
@@ -291,8 +294,25 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
     padding: 0em;
 }
 
+.authForm {
+    input {
+        border-radius: 8px !important;
+        background: rgba(249,250,251,.1) !important;
+    }
+    // &.customButtons {
+    //     input {
+    //         &[type="submit"] {
+    //             &.submit {
+    //                 border: 1px solid #393939 !important;
+    //                 background: #1A1A1A !important;
+    //             }
+    //         }
+    //     }
+    // }
+}
+
 .addForm {
-    border-radius: 4px;
+    border-radius: var(--borderRadius);
     position: relative;
     max-height: 35px;
     .inputGroup {
@@ -314,7 +334,7 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
         max-width: 29%;
         font-size: 12px;
         min-height: 33px;
-        border-radius: 4px;
+        border-radius: var(--borderRadius);
         flex-direction: row;
         align-items: center;
         text-transform: none;
@@ -577,7 +597,7 @@ section {
         padding: 10px;
         outline: none;
         cursor: pointer;
-        border-radius: 4px;
+        border-radius: var(--borderRadius);
         font-family: 'Montserrat';
         color: white !important;
         background: var(--blackGlass);
@@ -614,26 +634,26 @@ section {
 
 ::-webkit-scrollbar {
     position: relative;
-    border-radius: 4px;
+    border-radius: var(--borderRadius);
     width: 4px !important;
     background: black !important;
 }
 
 ::-webkit-scrollbar-thumb {
     background: var(--gameBlue);
-    border-radius: 4px;
+    border-radius: var(--borderRadius);
 }
 
 ::-webkit-scrollbar {
     position: relative;
-    border-radius: 4px;
+    border-radius: var(--borderRadius);
     width: 4px !important;
     background: var(--blackGlass) !important;
 }
 
 ::-webkit-scrollbar-thumb {
     background: var(--softWhite);
-    border-radius: 4px;
+    border-radius: var(--borderRadius);
 }
 
 .nextra-search {
@@ -663,9 +683,8 @@ form {
         max-height: 35px;
         font-weight: 400;
         // filter: invert(1);
-        border-radius: 4px;
+        border-radius: var(--borderRadius);
         padding: 10px 25px;
-        border: 1px solid var(--gameBlueSoft) !important;
         outline: none !important;
         font-family: "Montserrat";
         background: var(--blackGlass) !important;
@@ -697,7 +716,7 @@ form {
             padding: 1em;
             outline: none;
             min-height: 60px;
-            border-radius: 4px;
+            border-radius: var(--borderRadius);
             position: relative;
     
             &::before {
@@ -742,7 +761,7 @@ form {
         .innerRow {
             width: 100%;
             margin: 0 auto;
-            border-radius: 4px;
+            border-radius: var(--borderRadius);
             padding: 10px 15px;
             align-items: center;
         }
@@ -771,7 +790,7 @@ form {
     display: flex;
     padding: 40px;
     position: fixed;
-    border-radius: 4px;
+    border-radius: var(--borderRadius);
     align-items: center;
     flex-direction: column;
     justify-content: center;
@@ -880,7 +899,7 @@ form {
             width: 100% !important;
             // flex-direction: row;
             max-width: 100% !important;
-            border-radius: 4px !important;
+            border-radius: var(--borderRadius) !important;
             // grid-template-columns: 75% 25%;
             justify-content: space-between;
             .submit {
@@ -930,7 +949,7 @@ form {
     .list {
         // max-height: 550px !important;
         position: relative;
-        border-radius: 4px;
+        border-radius: var(--borderRadius);
         width: 100% !important;
         padding: 1em !important;
         min-width: 100% !important;
@@ -968,13 +987,13 @@ form {
 
             &::-webkit-scrollbar {
                 position: relative;
-                border-radius: 4px;
+                border-radius: var(--borderRadius);
                 width: 4px !important;
                 background: var(--blackGlass) !important;
             }
             &::-webkit-scrollbar-thumb {
                 background: var(--softWhite);
-                border-radius: 4px;
+                border-radius: var(--borderRadius);
             }
 
             &.oneList {
@@ -1000,7 +1019,7 @@ form {
                 font-size: 0.8em;
                 min-height: 35px;
                 position: relative;
-                border-radius: 4px;
+                border-radius: var(--borderRadius);
                 align-items: center;
                 padding: 0em !important;
                 background: var(--blackGlass);
@@ -1025,6 +1044,9 @@ form {
 
                 &:hover {
                     &:not(.itemOrder) {
+                        filter: invert(1);
+                    }
+                    .itemSep {
                         filter: invert(1);
                     }
                     .itemOrder {
@@ -1093,6 +1115,13 @@ form {
                 &.complete {
                     filter: invert(1);
                     background: rgba(0, 0, 0, 0.5) !important;
+
+                    &:hover {
+                        .itemOrder {
+                            filter: invert(0);
+                            background: transparent !important;
+                        }
+                    }
 
                     .itemOrder {
                         filter: invert(1);
@@ -1173,7 +1202,7 @@ form {
     transition: var(--transition);
     font-weight: 700 !important;
     align-items: center;
-    border-radius: 4px;
+    border-radius: var(--borderRadius);
     font-size: 0.85em;
     padding: 0px 0px;
     min-height: 35px;
@@ -1504,7 +1533,7 @@ footer {
         user-select: none;
         min-height: 500px;
         position: relative;
-        border-radius: 4px;
+        border-radius: var(--borderRadius);
         align-items: center;
         padding: 1em !important;
         min-width: 32.25% !important;
@@ -1565,7 +1594,7 @@ footer {
                         max-width: min-content !important;
                         background: white;
                         color: black;
-                        border-radius: 4px;
+                        border-radius: var(--borderRadius);
                         font-weight: 800 !important;
                         justify-content: flex-start !important;
                         grid-gap: 5px !important;

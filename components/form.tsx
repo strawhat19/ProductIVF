@@ -256,7 +256,7 @@ export default function Form(props?: any) {
   }, [user, users, authState]);
 
   return <>
-  <form id={props.id} onSubmit={authForm} className={`flex customButtons ${props.className}`} style={style}>
+  <form id={props.id} onSubmit={authForm} className={`flex authForm customButtons ${props.className}`} style={style}>
       {!user && <input placeholder="Email" type="email" name="email" autoComplete={`email`} required />}
       {!user && emailField && <input placeholder="Password (Use a password that you dont care about, but its still easy to remember)" type="password" name="password" autoComplete={`current-password`} />}
       {user && window?.location?.href?.includes(`profile`) && <input id="name" className={`name userData`} placeholder="Name" type="text" name="status" />}

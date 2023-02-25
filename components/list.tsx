@@ -285,7 +285,7 @@ function List(props) {
                                                 </div>
                                                 <div className="itemButtons customButtons">
                                                     <button id={`complete_${item.id}`} onClick={() => completeItem(item.id, itemIndex, item)} title={`Complete Item`} className={`iconButton deleteButton wordIconButton completeButton`}>
-                                                        <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas ${item.complete ? `fa-history` : `fa-check`}`}></i>
+                                                        <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas ${item.complete ? `fa-history` : `fa-check-circle`}`}></i>
                                                     </button>
                                                     <button id={`delete_${item.id}`} onClick={() => deleteItem(item, props.column.id, itemIndex, item.id)} title={`Delete Item`} className={`iconButton deleteButton wordIconButton`}>
                                                         <i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-trash"></i>
