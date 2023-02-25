@@ -396,7 +396,7 @@ export default function Boards(props) {
                 newBoards.splice(destination.index, 0, removedBoard);
             }
         } else if (type == `column`) {
-            if (dev()) {
+            if (draggableId.includes(`draggable_column_figure`)) {
                 console.log(`Column Move`, {draggableId, destination, source, type, mode, reason});
             }
             // let [removedColumn] = newBoards.columns.splice(source.index, 1);
@@ -407,7 +407,7 @@ export default function Boards(props) {
         setBoards(newBoards);
 
         if (dev()) {
-            console.log(`onDragEnd Event`, e);
+            // console.log(`onDragEnd Event`, e);
         }
     }
 

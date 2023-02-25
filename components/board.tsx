@@ -1,6 +1,6 @@
 import List from './list';
 import React, { useState, useContext, useEffect } from 'react';
-import { DragDropContext, Droppable } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, generateId } from 'react-beautiful-dnd';
 import { dev, formatDate, generateUniqueID, StateContext } from '../pages/_app';
 
 function Board(props) {
@@ -215,7 +215,7 @@ function Board(props) {
 
         setUpdates(updates + 1);
         // dev() && console.log(`Updates`, updates);
-        dev() && board.columnOrder.length > 0 && console.log(`Board`, board);
+        dev() && board.columnOrder &&  board.columnOrder.length > 0 && console.log(`Board`, board);
 
     },  [board])
 
@@ -225,7 +225,7 @@ function Board(props) {
                 <div id={props.id} className={`list items addListDiv`}>
                     <div className="formItems items">
                         <div className="addListFormItem">
-                            <h2 style={{ fontWeight: 600, fontSize: 22, minWidth: `fit-content` }}>Create Column {board.columnOrder.length + 1}</h2>
+                            <h2 style={{ fontWeight: 600, fontSize: 22, minWidth: `fit-content` }}>Create Column {board.columnOrder && board.columnOrder.length + 1}</h2>
                             <section className={`addListFormItemSection`} style={{ margin: 0 }}>
                                 <form onSubmit={addNewColumn} title={`Add Column`} id={`addListForm`} className={`flex addListForm itemButtons addForm`} style={{ width: `100%`, flexDirection: `row` }}>
                                     <input maxLength={35} placeholder={`Name of Column`} type="text" name="createItem" required />
@@ -233,7 +233,7 @@ function Board(props) {
                                         <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-list"></i>
                                         <span className={`iconButtonText textOverflow extended`}>
                                             <span style={{ fontSize: 12 }}>Create List</span><span className={`itemLength index`} style={{ fontSize: 14, fontWeight: 700, padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content` }}>
-                                                {board.columnOrder.length + 1}
+                                                {board.columnOrder && board.columnOrder.length + 1}
                                             </span>
                                         </span>
                                     </button>
@@ -249,20 +249,21 @@ function Board(props) {
                     </div>
                 </div>
             </div>
-            <Droppable droppableId={`all-columns`} direction="horizontal" type="column">
-                {provided => (
-                    <section id={`board`} className={`board lists container ${board.columnOrder.length == 2 ? `clipColumns` : board.columnOrder.length == 3 ? `threeBoard overflowingBoard` : board.columnOrder.length > 3 ? `moreBoard overflowingBoard` : ``}`} {...provided.droppableProps} ref={provided.innerRef} style={props.style}>
-                        {
-                            board.columnOrder.map((columnId, index) => {
+            {board.columnOrder && (
+                <Droppable droppableId={`boardColumns${generateId}`} direction="horizontal" type="column">
+                    {(provided, snapshot) => (
+                        <section id={`board`} className={`board lists container ${snapshot.isDraggingOver ? `isDraggingOver` : ``} ${board.columnOrder && (board.columnOrder.length == 2 ? `clipColumns` : board.columnOrder.length == 3 ? `threeBoard overflowingBoard` : board.columnOrder.length > 3 ? `moreBoard overflowingBoard` : ``)}`} ref={provided.innerRef} {...provided.droppableProps} style={props.style}>
+                            {board.columnOrder && board.columnOrder.map((columnId, index) => {
                                 const column = board.columns[columnId];
                                 const items = column.itemIds.map(itemId => board.items[itemId]);
                                 return <List key={column.id} column={column} items={items} index={index} state={board} setState={setBoard} />;
-                            })
-                        }
-                        {provided.placeholder}
-                    </section>
-                )}
-            </Droppable>
+                            })}
+                            {provided.placeholder}
+                        </section>
+                    )}
+                </Droppable>
+                )
+            }
         </DragDropContext>
     )
 }

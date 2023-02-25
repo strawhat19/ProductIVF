@@ -12,7 +12,7 @@ export const getCurrentPageName = () => {
   return window.location.hash.slice(window.location.hash.lastIndexOf(`/`)).replace(`/`, ``);
 };
 
-export const initialData = {
+export const initialBoardData = {
   items:{
     item_1_1_06_AM_2_21_2023_puvkbf5jt: {
       complete: false,
@@ -485,6 +485,7 @@ export default function MyApp({ Component, pageProps, router }) {
     let [user, setUser] = useState(null);
     let [lists, setLists] = useState([]);
     let [items, setItems] = useState([]);
+    let [board, setBoard] = useState({});
     let [dark, setDark] = useState(false);
     let [height, setHeight] = useState(0);
     let [boards, setBoards] = useState([]);
@@ -497,7 +498,6 @@ export default function MyApp({ Component, pageProps, router }) {
     let [highScore, setHighScore] = useState(0);
     let [platform, setPlatform] = useState(null);
     let [anim, setAnimComplete] = useState(false);
-    let [board, setBoard] = useState(initialData);
     let [categories, setCategories] = useState([]);
     let [colorPref, setColorPref] = useState(user);
     let [alertOpen, setAlertOpen] = useState(false);
@@ -519,6 +519,7 @@ export default function MyApp({ Component, pageProps, router }) {
       setSystemStatus(`Page Loading!`);
         if (loaded.current) return;
         loaded.current = true;
+        let cachedBoard = JSON.parse(localStorage.getItem(`board`));
         let cachedBoards = JSON.parse(localStorage.getItem(`boards`));
         let storedUser = JSON.parse(localStorage.getItem(`user`));
         setUpdates(updates);
@@ -527,9 +528,14 @@ export default function MyApp({ Component, pageProps, router }) {
         setSystemStatus(`System Status Ok.`);
         setPage(window.location.pathname.replace(`/`,``));
         setDevEnv(window.location.host.includes(`localhost`));
-        setBoard(JSON.parse(localStorage.getItem(`board`)) || initialData);
         setLists(JSON.parse(localStorage.getItem(`lists`)) || defaultLists);
         setMobile((typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1));
+
+        if (cachedBoard) {
+          setBoard(cachedBoard);
+        } else {
+          setBoard(initialBoardData);
+        }
 
         if (cachedBoards && cachedBoards.length > 0) {
           setBoards(cachedBoards);
