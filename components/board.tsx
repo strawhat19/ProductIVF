@@ -266,10 +266,16 @@ function Board(props) {
                                     </span>
                                 </h3>
                             </div>
-                            <div className="flex row middle" style={{textAlign: `center`, justifyContent: `space-between`, alignItems: `center`}}>
-                                <div className="middleFormDiv filterButtons itemButtons" style={{textAlign: `center`, justifyContent: `space-between`, alignItems: `center`}}>
-                                    Filters
-                                    <button onClick={(e) =>  setCompleteFiltered(!completeFiltered)} id={`filter_completed`} style={{ pointerEvents: `all`, width: `8%` }} title={`Filter Completed`} className={`iconButton deleteButton filterButton ${completeFiltered ? `filterActive` : `filterInactive`}`}>
+                            <h3><span className="subscript" style={{color: `var(--gameBlue)`}}>|</span></h3>
+                            <div className="flex row middle">
+                                <h3>{board?.columnOrder?.length} <span className={`subscript`}>Column(s)</span></h3>
+                                <h3>{board.items && Object.entries(board.items).length} <span className={`subscript`}>Items(s)</span></h3>
+                            </div>
+                            <h3><span className="subscript" style={{color: `var(--gameBlue)`}}>|</span></h3>
+                            <div className="flex row right">
+                                <div className="filterFormDiv filterButtons itemButtons" style={{textAlign: `center`, justifyContent: `space-between`, alignItems: `center`}}>
+                                    <h3><span className="subscript">Filters</span></h3>
+                                    <button onClick={(e) =>  setCompleteFiltered(!completeFiltered)} id={`filter_completed`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Filter Completed`} className={`iconButton deleteButton filterButton ${completeFiltered ? `filterActive` : `filterInactive`}`}>
                                         <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${completeFiltered ? `fa-times-circle` : `fa-check-circle`}`}></i>
                                         {/* <span className={`iconButtonText textOverflow extended`}>Completed</span> */}
                                     </button>
@@ -286,17 +292,13 @@ function Board(props) {
                                             </button> */}
                                         </form>
                                     </section>
+                                    {devEnv && <div className="itemButtons customButtons">
+                                        <button id={`delete_${board.id}`} onClick={(e) => console.log(e, board)} title={`Delete Board`} className={`iconButton deleteButton`}>
+                                            <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-trash"></i>
+                                            <span className={`iconButtonText textOverflow extended`}>Delete</span>
+                                        </button>
+                                    </div>}
                                 </div>
-                            </div>
-                            <div className="flex row right">
-                                <h3>{board?.columnOrder?.length} <span className={`subscript`}>Column(s)</span></h3>
-                                <h3>{board.items && Object.entries(board.items).length} <span className={`subscript`}>Items(s)</span></h3>
-                                {devEnv && <div className="itemButtons customButtons">
-                                    <button id={`delete_${board.id}`} onClick={(e) => console.log(e, board)} title={`Delete Board`} className={`iconButton deleteButton`}>
-                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-trash"></i>
-                                        <span className={`iconButtonText textOverflow extended`}>Delete</span>
-                                    </button>
-                                </div>}
                             </div>
                         </div>
                     </div>

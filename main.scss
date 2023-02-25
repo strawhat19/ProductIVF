@@ -767,6 +767,7 @@ form {
             align-items: center;
         }
         .left {
+            max-width: fit-content;
             * {
                 max-width: min-content;
             }
@@ -774,20 +775,21 @@ form {
             justify-content: flex-start;
         }
         .middle {
-            .middleFormDiv {
+            max-width: fit-content;
+            * {
+                max-width: min-content;
+            }
+            text-align: right;
+            justify-content: flex-end;
+        }
+        .right {
+            .filterFormDiv {
                 width: 100%;
                 max-width: none;
                 form {
                     max-width: none;
                 }
             }
-        }
-        .right {
-            * {
-                max-width: min-content;
-            }
-            text-align: right;
-            justify-content: flex-end;
         }
     }
 }
