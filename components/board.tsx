@@ -11,11 +11,11 @@ function Board(props) {
         e.preventDefault();
         setLoading(true);
         setSystemStatus(`Creating Column.`);
-        let newListID = `list_${board.columnOrder.length + 1}`;
+        let newListID = `list_${board?.columnOrder.length + 1}`;
         let columnID = `${newListID}_${generateUniqueID()}`;
         let formFields = e.target.children;
 
-        const newColumnOrder = Array.from(board.columnOrder);
+        const newColumnOrder = Array.from(board?.columnOrder);
         newColumnOrder.push(columnID);
 
         const newColumn = {
@@ -29,7 +29,7 @@ function Board(props) {
             columnOrder: newColumnOrder,
             updated: formatDate(new Date()),
             columns: {
-                ...board.columns,
+                ...board?.columns,
                 [columnID]: newColumn
             }
         });
@@ -41,7 +41,7 @@ function Board(props) {
         }, 500);
         setTimeout(() => {
             setLoading(false);
-            setSystemStatus(`Created Column ${board.columnOrder.length + 1}.`);
+            setSystemStatus(`Created Column ${board?.columnOrder.length + 1}.`);
         }, 1000);
     }
 
@@ -57,7 +57,7 @@ function Board(props) {
         }
 
         if (type === `column`) {
-            const newColumnOrder = Array.from(board.columnOrder);
+            const newColumnOrder = Array.from(board?.columnOrder);
             newColumnOrder.splice(source.index, 1);
             newColumnOrder.splice(destination.index, 0, draggableId);
 
@@ -68,8 +68,8 @@ function Board(props) {
             return;
         }
 
-        const start = board.columns[source.droppableId];
-        const finish = board.columns[destination.droppableId];
+        const start = board?.columns[source.droppableId];
+        const finish = board?.columns[destination.droppableId];
 
         if (start === finish) {
             const newItemIds = Array.from(start.itemIds);
@@ -84,14 +84,14 @@ function Board(props) {
             setBoard({
                 ...board,
                 columns: {
-                    ...board.columns,
+                    ...board?.columns,
                     [newColumn.id]: newColumn
                 }
             });
             return;
         }
 
-        const thisItem = board.items[draggableId];
+        const thisItem = board?.items[draggableId];
         thisItem.updated = formatDate(new Date());
 
         const startItemIds = Array.from(start.itemIds);
@@ -112,7 +112,7 @@ function Board(props) {
             ...board,
             updated: formatDate(new Date()),
             columns: {
-                ...board.columns,
+                ...board?.columns,
                 [newStart.id]: newStart,
                 [newFinish.id]: newFinish,
             }
@@ -217,7 +217,7 @@ function Board(props) {
 
         setUpdates(updates + 1);
         // dev() && console.log(`Updates`, updates);
-        dev() && board.columnOrder &&  board.columnOrder.length > 0 && console.log(`Board`, board);
+        dev() && board?.columnOrder &&  board?.columnOrder.length > 0 && console.log(`Board`, board);
 
     },  [board])
 
@@ -227,7 +227,7 @@ function Board(props) {
                 <div id={props.id} className={`list items addListDiv`}>
                     <div className="formItems items">
                         <div className="addListFormItem">
-                            <h2 style={{ fontWeight: 600, fontSize: 22, minWidth: `fit-content` }}>Create List {board.columnOrder && board.columnOrder.length + 1}</h2>
+                            <h2 style={{ fontWeight: 600, fontSize: 22, minWidth: `fit-content` }}>Create List {board?.columnOrder && board?.columnOrder.length + 1}</h2>
                             <section className={`addListFormItemSection`} style={{ margin: 0 }}>
                                 <form onSubmit={addNewColumn} title={`Add Column`} id={`addListForm`} className={`flex addListForm itemButtons addForm`} style={{ width: `100%`, flexDirection: `row` }}>
                                     <input maxLength={35} placeholder={`New Column`} type="text" name="createItem" required />
@@ -235,7 +235,7 @@ function Board(props) {
                                         <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-list"></i>
                                         <span className={`iconButtonText textOverflow extended`}>
                                             <span style={{ fontSize: 12 }}>Create List</span><span className={`itemLength index`} style={{ fontSize: 14, fontWeight: 700, padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content` }}>
-                                                {board.columnOrder && board.columnOrder.length + 1}
+                                                {board?.columnOrder && board?.columnOrder.length + 1}
                                             </span>
                                         </span>
                                     </button>
@@ -253,28 +253,28 @@ function Board(props) {
             </div> */}
             <section className="boardsTitle boards" style={{paddingBottom: 0}}>
                 <div className="board boardTitle">
-                    <div id={`titleRowOf${board.id}`} className={`titleRow flex row`}>
+                    <div id={`titleRowOf${board?.id}`} className={`titleRow flex row`}>
                         <div className="flex row innerRow">
                             <div className="flex row left">
-                                <h3><span className="subscript">({0 + 1})</span></h3>
-                                <h2>{board.name ?? `Board`}</h2>
+                                {devEnv && <h3><span className="subscript">({0 + 1})</span></h3>}
+                                <h2>{board?.name ?? `Board`}</h2>
                                 <h3 className="boardDate">
                                     <span className="subscript rowDate itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
                                         <i> - </i>
-                                        <i className={`status`}>{board.created && !board.updated ? `Cre.` : `Upd.` }</i> 
+                                        <i className={`status`}>{board?.created && !board?.updated ? `Cre.` : `Upd.` }</i> 
                                         <i><span className={`itemDateTime`}>{board?.updated ?? board?.created ?? formatDate(new Date())}</span></i>
                                     </span>
                                 </h3>
                             </div>
-                            <h3><span className="subscript" style={{color: `var(--gameBlue)`}}>|</span></h3>
+                            <h3 className={`divSep`}><span className="subscript" style={{color: `var(--gameBlue)`}}>|</span></h3>
                             <div className="flex row middle">
                                 <h3>{board?.columnOrder?.length} <span className={`subscript`}>Column(s)</span></h3>
-                                <h3>{board.items && Object.entries(board.items).length} <span className={`subscript`}>Items(s)</span></h3>
+                                <h3>{board?.items && Object.entries(board?.items).length} <span className={`subscript`}>Items(s)</span></h3>
                             </div>
-                            <h3><span className="subscript" style={{color: `var(--gameBlue)`}}>|</span></h3>
+                            <h3 className={`divSep`}><span className="subscript" style={{color: `var(--gameBlue)`}}>|</span></h3>
                             <div className="flex row right">
+                                <h3 className="filtersSubscript"><span className="subscript">Filters</span></h3>
                                 <div className="filterFormDiv filterButtons itemButtons" style={{textAlign: `center`, justifyContent: `space-between`, alignItems: `center`}}>
-                                    <h3><span className="subscript">Filters</span></h3>
                                     <button onClick={(e) =>  setCompleteFiltered(!completeFiltered)} id={`filter_completed`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Filter Completed`} className={`iconButton deleteButton filterButton ${completeFiltered ? `filterActive` : `filterInactive`}`}>
                                         <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${completeFiltered ? `fa-times-circle` : `fa-check-circle`}`}></i>
                                         {/* <span className={`iconButtonText textOverflow extended`}>Completed</span> */}
@@ -282,18 +282,18 @@ function Board(props) {
                                     <section className={`addListFormItemSection`} style={{ margin: 0, padding: 0 }}>
                                         <form onSubmit={addNewColumn} title={`Add Column`} id={`addListForm`} className={`flex addListForm itemButtons addForm`} style={{ width: `100%`, flexDirection: `row` }}>
                                             <input maxLength={35} placeholder={`New Column`} type="text" name="createItem" required />
-                                            {/* <button type={`submit`} title={`Create Column`} className={`iconButton createList`}>
+                                            <button type={`submit`} title={`Create Column`} className={`submit iconButton createList`}>
                                                 <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-list"></i>
                                                 <span className={`iconButtonText textOverflow extended`}>
-                                                    <span style={{ fontSize: 12 }}>Create List</span><span className={`itemLength index`} style={{ fontSize: 14, fontWeight: 700, padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content` }}>
-                                                        {board.columnOrder && board.columnOrder.length + 1}
+                                                    <span style={{ fontSize: 12 }}>Create Column</span><span className={`itemLength index`} style={{ fontSize: 14, fontWeight: 700, padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content` }}>
+                                                        {board?.columnOrder && board?.columnOrder.length + 1}
                                                     </span>
                                                 </span>
-                                            </button> */}
+                                            </button>
                                         </form>
                                     </section>
                                     {devEnv && <div className="itemButtons customButtons">
-                                        <button id={`delete_${board.id}`} onClick={(e) => console.log(e, board)} title={`Delete Board`} className={`iconButton deleteButton`}>
+                                        <button id={`delete_${board?.id}`} onClick={(e) => console.log(e, board)} title={`Delete Board`} className={`iconButton deleteButton`}>
                                             <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-trash"></i>
                                             <span className={`iconButtonText textOverflow extended`}>Delete</span>
                                         </button>
@@ -304,14 +304,14 @@ function Board(props) {
                     </div>
                 </div>
             </section>
-            {board.columnOrder && (
+            {board?.columnOrder && (
                 <Droppable droppableId={`boardColumns${generateId}`} direction="horizontal" type="column">
                     {(provided, snapshot) => (
-                        <section id={`board`} className={`board lists container ${snapshot.isDraggingOver ? `isDraggingOver` : ``} ${board.columnOrder && (board.columnOrder.length == 2 ? `clipColumns` : board.columnOrder.length == 3 ? `threeBoard overflowingBoard` : board.columnOrder.length > 3 ? `moreBoard overflowingBoard` : ``)}`} ref={provided.innerRef} {...provided.droppableProps} style={props.style}>
-                            {board.columnOrder && board.columnOrder.map((columnId, index) => {
-                                const column = board.columns[columnId];
-                                const items = column.itemIds.map(itemId => board.items[itemId]);
-                                return <List key={column.id} column={column} items={items} index={index} state={board} setState={setBoard} />;
+                        <section id={`board`} className={`board lists container ${snapshot.isDraggingOver ? `isDraggingOver` : ``} ${board?.columnOrder && (board?.columnOrder.length == 2 ? `clipColumns` : board?.columnOrder.length == 3 ? `threeBoard overflowingBoard` : board?.columnOrder.length > 3 ? `moreBoard overflowingBoard` : ``)}`} ref={provided.innerRef} {...provided.droppableProps} style={props.style}>
+                            {board?.columnOrder && board?.columnOrder.map((columnId, index) => {
+                                const column = board?.columns[columnId];
+                                const items = column.itemIds.map(itemId => board?.items[itemId]);
+                                return <List key={column?.id} column={column} items={items} index={index} state={board} setState={setBoard} />;
                             })}
                             {provided.placeholder}
                         </section>

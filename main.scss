@@ -420,11 +420,11 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
 
 @media (max-width: 515px) {
 
+    .status {
+        display: none !important;
+    }
     .itemDate {
         justify-content: flex-end !important;
-        .status {
-            display: none !important;
-        }
     }
 
     .addListFormItem {
@@ -470,20 +470,20 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
 // @media (min-width: 1600px) {
 // @media (min-width: 1420px) {
 @media (min-width: 1367px) {
+    .status {
+        overflow: hidden;
+        text-align: left;
+        white-space: nowrap;
+        display: inline-block;
+        text-overflow: ellipsis;
+        max-width: 50px !important;
+    }
    .multiList {
     .itemName {
         max-width: 220px;
     }
     .itemDate {
         min-width: 135px !important;
-        .status {
-            overflow: hidden;
-            text-align: left;
-            white-space: nowrap;
-            display: inline-block;
-            text-overflow: ellipsis;
-            max-width: 50px !important;
-        }
     }
    }
 }
@@ -511,12 +511,12 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
 }
 
 @media (min-width: 1367px) and (max-width: 1400px) {
+    .status {
+        display: none !important;
+    }
     .multiList {
         .itemDate {
             justify-content: flex-end !important;
-            .status {
-                display: none !important;
-            }
         }
     }
 }
@@ -538,6 +538,18 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
                 max-width: 48%;
             }
         }
+    }
+}
+
+@media (max-width: 1550px) {
+    .filtersSubscript {
+        display: none !important;
+    }
+    .completeButton {
+        display: none !important;
+    }
+    .status {
+        display: none !important;
     }
 }
 
@@ -788,6 +800,12 @@ form {
                 max-width: none;
                 form {
                     max-width: none;
+                    button {
+                        max-width: min-content;
+                        @media (max-width: 1550px) and (min-width: 0px) {
+                            display: none;
+                        }
+                    }
                 }
             }
         }

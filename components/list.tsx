@@ -271,7 +271,7 @@ function List(props) {
                                 {props.items.filter(itm => itemActiveFilters(itm)).map((item, itemIndex) =>
                                     (<Draggable key={item.id} draggableId={item.id} index={itemIndex}>
                                         {provided => (
-                                            <div id={item.id} className={`item ${item.complete ? `complete` : ``} container ${snapshot.isDragging ? `dragging` : ``}`} title={item.content} {...provided.draggableProps} ref={provided.innerRef} {...provided.dragHandleProps}>
+                                            <div onClick={(e) => completeItem(item.id, itemIndex, item)} id={item.id} className={`item ${item.complete ? `complete` : ``} container ${snapshot.isDragging ? `dragging` : ``}`} title={item.content} {...provided.draggableProps} ref={provided.innerRef} {...provided.dragHandleProps}>
                                                 <span className="itemOrder">
                                                     <i className={`itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>{itemIndex + 1}</i>
                                                 </span>
@@ -295,10 +295,10 @@ function List(props) {
                                                     ) : null}
                                                 </div>
                                                 <div className="itemButtons customButtons">
-                                                    <button id={`complete_${item.id}`} onClick={() => completeItem(item.id, itemIndex, item)} title={`Complete Item`} className={`iconButton deleteButton wordIconButton completeButton`}>
+                                                    <button id={`complete_${item.id}`} onClick={(e) => completeItem(item.id, itemIndex, item)} title={`Complete Item`} className={`iconButton deleteButton wordIconButton completeButton`}>
                                                         <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas ${item.complete ? `fa-history` : `fa-check-circle`}`}></i>
                                                     </button>
-                                                    <button id={`delete_${item.id}`} onClick={() => deleteItem(item, props.column.id, itemIndex, item.id)} title={`Delete Item`} className={`iconButton deleteButton wordIconButton`}>
+                                                    <button id={`delete_${item.id}`} onClick={(e) => deleteItem(item, props.column.id, itemIndex, item.id)} title={`Delete Item`} className={`iconButton deleteButton wordIconButton`}>
                                                         <i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-trash"></i>
                                                     </button>
                                                 </div>

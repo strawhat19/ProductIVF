@@ -535,6 +535,8 @@ export default function MyApp({ Component, pageProps, router }) {
         setMobile((typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1));
 
         if (cachedBoard) {
+          if (!cachedBoard.created) cachedBoard.created = formatDate(new Date());
+          if (!cachedBoard.id) cachedBoard.id = generateUniqueID(false, `board`);
           setBoard(cachedBoard);
         } else {
           setBoard(initialBoardData);
