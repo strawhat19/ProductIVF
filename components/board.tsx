@@ -1,11 +1,11 @@
 import List from './list';
 import React, { useState, useContext, useEffect } from 'react';
-import { DragDropContext, Droppable, generateId } from 'react-beautiful-dnd';
 import { dev, formatDate, generateUniqueID, StateContext } from '../pages/_app';
+import { DragDropContext, Droppable, generateId, onDragStart } from 'react-beautiful-dnd';
 
 function Board(props) {
     const [updates, setUpdates] = useState(0);
-    const { board, setBoard, setLoading, setSystemStatus, devEnv, completeFiltered, setCompleteFiltered, boardCategories, setBoardCategories, setCategories } = useContext<any>(StateContext);
+    const { board, setBoard, setLoading, setSystemStatus, devEnv, completeFiltered, setCompleteFiltered, boardCategories, setBoardCategories, setCategories, setRearranging } = useContext<any>(StateContext);
 
     const addNewColumn = (e) => {
         e.preventDefault();
@@ -41,82 +41,8 @@ function Board(props) {
         }, 500);
         setTimeout(() => {
             setLoading(false);
-            setSystemStatus(`Created Column ${board?.columnOrder.length + 1}.`);
+            setSystemStatus(`Created Column.`);
         }, 1000);
-    }
-
-    const onDragEnd = (result) => {
-        const { destination, source, draggableId, type } = result;
-
-        if (!destination) {
-            return;
-        }
-
-        if (destination.droppableId === source.droppableId && destination.index === source.index) {
-            return;
-        }
-
-        if (type === `column`) {
-            const newColumnOrder = Array.from(board?.columnOrder);
-            newColumnOrder.splice(source.index, 1);
-            newColumnOrder.splice(destination.index, 0, draggableId);
-
-            setBoard({
-                ...board,
-                columnOrder: newColumnOrder,
-            });
-            return;
-        }
-
-        const start = board?.columns[source.droppableId];
-        const finish = board?.columns[destination.droppableId];
-
-        if (start === finish) {
-            const newItemIds = Array.from(start.itemIds);
-            newItemIds.splice(source.index, 1);
-            newItemIds.splice(destination.index, 0, draggableId);
-
-            const newColumn = {
-                ...start,
-                itemIds: newItemIds,
-            }
-
-            setBoard({
-                ...board,
-                columns: {
-                    ...board?.columns,
-                    [newColumn.id]: newColumn
-                }
-            });
-            return;
-        }
-
-        const thisItem = board?.items[draggableId];
-        thisItem.updated = formatDate(new Date());
-
-        const startItemIds = Array.from(start.itemIds);
-        startItemIds.splice(source.index, 1);
-        const newStart = {
-            ...start,
-            itemIds: startItemIds,
-        }
-
-        const finishItemIds = Array.from(finish.itemIds);
-        finishItemIds.splice(destination.index, 0, draggableId);
-        const newFinish = {
-            ...finish,
-            itemIds: finishItemIds,
-        }
-
-        setBoard({
-            ...board,
-            updated: formatDate(new Date()),
-            columns: {
-                ...board?.columns,
-                [newStart.id]: newStart,
-                [newFinish.id]: newFinish,
-            }
-        });
     }
 
     const getCommonWords = (arrayOfSentences) => {
@@ -191,9 +117,96 @@ function Board(props) {
         // }
     // }
 
+    // let dragCount = 0;
+    const onDragStart = (dragStartEvent) => {
+        setLoading(true);
+        setSystemStatus(`Rearranging...`);
+        // if (dragCount == 0) {
+        //     dragCount = dragCount + 1;
+        // }
+    }
+
+    const onDragEnd = (dragEndEvent) => {
+        const { destination, source, draggableId, type } = dragEndEvent;
+
+        if (!destination) {
+            return;
+        }
+
+        if (destination.droppableId === source.droppableId && destination.index === source.index) {
+            return;
+        }
+
+        setLoading(false);
+        setSystemStatus(`Rearranged.`);
+
+        if (type === `column`) {
+            const newColumnOrder = Array.from(board?.columnOrder);
+            newColumnOrder.splice(source.index, 1);
+            newColumnOrder.splice(destination.index, 0, draggableId);
+
+            setBoard({
+                ...board,
+                columnOrder: newColumnOrder,
+            });
+            return;
+        }
+
+        const start = board?.columns[source.droppableId];
+        const finish = board?.columns[destination.droppableId];
+
+        if (start === finish) {
+            const newItemIds = Array.from(start.itemIds);
+            newItemIds.splice(source.index, 1);
+            newItemIds.splice(destination.index, 0, draggableId);
+
+            const newColumn = {
+                ...start,
+                itemIds: newItemIds,
+            }
+
+            setBoard({
+                ...board,
+                columns: {
+                    ...board?.columns,
+                    [newColumn.id]: newColumn
+                }
+            });
+            return;
+        }
+
+        const thisItem = board?.items[draggableId];
+        thisItem.updated = formatDate(new Date());
+
+
+        const startItemIds = Array.from(start.itemIds);
+        startItemIds.splice(source.index, 1);
+        const newStart = {
+            ...start,
+            itemIds: startItemIds,
+        }
+
+        const finishItemIds = Array.from(finish.itemIds);
+        finishItemIds.splice(destination.index, 0, draggableId);
+        const newFinish = {
+            ...finish,
+            itemIds: finishItemIds,
+        }
+
+        setBoard({
+            ...board,
+            updated: formatDate(new Date()),
+            columns: {
+                ...board?.columns,
+                [newStart.id]: newStart,
+                [newFinish.id]: newFinish,
+            }
+        });
+    }
+
     useEffect(() => {
         if (updates > 0) {
-            dev() && board?.columnOrder &&  board?.columnOrder.length > 0 && console.log(`Updated Board`, board);
+            // dev() && board?.columnOrder &&  board?.columnOrder.length > 0 && console.log(`Updated Board`, board);
             localStorage.setItem(`board`, JSON.stringify(board));
         };
 
@@ -225,7 +238,7 @@ function Board(props) {
     },  [board])
 
     return (
-        <DragDropContext onDragEnd={onDragEnd}>
+        <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
             {/* <div className="createList lists extended">
                 <div id={props.id} className={`list items addListDiv`}>
                     <div className="formItems items">

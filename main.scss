@@ -42,6 +42,7 @@
     --softBlack2: #636363;
     --piratechsDark: #10141d;
     --main: rgb(0, 216, 255);
+    --gameBlueInverse: #ff3d00;
     // --gameBlueSoft: var(--nextra);
     --authGlass: rgba(0, 0, 0, 0.05);
     --mainTeal: rgba(32, 143, 163, 1);
@@ -1247,6 +1248,11 @@ form {
         align-items: center;
         flex-direction: row;
     }
+    &:focus {
+        i {
+            filter: invert(1);
+        }
+    }
     &:hover {
         filter: invert(1);
         .itemLength {
@@ -1464,7 +1470,7 @@ footer {
             padding: 0 0 1em 0;
         }
         .titleRow {
-            .deleteButton {
+            .iconButton {
                 font-size: 12px;
             }
         }
@@ -1500,7 +1506,7 @@ footer {
                             min-width: max-content;
                             padding: 9px 0;
                         }
-                        .deleteButton {
+                        .iconButton {
                             font-size: 12px;
                             border-top-left-radius: 0px;
                             border-bottom-left-radius: 0px;
@@ -1563,7 +1569,7 @@ footer {
         &.dragging {
             max-width: 25px !important;
         }
-        user-select: none;
+        // user-select: none;
         min-height: 500px;
         position: relative;
         border-radius: var(--borderRadius);
@@ -1604,6 +1610,13 @@ footer {
                 }
                 &:hover {
                     cursor: move;
+                    .itemContent {
+                        &::selection {
+                            border-radius: var(--borderRadius);
+                            color: var(--gameBlueInverse);
+                            background: white !important;
+                        }
+                    }
                 }
                 &.complete {
                     background: linear-gradient(90deg, white 35px, var(--blackGlass) 35px) !important;
@@ -1613,10 +1626,15 @@ footer {
                     min-width: 35px;
                     max-width: 35px;
                 }
-                .itemContent {
+                .itemContents {
                     display: flex;
                     grid-gap: 5px;
                     padding: 10px 0;
+                    .itemContent {
+                        &::selection {
+                            background: var(--gameBlue);
+                        }
+                    }
                     .itemName {
                         padding: 0 !important;
                         // &.itemDate {

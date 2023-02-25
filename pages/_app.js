@@ -337,17 +337,21 @@ export const createXML = (xmlString) => {
 }
 
 export const capitalizeAllWords = (string, underScores) => {
+  let newString;
   if (underScores) {
     if (string != null || string != undefined) {
       const words = string.replace(/_/g, ` `).split(` `);
       const capitalizedWords = words.map((word) => {
-        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        newString = word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        return newString;
       });
-      return capitalizedWords.join(`_`);
+      newString = capitalizedWords.join(`_`);
+      return newString;
     }
   } else {
     if (string != null || string != undefined) {
-      return string.replace(`  `,` `).split(` `).map((word) => word?.charAt(0)?.toUpperCase() + word?.slice(1).toLowerCase()).join();
+      newString = string.split(` `).map((word) => word?.charAt(0)?.toUpperCase() + word?.slice(1).toLowerCase()).join(` `);
+      return newString;
     }
   }
 };
@@ -493,8 +497,9 @@ export default function MyApp({ Component, pageProps, router }) {
     let [height, setHeight] = useState(0);
     let [boards, setBoards] = useState([]);
     let [updates, setUpdates] = useState(0);
-    let [browser, setBrowser] = useState(``);
+    let [onMac, setOnMac] = useState(false);
     let [focus, setFocus] = useState(false);
+    let [browser, setBrowser] = useState(``);
     let [devEnv, setDevEnv] = useState(false);
     let [mobile, setMobile] = useState(false);
     let [loading, setLoading] = useState(true);
@@ -508,6 +513,7 @@ export default function MyApp({ Component, pageProps, router }) {
     let [mobileMenu, setMobileMenu] = useState(false);
     let [emailField, setEmailField] = useState(false);
     let [systemStatus, setSystemStatus] = useState(``);
+    let [rearranging, setRearranging] = useState(false);
     let [boardLoaded, setBoardLoaded] = useState(false);
     let [showLeaders, setShowLeaders] = useState(false);
     let [content, setContent] = useState(`defaultContent`);
@@ -529,6 +535,7 @@ export default function MyApp({ Component, pageProps, router }) {
         setPlatform(navigator?.userAgent);
         setYear(new Date().getFullYear());
         setSystemStatus(`System Status Ok.`);
+        setOnMac(navigator.platform.includes(`Mac`));
         setPage(window.location.pathname.replace(`/`,``));
         setDevEnv(window.location.host.includes(`localhost`));
         setLists(JSON.parse(localStorage.getItem(`lists`)) || defaultLists);
@@ -586,8 +593,8 @@ export default function MyApp({ Component, pageProps, router }) {
       }
     }, [user, users, authState, dark])
 
-    return <StateContext.Provider value={{ updates, setUpdates, content, setContent, width, setWidth, user, setUser, page, setPage, mobileMenu, setMobileMenu, users, setUsers, authState, setAuthState, emailField, setEmailField, devEnv, setDevEnv, mobileMenuBreakPoint, platform, setPlatform, focus, setFocus, highScore, setHighScore, color, setColor, dark, setDark, colorPref, setColorPref, lists, setLists, showLeaders, setShowLeaders, items, setItems, qotd, setQotd, alertOpen, setAlertOpen, mobile, setMobile, systemStatus, setSystemStatus, loading, setLoading, anim, setAnimComplete, IDs, setIDs, boardLoaded, setBoardLoaded, board, setBoard, completeFiltered, setCompleteFiltered, boardCategories, setBoardCategories, categories, setCategories, boards, setBoards, browser, setBrowser }}>
-      {browser != `chrome` ? <AnimatePresence mode={`wait`}>
+    return <StateContext.Provider value={{ updates, setUpdates, content, setContent, width, setWidth, user, setUser, page, setPage, mobileMenu, setMobileMenu, users, setUsers, authState, setAuthState, emailField, setEmailField, devEnv, setDevEnv, mobileMenuBreakPoint, platform, setPlatform, focus, setFocus, highScore, setHighScore, color, setColor, dark, setDark, colorPref, setColorPref, lists, setLists, showLeaders, setShowLeaders, items, setItems, qotd, setQotd, alertOpen, setAlertOpen, mobile, setMobile, systemStatus, setSystemStatus, loading, setLoading, anim, setAnimComplete, IDs, setIDs, boardLoaded, setBoardLoaded, board, setBoard, completeFiltered, setCompleteFiltered, boardCategories, setBoardCategories, categories, setCategories, boards, setBoards, browser, setBrowser, onMac, rearranging, setRearranging }}>
+      {(browser != `chrome` || onMac) ? <AnimatePresence mode={`wait`}>
         <motion.div className={`pageWrapContainer ${page.toUpperCase()}`} key={router.route} initial="pageInitial" animate="pageAnimate" exit="pageExit" transition={{ duration: 0.35 }} variants={{
           pageInitial: {
             opacity: 0,

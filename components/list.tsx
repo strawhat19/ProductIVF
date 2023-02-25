@@ -1,6 +1,17 @@
 import React, { useContext } from 'react';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
-import { showAlert, formatDate, generateUniqueID, StateContext } from '../pages/_app';
+import { showAlert, formatDate, generateUniqueID, StateContext, dev, capitalizeAllWords } from '../pages/_app';
+
+export enum ItemActions {
+    Click = `Click`,
+    Open = `Open`,
+    Copy = `Copy`,
+    Complete = `Complete`,
+    Delete = `Delete`,
+    Update = `Update`,
+    Edit = `Edit`,
+    Move = `Move`,
+}
 
 function List(props) {
     let count = 0;
@@ -103,13 +114,25 @@ function List(props) {
         return itm.content.slice(0,4);
     }
 
+    const copyItem = (e, item) => {
+        navigator.clipboard.writeText(item.content);
+        // Highlight Target Text
+        let parentItemElement = e.target.parentElement.parentElement;
+        let itemContentElement = parentItemElement.querySelector(`.itemContent`);
+        let selection = window.getSelection();
+        let range = document.createRange();
+        range.selectNodeContents(itemContentElement);
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }
+
     const addNewItem = (e) => {
         e.preventDefault();
         let formFields = e.target.children;
         setLoading(true);
         const column = props.state.columns[props.column.id];
         let nextIndex = column.itemIds.length + 1;
-        setSystemStatus(`Creating Item ${nextIndex}.`);
+        setSystemStatus(`Creating Item.`);
         let listItems = e.target.previousSibling;
         let newItemID = `item_${nextIndex}`;
         let itemID = `${newItemID}_${generateUniqueID()}`;
@@ -124,8 +147,8 @@ function List(props) {
         const newItem = {
             id: itemID,
             complete: false,
-            content: content,
             created: formatDate(new Date()),
+            content: capitalizeAllWords(content),
         }
 
         props.setState({
@@ -145,8 +168,9 @@ function List(props) {
         });
 
         e.target.reset();
+        e.target.children[0].focus();
         setTimeout(() => {
-            setSystemStatus(`Created Item ${rank}.`);
+            setSystemStatus(`Created Item.`);
             setLoading(false);
         }, 1000);
         window.requestAnimationFrame(() => {
@@ -163,11 +187,12 @@ function List(props) {
         let isButton = button.classList.contains(`iconButton`);
         if (isButton) {
             let completeButton = button.classList.contains(`completeButton`);
-            let deleteButton = button.classList.contains(`deleteButton`);
-            if (!completeButton && deleteButton) return;
-            if (completeButton && deleteButton) {
-                completeActions(item, index, itemId, isButton);
-            }
+            // let deleteButton = button.classList.contains(`deleteButton`);
+            // let copyButton = button.classList.contains(`copyButton`);
+            if (!completeButton) return;
+            // if (!completeButton && deleteButton) return;
+            // if (copyButton) return;
+            // if (completeButton && deleteButton) completeActions(item, index, itemId, isButton);
         }
         completeActions(item, index, itemId, isButton);
     }
@@ -175,7 +200,7 @@ function List(props) {
     const completeActions = (item, index, itemId, isButton) => {
         if (count == 0) {
             setLoading(true);
-            setSystemStatus(`Marking Item ${index + 1} as Complete.`);
+            setSystemStatus(`Marking Item as Complete.`);
 
             props.state.items[itemId].updated = formatDate(new Date());
             props.state.items[itemId].complete = !props.state.items[itemId].complete;
@@ -189,7 +214,7 @@ function List(props) {
             });
 
             setTimeout(() => {
-                setSystemStatus(item.complete ? `Marked Item ${index + 1} as Complete` : `Reopened Item ${index + 1}`);
+                setSystemStatus(item.complete ? `Marked Item as Complete.` : `Reopened Item.`);
                 setLoading(false);
             }, 1000);
             if (isButton) count = count + 1;
@@ -200,7 +225,7 @@ function List(props) {
         let isButton = e.target.classList.contains(`iconButton`);
         if (isButton) {
             setLoading(true);
-            setSystemStatus(`Deleting Item ${index + 1}.`);
+            setSystemStatus(`Deleting Item.`);
             const column = props.state.columns[columnId];
             const newItemIds = Array.from(column.itemIds);
             newItemIds.splice(index, 1);
@@ -223,7 +248,7 @@ function List(props) {
                 }
             });
             setTimeout(() => {
-                setSystemStatus(`Deleted Item ${index + 1}.`);
+                setSystemStatus(`Deleted Item ${item.content}.`);
                 setLoading(false);
             }, 1000);   
         }
@@ -231,7 +256,7 @@ function List(props) {
 
     const deleteColumn = (columnId, index) => {
         setLoading(true);
-        setSystemStatus(`Deleting column.`);
+        setSystemStatus(`Deleting Column.`);
         const columnItems = props.state.columns[columnId].itemIds;
 
         const finalItems = columnItems.reduce((previousValue, currentValue) => {
@@ -260,7 +285,7 @@ function List(props) {
         });
 
         setTimeout(() => {
-            setSystemStatus(`Deleted Column ${newColumnOrder.length + 1}.`);
+            setSystemStatus(`Deleted Column.`);
             setLoading(false);
         }, 1000);
     }
@@ -292,12 +317,12 @@ function List(props) {
                                 {props.items.filter(itm => itemActiveFilters(itm)).map((item, itemIndex) =>
                                     (<Draggable key={item.id} draggableId={item.id} index={itemIndex}>
                                         {provided => (
-                                            <div onClick={(e) => completeItem(e, item.id, itemIndex, item)} id={item.id} className={`item ${item.complete ? `complete` : ``} container ${snapshot.isDragging ? `dragging` : ``}`} title={item.content} {...provided.draggableProps} ref={provided.innerRef} {...provided.dragHandleProps}>
+                                            <div onClick={(e) => completeItem(e, item.id, itemIndex, item)} id={item.id} className={`item completeItem ${item.complete ? `complete` : ``} container ${snapshot.isDragging ? `dragging` : ``}`} title={item.content} {...provided.draggableProps} ref={provided.innerRef} {...provided.dragHandleProps}>
                                                 <span className="itemOrder">
                                                     <i className={`itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>{itemIndex + 1}</i>
                                                 </span>
-                                                <div className="itemContent">
-                                                    <span className="boardItemContent itemName textOverflow extended">{item.content}</span>
+                                                <div className="itemContents">
+                                                    <span className="itemContent boardItemContent itemName textOverflow extended">{item.content}</span>
                                                     {/* {devEnv && wordInCategories(item) && <span className="itemCategory itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
                                                         <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-hashtag"></i> 
                                                         <span className={`itemDateTime`}>{wordOfCategory(item)}</span>
@@ -316,10 +341,13 @@ function List(props) {
                                                     ) : null}
                                                 </div>
                                                 <div className="itemButtons customButtons">
-                                                    <button id={`complete_${item.id}`} onClick={(e) => completeItem(e, item.id, itemIndex, item)} title={`Complete Item`} className={`iconButton deleteButton wordIconButton completeButton`}>
+                                                    <button id={`copy_${item.id}`} onClick={(e) => copyItem(e, item)} title={`Copy Item`} className={`iconButton ${ItemActions.Copy} copyButton wordIconButton`}>
+                                                        <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-copy`}></i>
+                                                    </button>
+                                                    <button id={`complete_${item.id}`} onClick={(e) => completeItem(e, item.id, itemIndex, item)} title={`Complete Item`} className={`iconButton ${ItemActions.Complete} wordIconButton completeButton`}>
                                                         <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas ${item.complete ? `fa-history` : `fa-check-circle`}`}></i>
                                                     </button>
-                                                    <button id={`delete_${item.id}`} onClick={(e) => deleteItem(e, item, props.column.id, itemIndex, item.id)} title={`Delete Item`} className={`iconButton deleteButton wordIconButton`}>
+                                                    <button id={`delete_${item.id}`} onClick={(e) => deleteItem(e, item, props.column.id, itemIndex, item.id)} title={`Delete Item`} className={`iconButton ${ItemActions.Delete} deleteButton wordIconButton`}>
                                                         <i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-trash"></i>
                                                     </button>
                                                 </div>
