@@ -487,6 +487,7 @@ export default function MyApp({ Component, pageProps, router }) {
     let [items, setItems] = useState([]);
     let [dark, setDark] = useState(false);
     let [height, setHeight] = useState(0);
+    let [boards, setBoards] = useState([]);
     let [updates, setUpdates] = useState(0);
     let [browser, setBrowser] = useState(``);
     let [focus, setFocus] = useState(false);
@@ -500,7 +501,6 @@ export default function MyApp({ Component, pageProps, router }) {
     let [categories, setCategories] = useState([]);
     let [colorPref, setColorPref] = useState(user);
     let [alertOpen, setAlertOpen] = useState(false);
-    let [boards, setBoards] = useState(defaultBoards);
     let [authState, setAuthState] = useState(`Next`);
     let [mobileMenu, setMobileMenu] = useState(false);
     let [emailField, setEmailField] = useState(false);
@@ -519,6 +519,7 @@ export default function MyApp({ Component, pageProps, router }) {
       setSystemStatus(`Page Loading!`);
         if (loaded.current) return;
         loaded.current = true;
+        let cachedBoards = JSON.parse(localStorage.getItem(`boards`));
         let storedUser = JSON.parse(localStorage.getItem(`user`));
         setUpdates(updates);
         setPlatform(navigator?.userAgent);
@@ -529,6 +530,12 @@ export default function MyApp({ Component, pageProps, router }) {
         setBoard(JSON.parse(localStorage.getItem(`board`)) || initialData);
         setLists(JSON.parse(localStorage.getItem(`lists`)) || defaultLists);
         setMobile((typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1));
+
+        if (cachedBoards && cachedBoards.length > 0) {
+          setBoards(cachedBoards);
+        } else {
+          setBoards(defaultBoards);
+        }
 
         let toc = document.querySelector(`.nextra-toc`);
         let tocMinimized = JSON.parse(localStorage.getItem(`tocMinimized`));

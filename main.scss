@@ -1584,3 +1584,13 @@ footer {
         }
     }
 }
+
+.isDraggingOver {
+    transform: none !important;
+    article {
+        transform: none !important;
+        .boardColumns {
+            transform: none !important;
+        }
+    }
+}

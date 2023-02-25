@@ -279,13 +279,14 @@ export default function Boards(props) {
         }, 1000);
     }
     
-    const addNewRow = (e, column) => {
+    const addNewRow = (e, column, nextIndex, board) => {
         e.preventDefault();
         setLoading(true);
         let formFields = e.target.children;
-        let rowIndex = parseInt(formFields.rowInsertIndex.value);
+        let rank = formFields.rowInsertIndex.value == `` ? nextIndex - 1 : parseInt(formFields.rowInsertIndex.value) - 1;
+        if (rank >= nextIndex) rank = nextIndex;
         let rowContent = capitalizeAllWords(formFields.createRow.value);
-        let newRowID = `row_${column.rows.length + 1}_${generateUniqueID(IDs)}`;
+        let newRowID = `row_${nextIndex}_${generateUniqueID(IDs)}`;
         setSystemStatus(`Creating Row.`);
 
         let newRow: ColumnRow = {
@@ -296,14 +297,18 @@ export default function Boards(props) {
             id: newRowID,
         }
 
-        // setBoards([...boards, newRow]);
+        column.rows.splice(rank,0,newRow);
+        localStorage.setItem(`boards`, JSON.stringify(boards));
+
+        // setBoards(boards);
         setIDs([...IDs, newRow.id]);
 
         if (dev()) {
-            console.log(`addNewRow`, {rowContent, rowIndex, newRow, boards});
+            // console.log(`addNewRow`, boards);
             // console.log(`addNewRow Event`, e);
             // console.log(`addNewRow type`, boardType);
             // console.log(`addNewRow Boards`, boards);
+            // console.log(`addNewRow`, {rowContent, rank, newRow, boards});
         }
 
         e.target.reset();
@@ -318,6 +323,7 @@ export default function Boards(props) {
         setSystemStatus(`Marking Row ${rowIndex + 1} as Complete.`);
 
         row.complete = !row.complete;
+        localStorage.setItem(`boards`, JSON.stringify(boards));
 
         // setBoards([...boards.filter(brd => brd.id != col.id)]);
 
@@ -539,7 +545,7 @@ export default function Boards(props) {
                                             </div>
                                             <Droppable droppableId={`${board.id}_droppable_columns`} direction="horizontal" type="column">
                                                 {(provided, snapshot) => {
-                                                    return <div className={`board innerBoard boardColumns flex row ${board.columns.length == 2 ? `clipColumns` : board.columns.length == 3 ? `threeBoard overflowingBoard` : board.columns.length > 3 ? `moreBoard overflowingBoard` : ``} ${snapshot.isDraggingOver ? `isDraggingOver` : ``}`} ref={provided.innerRef} {...provided.droppableProps}>
+                                                    return <div className={`board innerBoardColumns innerBoard boardColumns flex row ${snapshot.isDraggingOver ? `isDraggingOver` : ``} ${board.columns.length == 2 ? `clipColumns` : board.columns.length == 3 ? `threeBoard overflowingBoard` : board.columns.length > 3 ? `moreBoard overflowingBoard` : ``}`} ref={provided.innerRef} {...provided.droppableProps}>
                                                     {board.columns.map((column, columnIndex) => {
                                                         return (
                                                             <Draggable draggableId={`draggable_column_figure_${column.id}`} key={`key_of_${columnIndex}`} index={columnIndex}>
@@ -569,90 +575,56 @@ export default function Boards(props) {
                                                                         </div>
                                                                         <Droppable droppableId={`${column.id}_droppable_row_items`}>
                                                                         {(provided, snapshot) => {
-                                                                            return <div className={`rows list items`} ref={provided.innerRef} {...provided.droppableProps}>
+                                                                            return <div className={`rows list items ${snapshot.isDraggingOver ? `isDraggingOver` : ``}`} ref={provided.innerRef} {...provided.droppableProps}>
                                                                                 {column.rows.map((row, rowIndex) => {
                                                                                     return (
-                                                                                    <div key={`key_of_${rowIndex}`} id={row.id} className={`boardRow item flex row ${row.complete ? `complete` : ``}`}>
-                                                                                        <div className="inner">
-                                                                                            <div className="rowOrder itemOrder">
-                                                                                                <div className="rowIndex itemIndex">{rowIndex + 1}</div>
+                                                                                    <Draggable draggableId={`draggable_row_item_${row.id}`} key={`key_of_${rowIndex}`} index={rowIndex}>
+                                                                                        {(provided, snapshot) => (
+                                                                                            <div id={row.id} className={`boardRow item flex row ${row.complete ? `complete` : ``} ${snapshot.isDragging ? `dragging` : ``}`} {...provided.draggableProps} ref={provided.innerRef} {...provided.dragHandleProps}>
+                                                                                                <div className="inner">
+                                                                                                    <div className="rowOrder itemOrder">
+                                                                                                        <div className="rowIndex itemIndex">{rowIndex + 1}</div>
+                                                                                                    </div>
+                                                                                                    <div className="rowContent itemContent">
+                                                                                                        <span className="colRowContent itemName textOverflow extended">{row.content}</span>
+                                                                                                        {/* {devEnv && wordInCategories(item) && <span className="itemCategory itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
+                                                                                                            <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-hashtag"></i> 
+                                                                                                            <span className={`itemDateTime`}>{wordOfCategory(item)}</span>
+                                                                                                        </span>} */}
+                                                                                                        {devEnv && row.created && !row.updated ? (
+                                                                                                        <span className="rowDate itemDate itemName itemCreated textOverflow extended flex row">
+                                                                                                            <i className={`status`}>Cre.</i> 
+                                                                                                            <span className={`itemDateTime`}>{formatDate(new Date(row.created))}</span>
+                                                                                                        </span>
+                                                                                                        ) : devEnv && row.updated ? (
+                                                                                                        <span className="rowDate itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
+                                                                                                            <i className={`status`}>Upd.</i> 
+                                                                                                            <span className={`itemDateTime`}>{formatDate(new Date(row.updated))}</span>
+                                                                                                        </span>
+                                                                                                        ) : null}
+                                                                                                    </div>
+                                                                                                    <div className="itemButtons customButtons">
+                                                                                                        {/* <button title={`Edit Item`} className={`iconButton editButton`}><i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-edit"></i></button> */}
+                                                                                                        <button id={`complete_${row.id}`} onClick={(e) => completeRow(e, row,  rowIndex)} title={`Complete Item`} className={`iconButton deleteButton wordIconButton completeButton`}>
+                                                                                                            <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas ${row.complete ? `fa-history` : `fa-check-circle`}`}></i>
+                                                                                                        </button>
+                                                                                                        <button id={`delete_${row.id}`} onClick={(e) => deleteRow(e, row)} title={`Delete Row`} className={`iconButton deleteButton wordIconButton`}>
+                                                                                                            <i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-trash"></i>
+                                                                                                        </button>
+                                                                                                    </div>
+                                                                                                </div>
                                                                                             </div>
-                                                                                            <div className="rowContent itemContent">
-                                                                                                <span className="colRowContent itemName textOverflow extended">{row.content}</span>
-                                                                                                {/* {devEnv && wordInCategories(item) && <span className="itemCategory itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
-                                                                                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-hashtag"></i> 
-                                                                                                    <span className={`itemDateTime`}>{wordOfCategory(item)}</span>
-                                                                                                </span>} */}
-                                                                                                {devEnv && row.created && !row.updated ? (
-                                                                                                <span className="rowDate itemDate itemName itemCreated textOverflow extended flex row">
-                                                                                                    <i className={`status`}>Cre.</i> 
-                                                                                                    <span className={`itemDateTime`}>{formatDate(new Date(row.created))}</span>
-                                                                                                </span>
-                                                                                                ) : devEnv && row.updated ? (
-                                                                                                <span className="rowDate itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
-                                                                                                    <i className={`status`}>Upd.</i> 
-                                                                                                    <span className={`itemDateTime`}>{formatDate(new Date(row.updated))}</span>
-                                                                                                </span>
-                                                                                                ) : null}
-                                                                                            </div>
-                                                                                            <div className="itemButtons customButtons">
-                                                                                                {/* <button title={`Edit Item`} className={`iconButton editButton`}><i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-edit"></i></button> */}
-                                                                                                <button id={`complete_${row.id}`} onClick={(e) => completeRow(e, row,  rowIndex)} title={`Complete Item`} className={`iconButton deleteButton wordIconButton completeButton`}>
-                                                                                                    <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas ${row.complete ? `fa-history` : `fa-check-circle`}`}></i>
-                                                                                                </button>
-                                                                                                <button id={`delete_${row.id}`} onClick={(e) => deleteRow(e, row)} title={`Delete Row`} className={`iconButton deleteButton wordIconButton`}>
-                                                                                                    <i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-trash"></i>
-                                                                                                </button>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    // <Draggable draggableId={`draggable_row_item_${row.id}`} key={`key_of_${rowIndex}`} index={rowIndex}>
-                                                                                    //     {(provided, snapshot) => (
-                                                                                    //         <div id={row.id} className={`boardRow item flex row ${row.complete ? `complete` : ``} ${snapshot.isDragging ? `dragging` : ``}`} {...provided.draggableProps} ref={provided.innerRef}>
-                                                                                    //             <div className="inner">
-                                                                                    //                 <div className="rowOrder itemOrder">
-                                                                                    //                     <div className="rowIndex itemIndex">{rowIndex + 1}</div>
-                                                                                    //                 </div>
-                                                                                    //                 <div className="rowContent itemContent">
-                                                                                    //                     <span className="colRowContent itemName textOverflow extended">{row.content}</span>
-                                                                                    //                     {/* {devEnv && wordInCategories(item) && <span className="itemCategory itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
-                                                                                    //                         <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-hashtag"></i> 
-                                                                                    //                         <span className={`itemDateTime`}>{wordOfCategory(item)}</span>
-                                                                                    //                     </span>} */}
-                                                                                    //                     {devEnv && row.created && !row.updated ? (
-                                                                                    //                     <span className="rowDate itemDate itemName itemCreated textOverflow extended flex row">
-                                                                                    //                         <i className={`status`}>Cre.</i> 
-                                                                                    //                         <span className={`itemDateTime`}>{formatDate(new Date(row.created))}</span>
-                                                                                    //                     </span>
-                                                                                    //                     ) : devEnv && row.updated ? (
-                                                                                    //                     <span className="rowDate itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
-                                                                                    //                         <i className={`status`}>Upd.</i> 
-                                                                                    //                         <span className={`itemDateTime`}>{formatDate(new Date(row.updated))}</span>
-                                                                                    //                     </span>
-                                                                                    //                     ) : null}
-                                                                                    //                 </div>
-                                                                                    //                 <div className="itemButtons customButtons">
-                                                                                    //                     {/* <button title={`Edit Item`} className={`iconButton editButton`}><i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-edit"></i></button> */}
-                                                                                    //                     <button id={`complete_${row.id}`} onClick={(e) => completeRow(e, row,  rowIndex)} title={`Complete Item`} className={`iconButton deleteButton wordIconButton completeButton`}>
-                                                                                    //                         <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas ${row.complete ? `fa-history` : `fa-check-circle`}`}></i>
-                                                                                    //                     </button>
-                                                                                    //                     <button id={`delete_${row.id}`} onClick={(e) => deleteRow(e, row)} title={`Delete Row`} className={`iconButton deleteButton wordIconButton`}>
-                                                                                    //                         <i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-trash"></i>
-                                                                                    //                     </button>
-                                                                                    //                 </div>
-                                                                                    //             </div>
-                                                                                    //         </div>
-                                                                                    //     )}
-                                                                                    // </Draggable>
+                                                                                        )}
+                                                                                    </Draggable>
                                                                                     )
                                                                                 })}
                                                                                 {provided.placeholder}
                                                                             </div>
                                                                         }}
                                                                         </Droppable>
-                                                                        <form title={`Add Item`} id={`add_item_form_${column.id}`} className={`flex addItemForm itemButtons unset addForm`} style={{ width: `100%`, flexDirection: `row` }} onSubmit={(e) => addNewRow(e, column)}>
+                                                                        <form title={`Add Item`} id={`add_item_form_${column.id}`} className={`flex addItemForm itemButtons unset addForm`} style={{ width: `100%`, flexDirection: `row` }} onSubmit={(e) => addNewRow(e, column, column.rows.length + 1, board)}>
                                                                             <input placeholder={`Item`} type="text" name="createRow" required />
-                                                                            <input name={`rowInsertIndex`} placeholder={column.rows.length + 1} type={`number`} max={column.rows.length + 1} min={1} />
+                                                                            <input name={`rowInsertIndex`} placeholder={column.rows.length + 1} type={`number`} min={1} />
                                                                             <button type={`submit`} title={`Add Item`} className={`iconButton createList wordIconButton`}>
                                                                                 <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-plus"></i>
                                                                                 <span className={`iconButtonText textOverflow extended`}>
