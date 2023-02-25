@@ -194,12 +194,12 @@ function Board(props) {
     useEffect(() => {
         if (dev()) {
             if (updates > 0) {
-                console.log(`Save Item`);
+                console.log(`Save Board`);
                 localStorage.setItem(`board`, JSON.stringify(board));
             };
         } else {
-            if (updates == 0) {
-                console.log(`Save Item`);
+            if (updates > 0) {
+                console.log(`Save Board`);
                 localStorage.setItem(`board`, JSON.stringify(board));
             };
         }
