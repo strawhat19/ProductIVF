@@ -258,13 +258,13 @@ function Board(props) {
                             <div className="flex row left">
                                 {devEnv && <h3><span className="subscript">(1)</span></h3>}
                                 <h2>{board?.name ?? `Board`}</h2>
-                                <h3 className="boardDate">
+                                {/* <h3 className="boardDate">
                                     <span className="subscript rowDate itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
                                         <i> - </i>
                                         <i className={`status`}>{board?.created && !board?.updated ? `Cre.` : `Upd.` }</i> 
                                         <i><span className={`itemDateTime`}>{board?.updated ?? board?.created ?? formatDate(new Date())}</span></i>
                                     </span>
-                                </h3>
+                                </h3> */}
                             </div>
                             <h3 className={`divSep`}><span className="subscript" style={{color: `var(--gameBlue)`}}>|</span></h3>
                             <div className="flex row middle">
