@@ -69,7 +69,7 @@ export default function Projects() {
   return <section id={`projectsSection`}>
     <div className="flex projects">
         {projects.length > 0 ? projects.map((project: any, index: any) => {
-            return <div id={project?.name} className={`project`}>
+            return <div key={index} id={project?.name} className={`project`}>
             <span className={`name`}>{project.name}</span>
             {/* <span className={`topics`}>{project?.topics}</span> */}
             </div>

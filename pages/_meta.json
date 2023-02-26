@@ -26,6 +26,7 @@
     "href": "https://piratechs.com/",
     "newWindow": true
   },
+  "boards": "Boards",
   "projects": "Projects",
   "code-snippets": "Code Snippets"
 }

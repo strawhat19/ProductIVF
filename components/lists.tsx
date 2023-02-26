@@ -300,7 +300,7 @@ export default function Lists(props) {
             </div>
         </div>
     </div>
-    <section ref={listsRef} className={`lists ${lists.length == 1 ? `oneList` : `multiList`}`} id={`lists`}>
+    <section id={`lists`} ref={listsRef} style={{width: `100%`}} className={`lists ${lists.length == 1 ? `oneList` : `multiList`}`}>
         {lists.map((list, listIndex) => {
             // list.id = generateUniqueID(IDs, `list_${listIndex + 1}`);
             return <DragDropContext key={list.id} onDragEnd={(e) => onDragEnd(e, list)}>
