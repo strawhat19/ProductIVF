@@ -6,7 +6,7 @@ import { capitalizeAllWords, dev, formatDate, generateUniqueID, StateContext } f
 function Board(props) {
     const boardNameRef = useRef();
     const [updates, setUpdates] = useState(0);
-    const { board, setBoard, setLoading, setSystemStatus, devEnv, completeFiltered, setCompleteFiltered, boardCategories, setBoardCategories, setCategories, setRearranging } = useContext<any>(StateContext);
+    const { board, setBoard, setLoading, setSystemStatus, devEnv, completeFiltered, setCompleteFiltered, boardCategories, setBoardCategories, setCategories, setRearranging, setPage } = useContext<any>(StateContext);
 
     const addNewColumn = (e) => {
         e.preventDefault();
@@ -247,6 +247,7 @@ function Board(props) {
         setBoardCategories(getCommonWords(arrayOfItemContents));
         setCategories(boardCategories.map(cat => cat.word));
 
+        setPage(`Boards`);
         setUpdates(updates + 1);
         // dev() && console.log(`Updates`, updates);
         // dev() && board?.columnOrder &&  board?.columnOrder.length > 0 && console.log(`Board`, board);
