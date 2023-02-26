@@ -6,7 +6,16 @@
         }
     },
     "games": {
-        "title": "Games",
+        "title": "Games"
+    },
+    "board": {
+        "title": "Board",
+        "theme": {
+            "layout": "full"
+        }
+    },
+    "lists": {
+        "title": "Lists",
         "theme": {
             "layout": "full"
         }

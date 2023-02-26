@@ -6,7 +6,7 @@ export default function Iframe(props) {
     const { tasks, setTasks } = useContext<any>(StateContext);
     // console.log(`iframe`, tasks);
     return <>
-        <iframe src={props.src} style={{width: `100%`, height: `1080px`, margin: `20px auto`}} />
+        <iframe allowFullScreen title={props.title} allow={props.allow} src={props.src} style={{width: `100%`, height: `1080px`, margin: `20px auto`}} />
         {/* <Bleed full><iframe src={props.src} style={{width: `100%`, height: `100%`}} /></Bleed> */}
     </>
 }

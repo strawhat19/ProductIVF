@@ -690,6 +690,10 @@ section {
     }
 }
 
+p em {
+    font-weight: 500;
+}
+
 form {
     height: 100% !important;
     input {
@@ -770,7 +774,7 @@ form {
 
 .changeLabel {
     padding: 0 10px;
-    min-width: 135px;
+    min-width: 300px;
     border-radius: 8px;
     background: transparent;
     margin: 0 -10px !important;
