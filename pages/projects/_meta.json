@@ -1,6 +1,12 @@
 {
-    "game": {
-        "title": "Game",
+    "boards": {
+        "title": "Boards",
+        "theme": {
+            "layout": "full"
+        }
+    },
+    "games": {
+        "title": "Games",
         "theme": {
             "layout": "full"
         }
