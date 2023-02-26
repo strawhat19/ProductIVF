@@ -562,11 +562,13 @@ export default function MyApp({ Component, pageProps, router }) {
 
         let toc = document.querySelector(`.nextra-toc`);
         let tocMinimized = JSON.parse(localStorage.getItem(`tocMinimized`));
-        if (tocMinimized) {
-          toc.classList.add(`minimized`);
-        } else {
-          toc.classList.remove(`minimized`);
-        };
+        if (toc) {
+          if (tocMinimized) {
+            toc.classList.add(`minimized`);
+          } else {
+            toc.classList.remove(`minimized`);
+          };
+        }
         
       if (navigator.userAgent.match(/chrome|chromium|crios/i)) {
         setBrowser(`chrome`);

@@ -134,7 +134,6 @@ function Board(props) {
         if (item.id.includes(`board`)) {
             setItem({ ...item, name: capitalizeAllWords(value)});
         }
-        console.log(e.target.style);
     }
 
     const onDragEnd = (dragEndEvent) => {
