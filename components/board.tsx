@@ -1,9 +1,10 @@
 import List from './list';
-import React, { useState, useContext, useEffect } from 'react';
-import { capitalizeAllWords, dev, formatDate, generateUniqueID, StateContext } from '../pages/_app';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { DragDropContext, Droppable, onDragStart } from 'react-beautiful-dnd';
+import { capitalizeAllWords, dev, formatDate, generateUniqueID, StateContext } from '../pages/_app';
 
 function Board(props) {
+    const boardNameRef = useRef();
     const [updates, setUpdates] = useState(0);
     const { board, setBoard, setLoading, setSystemStatus, devEnv, completeFiltered, setCompleteFiltered, boardCategories, setBoardCategories, setCategories, setRearranging } = useContext<any>(StateContext);
 
@@ -125,17 +126,6 @@ function Board(props) {
         }
     }
 
-    const changeLabel = (e, item, setItem) => {
-        let value = e.target.value == `` ? item.name : e.target.value;
-        if (!e.target.value || e.target.value == ``) {
-            e.target.value = item.name;
-            return;
-        };
-        if (item.id.includes(`board`)) {
-            setItem({ ...item, name: capitalizeAllWords(value)});
-        }
-    }
-
     const onDragEnd = (dragEndEvent) => {
         const { destination, source, draggableId, type } = dragEndEvent;
 
@@ -216,9 +206,23 @@ function Board(props) {
         });
     }
 
+    const changeLabel = (e, item, setItem) => {
+        let value = e.target.value == `` ? capitalizeAllWords(item.name) : capitalizeAllWords(e.target.value);
+        if (!e.target.value || e.target.value == ``) {
+            e.target.value = capitalizeAllWords(item.name);
+            return;
+        };
+        let titleWidth = `${(value.length * 9) + 75}px`;
+        e.target.value = capitalizeAllWords(value);
+        e.target.style.width = titleWidth;
+        if (item.id.includes(`board`)) {
+            setItem({ ...item, titleWidth, updated: formatDate(new Date()), name: capitalizeAllWords(value)});
+        }
+    }
+
     useEffect(() => {
         if (updates > 0) {
-            // dev() && board?.columnOrder &&  board?.columnOrder.length > 0 && console.log(`Updated Board`, board);
+            dev() && board?.columnOrder &&  board?.columnOrder.length > 0 && console.log(`Updated Board`, board);
             localStorage.setItem(`board`, JSON.stringify(board));
         };
 
@@ -257,7 +261,7 @@ function Board(props) {
                         <div className="flex row innerRow">
                             <div className="flex row left">
                                 {devEnv && <h3><span className="subscript">(1)</span></h3>}
-                                <h2><input onBlur={(e) => changeLabel(e, board, setBoard)} className={`changeLabel textOverflow`} name={`boardName`} defaultValue={board?.name ?? `Board`} /></h2>
+                                <h2><input id={`${board.id}_change_label`} ref={boardNameRef} title={board?.name} onBlur={(e) => changeLabel(e, board, setBoard)} className={`changeLabel textOverflow`} name={`boardName`} defaultValue={board?.name ?? `Board`} style={{width: board.titleWidth ? board.titleWidth : `75px`}} /></h2>
                                 <h3 className="boardDate">
                                     <span className="subscript rowDate itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
                                         <i> - </i>

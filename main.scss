@@ -774,7 +774,7 @@ form {
 
 .changeLabel {
     padding: 0 10px;
-    min-width: 300px;
+    min-width: 75px;
     border-radius: 8px;
     background: transparent;
     margin: 0 -10px !important;
@@ -802,15 +802,24 @@ form {
     align-items: center;
     justify-content: space-between;
     &.row {
+        grid-gap: 13px;
         flex-direction: row !important;
         .innerRow {
             width: 100%;
             margin: 0 auto;
-            border-radius: var(--borderRadius);
+            grid-gap: 10px;
             padding: 10px 15px;
             align-items: center;
+            border-radius: var(--borderRadius);
         }
         .left {
+            .boardDate {
+                margin-left: -15px;
+                justify-content: end;
+                .itemDate {
+                    margin-left: -15px !important;
+                }
+            }
             max-width: fit-content;
             * {
                 max-width: min-content;
