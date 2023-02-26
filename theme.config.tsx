@@ -8,9 +8,10 @@ import { DocsThemeConfig } from 'nextra-theme-docs';
 
 const setToc = (e) => {
   let toc = document.querySelector(`.nextra-toc`);
-  toc.classList.toggle(`minimized`);
-
-  toc.classList.contains(`minimized`) ? localStorage.setItem(`tocMinimized`, JSON.stringify(true)) : localStorage.setItem(`tocMinimized`, JSON.stringify(false));
+  if (toc) {
+    toc.classList.toggle(`minimized`);
+    toc.classList.contains(`minimized`) ? localStorage.setItem(`tocMinimized`, JSON.stringify(true)) : localStorage.setItem(`tocMinimized`, JSON.stringify(false));
+  }
 }
 
 const config: DocsThemeConfig = {

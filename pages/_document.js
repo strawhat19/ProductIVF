@@ -1,6 +1,4 @@
 import Document, { Html, Head, Main, NextScript } from 'next/document';
-import { AnimatePresence, motion } from 'framer-motion';
-import { generateUniqueID } from './_app';
 
 export default class MyDocument extends Document {
   static async getInitialProps(ctx) {

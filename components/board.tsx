@@ -1,7 +1,7 @@
 import List from './list';
 import React, { useState, useContext, useEffect } from 'react';
 import { capitalizeAllWords, dev, formatDate, generateUniqueID, StateContext } from '../pages/_app';
-import { DragDropContext, Droppable, generateId, onDragStart } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, onDragStart } from 'react-beautiful-dnd';
 
 function Board(props) {
     const [updates, setUpdates] = useState(0);
@@ -305,7 +305,7 @@ function Board(props) {
                 </div>
             </section>
             {board?.columnOrder && (
-                <Droppable droppableId={`boardColumns${generateId}`} direction="horizontal" type="column">
+                <Droppable droppableId={`boardColumns${generateUniqueID()}`} direction="horizontal" type="column">
                     {(provided, snapshot) => (
                         <section id={`board`} className={`board lists container ${snapshot.isDraggingOver ? `isDraggingOver` : ``} ${board?.columnOrder && (board?.columnOrder.length == 2 ? `clipColumns` : board?.columnOrder.length == 3 ? `threeBoard overflowingBoard` : board?.columnOrder.length > 3 ? `moreBoard overflowingBoard` : ``)}`} ref={provided.innerRef} {...provided.droppableProps} style={props.style}>
                             {board?.columnOrder && board?.columnOrder.map((columnId, index) => {
