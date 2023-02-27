@@ -135,7 +135,7 @@ export default function SubTasks(props) {
                                                     <span className="itemOrder">
                                                         <i className={`itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>{taskIndex + 1}</i>
                                                     </span>
-                                                    <div title={subtask.task} className={`taskContent textOverflow ${subtask.complete ? `complete` : ``}`}>
+                                                    <div title={subtask.task} className={`taskContent ${subtask.complete ? `complete` : ``}`}>
                                                         {subtask.task}
                                                     </div>
                                                     <div className="subtaskActions flex row">

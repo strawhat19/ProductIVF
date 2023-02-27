@@ -381,6 +381,15 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
     }
 }
 
+input {
+    max-height: 100% !important;
+    max-width: 100%;
+}
+
+.createBoard {
+    margin-top: 10px !important;
+}
+
 @media (max-width: 437px) {
     .itemButtons {
         button {
@@ -460,6 +469,43 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
     }
 }
 
+@media (max-width: 903px) {
+    .board {
+        &.lists {
+            overflow: visible !important;
+            overflow-x: scroll;
+            &.container {
+                .column {
+                    min-width: 75% !important;
+                }
+            }
+        }
+    }
+}
+
+@media (max-width: 933px) {
+    .filterFormDiv {
+        .deleteButton {
+            .iconButtonText {
+                display: none;
+            }
+        }
+    }
+}
+
+@media (max-width: 992px) {
+    .board {
+        &.lists {
+            overflow-x: scroll;
+            overflow: visible !important;
+            .column {
+                font-size: 0.85em;
+                min-width: 48.9% !important;
+            }
+        }
+    }
+}
+
 @media (max-width: 1215px) {
     .navFormDiv {
         display: none !important;
@@ -533,6 +579,17 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
     }
 }
 
+@media (max-width: 1395px) {
+    .boardTitle {
+        .middle {
+            display: none !important;
+        }
+        .divSep {
+            display: none !important;
+        }
+    }
+}
+
 @media (min-width: 1460px) and (max-width: 1560px) {
     .multiList {
         .listNameRow {
@@ -551,6 +608,12 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
         display: none !important;
     }
     .status {
+        display: none !important;
+    }
+}
+
+@media (max-width: 1575px) {
+    .boardDate {
         display: none !important;
     }
 }
@@ -845,7 +908,7 @@ form {
                     max-width: none;
                     button {
                         max-width: min-content;
-                        @media (max-width: 1585px) {
+                        @media (max-width: 1635px) {
                             display: none;
                         }
                     }
@@ -1176,6 +1239,14 @@ form {
                             color: var(--gameBlueInverse);
                         }
                     }
+
+                    .subTasks {
+                        .subTaskElement {
+                            input[type="checkbox"] {
+                                background: rgba(255, 61, 0, 0.2) !important;
+                            }
+                        }
+                    }
                 }
 
                 .itemRow {
@@ -1274,11 +1345,13 @@ form {
                 .subTasks {
                     width: 100%;
                     bottom: -19px;
-                    .noTasks {
-                        opacity: 0;
-                        height: 0px;
-                        pointer-events: none;
-                        transition: var(--transition);
+                    &:not(:has(input:focus-visible)) {
+                        .noTasks {
+                            opacity: 0;
+                            height: 0px;
+                            pointer-events: none;
+                            transition: var(--transition);
+                        }
                     }
                     .subTaskElement {
                         width: 85%;
@@ -1298,12 +1371,16 @@ form {
                             padding: 0;
                             grid-gap: 0;
                             .subTaskItem {
+                                background: linear-gradient(90deg, white 35px, transparent 35px);
                                 &:first-child {
                                     border-top: 1px solid var(--gameBlue);
                                 }
                                 border-bottom: 1px solid var(--gameBlue);
+                                &:hover {
+                                    background: linear-gradient(90deg, black 35px, transparent 35px);
+
+                                }
                                 .item {
-                                    max-height: 23px;
                                     flex-direction: row;
                                     &:hover {
                                         .itemOrder {
@@ -1324,14 +1401,15 @@ form {
                                     .itemOrder {
                                         max-height: 23px;
                                         border-radius: 0;
+                                        background: transparent;
                                     }
                                     .taskContent {
-                                        padding: 0 0 0 15px;
-                                        &.complete {
-                                            text-decoration-thickness: 0;
-                                            text-decoration: line-through;
-                                            text-decoration-color: white;
-                                        }
+                                        padding: 5px 0 5px 15px;
+                                        // &.complete {
+                                        //     text-decoration-thickness: 0;
+                                        //     text-decoration: line-through;
+                                        //     text-decoration-color: black;
+                                        // }
                                     }
                                     .subtaskActions {
                                         padding: 0 15px 0 0;
@@ -1356,6 +1434,12 @@ form {
                                 height: 24px !important;
                                 min-height: 24px !important;
                                 max-height: 26px !important;
+                                &:hover {
+                                    color: black;
+                                    i {
+                                        color: var(--gameBlue) !important;
+                                    }
+                                }
                                 i {
                                     max-width: fit-content;
                                 }
@@ -1465,6 +1549,15 @@ form {
                         &::before {
                             color: var(--gameBlueInverse);
                         }
+                    }
+
+                    input[type="checkbox"] {
+                        &:not(:checked) {
+                            background: rgba(255, 61, 0, 0.2) !important;
+                        }
+                        &:checked {
+                           background: rgba(255, 61, 0, 0.2) !important;
+                       }
                     }
                 }
 
@@ -1846,7 +1939,7 @@ footer {
             overflow-x: scroll;
         }
         *:not(.dragging) {
-            @media (max-width: 1390px) {
+            @media (max-width: 1390px) and (min-width: 933px) {
                 .listNameRow {
                     max-width: 100px;
                 }
