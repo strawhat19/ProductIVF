@@ -855,6 +855,27 @@ form {
     }
 }
 
+.item {
+    &:hover {
+        .slashes {
+            color: var(--gameBlueInverse);
+        }
+    }
+}
+
+.slashes {
+    color: var(--gameBlue);
+    max-width: fit-content;
+    display: contents;
+    font-weight: 600;
+}
+
+.complete {
+    .slashes {
+        color: var(--gameBlueInverse);
+    }
+}
+
 .alert {
     top: 50%;
     left: 50%;
@@ -1292,6 +1313,10 @@ form {
                                             color: black;
                                             font-weight: 600;
                                         }
+                                        .subtaskActions {
+                                            color: black;
+                                            font-weight: 600;
+                                        }
                                         i {
                                             color: var(--gameBlueInverse) !important;
                                         }
@@ -1310,6 +1335,7 @@ form {
                                     }
                                     .subtaskActions {
                                         padding: 0 15px 0 0;
+                                        max-width: fit-content;
                                         justify-content: flex-end;
                                     }
                                     .itemButtons {
@@ -1722,6 +1748,10 @@ footer {
     }
 }
 
+.subscript {
+    font-size: 0.7em;
+}
+
 .boards {
     flex-direction: column;
     .board {
@@ -1741,9 +1771,6 @@ footer {
             max-width: min-content;
             align-items: center;
             grid-gap: 7px;
-            .subscript {
-                font-size: 0.7em;
-            }
         }
         .itemButtons {
             padding: 0 !important;
@@ -1926,6 +1953,22 @@ footer {
                     .itemRow {
                         background: linear-gradient(90deg, white 35px, var(--blackGlass) 35px) !important;
                     }
+                    .subtaskAddForm {
+                        display: none;
+                        i {
+                            color: var(--gameBlueInverse) !important;
+                        }
+                    }
+                    .subTaskItem {
+                        &:last-child {
+                            .itemOrder {
+                                border-bottom-left-radius: var(--borderRadius) !important;
+                            }
+                            border-bottom: 0px solid transparent !important;
+                            border-bottom-right-radius: var(--borderRadius);
+                            border-bottom-left-radius: var(--borderRadius);
+                        }
+                    }
                 }
                 .itemOrder {
                     width: 35px;
@@ -1957,10 +2000,13 @@ footer {
                         grid-gap: 5px !important;
                         padding: 5px !important;
                     }
+                    .subtaskIndex {
+                        max-width: fit-content;
+                    }
                 }
                 .progress {
                     display: flex;
-                    max-width: 10%;
+                    max-width: 50px;
                     margin-right: -8px;
                     align-items: flex-end;
                     justify-content: center;

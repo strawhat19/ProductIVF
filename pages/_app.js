@@ -56,6 +56,7 @@ export const initialBoardData = {
   id: generateUniqueID(false, `board`),
   items:{
     item_1_1_06_AM_2_21_2023_puvkbf5jt: {
+      subtasks: [],
       complete: false,
       content: `AdHoc Bug Fixes`,
       created: `1:06 AM 2/21/2023`,
@@ -63,6 +64,7 @@ export const initialBoardData = {
       id: `item_1_1_06_AM_2_21_2023_puvkbf5jt`,
     },
     item_2_1_07_AM_2_21_2023_qmpi9w53n: {
+      subtasks: [],
       complete: false,
       created: `1:07 AM 2/21/2023`,
       updated: `1:08 AM 2/21/2023`,
@@ -70,6 +72,7 @@ export const initialBoardData = {
       id: `item_2_1_07_AM_2_21_2023_qmpi9w53n`,
     },
     item_2_1_07_AM_2_21_2023_x1qs0ba58: {
+      subtasks: [],
       complete: true,
       content: `Release 1.5`,
       created: `1:07 AM 2/21/2023`,
@@ -77,6 +80,7 @@ export const initialBoardData = {
       id: `item_2_1_07_AM_2_21_2023_x1qs0ba58`,
     },
     item_2_1_07_AM_2_21_2023_cod2k6ysu: {
+      subtasks: [],
       complete: true,
       created: `1:07 AM 2/21/2023`,
       updated: `1:07 AM 2/21/2023`,
@@ -84,6 +88,7 @@ export const initialBoardData = {
       id: `item_2_1_07_AM_2_21_2023_cod2k6ysu`,
     },
     item_2_1_08_AM_2_21_2023_cph525xnf: {
+      subtasks: [],
       complete: false,
       created: `1:08 AM 2/21/2023`,
       content: `Refine Items In Board`,
@@ -517,6 +522,7 @@ export default function MyApp({ Component, pageProps, router }) {
     let [boardLoaded, setBoardLoaded] = useState(false);
     let [showLeaders, setShowLeaders] = useState(false);
     let [content, setContent] = useState(`defaultContent`);
+    let [tasksFiltered, setTasksFiltered] = useState(false);
     let [animCompleted, setAnimCompleted] = useState(false);
     let [boardCategories, setBoardCategories] = useState([]);
     let [year, setYear] = useState(new Date().getFullYear());
@@ -595,7 +601,7 @@ export default function MyApp({ Component, pageProps, router }) {
       }
     }, [user, users, authState, dark])
 
-    return <StateContext.Provider value={{ updates, setUpdates, content, setContent, width, setWidth, user, setUser, page, setPage, mobileMenu, setMobileMenu, users, setUsers, authState, setAuthState, emailField, setEmailField, devEnv, setDevEnv, mobileMenuBreakPoint, platform, setPlatform, focus, setFocus, highScore, setHighScore, color, setColor, dark, setDark, colorPref, setColorPref, lists, setLists, showLeaders, setShowLeaders, items, setItems, qotd, setQotd, alertOpen, setAlertOpen, mobile, setMobile, systemStatus, setSystemStatus, loading, setLoading, anim, setAnimComplete, IDs, setIDs, boardLoaded, setBoardLoaded, board, setBoard, completeFiltered, setCompleteFiltered, boardCategories, setBoardCategories, categories, setCategories, boards, setBoards, browser, setBrowser, onMac, rearranging, setRearranging }}>
+    return <StateContext.Provider value={{ updates, setUpdates, content, setContent, width, setWidth, user, setUser, page, setPage, mobileMenu, setMobileMenu, users, setUsers, authState, setAuthState, emailField, setEmailField, devEnv, setDevEnv, mobileMenuBreakPoint, platform, setPlatform, focus, setFocus, highScore, setHighScore, color, setColor, dark, setDark, colorPref, setColorPref, lists, setLists, showLeaders, setShowLeaders, items, setItems, qotd, setQotd, alertOpen, setAlertOpen, mobile, setMobile, systemStatus, setSystemStatus, loading, setLoading, anim, setAnimComplete, IDs, setIDs, boardLoaded, setBoardLoaded, board, setBoard, completeFiltered, setCompleteFiltered, boardCategories, setBoardCategories, categories, setCategories, boards, setBoards, browser, setBrowser, onMac, rearranging, setRearranging, tasksFiltered, setTasksFiltered }}>
       {(browser != `chrome` || onMac) ? <AnimatePresence mode={`wait`}>
         <motion.div className={`pageWrapContainer ${page.toUpperCase()}`} key={router.route} initial="pageInitial" animate="pageAnimate" exit="pageExit" transition={{ duration: 0.35 }} variants={{
           pageInitial: {

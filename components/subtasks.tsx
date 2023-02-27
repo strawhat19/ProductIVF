@@ -137,10 +137,11 @@ export default function SubTasks(props) {
                                                         {subtask.task}
                                                     </div>
                                                     <div className="subtaskActions flex row">
-                                                        <input onChange={(e) => completeSubtask(e, subtask)} id={`${subtask.id}_checkbox`} type="checkbox" defaultChecked={subtask.complete} />
+                                                        Complete {subtask.complete ? `` : `?`}
+                                                        <input title={`${subtask.complete ? `Reopen` : `Complete`} Task`} onChange={(e) => completeSubtask(e, subtask)} id={`${subtask.id}_checkbox`} type="checkbox" defaultChecked={subtask.complete} />
                                                     </div>
                                                     <div className="itemButtons customButtons">
-                                                        <button id={`delete_${subtask.id}`} onClick={(e) => deleteSubtask(e, subtask)} title={`Delete Subtask`} className={`iconButton deleteButton wordIconButton`}>
+                                                        <button id={`delete_${subtask.id}`} onClick={(e) => deleteSubtask(e, subtask)} title={`Delete Task`} className={`iconButton deleteButton wordIconButton`}>
                                                             <i style={{color: `var(--gameBlue)`, fontSize: 9}} className="fas fa-trash"></i>
                                                         </button>
                                                     </div>
@@ -155,9 +156,9 @@ export default function SubTasks(props) {
                     )}
                 </Droppable>
                 <form onSubmit={(e) => addSubtask(e)} className="subtaskAddForm addForm flex row">
-                    <input type="text" id={`${item.id}_createSubtask`} name={`createSubtask`} placeholder={`Create Subtask +`} required />
+                    <input type="text" id={`${item.id}_createSubtask`} name={`createSubtask`} placeholder={`Create Task +`} required />
                     <input type="number" id={`${item.id}_createSubtask_rank`} name={`rank`} defaultValue={subtasks.length + 1} />
-                    <button type={`submit`} title={`Add Item`} className={`iconButton createList wordIconButton`}>
+                    <button type={`submit`} title={`Add Task`} className={`iconButton createList wordIconButton`}>
                         <i style={{ color: `var(--gameBlue)`, fontSize: 10 }} className="fas fa-plus"></i>
                         <span className={`iconButtonText textOverflow extended`}>
                             <span>Add</span>

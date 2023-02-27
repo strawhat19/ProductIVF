@@ -1,4 +1,4 @@
-import SubTasks, { defaultSubtasks } from './subtasks';
+import SubTasks from './subtasks';
 import React, { useContext } from 'react';
 import 'react-circular-progressbar/dist/styles.css';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
@@ -18,7 +18,7 @@ export enum ItemActions {
 
 function List(props) {
     let count = 0;
-    const { setLoading, setSystemStatus, devEnv, completeFiltered, boardCategories } = useContext<any>(StateContext);
+    const { setLoading, setSystemStatus, devEnv, completeFiltered, boardCategories, tasksFiltered } = useContext<any>(StateContext);
 
     const itemActiveFilters = (itm) => {
         if (completeFiltered) {
@@ -349,19 +349,24 @@ function List(props) {
                                                             <span className={`itemDateTime`}>{wordOfCategory(item)}</span>
                                                         </span>} */}
                                                         <hr className={`itemSep`} style={{height: 1, borderColor: `var(--gameBlue)`}} />
-                                                        {item.created && !item.updated ? (
-                                                        <span className="itemDate itemName itemCreated textOverflow extended flex row">
-                                                            <i className={`status`}>Cre.</i> 
-                                                            <span className={`itemDateTime`}>{formatDate(new Date(item.created))}</span>
-                                                        </span>
-                                                        ) : item.updated ? (
-                                                        <span className="itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
-                                                            <i className={`status`}>Upd.</i> 
-                                                            <span className={`itemDateTime`}>{formatDate(new Date(item.updated))}</span>
-                                                        </span>
-                                                        ) : null}
+                                                        <div className="itemFooter flex row">
+                                                            {item.created && !item.updated ? (
+                                                            <span className="itemDate itemName itemCreated textOverflow extended flex row">
+                                                                <i className={`status`}>Cre.</i> 
+                                                                <span className={`itemDateTime`}>{formatDate(new Date(item.created))}</span>
+                                                            </span>
+                                                            ) : item.updated ? (
+                                                            <span className="itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
+                                                                <i className={`status`}>Upd.</i> 
+                                                                <span className={`itemDateTime`}>{formatDate(new Date(item.updated))}</span>
+                                                            </span>
+                                                            ) : null}
+                                                            {!tasksFiltered && item.subtasks && item.subtasks.length > 0 && <>
+                                                                <span className={`subtaskIndex subscript flex row`}><span className={`slashes`}>✔</span> {item.subtasks.filter(subtask => subtask.complete).length} <span className="slashes">//</span> {item.subtasks.length}</span>
+                                                            </>}
+                                                        </div>
                                                     </div>
-                                                    {item.subtasks.length > 0 && <div className={`progress`}>
+                                                    {!tasksFiltered && item.subtasks.length > 0 && <div className={`progress`}>
                                                         <CircularProgressbar value={getSubTaskPercentage(item.subtasks)} text={`${getSubTaskPercentage(item.subtasks)}%`} styles={buildStyles({
                                                             // Rotation of path and trail, in number of turns (0-1)
                                                             rotation: 0.5,
@@ -397,7 +402,7 @@ function List(props) {
                                                         </button>
                                                     </div>
                                                 </div>
-                                                {item.subtasks && <SubTasks item={item} />}
+                                                {!tasksFiltered && item.subtasks && <SubTasks item={item} />}
                                             </div>
                                         )}
                                     </Draggable>
