@@ -19,7 +19,7 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 ![Screenshot of Application Light Mode](./assets/ProductIVF-v001-Light-Mode.png)
 
 ## About
-I used Next js to make this site which is a playground for developers to mess with and test out code.
+I used Next js to make this site which is a playground for developers to mess with and test out code. Right now, I'm messing with Drag and Drop to make my own sort of to do list or kanban board app. I Wanted a way to quickly manage lists, to do lists, and subtasks. I used lots of productivity and project management apps, but they all seemed to be missing some feature I liked, so I'm experimenting with making my own just for fun! Once this app is done, I plan to use the board to help myself get into the world of machine learning and learn AI!
 
 ## Table of Contents  
 * [About](#about)
