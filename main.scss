@@ -948,8 +948,9 @@ textarea {
         }
         .changeLabel {
             color: black;
-            font-weight: 600;
+            font-weight: 500;
             filter: invert(1);
+            font-size: 0.99em;
         }
         .subTaskItem {
             &:hover {
@@ -1345,7 +1346,7 @@ textarea {
                 .itemName {
                     grid-gap: 0 !important;
                     text-transform: capitalize;
-                    font-weight: 500 !important;
+                    // font-weight: 500 !important;
                     transition: var(--transition);
                     &:not(.itemDate) {
                         padding: 10px 0;
