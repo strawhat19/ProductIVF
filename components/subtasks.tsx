@@ -139,7 +139,7 @@ export default function SubTasks(props) {
                                                         {subtask.task}
                                                     </div>
                                                     <div className="subtaskActions flex row">
-                                                        Complete {subtask.complete ? `` : `?`}
+                                                        Done {subtask.complete ? `` : `?`}
                                                         <input title={`${subtask.complete ? `Reopen` : `Complete`} Task`} onChange={(e) => completeSubtask(e, subtask)} id={`${subtask.id}_checkbox`} type="checkbox" defaultChecked={subtask.complete} />
                                                     </div>
                                                     <div className="itemButtons customButtons">
