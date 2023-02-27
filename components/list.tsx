@@ -1,4 +1,4 @@
-import SubTasks from './subtasks';
+import SubTasks, { defaultSubtasks } from './subtasks';
 import React, { useContext } from 'react';
 import 'react-circular-progressbar/dist/styles.css';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
@@ -326,6 +326,7 @@ function List(props) {
                         {provided => (
                             <div id={`items_of_${props.column.id}`} className={`items boardColumnItems listItems`} {...provided.droppableProps} ref={provided.innerRef}>
                                 {props.items.filter(itm => itemActiveFilters(itm)).map((item, itemIndex) => {
+                                    if (!item.subtasks) item.subtasks = [];
                                     return (
                                     <Draggable key={item.id} draggableId={item.id} index={itemIndex}>
                                         {provided => (
@@ -396,7 +397,7 @@ function List(props) {
                                                         </button>
                                                     </div>
                                                 </div>
-                                                <SubTasks item={item} />
+                                                {item.subtasks && <SubTasks item={item} />}
                                             </div>
                                         )}
                                     </Draggable>
