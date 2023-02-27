@@ -133,7 +133,7 @@ function List(props) {
         e.preventDefault();
         let formFields = e.target.children;
         setLoading(true);
-        const column = props.state.columns[props.column.id];
+        const column = props.board.columns[props.column.id];
         let nextIndex = column.itemIds.length + 1;
         setSystemStatus(`Creating Item.`);
         let listItems = e.target.previousSibling;
@@ -155,17 +155,17 @@ function List(props) {
             content: capitalizeAllWords(content),
         }
 
-        props.setState({
-            ...props.state,
+        props.setBoard({
+            ...props.board,
             updated: formatDate(new Date()),
             items: {
-                ...props.state.items,
+                ...props.board.items,
                 [itemID]: newItem
             },
             columns: {
-                ...props.state.columns,
+                ...props.board.columns,
                 [column.id]: {
-                    ...props.state.columns[column.id],
+                    ...props.board.columns[column.id],
                     itemIds: newItemIds
                 }
             }
@@ -186,19 +186,27 @@ function List(props) {
         });
     }
 
+    const changeLabel = (e, item) => {
+        let value = e.target.value == `` ? capitalizeAllWords(item.task) : capitalizeAllWords(e.target.value);
+        if (!e.target.value || e.target.value == ``) {
+            e.target.value = capitalizeAllWords(item.task);
+            return;
+        };
+        e.target.value = capitalizeAllWords(value);
+        item.content = capitalizeAllWords(value);
+        localStorage.setItem(`board`, JSON.stringify(props.board));
+    }
+
     const completeItem = (e, itemId, index, item) => {
         let button = e.target;
         let isButton = button.classList.contains(`iconButton`);
         if (isButton) {
             let completeButton = button.classList.contains(`completeButton`);
-            // let deleteButton = button.classList.contains(`deleteButton`);
-            // let copyButton = button.classList.contains(`copyButton`);
             if (!completeButton) return;
-            // if (!completeButton && deleteButton) return;
-            // if (copyButton) return;
-            // if (completeButton && deleteButton) completeActions(item, index, itemId, isButton);
         }
-        completeActions(item, index, itemId, isButton);
+        if (!e.target.classList.contains(`changeLabel`)) {
+            completeActions(item, index, itemId, isButton);
+        }
     }
 
     const completeActions = (item, index, itemId, isButton) => {
@@ -206,14 +214,14 @@ function List(props) {
             setLoading(true);
             setSystemStatus(`Marking Item as Complete.`);
 
-            props.state.items[itemId].updated = formatDate(new Date());
-            props.state.items[itemId].complete = !props.state.items[itemId].complete;
+            props.board.items[itemId].updated = formatDate(new Date());
+            props.board.items[itemId].complete = !props.board.items[itemId].complete;
 
-            props.setState({
-                ...props.state,
+            props.setBoard({
+                ...props.board,
                 updated: formatDate(new Date()),
                 items: {
-                    ...props.state.items
+                    ...props.board.items
                 },
             });
 
@@ -230,21 +238,21 @@ function List(props) {
         if (isButton) {
             setLoading(true);
             setSystemStatus(`Deleting Item.`);
-            const column = props.state.columns[columnId];
+            const column = props.board.columns[columnId];
             const newItemIds = Array.from(column.itemIds);
             newItemIds.splice(index, 1);
 
-            const items = props.state.items;
+            const items = props.board.items;
             const { [itemId]: oldItem, ...newItems } = items;
 
-            props.setState({
-                ...props.state,
+            props.setBoard({
+                ...props.board,
                 updated: formatDate(new Date()),
                 items: {
                     ...newItems
                 },
                 columns: {
-                    ...props.state.columns,
+                    ...props.board.columns,
                     [columnId]: {
                         ...column,
                         itemIds: newItemIds
@@ -268,20 +276,20 @@ function List(props) {
     const deleteColumn = (columnId, index) => {
         setLoading(true);
         setSystemStatus(`Deleting Column.`);
-        const columnItems = props.state.columns[columnId].itemIds;
+        const columnItems = props.board.columns[columnId].itemIds;
 
         const finalItems = columnItems.reduce((previousValue, currentValue) => {
             const { [currentValue]: oldItem, ...newItem } = previousValue;
             return newItem;
-        }, props.state.items);
+        }, props.board.items);
 
-        const columns = props.state.columns;
+        const columns = props.board.columns;
         const { [columnId]: oldColumn, ...newColumns } = columns;
 
-        const newColumnOrder = Array.from(props.state.columnOrder);
+        const newColumnOrder = Array.from(props.board.columnOrder);
         newColumnOrder.splice(index, 1);
 
-        props.setState(prevBoard => {
+        props.setBoard(prevBoard => {
             return {
                 ...prevBoard,
                 updated: formatDate(new Date()),
@@ -311,7 +319,7 @@ function List(props) {
                         </div>
                         <h3 className={`listNameRow nx-tracking-light ${props.column.title.length > 25 ? `longName` : ``}`} id={`list_name_of_${props.column.id}`} style={{ position: `relative` }}>
                             <i className={`listName textOverflow extended`} style={{ fontSize: 13, fontWeight: 600 }}>
-                                {props.column.title}
+                                {props.column.title} <span className="subscript" style={{display: `contents`,}}>- <span className="slashes">{props.items.filter(itm => itemActiveFilters(itm)).length}</span> Items</span>
                             </i>
                         </h3>
                         <div className="itemButtons customButtons">
@@ -337,7 +345,8 @@ function List(props) {
                                                     </span>
                                                     <div className="itemContents">
                                                         <span className="flex row itemContent boardItemContent itemName textOverflow extended">
-                                                            <span>{item.content}</span>
+                                                            <textarea onBlur={(e) => changeLabel(e, item)} className={`changeLabel`} defaultValue={item.content} />
+                                                            {/* <span>{item.content}</span> */}
                                                             {/* {item.subtasks.length > 0 && (
                                                                 <div className="progress">
                                                                     <div className="progressBar" style={{clipPath: `polygon(0% 0%, 0% 100%, 25% 100%, 25% 25%, 75% 25%, 75% 75%, 25% 75%, 25% 100%, 100% 100%, 100% 0%)`}}></div>
@@ -394,9 +403,9 @@ function List(props) {
                                                         <button id={`complete_${item.id}`} onClick={(e) => completeItem(e, item.id, itemIndex, item)} title={`Complete Item`} className={`iconButton ${ItemActions.Complete} wordIconButton completeButton`}>
                                                             <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas ${item.complete ? `fa-history` : `fa-check-circle`}`}></i>
                                                         </button>
-                                                        <button id={`copy_${item.id}`} onClick={(e) => copyItem(e, item)} title={`Copy Item`} className={`iconButton ${ItemActions.Copy} copyButton wordIconButton`}>
+                                                        {/* <button id={`copy_${item.id}`} onClick={(e) => copyItem(e, item)} title={`Copy Item`} className={`iconButton ${ItemActions.Copy} copyButton wordIconButton`}>
                                                             <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-copy`}></i>
-                                                        </button>
+                                                        </button> */}
                                                         <button id={`delete_${item.id}`} onClick={(e) => deleteItem(e, item, props.column.id, itemIndex, item.id)} title={`Delete Item`} className={`iconButton ${ItemActions.Delete} deleteButton wordIconButton`}>
                                                             <i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-trash"></i>
                                                         </button>

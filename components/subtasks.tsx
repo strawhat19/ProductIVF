@@ -66,6 +66,17 @@ export default function SubTasks(props) {
         // });
     }
 
+    const changeLabel = (e, item) => {
+        let value = e.target.value == `` ? capitalizeAllWords(item.task) : capitalizeAllWords(e.target.value);
+        if (!e.target.value || e.target.value == ``) {
+            e.target.value = capitalizeAllWords(item.task);
+            return;
+        };
+        e.target.value = capitalizeAllWords(value);
+        item.task = capitalizeAllWords(value);
+        localStorage.setItem(`board`, JSON.stringify(board));
+    }
+
     const completeSubtask = (e, subtask) => {
         setLoading(true);
         setSystemStatus(`Marking Subtask as ${subtask.complete ? `Reopened` : `Complete`}.`);
@@ -135,12 +146,12 @@ export default function SubTasks(props) {
                                                     <span className="itemOrder">
                                                         <i className={`itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>{taskIndex + 1}</i>
                                                     </span>
-                                                    <div title={subtask.task} className={`taskContent ${subtask.complete ? `complete` : ``}`}>
+                                                    {/* <div title={subtask.task} className={`taskContent ${subtask.complete ? `complete` : ``}`}>
                                                         {subtask.task}
-                                                    </div>
+                                                    </div> */}
                                                     <div className="subtaskActions flex row">
-                                                        Done {subtask.complete ? `` : `?`}
                                                         <input title={`${subtask.complete ? `Reopen` : `Complete`} Task`} onChange={(e) => completeSubtask(e, subtask)} id={`${subtask.id}_checkbox`} type="checkbox" defaultChecked={subtask.complete} />
+                                                        <input type="text" title={subtask?.task} onBlur={(e) => changeLabel(e, subtask)} className={`changeLabel taskChangeLabel`} defaultValue={subtask.task} />
                                                     </div>
                                                     <div className="itemButtons customButtons">
                                                         <button id={`delete_${subtask.id}`} onClick={(e) => deleteSubtask(e, subtask)} title={`Delete Task`} className={`iconButton deleteButton wordIconButton`}>
@@ -158,7 +169,7 @@ export default function SubTasks(props) {
                     )}
                 </Droppable>
                 <form onSubmit={(e) => addSubtask(e)} className="subtaskAddForm addForm flex row">
-                    <input type="text" id={`${item.id}_createSubtask`} name={`createSubtask`} placeholder={`Create Task +`} required />
+                    <input type="text" id={`${item.id}_createSubtask`} name={`createSubtask changeLabel`} placeholder={`Create Task +`} required />
                     <input type="number" id={`${item.id}_createSubtask_rank`} name={`rank`} defaultValue={subtasks.length + 1} />
                     <button type={`submit`} title={`Add Task`} className={`iconButton createList wordIconButton`}>
                         <i style={{ color: `var(--gameBlue)`, fontSize: 10 }} className="fas fa-plus"></i>

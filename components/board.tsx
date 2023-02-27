@@ -320,7 +320,7 @@ function Board(props) {
                             {board?.columnOrder && board?.columnOrder.map((columnId, index) => {
                                 const column = board?.columns[columnId];
                                 const items = column.itemIds.map(itemId => board?.items[itemId]);
-                                return <List key={column?.id} column={column} items={items} index={index} state={board} setState={setBoard} />;
+                                return <List key={column?.id} column={column} items={items} index={index} board={board} setBoard={setBoard} />;
                             })}
                             {provided.placeholder}
                         </section>

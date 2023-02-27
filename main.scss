@@ -836,6 +836,19 @@ form {
     max-height: 33px;
 }
 
+html[class~=dark] {
+    .changeLabel:focus-visible {
+        border: 0 !important;
+        outline: none !important;
+        --tw-ring-opacity: 0 !important;
+        --tw-ring-color: none !important;
+    }
+}
+textarea {
+    height: 22px;
+    overflow-y: hidden;
+}
+
 .changeLabel {
     padding: 0 10px;
     min-width: 75px;
@@ -923,6 +936,31 @@ form {
         .slashes {
             color: var(--gameBlueInverse);
         }
+        .changeLabel {
+            color: black;
+            font-weight: 600;
+            filter: invert(1);
+        }
+    }
+    &.complete {
+        .changeLabel {
+            color: white;
+        }
+        &:hover {
+            .changeLabel {
+                color: black;
+            }
+            .subTaskItem {
+                .changeLabel {
+                    color: black;
+                }
+                &:hover {
+                    .changeLabel {
+                        color: white;
+                    }
+                }
+            } 
+        }
     }
 }
 
@@ -936,6 +974,13 @@ form {
 .complete {
     .slashes {
         color: var(--gameBlueInverse);
+    }
+    &:hover {
+        .changeLabel {
+            color: white;
+            font-weight: 600;
+            filter: invert(1);
+        }
     }
 }
 
@@ -1287,6 +1332,7 @@ form {
                     transition: var(--transition);
                     &:not(.itemDate) {
                         padding: 10px 0;
+                        justify-content: center;
                         white-space: normal !important;
                         word-wrap: break-word !important;
                     }
@@ -1376,9 +1422,18 @@ form {
                                     border-top: 1px solid var(--gameBlue);
                                 }
                                 border-bottom: 1px solid var(--gameBlue);
+                                .taskChangeLabel {
+                                    max-width: 90%;
+                                    padding: 0 0 0 5px;
+                                    margin-left: 0px !important;
+                                }
                                 &:hover {
                                     background: linear-gradient(90deg, black 35px, transparent 35px);
-
+                                    .subtaskActions {
+                                        input[type="checkbox"] {
+                                            filter: invert(1);
+                                        }
+                                    }
                                 }
                                 .item {
                                     flex-direction: row;
@@ -1412,9 +1467,14 @@ form {
                                         // }
                                     }
                                     .subtaskActions {
-                                        padding: 0 15px 0 0;
-                                        max-width: fit-content;
-                                        justify-content: flex-end;
+                                        max-width: 100%;
+                                        padding: 0 0 0 20px;
+                                        max-width: -moz-fit-content;
+                                        justify-content: flex-start;
+                                        input[type="checkbox"] {
+                                            font-size: 8px !important;
+                                            font-weight: 400 !important;
+                                        }
                                     }
                                     .itemButtons {
                                         .deleteButton {
@@ -1464,6 +1524,8 @@ form {
                             &[type="text"] {
                                 &:focus-visible {
                                     outline: none !important;
+                                    --tw-ring-opacity: 0 !important;
+                                    --tw-ring-color: none !important;
                                 }
                             }
                             &[type="number"] {
