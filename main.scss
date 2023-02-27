@@ -844,9 +844,19 @@ html[class~=dark] {
         --tw-ring-color: none !important;
     }
 }
+
 textarea {
     height: 22px;
     overflow-y: hidden;
+}
+
+.subtaskActions {
+    textarea {
+        height: 16px;
+        &:hover {
+            background: rgba(255, 61, 0, 0.2) !important;
+        }
+    }
 }
 
 .changeLabel {
@@ -940,6 +950,13 @@ textarea {
             color: black;
             font-weight: 600;
             filter: invert(1);
+        }
+        .subTaskItem {
+            &:hover {
+                .changeLabel {
+                    color: white !important;
+                }
+            }
         }
     }
     &.complete {

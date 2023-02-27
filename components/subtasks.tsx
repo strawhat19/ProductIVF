@@ -151,7 +151,7 @@ export default function SubTasks(props) {
                                                     </div> */}
                                                     <div className="subtaskActions flex row">
                                                         <input title={`${subtask.complete ? `Reopen` : `Complete`} Task`} onChange={(e) => completeSubtask(e, subtask)} id={`${subtask.id}_checkbox`} type="checkbox" defaultChecked={subtask.complete} />
-                                                        <input type="text" title={subtask?.task} onBlur={(e) => changeLabel(e, subtask)} className={`changeLabel taskChangeLabel`} defaultValue={subtask.task} />
+                                                        <textarea title={subtask?.task} onBlur={(e) => changeLabel(e, subtask)} className={`changeLabel taskChangeLabel`} defaultValue={subtask.task} />
                                                     </div>
                                                     <div className="itemButtons customButtons">
                                                         <button id={`delete_${subtask.id}`} onClick={(e) => deleteSubtask(e, subtask)} title={`Delete Task`} className={`iconButton deleteButton wordIconButton`}>
