@@ -56,6 +56,7 @@
     --nextra: rgba(0, 170, 255, 0.5) !important;
     --menuBackground: var(--blackGlass) !important;
     --softSkyBlue: rgba(132, 169, 177, 1) !important;
+    --delayedTransition: cubic-bezier(0.77, 0.2, 0.05, 1);
     --transition: 0.24s cubic-bezier(0.77, 0.2, 0.05, 1) !important;
 }
 
@@ -1087,23 +1088,19 @@ form {
                 width: 100%;
                 cursor: grab;
                 display: flex;
-                grid-gap: 14px;
+                grid-gap: 0px;
+                // grid-gap: 14px;
                 font-size: 0.8em;
                 min-height: 35px;
                 position: relative;
-                border-radius: var(--borderRadius);
                 align-items: center;
                 padding: 0em !important;
                 background: var(--blackGlass);
-                flex-direction: row !important;
                 justify-content: space-between;
+                // flex-direction: row !important;
+                border-radius: var(--borderRadius);
                 transition: filter var(--transition);
-
-                /* Neumorphic Inner shadow */
-                box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.2);
-
-                /* Neumorphic Outer shadow */
-                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1), 0px 0px 20px rgba(0, 0, 0, 0.05);
+                // transition: height 1500ms var(--delayedTransition);
 
                 span {
                     width: 100%;
@@ -1133,6 +1130,40 @@ form {
                             background: black !important;
                         }
                     }
+                    &:not(.complete) {
+                        .noTasks {
+                            opacity: 1 !important;
+                            height: 100% !important;
+                            pointer-events: all !important;
+                        }
+                    }
+                    .progress {
+                        filter: invert(1);
+                        .CircularProgressbar-text {
+                            font-weight: 600;
+                            fill: black !important;
+                        }
+                    }
+                    .subTaskItem {
+                        border-color: var(--gameBlueInverse) !important;
+                    }
+                    .subtaskAddForm {
+                        i {
+                            color: var(--gameBlueInverse) !important;
+                        }
+                        &::before {
+                            color: var(--gameBlueInverse);
+                        }
+                    }
+                }
+
+                .itemRow {
+                    border-radius: var(--borderRadius);
+                    /* Neumorphic Inner shadow */
+                    box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.2);
+
+                    /* Neumorphic Outer shadow */
+                    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1), 0px 0px 20px rgba(0, 0, 0, 0.05);
                 }
 
                 .itemOrder {
@@ -1219,9 +1250,153 @@ form {
                     }
                 }
 
+                .subTasks {
+                    width: 100%;
+                    bottom: -19px;
+                    .noTasks {
+                        opacity: 0;
+                        height: 0px;
+                        pointer-events: none;
+                        transition: var(--transition);
+                    }
+                    .subTaskElement {
+                        width: 85%;
+                        grid-gap: 0;
+                        margin: 0 auto;
+                        background: var(--blackGlass);
+                        /* Neumorphic Inner shadow */
+                        box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.2);
+
+                        /* Neumorphic Outer shadow */
+                        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1), 0px 0px 20px rgba(0, 0, 0, 0.05);
+
+                        border-bottom-right-radius: var(--borderRadius);
+                        border-bottom-left-radius: var(--borderRadius);
+
+                        .subTaskItems {
+                            padding: 0;
+                            grid-gap: 0;
+                            .subTaskItem {
+                                &:first-child {
+                                    border-top: 1px solid var(--gameBlue);
+                                }
+                                border-bottom: 1px solid var(--gameBlue);
+                                .item {
+                                    max-height: 23px;
+                                    flex-direction: row;
+                                    &:hover {
+                                        .itemOrder {
+                                            color: var(--gameBlueInverse);
+                                        }
+                                        .taskContent {
+                                            color: black;
+                                            font-weight: 600;
+                                        }
+                                        i {
+                                            color: var(--gameBlueInverse) !important;
+                                        }
+                                    }
+                                    .itemOrder {
+                                        max-height: 23px;
+                                        border-radius: 0;
+                                    }
+                                    .taskContent {
+                                        padding: 0 0 0 15px;
+                                        &.complete {
+                                            text-decoration-thickness: 0;
+                                            text-decoration: line-through;
+                                            text-decoration-color: white;
+                                        }
+                                    }
+                                    .subtaskActions {
+                                        padding: 0 15px 0 0;
+                                        justify-content: flex-end;
+                                    }
+                                    .itemButtons {
+                                        .deleteButton {
+                                            min-height: 15px;
+                                            padding: 0 6px !important;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        .addForm {
+                            max-height: 23px;
+                            background: transparent !important;
+                            button {
+                                max-width: fit-content;
+                                height: 24px !important;
+                                min-height: 24px !important;
+                                max-height: 26px !important;
+                                i {
+                                    max-width: fit-content;
+                                }
+                                span {
+                                    font-size: 10px;
+                                    justify-content: flex-end;
+                                    max-width: fit-content !important;
+                                }
+                            }
+                            &::before {
+                                font-size: 18px;
+                                border-top-left-radius: 0;
+                            }
+                        }
+
+                        input {
+                            font-size: 10px;
+                            padding: 3px 50px;
+                            background: transparent !important;
+                            border-bottom-right-radius: var(--borderRadius);
+                            border-bottom-left-radius: var(--borderRadius);
+                            &[type="text"] {
+                                &:focus-visible {
+                                    outline: none !important;
+                                }
+                            }
+                            &[type="number"] {
+                                max-width: 25px;
+                                font-weight: 700;
+                                text-align: center;
+                                padding: 0 !important;
+                                color: black !important;
+                                background: white !important;
+                            }
+                            &[type="checkbox"] {
+                                -webkit-appearance: none;
+                                -moz-appearance: none;
+                                appearance: none;
+                                position: relative;
+                                max-width: -moz-fit-content;
+                                max-width: 8px !important;
+                                padding: 7px 8px !important;
+                                border-radius: var(--borderRadius);
+                                background: rgba(0, 194, 255, 0.2) !important;
+                                &::before {
+                                    color: #fff;
+                                    background: var(--gameBlue);
+                                }
+                                &:checked {
+                                    &::before {
+                                        content: "✔";
+                                        color: #fff;
+                                        background: transparent;
+                                        position: absolute;
+                                        top: 50%;
+                                        left: 50%;
+                                        transform: translate(-50%, -50%);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
                 &.complete {
                     filter: invert(1);
-                    background: rgba(0, 0, 0, 0.5) !important;
+                    // background: rgba(0, 0, 0, 0.5) !important;
 
                     &:hover {
                         .itemOrder {
@@ -1254,6 +1429,16 @@ form {
 
                     .itemSep {
                         filter: invert(1);
+                    }
+
+                    .subTaskItem {
+                        border-color: var(--gameBlueInverse) !important;
+                    }
+
+                    .subtaskAddForm {
+                        &::before {
+                            color: var(--gameBlueInverse);
+                        }
                     }
                 }
 
@@ -1708,7 +1893,10 @@ footer {
             padding: 0 !important;
             .item {
                 min-height: min-content;
-                background: linear-gradient(90deg, white 35px, var(--blackGlass) 35px);
+                background: transparent !important;
+                .itemRow {
+                    background: linear-gradient(90deg, white 35px, var(--blackGlass) 35px);
+                }
                 .itemDate {
                     font-size: 9px;
                     max-width: 125px !important;
@@ -1725,7 +1913,19 @@ footer {
                     }
                 }
                 &.complete {
-                    background: linear-gradient(90deg, white 35px, var(--blackGlass) 35px) !important;
+                    .progress {
+                        filter: invert(1);
+                        .CircularProgressbar-text {
+                            font-weight: 600;
+                            fill: black !important;
+                        }
+                        .CircularProgressbar-path {
+                            stroke: var(--gameBlue) !important;
+                          }
+                    }
+                    .itemRow {
+                        background: linear-gradient(90deg, white 35px, var(--blackGlass) 35px) !important;
+                    }
                 }
                 .itemOrder {
                     width: 35px;
@@ -1757,6 +1957,13 @@ footer {
                         grid-gap: 5px !important;
                         padding: 5px !important;
                     }
+                }
+                .progress {
+                    display: flex;
+                    max-width: 10%;
+                    margin-right: -8px;
+                    align-items: flex-end;
+                    justify-content: center;
                 }
                 .itemButtons {
                     button {

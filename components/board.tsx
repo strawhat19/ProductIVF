@@ -262,7 +262,7 @@ function Board(props) {
                         <div className="flex row innerRow">
                             <div className="flex row left">
                                 {devEnv && <h3><span className="subscript">(1)</span></h3>}
-                                <h2><input id={`${board.id}_change_label`} ref={boardNameRef} title={board?.name} onBlur={(e) => changeLabel(e, board, setBoard)} className={`changeLabel textOverflow`} name={`boardName`} defaultValue={board?.name ?? `Board`} style={{width: board.titleWidth ? board.titleWidth : `75px`}} /></h2>
+                                <h2><input type={`text`} id={`${board.id}_change_label`} ref={boardNameRef} title={board?.name} onBlur={(e) => changeLabel(e, board, setBoard)} className={`changeLabel textOverflow`} name={`boardName`} defaultValue={board?.name ?? `Board`} style={{width: board.titleWidth ? board.titleWidth : `75px`}} /></h2>
                                 <h3 className="boardDate">
                                     <span className="subscript rowDate itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
                                         <i> - </i>
@@ -310,7 +310,7 @@ function Board(props) {
                 </div>
             </section>
             {board?.columnOrder && (
-                <Droppable droppableId={`boardColumns${generateUniqueID()}`} direction="horizontal" type="column">
+                <Droppable droppableId={`${board.id}_boardColumns`} direction="horizontal" type="column">
                     {(provided, snapshot) => (
                         <section id={`board`} className={`board lists container ${snapshot.isDraggingOver ? `isDraggingOver` : ``} ${board?.columnOrder && (board?.columnOrder.length == 2 ? `clipColumns` : board?.columnOrder.length == 3 ? `threeBoard overflowingBoard` : board?.columnOrder.length > 3 ? `moreBoard overflowingBoard` : ``)}`} ref={provided.innerRef} {...provided.droppableProps} style={props.style}>
                             {board?.columnOrder && board?.columnOrder.map((columnId, index) => {

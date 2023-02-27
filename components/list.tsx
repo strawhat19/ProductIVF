@@ -1,5 +1,8 @@
+import SubTasks from './subtasks';
 import React, { useContext } from 'react';
+import 'react-circular-progressbar/dist/styles.css';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
+import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
 import { showAlert, formatDate, generateUniqueID, StateContext, dev, capitalizeAllWords } from '../pages/_app';
 
 export enum ItemActions {
@@ -146,6 +149,7 @@ function List(props) {
 
         const newItem = {
             id: itemID,
+            subtasks: [],
             complete: false,
             created: formatDate(new Date()),
             content: capitalizeAllWords(content),
@@ -254,6 +258,13 @@ function List(props) {
         }
     }
 
+    const getSubTaskPercentage = (subtasks) => {
+        let subtasksProgress = 0;
+        let completeTasks = subtasks.filter(task => task.complete);
+        subtasksProgress = parseFloat(((completeTasks.length / subtasks.length) * 100).toFixed(1));
+        return subtasksProgress;
+    }
+
     const deleteColumn = (columnId, index) => {
         setLoading(true);
         setSystemStatus(`Deleting Column.`);
@@ -314,46 +325,82 @@ function List(props) {
                     <Droppable droppableId={props.column.id} type="task">
                         {provided => (
                             <div id={`items_of_${props.column.id}`} className={`items boardColumnItems listItems`} {...provided.droppableProps} ref={provided.innerRef}>
-                                {props.items.filter(itm => itemActiveFilters(itm)).map((item, itemIndex) =>
-                                    (<Draggable key={item.id} draggableId={item.id} index={itemIndex}>
+                                {props.items.filter(itm => itemActiveFilters(itm)).map((item, itemIndex) => {
+                                    return (
+                                    <Draggable key={item.id} draggableId={item.id} index={itemIndex}>
                                         {provided => (
-                                            <div onClick={(e) => completeItem(e, item.id, itemIndex, item)} id={item.id} className={`item completeItem ${item.complete ? `complete` : ``} container ${snapshot.isDragging ? `dragging` : ``}`} title={item.content} {...provided.draggableProps} ref={provided.innerRef} {...provided.dragHandleProps}>
-                                                <span className="itemOrder">
-                                                    <i className={`itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>{itemIndex + 1}</i>
-                                                </span>
-                                                <div className="itemContents">
-                                                    <span className="itemContent boardItemContent itemName textOverflow extended">{item.content}</span>
-                                                    {/* {devEnv && wordInCategories(item) && <span className="itemCategory itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
-                                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-hashtag"></i> 
-                                                        <span className={`itemDateTime`}>{wordOfCategory(item)}</span>
-                                                    </span>} */}
-                                                    <hr className={`itemSep`} style={{height: 1, borderColor: `var(--gameBlue)`}} />
-                                                    {item.created && !item.updated ? (
-                                                    <span className="itemDate itemName itemCreated textOverflow extended flex row">
-                                                        <i className={`status`}>Cre.</i> 
-                                                        <span className={`itemDateTime`}>{formatDate(new Date(item.created))}</span>
+                                            <div id={item.id} className={`item completeItem ${item.complete ? `complete` : ``} container ${snapshot.isDragging ? `dragging` : ``}`} title={item.content} {...provided.draggableProps} ref={provided.innerRef}>
+                                                <div onClick={(e) => completeItem(e, item.id, itemIndex, item)} {...provided.dragHandleProps} className="itemRow flex row">
+                                                    <span className="itemOrder">
+                                                        <i className={`itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>{itemIndex + 1}</i>
                                                     </span>
-                                                    ) : item.updated ? (
-                                                    <span className="itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
-                                                        <i className={`status`}>Upd.</i> 
-                                                        <span className={`itemDateTime`}>{formatDate(new Date(item.updated))}</span>
-                                                    </span>
-                                                    ) : null}
+                                                    <div className="itemContents">
+                                                        <span className="flex row itemContent boardItemContent itemName textOverflow extended">
+                                                            <span>{item.content}</span>
+                                                            {/* {item.subtasks.length > 0 && (
+                                                                <div className="progress">
+                                                                    <div className="progressBar" style={{clipPath: `polygon(0% 0%, 0% 100%, 25% 100%, 25% 25%, 75% 25%, 75% 75%, 25% 75%, 25% 100%, 100% 100%, 100% 0%)`}}></div>
+                                                                </div>
+                                                            )} */}
+                                                        </span>
+                                                        {/* {devEnv && wordInCategories(item) && <span className="itemCategory itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
+                                                            <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-hashtag"></i> 
+                                                            <span className={`itemDateTime`}>{wordOfCategory(item)}</span>
+                                                        </span>} */}
+                                                        <hr className={`itemSep`} style={{height: 1, borderColor: `var(--gameBlue)`}} />
+                                                        {item.created && !item.updated ? (
+                                                        <span className="itemDate itemName itemCreated textOverflow extended flex row">
+                                                            <i className={`status`}>Cre.</i> 
+                                                            <span className={`itemDateTime`}>{formatDate(new Date(item.created))}</span>
+                                                        </span>
+                                                        ) : item.updated ? (
+                                                        <span className="itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
+                                                            <i className={`status`}>Upd.</i> 
+                                                            <span className={`itemDateTime`}>{formatDate(new Date(item.updated))}</span>
+                                                        </span>
+                                                        ) : null}
+                                                    </div>
+                                                    {item.subtasks.length > 0 && <div className={`progress`}>
+                                                        <CircularProgressbar value={getSubTaskPercentage(item.subtasks)} text={`${getSubTaskPercentage(item.subtasks)}%`} styles={buildStyles({
+                                                            // Rotation of path and trail, in number of turns (0-1)
+                                                            rotation: 0.5,
+
+                                                            // Whether to use rounded or flat corners on the ends - can use 'butt' or 'round'
+                                                            strokeLinecap: 'butt',
+
+                                                            // Text size
+                                                            textSize: '24px',
+
+                                                            // How long animation takes to go from one percentage to another, in seconds
+                                                            pathTransitionDuration: 0.5,
+
+                                                            // Can specify path transition in more detail, or remove it entirely
+                                                            // pathTransition: 'none',
+
+                                                            // Colors
+                                                            pathColor: getSubTaskPercentage(item.subtasks) < 100 ? `rgba(0, 194, 255, ${getSubTaskPercentage(item.subtasks) / 100})` : `#00b900`,
+                                                            trailColor: 'rgba(0, 194, 255, 0.2)',
+                                                            backgroundColor: '#3e98c7',
+                                                            textColor: '#fff',
+                                                        })} />
+                                                    </div>}
+                                                    <div className="itemButtons customButtons">
+                                                        <button id={`complete_${item.id}`} onClick={(e) => completeItem(e, item.id, itemIndex, item)} title={`Complete Item`} className={`iconButton ${ItemActions.Complete} wordIconButton completeButton`}>
+                                                            <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas ${item.complete ? `fa-history` : `fa-check-circle`}`}></i>
+                                                        </button>
+                                                        <button id={`copy_${item.id}`} onClick={(e) => copyItem(e, item)} title={`Copy Item`} className={`iconButton ${ItemActions.Copy} copyButton wordIconButton`}>
+                                                            <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-copy`}></i>
+                                                        </button>
+                                                        <button id={`delete_${item.id}`} onClick={(e) => deleteItem(e, item, props.column.id, itemIndex, item.id)} title={`Delete Item`} className={`iconButton ${ItemActions.Delete} deleteButton wordIconButton`}>
+                                                            <i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-trash"></i>
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                                <div className="itemButtons customButtons">
-                                                    <button id={`complete_${item.id}`} onClick={(e) => completeItem(e, item.id, itemIndex, item)} title={`Complete Item`} className={`iconButton ${ItemActions.Complete} wordIconButton completeButton`}>
-                                                        <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas ${item.complete ? `fa-history` : `fa-check-circle`}`}></i>
-                                                    </button>
-                                                    <button id={`copy_${item.id}`} onClick={(e) => copyItem(e, item)} title={`Copy Item`} className={`iconButton ${ItemActions.Copy} copyButton wordIconButton`}>
-                                                        <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-copy`}></i>
-                                                    </button>
-                                                    <button id={`delete_${item.id}`} onClick={(e) => deleteItem(e, item, props.column.id, itemIndex, item.id)} title={`Delete Item`} className={`iconButton ${ItemActions.Delete} deleteButton wordIconButton`}>
-                                                        <i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-trash"></i>
-                                                    </button>
-                                                </div>
+                                                <SubTasks item={item} />
                                             </div>
                                         )}
-                                    </Draggable>)
+                                    </Draggable>
+                                    )}
                                 )}
                                 {provided.placeholder}
                             </div>

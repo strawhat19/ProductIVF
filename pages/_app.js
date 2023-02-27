@@ -531,13 +531,13 @@ export default function MyApp({ Component, pageProps, router }) {
         let cachedBoard = JSON.parse(localStorage.getItem(`board`));
         let cachedBoards = JSON.parse(localStorage.getItem(`boards`));
         let storedUser = JSON.parse(localStorage.getItem(`user`));
+        setDevEnv(dev());
         setUpdates(updates);
         setPlatform(navigator?.userAgent);
         setYear(new Date().getFullYear());
         setSystemStatus(`System Status Ok.`);
         setOnMac(navigator.platform.includes(`Mac`));
         setPage(window.location.pathname.replace(`/`,``));
-        setDevEnv(window.location.host.includes(`localhost`));
         setLists(JSON.parse(localStorage.getItem(`lists`)) || defaultLists);
         setMobile((typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1));
 
