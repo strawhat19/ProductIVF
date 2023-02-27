@@ -70,6 +70,8 @@ export default function SubTasks(props) {
         setLoading(true);
         setSystemStatus(`Marking Subtask as ${subtask.complete ? `Reopened` : `Complete`}.`);
         subtask.complete = !subtask.complete;
+        item.updated = formatDate(new Date());
+        subtask.updated = formatDate(new Date());
         localStorage.setItem(`board`, JSON.stringify(board));
         setTimeout(() => {
             setSystemStatus(`Marked Subtask as ${subtask.complete ? `Complete` : `Reopened`}.`);
