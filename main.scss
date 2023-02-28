@@ -860,12 +860,25 @@ textarea {
 }
 
 .changeLabel {
+    cursor: text;
     padding: 0 10px;
     min-width: 75px;
     border-radius: 8px;
     background: transparent;
     margin: 0 -10px !important;
     transition: var(--transition);
+    &.columnName {
+        margin: 0 !important;
+        max-width: fit-content;
+        font-weight: 700 !important;
+        &:hover {
+            &:not(:focus-visible) {
+                background: rgba(0, 194, 255, 0.2);
+                filter: invert(0) !important;
+                color: white !important;
+            }
+        }
+    }
     &::selection {
         color: white;
         background: rgba(0, 194, 255, 0.2) !important;
@@ -891,6 +904,9 @@ textarea {
     &.row {
         grid-gap: 13px;
         flex-direction: row !important;
+        &.end {
+            justify-content: flex-end;
+        }
         .innerRow {
             width: 100%;
             margin: 0 auto;
@@ -955,7 +971,11 @@ textarea {
         .subTaskItem {
             &:hover {
                 .changeLabel {
-                    color: white !important;
+                    filter: inherit;
+                    color: black !important;
+                }
+                input[type="checkbox"] {
+                    filter: inherit;
                 }
             }
         }
@@ -1306,7 +1326,10 @@ textarea {
                     .subTasks {
                         .subTaskElement {
                             input[type="checkbox"] {
-                                background: rgba(255, 61, 0, 0.2) !important;
+                                &::before {
+                                    color: black !important;
+                                }
+                                background: rgba(0, 194, 255, 0.2) !important;
                             }
                         }
                     }
@@ -1441,9 +1464,9 @@ textarea {
                                 }
                                 border-bottom: 1px solid var(--gameBlue);
                                 .taskChangeLabel {
-                                    max-width: 82%;
-                                    padding: 0 0 0 5px;
-                                    margin-left: 0px !important;
+                                    padding: 0 10px 0 10px;
+                                    max-width: fit-content;
+                                    margin: 5px 0 5px 0 !important;
                                 }
                                 &:hover {
                                     background: linear-gradient(90deg, black 35px, transparent 35px);
@@ -1497,6 +1520,7 @@ textarea {
                                     .itemButtons {
                                         .deleteButton {
                                             min-height: 15px;
+                                            margin-right: 5px;
                                             padding: 0 6px !important;
                                         }
                                     }
@@ -1632,17 +1656,25 @@ textarea {
                     }
 
                     input[type="checkbox"] {
+                        &::before {
+                            color: black !important;
+                        }
                         &:not(:checked) {
                             background: rgba(255, 61, 0, 0.2) !important;
                         }
-                        &:checked {
-                           background: rgba(255, 61, 0, 0.2) !important;
-                       }
                     }
                 }
 
             }
         }
+    }
+}
+
+.boardItemContent {
+    justify-content: flex-start !important;
+    .changeLabel {
+        margin: 0 !important;
+        max-width: fit-content;
     }
 }
 
@@ -2063,6 +2095,11 @@ footer {
                     i {
                         color: var(--gameBlueInverse) !important;
                     }
+                }
+                .columnStats {
+                    color: black;
+                    font-weight: 700;
+                    filter: invert(1);
                 }
             }
             .listOrder {

@@ -30,7 +30,7 @@ export default function SubTasks(props) {
         let formFields = e.target.children;
         setLoading(true);
         let nextSubtaskIndex = subtasks.length + 1;
-        setSystemStatus(`Creating Subtask.`);
+        setSystemStatus(`Creating Task.`);
         let subtasksList = e.target.previousSibling;
         let newSubtaskID = `subtask_${nextSubtaskIndex}`;
         let subtaskID = `${newSubtaskID}_${generateUniqueID()}`;
@@ -49,12 +49,13 @@ export default function SubTasks(props) {
 
         subtasks.splice(rank-1,0,newSubtask);
         item.subtasks = subtasks;
-        localStorage.setItem(`board`, JSON.stringify(board));
+        item.updated = formatDate(new Date());
+        localStorage.setItem(`board`, JSON.stringify({...board, updated: formatDate(new Date())}));
 
         e.target.reset();
         e.target.children[0].focus();
         setTimeout(() => {
-            setSystemStatus(`Created Subtask.`);
+            setSystemStatus(`Created Task.`);
             setLoading(false);
         }, 1000);
         // window.requestAnimationFrame(() => {
@@ -67,40 +68,42 @@ export default function SubTasks(props) {
     }
 
     const changeLabel = (e, item) => {
-        let value = e.target.value == `` ? capitalizeAllWords(item.task) : capitalizeAllWords(e.target.value);
-        if (!e.target.value || e.target.value == ``) {
-            e.target.value = capitalizeAllWords(item.task);
+        let elemValue = e.target.textContent;
+        let value = elemValue == `` ? capitalizeAllWords(item.task) : capitalizeAllWords(elemValue);
+        if (!elemValue || elemValue == ``) {
+            elemValue = capitalizeAllWords(item.task);
             return;
         };
-        e.target.value = capitalizeAllWords(value);
+        elemValue = capitalizeAllWords(value);
         item.task = capitalizeAllWords(value);
-        localStorage.setItem(`board`, JSON.stringify(board));
+        item.updated = formatDate(new Date());
+        localStorage.setItem(`board`, JSON.stringify({...board, updated: formatDate(new Date())}));
     }
 
     const completeSubtask = (e, subtask) => {
         setLoading(true);
-        setSystemStatus(`Marking Subtask as ${subtask.complete ? `Reopened` : `Complete`}.`);
+        setSystemStatus(`Marking Task as ${subtask.complete ? `Reopened` : `Complete`}.`);
         subtask.complete = !subtask.complete;
         item.updated = formatDate(new Date());
         subtask.updated = formatDate(new Date());
-        localStorage.setItem(`board`, JSON.stringify(board));
+        localStorage.setItem(`board`, JSON.stringify({...board, updated: formatDate(new Date())}));
         setTimeout(() => {
-            setSystemStatus(`Marked Subtask as ${subtask.complete ? `Complete` : `Reopened`}.`);
+            setSystemStatus(`Marked Task as ${subtask.complete ? `Complete` : `Reopened`}.`);
             setLoading(false);
         }, 1000);
     }
 
     const deleteSubtask = (e, subtask) => {
         setLoading(true);
-        setSystemStatus(`Deleting Subtask.`);
+        setSystemStatus(`Deleting Task.`);
         setSubtasks(prevTasks => {
             let newSubtasks = prevTasks.filter(task => task.id != subtask.id);
             item.subtasks = newSubtasks;
-            localStorage.setItem(`board`, JSON.stringify(board));
+            localStorage.setItem(`board`, JSON.stringify({...board, updated: formatDate(new Date())}));
             return newSubtasks;
         });
         setTimeout(() => {
-            setSystemStatus(`Deleted Subtask.`);
+            setSystemStatus(`Deleted Task.`);
             setLoading(false);
         }, 1000);
     }
@@ -150,13 +153,14 @@ export default function SubTasks(props) {
                                                         {subtask.task}
                                                     </div> */}
                                                     <div className="subtaskActions flex row">
-                                                        <input title={`${subtask.complete ? `Reopen` : `Complete`} Task`} onChange={(e) => completeSubtask(e, subtask)} id={`${subtask.id}_checkbox`} type="checkbox" defaultChecked={subtask.complete} />
-                                                        <textarea title={subtask?.task} onBlur={(e) => changeLabel(e, subtask)} className={`changeLabel taskChangeLabel`} defaultValue={subtask.task} />
+                                                        <span onBlur={(e) => changeLabel(e, subtask)} contentEditable suppressContentEditableWarning className={`changeLabel taskChangeLabel`}>{subtask.task}</span>
+                                                        {/* <input title={`${subtask.complete ? `Reopen` : `Complete`} Task`} onChange={(e) => completeSubtask(e, subtask)} id={`${subtask.id}_checkbox`} type="checkbox" defaultChecked={subtask.complete} /> */}
                                                     </div>
                                                     <div className="itemButtons customButtons">
                                                         <button id={`delete_${subtask.id}`} onClick={(e) => deleteSubtask(e, subtask)} title={`Delete Task`} className={`iconButton deleteButton wordIconButton`}>
                                                             <i style={{color: `var(--gameBlue)`, fontSize: 9}} className="fas fa-trash"></i>
                                                         </button>
+                                                        <input title={`${subtask.complete ? `Reopen` : `Complete`} Task`} onChange={(e) => completeSubtask(e, subtask)} id={`${subtask.id}_checkbox`} type="checkbox" defaultChecked={subtask.complete} />
                                                     </div>
                                                 </div>
                                             </div>

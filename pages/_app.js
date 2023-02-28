@@ -532,49 +532,49 @@ export default function MyApp({ Component, pageProps, router }) {
       setAnimComplete(false);
       setLoading(true);
       setSystemStatus(`Page Loading!`);
-        if (loaded.current) return;
-        loaded.current = true;
-        let cachedBoard = JSON.parse(localStorage.getItem(`board`));
-        let cachedBoards = JSON.parse(localStorage.getItem(`boards`));
-        let storedUser = JSON.parse(localStorage.getItem(`user`));
-        setDevEnv(dev());
-        setUpdates(updates);
-        setPlatform(navigator?.userAgent);
-        setYear(new Date().getFullYear());
-        setSystemStatus(`System Status Ok.`);
-        setOnMac(navigator.platform.includes(`Mac`));
-        setPage(window.location.pathname.replace(`/`,``));
-        setLists(JSON.parse(localStorage.getItem(`lists`)) || defaultLists);
-        setMobile((typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1));
+      if (loaded.current) return;
+      loaded.current = true;
+      let cachedBoard = JSON.parse(localStorage.getItem(`board`));
+      let cachedBoards = JSON.parse(localStorage.getItem(`boards`));
+      let storedUser = JSON.parse(localStorage.getItem(`user`));
+      setDevEnv(dev());
+      setUpdates(updates);
+      setPlatform(navigator?.userAgent);
+      setYear(new Date().getFullYear());
+      setSystemStatus(`System Status Ok.`);
+      setOnMac(navigator.platform.includes(`Mac`));
+      setPage(window.location.pathname.replace(`/`,``));
+      setLists(JSON.parse(localStorage.getItem(`lists`)) || defaultLists);
+      setMobile((typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1));
 
-        if (cachedBoard) {
-          if (!cachedBoard.created) cachedBoard.created = formatDate(new Date());
-          if (!cachedBoard.updated) cachedBoard.updated = formatDate(new Date());
-          if (!cachedBoard.id) cachedBoard.id = generateUniqueID(false, `board`);
-          if (!cachedBoard.name) cachedBoard.name = `Board`;
-          if (!cachedBoard.columns) cachedBoard.columns = initialBoardData.columns;
-          if (!cachedBoard.columnOrder) cachedBoard.columnOrder = initialBoardData.columnOrder;
-          if (!cachedBoard.items) cachedBoard.items = initialBoardData.items;
-          setBoard(cachedBoard);
+      if (cachedBoard) {
+        if (!cachedBoard.created) cachedBoard.created = formatDate(new Date());
+        if (!cachedBoard.updated) cachedBoard.updated = formatDate(new Date());
+        if (!cachedBoard.id) cachedBoard.id = generateUniqueID(false, `board`);
+        if (!cachedBoard.name) cachedBoard.name = `Board`;
+        if (!cachedBoard.columns) cachedBoard.columns = initialBoardData.columns;
+        if (!cachedBoard.columnOrder) cachedBoard.columnOrder = initialBoardData.columnOrder;
+        if (!cachedBoard.items) cachedBoard.items = initialBoardData.items;
+        setBoard(cachedBoard);
+      } else {
+        setBoard(initialBoardData);
+      }
+
+      if (cachedBoards && cachedBoards.length > 0) {
+        setBoards(cachedBoards);
+      } else {
+        setBoards(defaultBoards);
+      }
+
+      let toc = document.querySelector(`.nextra-toc`);
+      let tocMinimized = JSON.parse(localStorage.getItem(`tocMinimized`));
+      if (toc) {
+        if (tocMinimized) {
+          toc.classList.add(`minimized`);
         } else {
-          setBoard(initialBoardData);
-        }
-
-        if (cachedBoards && cachedBoards.length > 0) {
-          setBoards(cachedBoards);
-        } else {
-          setBoards(defaultBoards);
-        }
-
-        let toc = document.querySelector(`.nextra-toc`);
-        let tocMinimized = JSON.parse(localStorage.getItem(`tocMinimized`));
-        if (toc) {
-          if (tocMinimized) {
-            toc.classList.add(`minimized`);
-          } else {
-            toc.classList.remove(`minimized`);
-          };
-        }
+          toc.classList.remove(`minimized`);
+        };
+      }
         
       if (navigator.userAgent.match(/chrome|chromium|crios/i)) {
         setBrowser(`chrome`);

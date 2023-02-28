@@ -187,13 +187,28 @@ function List(props) {
     }
 
     const changeLabel = (e, item) => {
-        let value = e.target.value == `` ? capitalizeAllWords(item.task) : capitalizeAllWords(e.target.value);
-        if (!e.target.value || e.target.value == ``) {
-            e.target.value = capitalizeAllWords(item.task);
+        let elemValue = e.target.textContent;
+        let value = elemValue == `` ? capitalizeAllWords(item.task) : capitalizeAllWords(elemValue);
+        if (!elemValue || elemValue == ``) {
+            elemValue = capitalizeAllWords(item.task);
             return;
         };
-        e.target.value = capitalizeAllWords(value);
+        elemValue = capitalizeAllWords(value);
+        item.updated = formatDate(new Date());
         item.content = capitalizeAllWords(value);
+        localStorage.setItem(`board`, JSON.stringify(props.board));
+    }
+
+    const changeColumnLabel = (e, item) => {
+        let elemValue = e.target.textContent;
+        let value = elemValue == `` ? capitalizeAllWords(item.task) : capitalizeAllWords(elemValue);
+        if (!elemValue || elemValue == ``) {
+            elemValue = capitalizeAllWords(item.task);
+            return;
+        };
+        elemValue = capitalizeAllWords(value);
+        item.updated = formatDate(new Date());
+        item.title = capitalizeAllWords(value);
         localStorage.setItem(`board`, JSON.stringify(props.board));
     }
 
@@ -253,6 +268,7 @@ function List(props) {
                 },
                 columns: {
                     ...props.board.columns,
+                    updated: formatDate(new Date()),
                     [columnId]: {
                         ...column,
                         itemIds: newItemIds
@@ -317,10 +333,15 @@ function List(props) {
                         <div className="itemOrder listOrder" style={{ maxWidth: `fit-content` }}>
                             <i style={{ color: `var(--gameBlue)`, fontSize: 15, padding: `0 9px`, maxWidth: `fit-content` }} className="fas fa-list"></i>
                         </div>
-                        <h3 className={`listNameRow nx-tracking-light ${props.column.title.length > 25 ? `longName` : ``}`} id={`list_name_of_${props.column.id}`} style={{ position: `relative` }}>
-                            <i className={`listName textOverflow extended`} style={{ fontSize: 13, fontWeight: 600 }}>
-                                {props.column.title} <span className="subscript" style={{display: `contents`,}}>- <span className="slashes">{props.items.filter(itm => itemActiveFilters(itm)).length}</span> Items</span>
-                            </i>
+                        <h3 className={`listNameRow nx-tracking-light ${props.column.title.length > 25 ? `longName` : ``}`} id={`list_name_of_${props.column.id}`} style={{ position: `relative`, fontStyle: `italic` }}>
+                            <div className={`listName textOverflow extended flex row`} style={{ fontSize: 13, fontWeight: 600 }}>
+                                <div onBlur={(e) => changeColumnLabel(e, props.column)} className="columnName changeLabel" contentEditable suppressContentEditableWarning>
+                                    {props.column.title}    
+                                </div>
+                                <div className="columnStats flex row end">
+                                    <span className="subscript" style={{display: `contents`,}}><span className="slashes">{props.items.filter(itm => itemActiveFilters(itm) && itm.complete).length}</span> Done <div className="slashes" style={{display: `contents`}}> // </div> <span className="slashes">{props.items.filter(itm => itemActiveFilters(itm)).length}</span> Items</span><span className="subscript" style={{display: `contents`,}}> - <span className="slashes">{[].concat(...props.items.filter(itm => itemActiveFilters(itm)).map(itm => itm.subtasks)).filter(itm => itm.complete).length}</span> Done <div className="slashes" style={{display: `contents`}}> // </div> <span className="slashes">{[].concat(...props.items.filter(itm => itemActiveFilters(itm)).map(itm => itm.subtasks)).length}</span> Tasks</span>
+                                </div>
+                            </div>
                         </h3>
                         <div className="itemButtons customButtons">
                             {/* <button title={`Edit List`} className={`iconButton editButton`}><i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-edit"></i></button> */}
@@ -345,8 +366,8 @@ function List(props) {
                                                     </span>
                                                     <div className="itemContents">
                                                         <span className="flex row itemContent boardItemContent itemName textOverflow extended">
-                                                            <textarea onBlur={(e) => changeLabel(e, item)} className={`changeLabel`} defaultValue={item.content} />
-                                                            {/* <span>{item.content}</span> */}
+                                                            {/* <textarea onBlur={(e) => changeLabel(e, item)} className={`changeLabel`} defaultValue={item.content} /> */}
+                                                            <span onBlur={(e) => changeLabel(e, item)} contentEditable suppressContentEditableWarning className={`changeLabel`}>{item.content}</span>
                                                             {/* {item.subtasks.length > 0 && (
                                                                 <div className="progress">
                                                                     <div className="progressBar" style={{clipPath: `polygon(0% 0%, 0% 100%, 25% 100%, 25% 25%, 75% 25%, 75% 75%, 25% 75%, 25% 100%, 100% 100%, 100% 0%)`}}></div>
@@ -400,14 +421,14 @@ function List(props) {
                                                         })} />
                                                     </div>}
                                                     <div className="itemButtons customButtons">
-                                                        <button id={`complete_${item.id}`} onClick={(e) => completeItem(e, item.id, itemIndex, item)} title={`Complete Item`} className={`iconButton ${ItemActions.Complete} wordIconButton completeButton`}>
-                                                            <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas ${item.complete ? `fa-history` : `fa-check-circle`}`}></i>
-                                                        </button>
                                                         {/* <button id={`copy_${item.id}`} onClick={(e) => copyItem(e, item)} title={`Copy Item`} className={`iconButton ${ItemActions.Copy} copyButton wordIconButton`}>
                                                             <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-copy`}></i>
                                                         </button> */}
                                                         <button id={`delete_${item.id}`} onClick={(e) => deleteItem(e, item, props.column.id, itemIndex, item.id)} title={`Delete Item`} className={`iconButton ${ItemActions.Delete} deleteButton wordIconButton`}>
                                                             <i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-trash"></i>
+                                                        </button>
+                                                        <button id={`complete_${item.id}`} onClick={(e) => completeItem(e, item.id, itemIndex, item)} title={`Complete Item`} className={`iconButton ${ItemActions.Complete} wordIconButton completeButton`}>
+                                                            <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas ${item.complete ? `fa-history` : `fa-check-circle`}`}></i>
                                                         </button>
                                                     </div>
                                                 </div>
