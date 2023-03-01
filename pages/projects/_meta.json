@@ -2,7 +2,9 @@
     "boards": {
         "title": "Boards",
         "theme": {
-            "layout": "full"
+            "pagination": false,
+            "layout": "full",
+            "footer": false
         }
     },
     "games": {

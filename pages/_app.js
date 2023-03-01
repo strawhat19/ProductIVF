@@ -341,6 +341,10 @@ export const createXML = (xmlString) => {
   return div.firstChild;
 }
 
+export const replaceAll = (str, search, replacement) => {
+  return str.replace(new RegExp(search, `g`), replacement);
+}
+
 export const capWords = (str) => {
   return str.replace(/\b\w/g, (match) => {
     return match.toUpperCase();
@@ -491,10 +495,12 @@ export const showAlert = async (alertTitle, alertMessage, additionalInfo) => {
   alertDialog.appendChild(closeButton);
 }
 
-export default function MyApp({ Component, pageProps, router }) {
+export default function ProductIVF({ Component, pageProps, router }) {
+    let brwser = ``;
     let loaded = useRef(false);
     let mobileMenuBreakPoint = 697;
     let [IDs, setIDs] = useState([]);
+    let [rte, setRte] = useState(``);
     let [page, setPage] = useState(``);
     let [qotd, setQotd] = useState(``);
     let [width, setWidth] = useState(0);
@@ -543,11 +549,13 @@ export default function MyApp({ Component, pageProps, router }) {
       let cachedBoard = JSON.parse(localStorage.getItem(`board`));
       let cachedBoards = JSON.parse(localStorage.getItem(`boards`));
       let storedUser = JSON.parse(localStorage.getItem(`user`));
+
       setDevEnv(dev());
       setUpdates(updates);
       setPlatform(navigator?.userAgent);
       setYear(new Date().getFullYear());
       setSystemStatus(`System Status Ok.`);
+      setRte(replaceAll(router.route, `/`, `_`));
       setOnMac(navigator.platform.includes(`Mac`));
       setPage(window.location.pathname.replace(`/`,``));
       setLists(JSON.parse(localStorage.getItem(`lists`)) || defaultLists);
@@ -582,24 +590,31 @@ export default function MyApp({ Component, pageProps, router }) {
         };
       }
         
-      if (navigator.userAgent.match(/chrome|chromium|crios/i)) {
-        setBrowser(`chrome`);
-      } else if (navigator.userAgent.match(/firefox|fxios/i)) {
-        setBrowser(`firefox`);
-      } else if (navigator.userAgent.match(/safari/i)) {
-        setBrowser(`safari`);
-      } else if (navigator.userAgent.match(/opr\//i)) {
-        setBrowser(`opera`);
-      } else if (navigator.userAgent.match(/edg/i)) {
+      if (brwser == `` && (navigator.userAgent.match(/edg/i) || navigator.userAgent.includes(`edg`) || navigator.userAgent.includes(`Edg`))) {
+        brwser = `edge`;
         setBrowser(`edge`);
-      } else {
+      } if (brwser == `` && navigator.userAgent.match(/chrome|chromium|crios/i)) {
+        brwser = `chrome`;
         setBrowser(`chrome`);
+      } else if (brwser == `` && navigator.userAgent.match(/firefox|fxios/i)) {
+        brwser = `firefox`;
+        setBrowser(`firefox`);
+      } else if (brwser == `` && navigator.userAgent.match(/safari/i)) {
+        brwser = `safari`;
+        setBrowser(`safari`);
+      } else if (brwser == `` && navigator.userAgent.match(/opr\//i)) {
+        brwser = `opera`;
+        setBrowser(`opera`);
       }
 
       setLoading(false);
       setSystemStatus(`${getPage()} Loaded.`);
       setTimeout(() => setLoading(false), 1500);
-      // setTimeout(() => setAnimComplete(true), 3500);
+
+      if (dev()) {
+        // console.log(`brwser`, brwser);
+        // console.log(`App`, router.route);
+      }
   
       return () => {
       //   window.removeEventListener(`resize`, () => windowEvents());
@@ -607,9 +622,9 @@ export default function MyApp({ Component, pageProps, router }) {
       }
     }, [user, users, authState, dark])
 
-    return <StateContext.Provider value={{ updates, setUpdates, content, setContent, width, setWidth, user, setUser, page, setPage, mobileMenu, setMobileMenu, users, setUsers, authState, setAuthState, emailField, setEmailField, devEnv, setDevEnv, mobileMenuBreakPoint, platform, setPlatform, focus, setFocus, highScore, setHighScore, color, setColor, dark, setDark, colorPref, setColorPref, lists, setLists, showLeaders, setShowLeaders, items, setItems, qotd, setQotd, alertOpen, setAlertOpen, mobile, setMobile, systemStatus, setSystemStatus, loading, setLoading, anim, setAnimComplete, IDs, setIDs, boardLoaded, setBoardLoaded, board, setBoard, completeFiltered, setCompleteFiltered, boardCategories, setBoardCategories, categories, setCategories, boards, setBoards, browser, setBrowser, onMac, rearranging, setRearranging, tasksFiltered, setTasksFiltered }}>
+    return <StateContext.Provider value={{ router, rte, setRte, updates, setUpdates, content, setContent, width, setWidth, user, setUser, page, setPage, mobileMenu, setMobileMenu, users, setUsers, authState, setAuthState, emailField, setEmailField, devEnv, setDevEnv, mobileMenuBreakPoint, platform, setPlatform, focus, setFocus, highScore, setHighScore, color, setColor, dark, setDark, colorPref, setColorPref, lists, setLists, showLeaders, setShowLeaders, items, setItems, qotd, setQotd, alertOpen, setAlertOpen, mobile, setMobile, systemStatus, setSystemStatus, loading, setLoading, anim, setAnimComplete, IDs, setIDs, boardLoaded, setBoardLoaded, board, setBoard, completeFiltered, setCompleteFiltered, boardCategories, setBoardCategories, categories, setCategories, boards, setBoards, browser, setBrowser, onMac, rearranging, setRearranging, tasksFiltered, setTasksFiltered }}>
       {(browser != `chrome` || onMac) ? <AnimatePresence mode={`wait`}>
-        <motion.div className={`pageWrapContainer ${page.toUpperCase()}`} key={router.route} initial="pageInitial" animate="pageAnimate" exit="pageExit" transition={{ duration: 0.35 }} variants={{
+        <motion.div className={`${rte} pageWrapContainer ${page.toUpperCase()}`} key={router.route} initial="pageInitial" animate="pageAnimate" exit="pageExit" transition={{ duration: 0.35 }} variants={{
           pageInitial: {
             opacity: 0,
             clipPath: `polygon(0 0, 100% 0, 100% 100%, 0% 100%)`,

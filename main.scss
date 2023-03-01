@@ -520,7 +520,7 @@ input {
             .subtaskActions {
                 grid-gap: 0;
                 align-items: baseline;
-                padding-left: 15px !important;
+                padding: 0 5px 0 10px !important;
                 flex-direction: column !important;
                 .taskChangeLabel {
                     padding-top: 1px !important;
@@ -528,7 +528,9 @@ input {
                 }
             }
             .itemDate {
+                min-width: 100%;
                 padding: 5px 0 5px 10px;
+                margin-top: -5px !important;
                 border-top: solid 1px var(--gameBlue);
                 justify-content: flex-start !important;
             }
@@ -542,7 +544,7 @@ input {
             .subtaskActions {
                 grid-gap: 0;
                 align-items: baseline;
-                padding-left: 15px !important;
+                padding: 0 5px 0 10px !important;
                 flex-direction: column !important;
                 .taskChangeLabel {
                     padding-top: 1px !important;
@@ -550,7 +552,9 @@ input {
                 }
             }
             .itemDate {
+                min-width: 100%;
                 padding: 5px 0 5px 10px;
+                margin-top: -5px !important;
                 border-top: solid 1px var(--gameBlue);
                 justify-content: flex-start !important;
             }
@@ -686,6 +690,28 @@ footer {
 body {
     overflow-x: hidden;
     transition: var(--transition);
+
+    &:has(._projects_boards) {
+        overflow-y: hidden;
+        article {
+
+            .board {
+                .column {
+                    min-height: 550px;
+                    .items {
+                        min-height: 430px;
+                    }
+                }
+            }
+
+            div {
+                &:has(time) {
+                    display: none !important;
+                }
+            }
+        }
+    }
+
     font-family: Montserrat, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
         Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 }
@@ -1025,7 +1051,9 @@ textarea {
     font-size: 1em !important;
     font-weight: 600 !important;
     &:hover {
-        font-size: 1em !important;
+        @media (min-width: 1120px) {
+            font-size: 1em !important;
+        }
         font-weight: 700 !important;
         .subTaskItem {
             &:hover {
@@ -1043,7 +1071,9 @@ textarea {
         }
     }
     &.complete {
-        font-size: 1em !important;
+        @media (min-width: 1120px) {
+            font-size: 1em !important;
+        }
         font-weight: 600 !important;
         .subTaskItem {
             .subtaskActions {
@@ -1053,7 +1083,9 @@ textarea {
             }
         }
         &:hover {
-            font-size: 1em !important;
+            @media (min-width: 1120px) {
+                font-size: 1em !important;
+            }
             font-weight: 600 !important;
         }
         .activeTask {
@@ -1071,7 +1103,9 @@ textarea {
     input {
         padding-top: 7px !important;
         &::placeholder {
-            font-size: 1.15em !important;
+            @media (min-width: 1120px) {
+                font-size: 1.15em !important;
+            }
             font-weight: 600 !important;
         }
     }
@@ -1090,7 +1124,6 @@ textarea {
         .changeLabel {
             color: black;
             filter: invert(1);
-            font-size: 0.99em;
         }
         .subTaskItem {
             .itemDate {
@@ -1348,9 +1381,9 @@ textarea {
         .items {
             gap: 0em;
             display: grid;
+            overflow-y: auto;
             max-height: 359px;
             overflow-x: hidden;
-            overflow-y: overlay;
             width: 100% !important;
 
             &.overflowingList {
@@ -1470,6 +1503,7 @@ textarea {
                 }
 
                 .itemRow {
+                    border-bottom-right-radius: 0;
                     border-radius: var(--borderRadius);
                     /* Neumorphic Inner shadow */
                     box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.2);
@@ -1575,9 +1609,11 @@ textarea {
                         }
                     }
                     .subTaskElement {
-                        width: 93%;
+                        // width: 93%;
+                        // margin: 0 0 0 auto;
                         grid-gap: 0;
-                        margin: 0 0 0 auto;
+                        margin: 0 0 0 35px;
+                        width: calc(100% - 35px);
                         background: var(--blackGlass);
                         /* Neumorphic Inner shadow */
                         box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.2);
@@ -2103,6 +2139,10 @@ footer {
     }
 }
 
+.dubscript {
+    font-size: 0.85em;
+}
+
 .subscript {
     font-size: 0.7em;
 }
@@ -2423,20 +2463,51 @@ footer {
 // }
 
 .projects {
+    flex-wrap: wrap;
+    // flex-direction: row !important;
     .project {
         width: 100%;
         overflow: hidden;
         font-weight: 700 !important;
-        background: var(--gameBlueSoft);
+        background: var(--blackGlass);
         border-radius: var(--borderRadius);
+        /* Neumorphic Inner shadow */
+        box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.2);
+        /* Neumorphic Outer shadow */
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1), 0px 0px 20px rgba(0, 0, 0, 0.05);
         .inner {
             .projectOrder {
                 padding: 1em;
                 min-width: 50px;
+                align-self: stretch;
                 text-align: center;
-                background: black;
+                background: white;
+                color: var(--gameBlue);
                 max-width: fit-content;
-                color: var(--softWhite);
+                justify-content: center;
+            }
+            .projectContents {
+                grid-gap: 10px;
+                padding: 1em 0;
+                a {
+                    align-items: baseline;
+                    max-width: fit-content;
+                    align-self: flex-start;
+                }
+                .projectTopics {
+                    // flex-wrap: wrap;
+                    max-width: fit-content;
+                    align-self: flex-start;
+                    .projectTopic {
+                        color: var(--gameBlue);
+                        max-width: fit-content;
+                    }
+                }
+            }
+            .projectEnd {
+                grid-gap: 5px;
+                padding: 0 15px 0 0;
+                max-width: fit-content;
             }
         }
     }

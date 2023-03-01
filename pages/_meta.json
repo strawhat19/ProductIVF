@@ -1,6 +1,9 @@
 {
   "index": {
-    "title": "Home"
+    "title": "Home",
+    "theme": {
+      "layout": "full"
+    }
   },
   "about": {
     "title": "About",
@@ -26,7 +29,11 @@
     "href": "https://piratechs.com/",
     "newWindow": true
   },
-  "games": "Games",
-  "projects": "Projects",
+  "projects": {
+    "title": "Projects",
+    "theme": {
+      "layout": "full"
+    }
+  },
   "code-snippets": "Code Snippets"
 }

@@ -1,11 +1,11 @@
 import Board from './board';
 import { useState, useEffect, useContext } from 'react';
 import Boards, { BoardTypes, kanBanColumns } from './boards';
-import { capitalizeAllWords, dev, formatDate, generateUniqueID, StateContext } from '../pages/_app';
+import { capitalizeAllWords, dev, formatDate, generateUniqueID, replaceAll, StateContext } from '../pages/_app';
 
 export default function NewBoards() {
     const [boards, setBoards] = useState([]);
-    const { setLoading, setSystemStatus, IDs, setIDs, devEnv } = useContext<any>(StateContext);
+    const { router, setLoading, setSystemStatus, IDs, setIDs, devEnv, setRte } = useContext<any>(StateContext);
 
     const getBoardColumnsFromType = (boardType) => {
         switch (boardType) {
@@ -64,8 +64,10 @@ export default function NewBoards() {
     }
 
     useEffect(() => {
+        setRte(replaceAll(router.route, `/`, `_`));
         if (dev()) {
             // console.log(`boards`, boards);
+            // console.log(`boards router`, );
         }
     }, [boards]);
 
