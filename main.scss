@@ -1521,7 +1521,6 @@ textarea {
                     font-weight: 700;
                     text-align: center;
                     align-items: center;
-                    background: white;
                     color: var(--gameBlue);
                     height: 100% !important;
                     justify-content: center;
@@ -1808,7 +1807,7 @@ textarea {
 
                     .itemOrder {
                         filter: invert(1);
-                        background: black !important;
+                        background: transparent !important;
                         color: var(--gameBlueSoft);
                     }
 
