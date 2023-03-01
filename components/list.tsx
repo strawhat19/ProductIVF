@@ -360,8 +360,8 @@ function List(props) {
                                     <Draggable key={item.id} draggableId={item.id} index={itemIndex}>
                                         {provided => (
                                             <div id={item.id} className={`item completeItem ${item.complete ? `complete` : ``} container ${snapshot.isDragging ? `dragging` : ``}`} title={item.content} {...provided.draggableProps} ref={provided.innerRef}>
-                                                <div onClick={(e) => completeItem(e, item.id, itemIndex, item)} {...provided.dragHandleProps} className="itemRow flex row">
-                                                    <span className="itemOrder">
+                                                <div onClick={(e) => completeItem(e, item.id, itemIndex, item)} {...provided.dragHandleProps} className={`itemRow flex row ${item.subtasks.length > 0 ? `hasTasksRow` : `noTasksRow`}`}>
+                                                    <span className="itemOrder rowIndexOrder">
                                                         <i className={`itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>{itemIndex + 1}</i>
                                                     </span>
                                                     <div className="itemContents">

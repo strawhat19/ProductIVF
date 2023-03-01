@@ -212,7 +212,7 @@ function Board(props) {
             e.target.value = capitalizeAllWords(item.name);
             return;
         };
-        let titleWidth = `${(value.length * 8) + 100}px`;
+        let titleWidth = `${(value.length * 8.5) + 65}px`;
         e.target.value = capitalizeAllWords(value);
         e.target.style.width = titleWidth;
         if (item.id.includes(`board`)) {

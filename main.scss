@@ -1054,7 +1054,7 @@ textarea {
         @media (min-width: 1120px) {
             font-size: 1em !important;
         }
-        font-weight: 700 !important;
+        font-weight: 600 !important;
         .subTaskItem {
             &:hover {
                 .subtaskActions {
@@ -1095,6 +1095,7 @@ textarea {
         }
     }
     .itemDate {
+        font-weight: 600 !important;
         font-size: 0.65em !important;
     }
     .subTaskItem {
@@ -1183,8 +1184,8 @@ textarea {
     &:hover {
         .changeLabel {
             color: white;
-            filter: invert(1);
-            font-weight: 700 !important;
+            // filter: invert(1);
+            font-weight: 600 !important;
         }
     }
 }
@@ -1446,6 +1447,15 @@ textarea {
                 }
 
                 &:hover {
+                    .itemRow {
+                        background: linear-gradient(90deg, black 35px, var(--blackGlass) 35px);
+                    }
+                    &:not(.complete) {
+                        .taskChangeLabel {
+                            color: white;
+                            filter: invert(0);
+                        }
+                    }
                     &:not(.itemOrder) {
                         filter: invert(1);
                     }
@@ -1480,6 +1490,14 @@ textarea {
                     }
                     .subTaskItem {
                         border-color: var(--gameBlueInverse) !important;
+                        .item {
+                            &:hover {
+                                .taskChangeLabel {
+                                    filter: invert(0);
+                                    color: black !important;
+                                }
+                            }
+                        }
                     }
                     .subtaskAddForm {
                         i {
@@ -1503,7 +1521,6 @@ textarea {
                 }
 
                 .itemRow {
-                    border-bottom-right-radius: 0;
                     border-radius: var(--borderRadius);
                     /* Neumorphic Inner shadow */
                     box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.2);
@@ -1797,8 +1814,25 @@ textarea {
                 &.complete {
                     filter: invert(1);
                     // background: rgba(0, 0, 0, 0.5) !important;
-
+                    
                     &:hover {
+                        // .itemRow {
+                        //     background: linear-gradient(90deg, white 35px, var(--blackGlass) 35px) !important;
+                        // }
+                        .changeLabel {
+                            color: white;
+                            text-decoration-color: white !important;
+                            &:not(.taskChangeLabel) {
+                                filter: invert(0) !important;
+                                &:hover {
+                                    background: rgba(255, 61, 0, 0.2) !important;
+                                }
+                            }
+                        }
+                        .taskChangeLabel {
+                            color: black;
+                            // filter: invert(0) !important;
+                        }
                         .itemOrder {
                             filter: invert(0);
                             background: transparent !important;
@@ -1832,6 +1866,13 @@ textarea {
 
                     .subTaskItem {
                         border-color: var(--gameBlueInverse) !important;
+                        .item {
+                            &:hover {
+                                .taskChangeLabel {
+                                    filter: invert(0) !important;
+                                }
+                            }
+                        }
                     }
 
                     .subtaskAddForm {
@@ -2271,6 +2312,9 @@ footer {
             i {
                 transition: var(--transition);
             }
+            .columnStats {
+                font-weight: 700;
+            }
             &:hover {
                 i {
                     color: var(--gameBlue);
@@ -2332,6 +2376,9 @@ footer {
                 }
                 &:hover {
                     cursor: move;
+                    .itemRow {
+                        border-bottom-right-radius: 0 !important;
+                    }
                     .itemContent {
                         &::selection {
                             border-radius: var(--borderRadius);
@@ -2351,7 +2398,15 @@ footer {
                             stroke: var(--gameBlue) !important;
                           }
                     }
+                    &:hover {
+                        .itemRow {
+                            border-radius: var(--borderRadius) !important;
+                        }
+                    }
                     .itemRow {
+                        &.hasTasksRow {
+                            border-bottom-right-radius: 0 !important;
+                        }
                         background: linear-gradient(90deg, white 35px, var(--blackGlass) 35px) !important;
                     }
                     .subtaskAddForm {
