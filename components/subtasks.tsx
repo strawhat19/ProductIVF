@@ -1,6 +1,8 @@
 import { useState, useEffect, useContext } from 'react';
-import { capitalizeAllWords, formatDate, generateUniqueID, StateContext } from '../pages/_app';
 import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
+import { capWords, dev, formatDate, generateUniqueID, StateContext } from '../pages/_app';
+
+const capitalizeAllWords = capWords;
 
 export const defaultSubtasks = [{ task: `Task 1`, id: `subtask_1_3_58_AM_2_27_2023_b3778dejv`,},{ task: `Task 2`, id: `subtask_2_3_58_AM_2_27_2023_bhp76c2z2`,},{ task: `Task 3`, id: `subtask_3_3_58_AM_2_27_2023_5qpvxbqpe`,},{ task: `Task 4`, id: `subtask_4_3_58_AM_2_27_2023_71p1p75yo`,},{ task: `Task 5`, id: `subtask_5_3_58_AM_2_27_2023_iw2nnv3qx`,},];
 
@@ -86,6 +88,7 @@ export default function SubTasks(props) {
         subtask.complete = !subtask.complete;
         item.updated = formatDate(new Date());
         subtask.updated = formatDate(new Date());
+        dev() && console.log(`Task`, subtask);
         localStorage.setItem(`board`, JSON.stringify({...board, updated: formatDate(new Date())}));
         setTimeout(() => {
             setSystemStatus(`Marked Task as ${subtask.complete ? `Complete` : `Reopened`}.`);

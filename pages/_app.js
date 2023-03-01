@@ -341,6 +341,12 @@ export const createXML = (xmlString) => {
   return div.firstChild;
 }
 
+export const capWords = (str) => {
+  return str.replace(/\b\w/g, (match) => {
+    return match.toUpperCase();
+  });
+}
+
 export const capitalizeAllWords = (string, underScores) => {
   let newString;
   if (underScores) {

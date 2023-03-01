@@ -67,12 +67,23 @@ export default function Projects() {
   }, [])
 
   return <section id={`projectsSection`}>
-    <div className="flex projects">
-        {projects.length > 0 ? projects.map((project: any, index: any) => {
-            return <div key={index} id={project?.name} className={`project`}>
-            <span className={`name`}>{project.name}</span>
-            {/* <span className={`topics`}>{project?.topics}</span> */}
-            </div>
+    <div className="flex projects items lists">
+        {projects.length > 0 ? projects.map((project: any, projectIndex: any) => {
+            return <>
+              <div className={`project flex row item`} key={projectIndex} id={project?.name}>
+                <div className="inner row flex">
+                  <span className="projectOrder itemOrder">{projectIndex + 1}</span>
+                  <div className="projectContents flex">
+                    <span className={`name`}>{project.name}</span>
+                    {/* <span className={`name`}>{project.name}</span> */}
+                  </div>
+                  {/* <div className="projectEnd flex">
+                    <span className={`name`}>{project.name}</span>
+                    <span className={`name`}>{project.name}</span>
+                  </div> */}
+                </div>
+              </div>
+            </>
         }) : <div className={`skeleton`}>
             <h4 className={`skeletonItem`}>Loading...</h4>  
         </div>}
