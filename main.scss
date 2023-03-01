@@ -539,30 +539,6 @@ input {
             display: none;
         }
     }
-    .overflowingBoard {
-        .subTaskItem {
-            .subtaskActions {
-                grid-gap: 0;
-                align-items: baseline;
-                padding: 0 5px 0 10px !important;
-                flex-direction: column !important;
-                .taskChangeLabel {
-                    padding-top: 1px !important;
-                    padding-bottom: 1px !important;
-                }
-            }
-            .itemDate {
-                min-width: 100%;
-                padding: 5px 0 5px 10px;
-                margin-top: -5px !important;
-                border-top: solid 1px var(--gameBlue);
-                justify-content: flex-start !important;
-            }
-        }
-        .columnStats {
-            display: none;
-        }
-    }
 }
 
 @media (max-width: 1215px) {
@@ -659,6 +635,33 @@ input {
     }
 }
 
+@media (max-width: 1485px) {
+    .overflowingBoard {
+        .subTaskItem {
+            .subtaskActions {
+                grid-gap: 0;
+                align-items: baseline;
+                padding: 0 5px 0 10px !important;
+                flex-direction: column !important;
+                .taskChangeLabel {
+                    padding-top: 1px !important;
+                    padding-bottom: 1px !important;
+                }
+            }
+            .itemDate {
+                min-width: 100%;
+                padding: 5px 0 5px 10px;
+                margin-top: -5px !important;
+                border-top: solid 1px var(--gameBlue);
+                justify-content: flex-start !important;
+            }
+        }
+        .columnStats {
+            display: none;
+        }
+    }
+}
+
 @media (max-width: 1550px) {
     .filtersSubscript {
         display: none !important;
@@ -674,6 +677,14 @@ input {
 @media (max-width: 1575px) {
     .boardDate {
         display: none !important;
+    }
+}
+
+@media (max-width: 1660px) {
+    .threeBoard, .moreBoard {
+        .columnStats {
+            display: none !important;
+        }
     }
 }
 
@@ -2284,7 +2295,7 @@ footer {
         *:not(.dragging) {
             @media (max-width: 1390px) and (min-width: 933px) {
                 .listNameRow {
-                    max-width: 100px;
+                    max-width: 100%;
                 }
             }
         }
