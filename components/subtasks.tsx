@@ -144,23 +144,34 @@ export default function SubTasks(props) {
                                 return (
                                     <Draggable key={`${taskIndex + 1}_${subtask.id}_subtask_key`} draggableId={`${taskIndex + 1}_${subtask.id}_draggable_subtask`} index={taskIndex}>
                                         {(provided, snapshot) => (
-                                            <div id={`${taskIndex + 1}_${subtask.id}_task`} className={`subTaskItem ${snapshot.isDragging ? `dragging` : ``}`} {...provided.draggableProps} ref={provided.innerRef} {...provided.dragHandleProps}>
+                                            <div id={`${taskIndex + 1}_${subtask.id}_task`} className={`subTaskItem ${subtask?.complete ? `complete` : `activeTask`} ${snapshot.isDragging ? `dragging` : ``}`} {...provided.draggableProps} ref={provided.innerRef} {...provided.dragHandleProps}>
                                                 <div className="item subtaskHandle">
                                                     <span className="itemOrder">
-                                                        <i className={`itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>{taskIndex + 1}</i>
+                                                        <i className={`itemIndex ${subtask?.complete ? `completedIndex` : `activeIndex`}`}>{taskIndex + 1}</i>
                                                     </span>
                                                     {/* <div title={subtask.task} className={`taskContent ${subtask.complete ? `complete` : ``}`}>
                                                         {subtask.task}
                                                     </div> */}
-                                                    <div className="subtaskActions flex row">
-                                                        <span onBlur={(e) => changeLabel(e, subtask)} contentEditable suppressContentEditableWarning className={`changeLabel taskChangeLabel`}>{subtask.task}</span>
+                                                    <div className={`subtaskActions flex row ${subtask?.complete ? `complete` : `activeTask`}`}>
+                                                        <span onBlur={(e) => changeLabel(e, subtask)} contentEditable suppressContentEditableWarning className={`changeLabel taskChangeLabel ${subtask?.complete ? `complete` : `activeTask`}`}>{subtask?.task}</span>
+                                                        {subtask?.created && !subtask?.updated ? (
+                                                        <span className="itemDate itemName itemCreated textOverflow extended flex row">
+                                                            <i className={`status`}>Cre.</i> 
+                                                            <span className={`itemDateTime`}>{formatDate(new Date(subtask?.created))}</span>
+                                                        </span>
+                                                        ) : subtask?.updated ? (
+                                                        <span className="itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
+                                                            <i className={`status`}>Upd.</i> 
+                                                            <span className={`itemDateTime`}>{formatDate(new Date(subtask?.updated))}</span>
+                                                        </span>
+                                                        ) : null}
                                                         {/* <input title={`${subtask.complete ? `Reopen` : `Complete`} Task`} onChange={(e) => completeSubtask(e, subtask)} id={`${subtask.id}_checkbox`} type="checkbox" defaultChecked={subtask.complete} /> */}
                                                     </div>
                                                     <div className="itemButtons customButtons">
                                                         <button id={`delete_${subtask.id}`} onClick={(e) => deleteSubtask(e, subtask)} title={`Delete Task`} className={`iconButton deleteButton wordIconButton`}>
                                                             <i style={{color: `var(--gameBlue)`, fontSize: 9}} className="fas fa-trash"></i>
                                                         </button>
-                                                        <input title={`${subtask.complete ? `Reopen` : `Complete`} Task`} onChange={(e) => completeSubtask(e, subtask)} id={`${subtask.id}_checkbox`} type="checkbox" defaultChecked={subtask.complete} />
+                                                        <input title={`${subtask.complete ? `Reopen` : `Complete`} Task`} className={`taskCheckbox ${subtask?.complete ? `complete` : `activeTask`}`} onChange={(e) => completeSubtask(e, subtask)} id={`${subtask.id}_checkbox`} type="checkbox" defaultChecked={subtask.complete} />
                                                     </div>
                                                 </div>
                                             </div>
@@ -173,7 +184,7 @@ export default function SubTasks(props) {
                     )}
                 </Droppable>
                 <form onSubmit={(e) => addSubtask(e)} className="subtaskAddForm addForm flex row">
-                    <input type="text" id={`${item.id}_createSubtask`} name={`createSubtask changeLabel`} placeholder={`Create Task +`} required />
+                    <input type="text" id={`${item.id}_createSubtask`} name={`createSubtask changeLabel`} placeholder={`Create Subtask +`} required />
                     <input type="number" id={`${item.id}_createSubtask_rank`} name={`rank`} defaultValue={subtasks.length + 1} />
                     <button type={`submit`} title={`Add Task`} className={`iconButton createList wordIconButton`}>
                         <i style={{ color: `var(--gameBlue)`, fontSize: 10 }} className="fas fa-plus"></i>

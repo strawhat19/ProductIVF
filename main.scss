@@ -346,22 +346,24 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
             outline: none !important;
         }
     }
-    &::before {
-        content: "+";
-        position: absolute;
-        height: 100%;
-        width: 35px;
-        left: 0;
-        top: 0;
-        font-weight: 400;
-        font-size: 30px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background: white;
-        color: var(--gameBlue);
-        border-top-left-radius: 4px;
-        border-bottom-left-radius: 4px;
+    &:not(.subtaskAddForm) {
+        &::before {
+            content: "+";
+            position: absolute;
+            height: 100%;
+            width: 35px;
+            left: 0;
+            top: 0;
+            font-weight: 400;
+            font-size: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: white;
+            color: var(--gameBlue);
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+        }
     }
 }
 
@@ -390,6 +392,10 @@ input {
     margin-top: 10px !important;
 }
 
+.itemFooter {
+    padding: 0 0 0 10px;
+}
+
 @media (max-width: 437px) {
     .itemButtons {
         button {
@@ -416,8 +422,10 @@ input {
 }
 
 @media (max-width: 467px) {
-    .itemDate {
-        display: none !important;
+    .overflowingBoard {
+        .itemDate {
+            display: none !important;
+        }
     }
     .listNameRow {
         &.longName {
@@ -502,6 +510,53 @@ input {
                 font-size: 0.85em;
                 min-width: 48.9% !important;
             }
+        }
+    }
+}
+
+@media (max-width: 1120px) {
+    .clipColumns {
+        .subTaskItem {
+            .subtaskActions {
+                grid-gap: 0;
+                align-items: baseline;
+                padding-left: 15px !important;
+                flex-direction: column !important;
+                .taskChangeLabel {
+                    padding-top: 1px !important;
+                    padding-bottom: 1px !important;
+                }
+            }
+            .itemDate {
+                padding: 5px 0 5px 10px;
+                border-top: solid 1px var(--gameBlue);
+                justify-content: flex-start !important;
+            }
+        }
+        .columnStats {
+            display: none;
+        }
+    }
+    .overflowingBoard {
+        .subTaskItem {
+            .subtaskActions {
+                grid-gap: 0;
+                align-items: baseline;
+                padding-left: 15px !important;
+                flex-direction: column !important;
+                .taskChangeLabel {
+                    padding-top: 1px !important;
+                    padding-bottom: 1px !important;
+                }
+            }
+            .itemDate {
+                padding: 5px 0 5px 10px;
+                border-top: solid 1px var(--gameBlue);
+                justify-content: flex-start !important;
+            }
+        }
+        .columnStats {
+            display: none;
         }
     }
 }
@@ -857,6 +912,14 @@ textarea {
             background: rgba(255, 61, 0, 0.2) !important;
         }
     }
+
+    .changeLabel {
+        &.complete {
+            text-decoration: line-through;
+            text-decoration-color: black;
+            text-decoration-thickness: 0 !important;
+        }
+    }
 }
 
 .changeLabel {
@@ -958,17 +1021,68 @@ textarea {
 }
 
 .item {
+    font-weight: 600 !important;
     &:hover {
+        font-weight: 600 !important;
+        .subTaskItem {
+            &:hover {
+                .subtaskActions {
+                    .itemDate {
+                        border-color: var(--gameBlue) !important;
+                    }
+                }
+            }
+            .subtaskActions {
+                .itemDate {
+                    border-color: var(--gameBlueInverse) !important;
+                }
+            }
+        }
+    }
+    &.complete {
+        font-weight: 600 !important;
+        .subTaskItem {
+            .subtaskActions {
+                .itemDate {
+                    border-color: var(--gameBlueInverse) !important;
+                }
+            }
+        }
+        &:hover {
+            font-weight: 600 !important;
+        }
+        .activeTask {
+            input[type="checkbox"] {
+                filter: invert(1);
+            }
+        }
+    }
+    input {
+        &::placeholder {
+            font-weight: 600 !important;
+        }
+    }
+    &:hover {
+        .activeTask {
+            input[type="checkbox"] {
+                filter: invert(0) !important;
+            }
+        }
+        .subtaskAddForm {
+            border-top: 1px solid var(--gameBlueInverse) !important;
+        }
         .slashes {
             color: var(--gameBlueInverse);
         }
         .changeLabel {
             color: black;
-            font-weight: 500;
             filter: invert(1);
             font-size: 0.99em;
         }
         .subTaskItem {
+            .itemDate {
+                border-color: var(--gameBlue) !important;
+            }
             &:hover {
                 .changeLabel {
                     filter: inherit;
@@ -976,6 +1090,13 @@ textarea {
                 }
                 input[type="checkbox"] {
                     filter: inherit;
+                }
+            }
+            &.activeTask {
+                &:hover {
+                    input[type="checkbox"] {
+                        filter: invert(1) !important;
+                    }
                 }
             }
         }
@@ -1016,8 +1137,8 @@ textarea {
     &:hover {
         .changeLabel {
             color: white;
-            font-weight: 600;
             filter: invert(1);
+            font-weight: 700 !important;
         }
     }
 }
@@ -1434,9 +1555,9 @@ textarea {
                     bottom: -19px;
                     &:not(:has(input:focus-visible)) {
                         .noTasks {
-                            opacity: 0;
-                            height: 0px;
-                            pointer-events: none;
+                            // opacity: 0;
+                            // height: 0px;
+                            // pointer-events: none;
                             transition: var(--transition);
                         }
                     }
@@ -1459,14 +1580,18 @@ textarea {
                             grid-gap: 0;
                             .subTaskItem {
                                 background: linear-gradient(90deg, white 35px, transparent 35px);
+                                &:not(:last-child) {
+                                    border-bottom: 1px solid var(--gameBlue);
+                                }
                                 &:first-child {
                                     border-top: 1px solid var(--gameBlue);
                                 }
-                                border-bottom: 1px solid var(--gameBlue);
+                                // border-bottom: 1px solid var(--gameBlue);
                                 .taskChangeLabel {
+                                    min-width: 64%;
                                     padding: 0 10px 0 10px;
                                     max-width: fit-content;
-                                    margin: 5px 0 5px 0 !important;
+                                    margin: 5px 15px 5px 0 !important;
                                 }
                                 &:hover {
                                     background: linear-gradient(90deg, black 35px, transparent 35px);
@@ -1491,7 +1616,9 @@ textarea {
                                             font-weight: 600;
                                         }
                                         i {
-                                            color: var(--gameBlueInverse) !important;
+                                            &:not(.status) {
+                                                color: var(--gameBlueInverse) !important;
+                                            }
                                         }
                                     }
                                     .itemOrder {
@@ -1511,7 +1638,11 @@ textarea {
                                         max-width: 100%;
                                         padding: 0 0 0 20px;
                                         max-width: -moz-fit-content;
-                                        justify-content: flex-start;
+                                        justify-content: space-between;
+                                        .itemDate {
+                                            justify-content: flex-end;
+                                            margin-right: 10px !important;
+                                        }
                                         input[type="checkbox"] {
                                             font-size: 8px !important;
                                             font-weight: 400 !important;
@@ -1529,8 +1660,10 @@ textarea {
                         }
 
                         .addForm {
-                            max-height: 23px;
+                            border-radius: 0;
+                            max-height: 25px;
                             background: transparent !important;
+                            border-top: 1px solid var(--gameBlue);
                             button {
                                 max-width: fit-content;
                                 height: 24px !important;
@@ -1559,7 +1692,7 @@ textarea {
 
                         input {
                             font-size: 10px;
-                            padding: 3px 50px;
+                            padding: 3px 15px;
                             background: transparent !important;
                             border-bottom-right-radius: var(--borderRadius);
                             border-bottom-left-radius: var(--borderRadius);
@@ -1571,12 +1704,14 @@ textarea {
                                 }
                             }
                             &[type="number"] {
-                                max-width: 25px;
+                                max-width: 60px;
                                 font-weight: 700;
                                 text-align: center;
                                 padding: 0 !important;
-                                color: black !important;
-                                background: white !important;
+                                // color: black !important;
+                                // background: white !important;
+                                color: white !important;
+                                background: transparent !important;
                             }
                             &[type="checkbox"] {
                                 -webkit-appearance: none;
@@ -1626,7 +1761,6 @@ textarea {
                     }
 
                     .itemName {
-                        // min-width: 215px !important;
                        &:not(.itemDate) {
                         text-decoration-thickness: 0;
                         text-decoration: line-through;
@@ -2038,6 +2172,7 @@ footer {
 .board {
     width: 100%;
     display: flex;
+    font-size: 1.05em;
     align-items: center;
     // &.clipColumns {
     //     .column {
