@@ -2,7 +2,7 @@
 import { db } from '../firebase';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { collection, doc, getDocs, setDoc } from 'firebase/firestore';
-import { defaultContent, formatDate, capitalizeAllWords, createXML, StateContext } from '../pages/_app';
+import { defaultContent, formatDate, capitalizeAllWords, createXML, StateContext, showAlert } from '../pages/_app';
 
 export const convertHexToRGB = (HexString?:any, returnObject?: any) => {
   let r = parseInt(HexString.slice(1, 3), 16),
@@ -73,33 +73,6 @@ export default function Form(props?: any) {
   //   }).catch(error => console.log(error));
   // }
 
-  const showAlert = async (alertTitle: any, alertMessage?: any, additionalInfo?:any) => {
-    if (alertOpen) return;
-    setAlertOpen(true);
-    setUpdates(updates+1);
-    let alertDialog = document.createElement(`div`);
-    alertDialog.className = `alert`;
-    if ((!alertMessage && !additionalInfo) || additionalInfo.length == 0) alertDialog.classList.add(`slim`);
-    alertDialog.innerHTML = `<h3>${alertTitle}</h3>
-    ${alertMessage ? additionalInfo ? `` : alertMessage : ``}
-    `;
-    if (additionalInfo?.length > 0) {
-      additionalInfo?.forEach((info: any, index: any) => {
-        let element: any = createXML(`<p>${index+1}. ${alertMessage} ${info}</p>`);
-        alertDialog.append(element);
-      });
-    }
-    document.body.appendChild(alertDialog);
-    let closeButton = document.createElement(`button`);
-    closeButton.innerHTML = `X`;
-    closeButton.onclick = () => {
-      document.body.removeChild(alertDialog);
-      setUpdates(updates+1);
-      setAlertOpen(false);
-    };
-    alertDialog.appendChild(closeButton);
-  }
-
   const authForm = (e?: any) => {
     e.preventDefault();
     let formFields = e.target.children;
@@ -115,15 +88,20 @@ export default function Form(props?: any) {
         //   let latestUsers = snapshot.docs.map((doc: any) => doc.data()).sort((a: any, b: any) => b?.highScore - a?.highScore);
         //   let macthingEmails = latestUsers.filter((usr: any) => usr?.email.toLowerCase() == email.toLowerCase());
         //   setUsers(latestUsers);
-        let arr = [];
-          setEmailField(true);
-          if (arr.length > 0) {
-            // localStorage.setItem(`account`, JSON.stringify(macthingEmails[0]));
-            setAuthState(`Sign In`);
-          } else {
-            setAuthState(`Sign Up`);
-          }
+        // let arr = [];
+        // setEmailField(true);
+        // if (arr.length > 0) {
+        //   // localStorage.setItem(`account`, JSON.stringify(macthingEmails[0]));
+        //   setAuthState(`Sign In`);
+        // } else {
+        //   setAuthState(`Sign Up`);
+        // }
         // });
+        showAlert(`Whoah There!`, <div className={`formWarning`}>
+          <h2 style={{fontSize: `1.5em`}}>
+            Ok so, I haven't quite put user authentication in yet, I will soon! For now, this is not supported yet, apologies!
+          </h2>
+        </div>, `420px`, `auto`);
         break;
       case `Back`:
         setUpdates(updates+1);

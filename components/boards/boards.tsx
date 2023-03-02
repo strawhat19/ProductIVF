@@ -1,5 +1,5 @@
 import Board from './board';
-import Projects from '../projects';
+import AllBoards from './allboards';
 import { useState, useEffect, useContext } from 'react';
 import { capWords, dev, formatDate, generateUniqueID, replaceAll, showAlert, StateContext } from '../../pages/_app';
 
@@ -64,7 +64,7 @@ export default function Boards() {
     }, [boards]);
 
     return <>
-        {devEnv && <button onClick={(e) => showAlert(`Projects`, <Projects />, `85%`, `85%`)} className="iconButton alertTest" style={{justifyContent: `center`}}>Alert</button>}
+        {devEnv && <button onClick={(e) => showAlert(`Boards`, <AllBoards />, `95%`, `95%`)} className="iconButton alertTest" style={{justifyContent: `center`}}>Alert</button>}
         {devEnv && (
             <div className="createBoard lists extended">
                 <div className={`list items addListDiv`}>
