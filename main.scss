@@ -981,7 +981,7 @@ textarea {
         }
     }
     &::selection {
-        color: white;
+        color: black;
         background: rgba(0, 194, 255, 0.2) !important;
     }
     &:not(:focus-visible) {
@@ -1195,29 +1195,59 @@ textarea {
     &:hover {
         .changeLabel {
             color: white;
-            // filter: invert(1);
             font-weight: 600 !important;
         }
     }
 }
 
+.overlay {
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    position: fixed;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(5px);
+    background: rgba(0, 40, 46, 0.5);
+}
+
 .alert {
-    top: 50%;
-    left: 50%;
     width: 450px;
     height: 450px;
     display: flex;
     padding: 40px;
-    position: fixed;
-    border-radius: var(--borderRadius);
+    grid-gap: 15px;
+    position: relative;
     align-items: center;
     flex-direction: column;
-    justify-content: center;
     backdrop-filter: blur(5px);
-    background: var(--blackGlass);
+    justify-content: flex-start;
     transition: var(--transition);
     box-shadow: 0 0 8px 0px black;
-    transform: translate(-50%, -50%);
+    // background: var(--blackGlass);
+    border-radius: var(--borderRadius);
+    background: rgba(0, 194, 255, 0.4);
+
+    .alertTitle {
+        width: 95%;
+        color: white;
+        font-weight: 600;
+        font-size: 2.5em;
+        border-radius: 3px 3px;
+        border-bottom: 4px solid var(--gameBlue);
+    }
+
+    .inner {
+        overflow: auto;
+        max-width: 95%;
+        max-height: 86%;
+        padding: 0 15px 0 0;
+        *:first-child {
+            padding: 0;
+        }
+    }
 
     &.slim {
         height: 120px;
@@ -2392,9 +2422,9 @@ footer {
                     }
                     .itemContent {
                         &::selection {
-                            border-radius: var(--borderRadius);
                             color: var(--gameBlueInverse);
                             background: white !important;
+                            border-radius: var(--borderRadius);
                         }
                     }
                 }

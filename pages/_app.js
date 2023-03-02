@@ -1,4 +1,5 @@
 import '../main.scss';
+import ReactDOM from 'react-dom/client';
 import { AnimatePresence, motion } from 'framer-motion';
 import { createContext, useRef, useState, useEffect } from 'react';
 
@@ -468,31 +469,73 @@ export const defaultLists = [
   ]},
 ];
 
-export const showAlert = async (alertTitle, alertMessage, additionalInfo) => {
-  // if (alertOpen) return;
-  // setAlertOpen(true);
+export const showAlert = async (title, component, width, height) => {
+  let isAlertOpen = JSON.parse(localStorage.getItem(`alertOpen`)) == true;
+  if (isAlertOpen) return;
+  let overlay = document.createElement('div');
+  overlay.className = 'overlay';
+  document.body.appendChild(overlay);
+
   let alertDialog = document.createElement(`div`);
   alertDialog.className = `alert`;
-  if ((!alertMessage && !additionalInfo) || (additionalInfo && additionalInfo?.length == 0)) alertDialog.classList.add(`slim`);
-  alertDialog.innerHTML = `<h3>${alertTitle}</h3>
-      ${alertMessage ? additionalInfo ? `` : alertMessage : ``}
-  `;
-  if (additionalInfo?.length > 0) {
-    additionalInfo?.forEach((info, index) => {
-        let element = createXML(`<p>${index+1}. ${alertMessage} ${info}</p>`);
-        alertDialog.append(element);
-    });
-  }
-  document.body.appendChild(alertDialog);
-  let closeButton = document.createElement(`button`);
-  closeButton.classList.add(`iconButton`);
-  closeButton.classList.add(`alertButton`);
-  closeButton.innerHTML = `X`;
-  closeButton.onclick = () => {
-    document.body.removeChild(alertDialog);
-    // setAlertOpen(false);
-  };
-  alertDialog.appendChild(closeButton);
+
+  // Add transition styles for smooth fade-in/out
+  overlay.style.opacity = 0;
+  overlay.style.transform = 'translateY(-50px)';
+  overlay.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
+  alertDialog.style.opacity = 0;
+  if (width) alertDialog.style.width = `${width}`;
+  if (height) alertDialog.style.height = `${height}`;
+  alertDialog.style.transform = 'translateY(-50px)';
+  alertDialog.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
+
+  ReactDOM.createRoot(alertDialog).render(<>
+    <h2 className={`alertTitle`}>{title}</h2>
+    <div className={`inner`}>
+      {component}
+    </div>
+    <button onClick={(e) => {
+      overlay.style.opacity = 0;
+      overlay.style.transform = 'translateY(-50px)';
+      alertDialog.style.opacity = 0;
+      alertDialog.style.transform = 'translateY(-50px)';
+
+      // Remove the alert and overlay from the DOM after the animation is complete
+      setTimeout(() => {
+        document.body.removeChild(overlay);
+        localStorage.setItem(`alertOpen`, false);
+      }, 300);
+    }} className={`alertButton iconButton`}>X</button>
+  </>);
+
+  overlay.appendChild(alertDialog);
+  localStorage.setItem(`alertOpen`, true);
+
+  // Trigger reflow to ensure the styles are applied before animating
+  void alertDialog.offsetWidth;
+
+  // Fade in the alert
+  overlay.style.opacity = 1;
+  overlay.style.transform = 'translateY(0)';
+  alertDialog.style.opacity = 1;
+  alertDialog.style.transform = 'translateY(0)';
+
+  // Add a click event listener to the overlay that dismisses the alert if clicked outside the alert content
+  overlay.addEventListener('click', (e) => {
+    if (!alertDialog.contains(e.target)) {
+      // Click occurred outside the alert content
+      // Fade out the alert and overlay
+      alertDialog.style.opacity = 0;
+      alertDialog.style.transform = 'translateY(-50px)';
+      overlay.style.opacity = 0;
+
+      // Remove the alert and overlay from the DOM after the animation is complete
+      setTimeout(() => {
+        document.body.removeChild(overlay);
+        localStorage.setItem(`alertOpen`, false);
+      }, 300);
+    }
+  });
 }
 
 export default function ProductIVF({ Component, pageProps, router }) {
@@ -541,11 +584,12 @@ export default function ProductIVF({ Component, pageProps, router }) {
     let [completeFiltered, setCompleteFiltered] = useState(false);
 
     useEffect(() => {
-      setAnimComplete(false);
       setLoading(true);
+      setAnimComplete(false);
       setSystemStatus(`Page Loading!`);
       if (loaded.current) return;
       loaded.current = true;
+      localStorage.setItem(`alertOpen`, false);
       let cachedBoard = JSON.parse(localStorage.getItem(`board`));
       let cachedBoards = JSON.parse(localStorage.getItem(`boards`));
       let storedUser = JSON.parse(localStorage.getItem(`user`));

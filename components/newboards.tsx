@@ -1,7 +1,8 @@
 import Board from './board';
+import Projects from './projects';
+import { BoardTypes, kanBanColumns } from './boards';
 import { useState, useEffect, useContext } from 'react';
-import Boards, { BoardTypes, kanBanColumns } from './boards';
-import { capitalizeAllWords, dev, formatDate, generateUniqueID, replaceAll, StateContext } from '../pages/_app';
+import { capitalizeAllWords, dev, formatDate, generateUniqueID, replaceAll, showAlert, StateContext } from '../pages/_app';
 
 export default function NewBoards() {
     const [boards, setBoards] = useState([]);
@@ -72,6 +73,7 @@ export default function NewBoards() {
     }, [boards]);
 
     return <>
+        {devEnv && <button onClick={(e) => showAlert(`Projects`, <Projects />, `85%`, `85%`)} className="iconButton alertTest" style={{justifyContent: `center`}}>Alert</button>}
         {devEnv && (
             <div className="createBoard lists extended">
                 <div className={`list items addListDiv`}>
