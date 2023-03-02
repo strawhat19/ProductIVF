@@ -1,7 +1,8 @@
-import List from './list';
+
+import Column from './column';
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { DragDropContext, Droppable, onDragStart } from 'react-beautiful-dnd';
-import { capitalizeAllWords, dev, formatDate, generateUniqueID, StateContext } from '../pages/_app';
+import { capitalizeAllWords, dev, formatDate, generateUniqueID, StateContext } from '../../pages/_app';
 
 function Board(props) {
     const boardNameRef = useRef();
@@ -320,7 +321,7 @@ function Board(props) {
                             {board?.columnOrder && board?.columnOrder.map((columnId, index) => {
                                 const column = board?.columns[columnId];
                                 const items = column.itemIds.map(itemId => board?.items[itemId]);
-                                return <List key={column?.id} column={column} items={items} index={index} board={board} setBoard={setBoard} />;
+                                return <Column key={column?.id} column={column} items={items} index={index} board={board} setBoard={setBoard} />;
                             })}
                             {provided.placeholder}
                         </section>

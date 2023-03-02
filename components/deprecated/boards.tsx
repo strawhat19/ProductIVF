@@ -1,7 +1,7 @@
 import Board from './board';
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { capitalizeAllWords, dev, formatDate, generateUniqueID, StateContext } from '../pages/_app';
+import { capitalizeAllWords, dev, formatDate, generateUniqueID, StateContext } from '../../pages/_app';
 
 export enum BoardTypes {
     ToDo = `To Do`,

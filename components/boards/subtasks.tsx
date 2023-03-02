@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from 'react';
 import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
-import { capWords, dev, formatDate, generateUniqueID, StateContext } from '../pages/_app';
+import { capWords, dev, formatDate, generateUniqueID, StateContext } from '../../pages/_app';
 
 const capitalizeAllWords = capWords;
 

@@ -1,21 +1,19 @@
 import Board from './board';
-import Projects from './projects';
-import { BoardTypes, kanBanColumns } from './boards';
 import { useState, useEffect, useContext } from 'react';
-import { capitalizeAllWords, dev, formatDate, generateUniqueID, replaceAll, showAlert, StateContext } from '../pages/_app';
+import { capitalizeAllWords, dev, formatDate, generateUniqueID, replaceAll, showAlert, StateContext } from '../../pages/_app';
 
-export default function NewBoards() {
+export enum BoardTypes {
+    Table = `Table`,
+    TierList = `Tier List`,
+    ToDoList = `To Do List`,
+    Spreadsheet = `Spreadsheet`,
+    KanbanBoard = `Kanban Board`,
+    SelectBoardType = `Select Board Type`,
+}
+
+export default function Boards() {
     const [boards, setBoards] = useState([]);
     const { router, setLoading, setSystemStatus, IDs, setIDs, devEnv, setRte } = useContext<any>(StateContext);
-
-    const getBoardColumnsFromType = (boardType) => {
-        switch (boardType) {
-            default:
-                return [];
-            case BoardTypes.Kanban:
-                return kanBanColumns;
-        }
-    }
 
     const addNewBoard = (e) => {
         e.preventDefault();
@@ -23,22 +21,13 @@ export default function NewBoards() {
         let formFields = e.target.children[0].children;
         let boardType = formFields.selectBoardType.value;
         let boardName = capitalizeAllWords(formFields.createBoard.value);
-        // let boardsSection = e.target.parentElement.parentElement.parentElement.parentElement.parentElement.nextSibling;
-
-        if (boardType == BoardTypes.SelectBoardType) {
-            boardType = BoardTypes.ToDo;
-            if (boardName.includes(`Spread`)) boardType = BoardTypes.Spreadsheet;
-            if (boardName.includes(`Sheet`)) boardType = BoardTypes.Spreadsheet;
-            if (boardName.includes(`Tier`)) boardType = BoardTypes.TierList;
-            if (boardName.includes(`Kan`)) boardType = BoardTypes.Kanban;
-        }
 
         let newBoardID = `board_${boards.length + 1}_${generateUniqueID(IDs)}`;
         setSystemStatus(`Creating Board ${boardName}.`);
 
         let newBoard = {
-            rows: [].concat(...getBoardColumnsFromType(boardType).map(col => col.rows)),
-            columns: getBoardColumnsFromType(boardType),
+            // rows: [].concat(...getBoardColumnsFromType(boardType).map(col => col.rows)),
+            // columns: getBoardColumnsFromType(boardType),
             created: formatDate(new Date()),
             type: boardType,
             name: boardName,
@@ -47,8 +36,6 @@ export default function NewBoards() {
 
         if (dev()) {
             console.log(`addNewBoard Event`, e);
-            // console.log(`addNewBoard type`, boardType);
-            // console.log(`addNewBoard Boards`, boards);
         }
 
         setBoards([...boards, newBoard]);
@@ -68,12 +55,11 @@ export default function NewBoards() {
         setRte(replaceAll(router.route, `/`, `_`));
         if (dev()) {
             // console.log(`boards`, boards);
-            // console.log(`boards router`, );
         }
     }, [boards]);
 
     return <>
-        {devEnv && <button onClick={(e) => showAlert(`Projects`, <Projects />, `85%`, `85%`)} className="iconButton alertTest" style={{justifyContent: `center`}}>Alert</button>}
+        {/* {devEnv && <button onClick={(e) => showAlert(`Projects`, <Projects />, `85%`, `85%`)} className="iconButton alertTest" style={{justifyContent: `center`}}>Alert</button>} */}
         {devEnv && (
             <div className="createBoard lists extended">
                 <div className={`list items addListDiv`}>

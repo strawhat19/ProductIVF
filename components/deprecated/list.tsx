@@ -3,7 +3,7 @@ import React, { useContext } from 'react';
 import 'react-circular-progressbar/dist/styles.css';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
-import { showAlert, formatDate, generateUniqueID, StateContext, dev, capitalizeAllWords } from '../pages/_app';
+import { showAlert, formatDate, generateUniqueID, StateContext, dev, capitalizeAllWords } from '../../pages/_app';
 
 export enum ItemActions {
     Click = `Click`,
