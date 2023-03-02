@@ -1,8 +1,7 @@
-import Board from './board';
-import Spinner from './spinner';
+import Spinner from '../spinner';
 import { useContext, useEffect, useRef } from 'react';
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import { StateContext, formatDate, getPage, generateUniqueID, dev } from '../pages/_app';
+import { StateContext, formatDate, getPage, generateUniqueID, dev } from '../../pages/_app';
 
 declare global {
 
