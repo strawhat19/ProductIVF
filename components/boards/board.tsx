@@ -285,8 +285,8 @@ function Board(props) {
                                         <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${completeFiltered ? `fa-times-circle` : `fa-check-circle`}`}></i>
                                         <span className={`iconButtonText textOverflow extended`}>Completed</span>
                                     </button>
-                                    <button onClick={(e) =>  setTasksFiltered(!tasksFiltered)} id={`filter_tasks`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Filter Tasks`} className={`iconButton deleteButton filterButton ${completeFiltered ? `filterActive` : `filterInactive`}`}>
-                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${completeFiltered ? `fa-times-circle` : `fa-list-ol`}`}></i>
+                                    <button onClick={(e) =>  setTasksFiltered(!tasksFiltered)} id={`filter_tasks`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Filter Tasks`} className={`iconButton deleteButton filterButton ${tasksFiltered ? `filterActive` : `filterInactive`}`}>
+                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${tasksFiltered ? `fa-times-circle` : `fa-list-ol`}`}></i>
                                         <span className={`iconButtonText textOverflow extended`}>Tasks</span>
                                     </button>
                                     <section className={`addListFormItemSection`} style={{ margin: 0, padding: 0 }}>

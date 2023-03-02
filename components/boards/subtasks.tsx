@@ -114,6 +114,8 @@ export default function SubTasks(props) {
     const onDragEnd = (dragEndEvent) => {
         const { destination, source, draggableId, type } = dragEndEvent;
 
+        console.log({source, destination, draggableId});
+
         if (!destination) {
             return;
         }

@@ -1,6 +1,7 @@
 import Board from './board';
+import Projects from '../projects';
 import { useState, useEffect, useContext } from 'react';
-import { capitalizeAllWords, dev, formatDate, generateUniqueID, replaceAll, showAlert, StateContext } from '../../pages/_app';
+import { capWords, dev, formatDate, generateUniqueID, replaceAll, showAlert, StateContext } from '../../pages/_app';
 
 export enum BoardTypes {
     Table = `Table`,
@@ -20,7 +21,7 @@ export default function Boards() {
         setLoading(true);
         let formFields = e.target.children[0].children;
         let boardType = formFields.selectBoardType.value;
-        let boardName = capitalizeAllWords(formFields.createBoard.value);
+        let boardName = capWords(formFields.createBoard.value);
 
         let newBoardID = `board_${boards.length + 1}_${generateUniqueID(IDs)}`;
         setSystemStatus(`Creating Board ${boardName}.`);
@@ -35,11 +36,12 @@ export default function Boards() {
         }
 
         if (dev()) {
-            console.log(`addNewBoard Event`, e);
+            console.log(`addNewBoard`, newBoard);
+            // console.log(`addNewBoard Event`, e);
         }
 
-        setBoards([...boards, newBoard]);
-        setIDs([...IDs, newBoard.id]);
+        // setBoards([...boards, newBoard]);
+        // setIDs([...IDs, newBoard.id]);
 
         e.target.reset();
         // window.requestAnimationFrame(() => {
@@ -56,10 +58,13 @@ export default function Boards() {
         if (dev()) {
             // console.log(`boards`, boards);
         }
+        return () => {
+            setRte(replaceAll(router.route, `/`, `_`));
+        };
     }, [boards]);
 
     return <>
-        {/* {devEnv && <button onClick={(e) => showAlert(`Projects`, <Projects />, `85%`, `85%`)} className="iconButton alertTest" style={{justifyContent: `center`}}>Alert</button>} */}
+        {devEnv && <button onClick={(e) => showAlert(`Projects`, <Projects />, `85%`, `85%`)} className="iconButton alertTest" style={{justifyContent: `center`}}>Alert</button>}
         {devEnv && (
             <div className="createBoard lists extended">
                 <div className={`list items addListDiv`}>
