@@ -4,6 +4,19 @@ import React, { useState, useContext, useEffect, useRef } from 'react';
 import { DragDropContext, Droppable, onDragStart } from 'react-beautiful-dnd';
 import { capitalizeAllWords, dev, formatDate, generateUniqueID, StateContext } from '../../pages/_app';
 
+export const addBoardScrollBars = () => {
+    let boardColumnItems = document.querySelectorAll(`.boardColumnItems`);
+    boardColumnItems.forEach(columnItems => {
+        setTimeout(() => {
+            if (columnItems.scrollHeight > columnItems.clientHeight) {
+                columnItems.classList.add(`overflowingList`);
+            } else {
+                columnItems.classList.remove(`overflowingList`);
+            }
+        }, 250);
+    });
+}
+
 function Board(props) {
     const boardNameRef = useRef();
     const [updates, setUpdates] = useState(0);
@@ -213,7 +226,7 @@ function Board(props) {
             e.target.value = capitalizeAllWords(item.name);
             return;
         };
-        let titleWidth = `${(value.length * 8.5) + 65}px`;
+        let titleWidth = `${(value.length * 8.5) + 80}px`;
         e.target.value = capitalizeAllWords(value);
         e.target.style.width = titleWidth;
         if (item.id.includes(`board`)) {
@@ -227,16 +240,7 @@ function Board(props) {
             localStorage.setItem(`board`, JSON.stringify(board));
         };
 
-        let boardColumnItems = document.querySelectorAll(`.boardColumnItems`);
-        boardColumnItems.forEach(columnItems => {
-            setTimeout(() => {
-                if (columnItems.scrollHeight > columnItems.clientHeight) {
-                    columnItems.classList.add(`overflowingList`);
-                } else {
-                    columnItems.classList.remove(`overflowingList`);
-                }
-            }, 250);
-        });
+        addBoardScrollBars();
 
         let itemContents = document.querySelectorAll(`.boardItemContent`);
         let arrayOfItemContents = Array.from(itemContents).map(content => content.innerHTML.toLowerCase());

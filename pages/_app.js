@@ -472,8 +472,8 @@ export const defaultLists = [
 export const showAlert = async (title, component, width, height) => {
   let isAlertOpen = JSON.parse(localStorage.getItem(`alertOpen`)) == true;
   if (isAlertOpen) return;
-  let overlay = document.createElement('div');
-  overlay.className = 'overlay';
+  let overlay = document.createElement(`div`);
+  overlay.className = `overlay`;
   document.body.appendChild(overlay);
 
   let alertDialog = document.createElement(`div`);
@@ -481,13 +481,13 @@ export const showAlert = async (title, component, width, height) => {
 
   // Add transition styles for smooth fade-in/out
   overlay.style.opacity = 0;
-  overlay.style.transform = 'translateY(-50px)';
-  overlay.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
+  // overlay.style.transform = `translateY(-50px)`;
+  overlay.style.transition = `opacity 0.3s ease-out, transform 0.3s ease-out`;
   alertDialog.style.opacity = 0;
   if (width) alertDialog.style.width = `${width}`;
   if (height) alertDialog.style.height = `${height}`;
-  alertDialog.style.transform = 'translateY(-50px)';
-  alertDialog.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
+  alertDialog.style.transform = `translateY(-50px)`;
+  alertDialog.style.transition = `opacity 0.3s ease-out, transform 0.3s ease-out`;
 
   ReactDOM.createRoot(alertDialog).render(<>
     <h2 className={`alertTitle`}>{title}</h2>
@@ -496,9 +496,9 @@ export const showAlert = async (title, component, width, height) => {
     </div>
     <button onClick={(e) => {
       overlay.style.opacity = 0;
-      overlay.style.transform = 'translateY(-50px)';
+      // overlay.style.transform = `translateY(-50px)`;
       alertDialog.style.opacity = 0;
-      alertDialog.style.transform = 'translateY(-50px)';
+      alertDialog.style.transform = `translateY(-50px)`;
 
       // Remove the alert and overlay from the DOM after the animation is complete
       setTimeout(() => {
@@ -516,17 +516,17 @@ export const showAlert = async (title, component, width, height) => {
 
   // Fade in the alert
   overlay.style.opacity = 1;
-  overlay.style.transform = 'translateY(0)';
+  // overlay.style.transform = `translateY(0)`;
   alertDialog.style.opacity = 1;
-  alertDialog.style.transform = 'translateY(0)';
+  alertDialog.style.transform = `translateY(0)`;
 
   // Add a click event listener to the overlay that dismisses the alert if clicked outside the alert content
-  overlay.addEventListener('click', (e) => {
+  overlay.addEventListener(`click`, (e) => {
     if (!alertDialog.contains(e.target)) {
       // Click occurred outside the alert content
       // Fade out the alert and overlay
       alertDialog.style.opacity = 0;
-      alertDialog.style.transform = 'translateY(-50px)';
+      alertDialog.style.transform = `translateY(-50px)`;
       overlay.style.opacity = 0;
 
       // Remove the alert and overlay from the DOM after the animation is complete

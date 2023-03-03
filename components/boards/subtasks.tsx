@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
 import { capWords, dev, formatDate, generateUniqueID, StateContext } from '../../pages/_app';
+import { addBoardScrollBars } from './board';
 
 const capitalizeAllWords = capWords;
 
@@ -51,6 +52,7 @@ export default function SubTasks(props) {
 
         subtasks.splice(rank-1,0,newSubtask);
         item.subtasks = subtasks;
+        addBoardScrollBars();
         item.updated = formatDate(new Date());
         localStorage.setItem(`board`, JSON.stringify({...board, updated: formatDate(new Date())}));
 
@@ -102,6 +104,7 @@ export default function SubTasks(props) {
         setSubtasks(prevTasks => {
             let newSubtasks = prevTasks.filter(task => task.id != subtask.id);
             item.subtasks = newSubtasks;
+            addBoardScrollBars();
             localStorage.setItem(`board`, JSON.stringify({...board, updated: formatDate(new Date())}));
             return newSubtasks;
         });
@@ -114,7 +117,7 @@ export default function SubTasks(props) {
     const onDragEnd = (dragEndEvent) => {
         const { destination, source, draggableId, type } = dragEndEvent;
 
-        console.log({source, destination, draggableId});
+        // console.log({source, destination, draggableId});
 
         if (!destination) {
             return;
