@@ -1,7 +1,7 @@
+import { addBoardScrollBars } from './board';
 import { useState, useEffect, useContext } from 'react';
 import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
 import { capWords, dev, formatDate, generateUniqueID, StateContext } from '../../pages/_app';
-import { addBoardScrollBars } from './board';
 
 const capitalizeAllWords = capWords;
 

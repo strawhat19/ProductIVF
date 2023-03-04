@@ -536,7 +536,7 @@ input {
             }
         }
         .columnStats {
-            display: none;
+            display: none !important;
         }
     }
 }
@@ -703,7 +703,7 @@ body {
     transition: var(--transition);
 
     &:has(._projects_boards) {
-        overflow-y: hidden;
+        // overflow-y: hidden;
         article {
 
             .board {
@@ -1200,6 +1200,26 @@ textarea {
     }
 }
 
+.all_boards_div  {
+    width: 100%;
+    .bord {
+        display: flex;
+        grid-gap: 15px;
+        flex-direction: column;
+        .board {
+            flex-direction: row;
+            form {
+                input {
+                    max-height: 33px !important;
+                }
+            }
+            .listNameRow {
+                max-width: unset;
+            }
+        }
+    }
+}
+
 .overlay {
     top: 0;
     right: 0;
@@ -1641,7 +1661,7 @@ textarea {
                 }
 
                 .itemButtons {
-                    padding: 6px 15px 6px 6px;
+                    padding: 6px 15px 6px 6px !important;
                     // min-height: 100% !important;
                     // max-height: 100% !important;
                     // height: 100% !important;

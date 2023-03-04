@@ -20,7 +20,8 @@ export const addBoardScrollBars = () => {
 function Board(props) {
     const boardNameRef = useRef();
     const [updates, setUpdates] = useState(0);
-    const { board, setBoard, setLoading, setSystemStatus, devEnv, completeFiltered, setCompleteFiltered, boardCategories, setBoardCategories, setCategories, setRearranging, setPage, tasksFiltered, setTasksFiltered } = useContext<any>(StateContext);
+    const [board, setBoard] = useState(props.board);
+    const { boards, setBoards, setLoading, setSystemStatus, devEnv, completeFiltered, setCompleteFiltered, boardCategories, setBoardCategories, setCategories, setRearranging, setPage, tasksFiltered, setTasksFiltered } = useContext<any>(StateContext);
 
     const addNewColumn = (e) => {
         e.preventDefault();
@@ -60,79 +61,12 @@ function Board(props) {
         }, 1000);
     }
 
-    const getCommonWords = (arrayOfSentences) => {
-        // Join all sentences into a single string
-        const text = arrayOfSentences.join(' ');
-        
-        // Split the text into an array of words
-        const words = text.split(/\W+/);
-        
-        // Count the frequency of each word
-        const wordCounts = {};
-
-        for (const word of words) {
-            if (word.slice(0,word.length) in wordCounts) {
-              wordCounts[word.slice(0,word.length)] += 1;
-            } else {
-              wordCounts[word.slice(0,word.length)] = 1;
-            }
-        }
-
-        for (const word of words) {
-            if (word.slice(0,word.length - 1) in wordCounts) {
-              wordCounts[word.slice(0,word.length - 1)] += 1;
-            } else {
-              wordCounts[word.slice(0,word.length - 1)] = 1;
-            }
-        }
-
-        for (const word of words) {
-          if (word.slice(0,word.length - 2) in wordCounts) {
-            wordCounts[word.slice(0,word.length - 2)] += 1;
-          } else {
-            wordCounts[word.slice(0,word.length - 2)] = 1;
-          }
-        }
-        
-        // Convert the word counts to an array of {value, occurrences} objects
-        const commonWords = [];
-        for (const [word, count] of Object.entries(wordCounts)) {
-          commonWords.push({ word: word, occurences: count });
-        }
-        
-        // Sort the common words array in descending order by occurrences
-        commonWords.sort((a, b) => b.occurrences - a.occurrences);
-        
-        return commonWords.filter(word => word.word != `` && word.word.length > 2 && word.occurences > 1);
+    const deleteBoard = (e, bord) => {
+        setBoards(prevBoards => {
+            return prevBoards.filter(brd => brd.id != bord.id);
+        })
     }
 
-    // const filterCompleted = (e) => {
-
-        // let completedItems = document.querySelectorAll(`.complete`);
-        // let boardItems = document.querySelectorAll(`.boardColumnItems`);
-
-        // if (!filtered) {
-        //     completedItems.forEach((completedItem: any) => {
-        //         completedItem.style.display = `none`;
-        //     });
-        //     boardItems.forEach(listOfItems => {
-        //         listOfItems.querySelectorAll(`.activeIndex`).forEach((itemIndex: any, index) => {
-        //             itemIndex.innerHTML = index + 1;
-        //         })
-        //     });
-        // } else {
-        //     completedItems.forEach((completedItem: any) => {
-        //         completedItem.style.display = `flex`;
-        //     });
-        //     boardItems.forEach(listOfItems => {
-        //         listOfItems.querySelectorAll(`.itemIndex`).forEach((itemIndex: any, index) => {
-        //             itemIndex.innerHTML = index + 1;
-        //         })
-        //     });
-        // }
-    // }
-
-    // let dragCount = 0;
     const onDragStart = (dragStartEvent) => {
         if (dev()) {
             setLoading(true);
@@ -236,8 +170,18 @@ function Board(props) {
 
     useEffect(() => {
         if (updates > 0) {
-            dev() && board?.columnOrder &&  board?.columnOrder.length > 0 && console.log(`Updated Board`, board);
-            localStorage.setItem(`board`, JSON.stringify(board));
+            // dev() && board?.columnOrder &&  board?.columnOrder.length > 0 && console.log(`Updated Board`, board);
+            setBoards(prevBoards => {
+                return prevBoards.map(brd => {
+                    if (brd.id == board.id) {
+                        return board;
+                    } else {
+                        return brd;
+                    }
+                })
+            })
+            // localStorage.setItem(`board`, JSON.stringify(board));
+            // localStorage.setItem(`boards`, JSON.stringify(boards));
         };
 
         addBoardScrollBars();
@@ -249,8 +193,8 @@ function Board(props) {
         // console.log(arrayOfItemContents);
         // console.log(getCommonWords(arrayOfItemContents));
 
-        setBoardCategories(getCommonWords(arrayOfItemContents));
-        setCategories(boardCategories.map(cat => cat.word));
+        // setBoardCategories(getCommonWords(arrayOfItemContents));
+        // setCategories(boardCategories.map(cat => cat.word));
 
         setPage(`Boards`);
         setUpdates(updates + 1);
@@ -263,10 +207,10 @@ function Board(props) {
         <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
             <section className="boardsTitle boards" style={{paddingBottom: 0}}>
                 <div className="board boardTitle">
-                    <div id={`titleRowOfBoard`} className={`titleRow flex row`}>
+                    <div {...props.provided.dragHandleProps} id={`titleRowOfBoard`} className={`titleRow flex row`}>
                         <div className="flex row innerRow">
                             <div className="flex row left">
-                                {devEnv && <h3><span className="subscript">(1)</span></h3>}
+                                {devEnv && <h3><span className="subscript itemOrder slashes">{props.index + 1}</span></h3>}
                                 <h2><input type={`text`} id={`${board.id}_change_label`} ref={boardNameRef} title={board?.name} onBlur={(e) => changeLabel(e, board, setBoard)} className={`changeLabel textOverflow`} name={`boardName`} defaultValue={board?.name ?? `Board`} style={{width: board.titleWidth ? board.titleWidth : `75px`}} /></h2>
                                 <h3 className="boardDate">
                                     <span className="subscript rowDate itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
@@ -307,7 +251,7 @@ function Board(props) {
                                         </form>
                                     </section>
                                     {devEnv && <div className="itemButtons customButtons">
-                                        <button id={`delete_${board?.id}`} onClick={(e) => console.log(e, board)} title={`Delete Board`} className={`iconButton deleteButton`}>
+                                        <button id={`delete_${board?.id}`} onClick={(e) => deleteBoard(e, board)} title={`Delete Board`} className={`iconButton deleteButton`}>
                                             <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-trash"></i>
                                             <span className={`iconButtonText textOverflow extended`}>Delete</span>
                                         </button>
@@ -318,7 +262,7 @@ function Board(props) {
                     </div>
                 </div>
             </section>
-            {board?.columnOrder && (
+            {board?.columnOrder && board?.columnOrder?.length > 0 && (
                 <Droppable droppableId={`${board.id}_boardColumns`} direction="horizontal" type="column">
                     {(provided, snapshot) => (
                         <section id={`board`} className={`board lists container ${snapshot.isDraggingOver ? `isDraggingOver` : ``} ${board?.columnOrder && (board?.columnOrder.length == 2 ? `clipColumns` : board?.columnOrder.length == 3 ? `threeBoard overflowingBoard` : board?.columnOrder.length > 3 ? `moreBoard overflowingBoard` : ``)}`} ref={provided.innerRef} {...provided.droppableProps} style={props.style}>
