@@ -20,7 +20,7 @@ export default function Boards(props) {
         e.preventDefault();
         setLoading(true);
         let formFields = e.target.children[0].children;
-        let boardType = formFields.selectBoardType.value;
+        // let boardType = formFields.selectBoardType.value;
         let boardName = capWords(formFields.createBoard.value);
         let titleWidth = `${(boardName.length * 8.5) + 80}px`;
 
@@ -29,7 +29,7 @@ export default function Boards(props) {
 
         let newBoard = {
             // rows: [].concat(...getBoardColumnsFromType(boardType).map(col => col.rows)),
-            type: boardType == BoardTypes.SelectBoardType ? BoardTypes.KanbanBoard : boardType,
+            // type: (boardType == BoardTypes.SelectBoardType ? BoardTypes.KanbanBoard : boardType) ?? BoardTypes.KanbanBoard,
             created: formatDate(new Date()),
             name: boardName,
             columnOrder: [],
@@ -138,10 +138,10 @@ export default function Boards(props) {
         <DragDropContext onDragEnd={onDragEnd}>
             <div id={`allBoards`} className={`boards`}>
                 <div className={`flex ${boards && boards?.length > 0 ? `hasBoards` : `noBoards`}`}>
-                    <Droppable droppableId={`all_boards`}>
+                    {boards && boards?.length > 0 && <Droppable droppableId={`all_boards`}>
                         {(provided, snapshot) => (
                             <div className={`all_boards_div ${snapshot.isDraggingOver ? `isDraggingOver` : ``}`} ref={provided.innerRef} {...provided.droppableProps}>
-                                {boards && boards?.map((bord, bordIndex) => {
+                                {boards && boards?.length > 0 && boards?.map((bord, bordIndex) => {
                                     return (
                                         <Draggable key={`${bordIndex + 1}_${bord.id}_bord_key`} draggableId={`${bordIndex + 1}_${bord.id}_draggable_bord`} index={bordIndex}>
                                             {(provided, snapshot) => (
@@ -155,7 +155,7 @@ export default function Boards(props) {
                                 {provided.placeholder}
                             </div>
                         )}
-                    </Droppable>
+                    </Droppable>}
                 </div>
             </div>
         </DragDropContext>
