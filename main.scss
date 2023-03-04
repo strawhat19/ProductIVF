@@ -2631,3 +2631,9 @@ footer {
 .lineSep {
     border-color: var(--gameBlueSoft);
 }
+
+.column.dragging {
+    .columnStats {
+        display: none !important;
+    }
+}

@@ -210,7 +210,7 @@ function Board(props) {
                     <div {...props.provided.dragHandleProps} id={`titleRowOfBoard`} className={`titleRow flex row`}>
                         <div className="flex row innerRow">
                             <div className="flex row left">
-                                {devEnv && <h3><span className="subscript itemOrder slashes">{props.index + 1}</span></h3>}
+                                <h3><span className="subscript itemOrder slashes">{props.index + 1}</span></h3>
                                 <h2><input type={`text`} id={`${board.id}_change_label`} ref={boardNameRef} title={board?.name} onBlur={(e) => changeLabel(e, board, setBoard)} className={`changeLabel textOverflow`} name={`boardName`} defaultValue={board?.name ?? `Board`} style={{width: board.titleWidth ? board.titleWidth : `75px`}} /></h2>
                                 <h3 className="boardDate">
                                     <span className="subscript rowDate itemDate itemName itemCreated itemUpdated textOverflow extended flex row">

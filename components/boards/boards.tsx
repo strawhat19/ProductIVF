@@ -32,9 +32,23 @@ export default function Boards(props) {
             // type: (boardType == BoardTypes.SelectBoardType ? BoardTypes.KanbanBoard : boardType) ?? BoardTypes.KanbanBoard,
             created: formatDate(new Date()),
             name: boardName,
-            columnOrder: [],
+            columnOrder: [
+                `list_1_11_08_PM_3_3_2023_lzuk8f724`,
+                `list_2_11_08_PM_3_3_2023_qf2w88ika`
+            ],
+            columns: {
+                list_1_11_08_PM_3_3_2023_lzuk8f724: {
+                    id: `list_1_11_08_PM_3_3_2023_lzuk8f724`,
+                    title: `active`,
+                    itemIds: []
+                },
+                list_2_11_08_PM_3_3_2023_qf2w88ika: {
+                    id: `list_2_11_08_PM_3_3_2023_qf2w88ika`,
+                    title: `complete`,
+                    itemIds: []
+                }
+            },
             id: newBoardID,
-            columns: [],
             titleWidth,
             items: [],
         }
