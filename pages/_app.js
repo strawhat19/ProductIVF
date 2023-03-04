@@ -718,7 +718,8 @@ export default function ProductIVF({ Component, pageProps, router }) {
                       "updated": "11:18 PM 3/3/2023"
                   }
               },
-              "updated": "11:20 PM 3/3/2023"
+              "updated": "11:20 PM 3/3/2023",
+              expanded: true,
             }
         ]);
         // setBoards([]);

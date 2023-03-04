@@ -13,7 +13,7 @@ export const addBoardScrollBars = () => {
             } else {
                 columnItems.classList.remove(`overflowingList`);
             }
-        }, 250);
+        }, 300);
     });
 }
 
@@ -75,6 +75,7 @@ function Board(props) {
     }
 
     const onDragEnd = (dragEndEvent) => {
+        dev() && console.log(`Board Drag`, dragEndEvent);
         const { destination, source, draggableId, type } = dragEndEvent;
 
         if (!destination) {
@@ -168,6 +169,15 @@ function Board(props) {
         }
     }
 
+    const expandCollapseBoard = (e, board) => {
+        setBoard(prevBoard => {
+            return {
+                ...prevBoard,
+                expanded: !prevBoard.expanded
+            }
+        });
+    }
+
     useEffect(() => {
         if (updates > 0) {
             // dev() && board?.columnOrder &&  board?.columnOrder.length > 0 && console.log(`Updated Board`, board);
@@ -186,8 +196,8 @@ function Board(props) {
 
         addBoardScrollBars();
 
-        let itemContents = document.querySelectorAll(`.boardItemContent`);
-        let arrayOfItemContents = Array.from(itemContents).map(content => content.innerHTML.toLowerCase());
+        // let itemContents = document.querySelectorAll(`.boardItemContent`);
+        // let arrayOfItemContents = Array.from(itemContents).map(content => content.innerHTML.toLowerCase());
 
         // console.clear();
         // console.log(arrayOfItemContents);
@@ -205,7 +215,7 @@ function Board(props) {
 
     return (
         <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
-            <section className="boardsTitle boards" style={{paddingBottom: 0}}>
+            <section className={`boardsTitle boards`} style={{paddingBottom: 0}}>
                 <div className="board boardTitle">
                     <div {...props.provided.dragHandleProps} id={`titleRowOfBoard`} className={`titleRow flex row`}>
                         <div className="flex row innerRow">
@@ -229,13 +239,17 @@ function Board(props) {
                             <div className="flex row right">
                                 <h3 className="filtersSubscript"><span className="subscript">Filters</span></h3>
                                 <div className="filterFormDiv filterButtons itemButtons" style={{textAlign: `center`, justifyContent: `space-between`, alignItems: `center`}}>
+                                    <button onClick={(e) =>  setTasksFiltered(!tasksFiltered)} id={`filter_tasks`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Filter Tasks`} className={`iconButton deleteButton filterButton ${tasksFiltered ? `filterActive` : `filterInactive`}`}>
+                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${tasksFiltered ? `fa-times-circle` : `fa-list-ol`}`}></i>
+                                        <span className={`iconButtonText textOverflow extended`}>Tasks</span>
+                                    </button>
                                     <button onClick={(e) =>  setCompleteFiltered(!completeFiltered)} id={`filter_completed`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Filter Completed`} className={`iconButton deleteButton filterButton ${completeFiltered ? `filterActive` : `filterInactive`}`}>
                                         <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${completeFiltered ? `fa-times-circle` : `fa-check-circle`}`}></i>
                                         <span className={`iconButtonText textOverflow extended`}>Completed</span>
                                     </button>
-                                    <button onClick={(e) =>  setTasksFiltered(!tasksFiltered)} id={`filter_tasks`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Filter Tasks`} className={`iconButton deleteButton filterButton ${tasksFiltered ? `filterActive` : `filterInactive`}`}>
-                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${tasksFiltered ? `fa-times-circle` : `fa-list-ol`}`}></i>
-                                        <span className={`iconButtonText textOverflow extended`}>Tasks</span>
+                                    <button onClick={(e) =>  setBoard({...board, focused: !board?.focused})} id={`focus_board`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Focus Board`} className={`iconButton deleteButton filterButton ${board?.focused ? `filterActive` : `filterInactive`}`}>
+                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${board?.focused ? `fas fa-compress-arrows-alt` : `fa-expand-arrows-alt`}`}></i>
+                                        <span className={`iconButtonText textOverflow extended`}>Focus</span>
                                     </button>
                                     <section className={`addListFormItemSection`} style={{ margin: 0, padding: 0 }}>
                                         <form onSubmit={addNewColumn} title={`Add Column`} id={`addListForm`} className={`flex addListForm itemButtons addForm`} style={{ width: `100%`, flexDirection: `row` }}>
@@ -255,6 +269,9 @@ function Board(props) {
                                             <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-trash"></i>
                                             <span className={`iconButtonText textOverflow extended`}>Delete</span>
                                         </button>
+                                        <button onClick={(e) => expandCollapseBoard(e, board)} className={`iconButton`}>
+                                            {board?.expanded ? <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-chevron-up"></i> : <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-chevron-down"></i>}
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -265,7 +282,7 @@ function Board(props) {
             {board?.columnOrder && board?.columnOrder?.length > 0 && (
                 <Droppable droppableId={`${board.id}_boardColumns`} direction="horizontal" type="column">
                     {(provided, snapshot) => (
-                        <section id={`board`} className={`board lists container ${snapshot.isDraggingOver ? `isDraggingOver` : ``} ${board?.columnOrder && (board?.columnOrder.length == 2 ? `clipColumns` : board?.columnOrder.length == 3 ? `threeBoard overflowingBoard` : board?.columnOrder.length > 3 ? `moreBoard overflowingBoard` : ``)}`} ref={provided.innerRef} {...provided.droppableProps} style={props.style}>
+                        <section id={`board_${board.id}`} className={`board lists columns container ${board?.expanded ? `expanded` : `collapsed`} ${snapshot.isDraggingOver ? `isDraggingOver` : ``} ${board?.columnOrder && (board?.columnOrder.length == 2 ? `clipColumns` : board?.columnOrder.length == 3 ? `threeBoard overflowingBoard` : board?.columnOrder.length > 3 ? `moreBoard overflowingBoard` : ``)}`} ref={provided.innerRef} {...provided.droppableProps} style={props.style}>
                             {board?.columnOrder && board?.columnOrder.map((columnId, index) => {
                                 const column = board?.columns[columnId];
                                 const items = column.itemIds.map(itemId => board?.items[itemId]);

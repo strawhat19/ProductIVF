@@ -26,7 +26,7 @@ export default function SubTasks(props) {
     const { item } = props;
     const startingSubTasks = item.subtasks && item.subtasks.length > 0 ? item.subtasks : [];
     const [subtasks, setSubtasks] = useState(startingSubTasks);
-    const { setLoading, setSystemStatus, devEnv, completeFiltered, boardCategories, board, setBoard } = useContext<any>(StateContext);
+    const { boards, setLoading, setSystemStatus, devEnv, completeFiltered, boardCategories, board, setBoard } = useContext<any>(StateContext);
 
     const addSubtask = (e) => {
         e.preventDefault();
@@ -54,7 +54,8 @@ export default function SubTasks(props) {
         item.subtasks = subtasks;
         addBoardScrollBars();
         item.updated = formatDate(new Date());
-        localStorage.setItem(`board`, JSON.stringify({...board, updated: formatDate(new Date())}));
+        localStorage.setItem(`boards`, JSON.stringify(boards));
+        // localStorage.setItem(`board`, JSON.stringify({...board, updated: formatDate(new Date())}));
 
         e.target.reset();
         e.target.children[0].focus();
@@ -81,7 +82,8 @@ export default function SubTasks(props) {
         elemValue = capitalizeAllWords(value);
         item.task = capitalizeAllWords(value);
         item.updated = formatDate(new Date());
-        localStorage.setItem(`board`, JSON.stringify({...board, updated: formatDate(new Date())}));
+        localStorage.setItem(`boards`, JSON.stringify(boards));
+        // localStorage.setItem(`board`, JSON.stringify({...board, updated: formatDate(new Date())}));
     }
 
     const completeSubtask = (e, subtask) => {
@@ -91,7 +93,8 @@ export default function SubTasks(props) {
         item.updated = formatDate(new Date());
         subtask.updated = formatDate(new Date());
         dev() && console.log(`Task`, subtask);
-        localStorage.setItem(`board`, JSON.stringify({...board, updated: formatDate(new Date())}));
+        localStorage.setItem(`boards`, JSON.stringify(boards));
+        // localStorage.setItem(`board`, JSON.stringify({...board, updated: formatDate(new Date())}));
         setTimeout(() => {
             setSystemStatus(`Marked Task as ${subtask.complete ? `Complete` : `Reopened`}.`);
             setLoading(false);
@@ -105,7 +108,8 @@ export default function SubTasks(props) {
             let newSubtasks = prevTasks.filter(task => task.id != subtask.id);
             item.subtasks = newSubtasks;
             addBoardScrollBars();
-            localStorage.setItem(`board`, JSON.stringify({...board, updated: formatDate(new Date())}));
+            localStorage.setItem(`boards`, JSON.stringify(boards));
+            // localStorage.setItem(`board`, JSON.stringify({...board, updated: formatDate(new Date())}));
             return newSubtasks;
         });
         setTimeout(() => {
@@ -115,6 +119,7 @@ export default function SubTasks(props) {
     }
     
     const onDragEnd = (dragEndEvent) => {
+        dev() && console.log(`Subtasks Drag`, dragEndEvent);
         const { destination, source, draggableId, type } = dragEndEvent;
 
         // console.log({source, destination, draggableId});
@@ -133,8 +138,8 @@ export default function SubTasks(props) {
 
         setSubtasks(newSubtasks);
         item.subtasks = newSubtasks;
-        localStorage.setItem(`board`, JSON.stringify(board));
-
+        localStorage.setItem(`boards`, JSON.stringify(boards));
+        // localStorage.setItem(`board`, JSON.stringify(board));
     };
 
     // useEffect(() => {
@@ -147,7 +152,7 @@ export default function SubTasks(props) {
             <div className={`subTaskElement flex ${subtasks.length > 0 ? `hasTasks` : `noTasks`}`}>
                 <Droppable droppableId={`${item.id}_subtaskItems`}>
                     {(provided, snapshot) => (
-                        <div className={`subTaskItems ${snapshot.isDraggingOver ? `isDraggingOver` : ``}`} ref={provided.innerRef} {...provided.droppableProps}>
+                        <div style={{marginTop: -1}} className={`subTaskItems ${snapshot.isDraggingOver ? `isDraggingOver` : ``}`} ref={provided.innerRef} {...provided.droppableProps}>
                             {subtasks.map((subtask, taskIndex) => {
                                 return (
                                     <Draggable key={`${taskIndex + 1}_${subtask.id}_subtask_key`} draggableId={`${taskIndex + 1}_${subtask.id}_draggable_subtask`} index={taskIndex}>

@@ -422,7 +422,7 @@ export default function Boards(props) {
                 } else {
                     rowOfItems.classList.remove(`overflowingList`);
                 }
-            // }, 250);
+            // }, 300);
         });
 
         if (dev()) {

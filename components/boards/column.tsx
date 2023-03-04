@@ -4,10 +4,11 @@ import 'react-circular-progressbar/dist/styles.css';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
 import { showAlert, formatDate, generateUniqueID, StateContext, dev, capitalizeAllWords } from '../../pages/_app';
+import ItemDetail from './itemdetail';
 
 export default function Column(props) {
     let count = 0;
-    const { setLoading, setSystemStatus, devEnv, completeFiltered, boardCategories, tasksFiltered } = useContext<any>(StateContext);
+    const { boards, setBoards, setLoading, setSystemStatus, devEnv, completeFiltered, boardCategories, tasksFiltered } = useContext<any>(StateContext);
 
     const itemActiveFilters = (itm) => {
         if (completeFiltered) {
@@ -133,10 +134,12 @@ export default function Column(props) {
         if (!rank || rank == ``) rank = nextIndex;
         rank = parseInt(rank);
         rank = rank > nextIndex ? nextIndex : rank; 
+        let image = formFields.itemImage.value ?? ``;
         const newItemIds = Array.from(column.itemIds);
         newItemIds.splice(rank - 1,0,itemID);
 
         const newItem = {
+            image,
             id: itemID,
             subtasks: [],
             complete: false,
@@ -175,6 +178,10 @@ export default function Column(props) {
         });
     }
 
+    const manageItem = (e, item) => {
+        showAlert(item?.content, <ItemDetail item={item} boards={boards} setBoards={setBoards} />, `95%`, `95%`);
+    }
+
     const changeLabel = (e, item) => {
         let elemValue = e.target.textContent;
         let value = elemValue == `` ? capitalizeAllWords(item.task) : capitalizeAllWords(elemValue);
@@ -185,7 +192,7 @@ export default function Column(props) {
         elemValue = capitalizeAllWords(value);
         item.updated = formatDate(new Date());
         item.content = capitalizeAllWords(value);
-        localStorage.setItem(`board`, JSON.stringify(props.board));
+        localStorage.setItem(`boards`, JSON.stringify(boards));
     }
 
     const changeColumnLabel = (e, item) => {
@@ -198,7 +205,7 @@ export default function Column(props) {
         elemValue = capitalizeAllWords(value);
         item.updated = formatDate(new Date());
         item.title = capitalizeAllWords(value);
-        localStorage.setItem(`board`, JSON.stringify(props.board));
+        localStorage.setItem(`boards`, JSON.stringify(boards));
     }
 
     const completeItem = (e, itemId, index, item) => {
@@ -349,10 +356,11 @@ export default function Column(props) {
                                     <Draggable key={item.id} draggableId={item.id} index={itemIndex}>
                                         {provided => (
                                             <div id={item.id} className={`item completeItem ${item.complete ? `complete` : ``} container ${snapshot.isDragging ? `dragging` : ``}`} title={item.content} {...provided.draggableProps} ref={provided.innerRef}>
-                                                <div onClick={(e) => completeItem(e, item.id, itemIndex, item)} {...provided.dragHandleProps} className={`itemRow flex row ${item.subtasks.length > 0 ? `hasTasksRow` : `noTasksRow`}`}>
+                                                <div onClick={(e) => completeItem(e, item.id, itemIndex, item)} {...provided.dragHandleProps} className={`itemRow flex row ${item?.complete ? `completed` : `incomplete`} ${item.subtasks.length > 0 ? `hasTasksRow` : `noTasksRow`}`}>
                                                     <span className="itemOrder rowIndexOrder">
                                                         <i className={`itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>{itemIndex + 1}</i>
                                                     </span>
+                                                    {item?.image && <img className={`itemImage`} style={{maxWidth: 175, maxHeight: 350, width: `auto`, marginLeft: -13}} src={item?.image} alt={item?.content} />}
                                                     <div className="itemContents">
                                                         <span className="flex row itemContent boardItemContent itemName textOverflow extended">
                                                             {/* <textarea onBlur={(e) => changeLabel(e, item)} className={`changeLabel`} defaultValue={item.content} /> */}
@@ -419,6 +427,9 @@ export default function Column(props) {
                                                         <button id={`complete_${item.id}`} onClick={(e) => completeItem(e, item.id, itemIndex, item)} title={`Complete Item`} className={`iconButton wordIconButton completeButton`}>
                                                             <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas ${item.complete ? `fa-history` : `fa-check-circle`}`}></i>
                                                         </button>
+                                                        <button id={`manage_${item.id}`} onClick={(e) => manageItem(e, item)} title={`Manage Item`} className={`iconButton wordIconButton manageButton`}>
+                                                            <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-bars`}></i>
+                                                        </button>
                                                     </div>
                                                 </div>
                                                 {!tasksFiltered && item.subtasks && <SubTasks item={item} />}
@@ -433,7 +444,8 @@ export default function Column(props) {
                     </Droppable>
                     <form title={`Add Item`} id={`add_item_form_${props.column.id}`} className={`flex addItemForm itemButtons unset addForm`} style={{ width: `100%`, flexDirection: `row` }} onSubmit={(e) => addNewItem(e)}>
                         <input placeholder={`Add`} type="text" name="createItem" required />
-                        <input name={`rank`} placeholder={props.column.itemIds.length + 1} defaultValue={props.column.itemIds.length + 1} type={`number`} min={1} />
+                        <input style={{padding: `10px 0px 10px 15px`, minWidth: `75px`, maxWidth: `75px`}} placeholder={`Img`} type="text" name="itemImage" />
+                        <input name={`rank`} placeholder={props.items.filter(itm => itemActiveFilters(itm)).length + 1} defaultValue={props.items.filter(itm => itemActiveFilters(itm)).length + 1} type={`number`} min={1} />
                         <button type={`submit`} title={`Add Item`} className={`iconButton createList wordIconButton`}>
                             <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-plus"></i>
                             <span className={`iconButtonText textOverflow extended`}>

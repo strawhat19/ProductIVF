@@ -31,6 +31,7 @@ export default function Boards(props) {
             // rows: [].concat(...getBoardColumnsFromType(boardType).map(col => col.rows)),
             // type: (boardType == BoardTypes.SelectBoardType ? BoardTypes.KanbanBoard : boardType) ?? BoardTypes.KanbanBoard,
             created: formatDate(new Date()),
+            expanded: true,
             name: boardName,
             columnOrder: [
                 `list_1_11_08_PM_3_3_2023_lzuk8f724`,
@@ -72,6 +73,7 @@ export default function Boards(props) {
     }
 
     const onDragEnd = (dragEndEvent) => {
+        dev() && console.log(`Boards Drag`, dragEndEvent);
         const { destination, source, draggableId, type } = dragEndEvent;
 
         // if (dev()) {
@@ -91,11 +93,6 @@ export default function Boards(props) {
         const [reorderedBoard] = newBoards.splice(source.index, 1);
         newBoards.splice(destination.index, 0, reorderedBoard);
         setBoards(newBoards);
-
-        // setSubtasks(newSubtasks);
-        // item.subtasks = newSubtasks;
-        // localStorage.setItem(`board`, JSON.stringify(board));
-
     };
 
     useEffect(() => {
@@ -156,11 +153,12 @@ export default function Boards(props) {
                         {(provided, snapshot) => (
                             <div className={`all_boards_div ${snapshot.isDraggingOver ? `isDraggingOver` : ``}`} ref={provided.innerRef} {...provided.droppableProps}>
                                 {boards && boards?.length > 0 && boards?.map((bord, bordIndex) => {
+                                    if (bord.expanded == null || bord.expanded == undefined) bord.expanded = true;
                                     return (
                                         <Draggable key={`${bordIndex + 1}_${bord.id}_bord_key`} draggableId={`${bordIndex + 1}_${bord.id}_draggable_bord`} index={bordIndex}>
                                             {(provided, snapshot) => (
-                                                <div key={bordIndex} className="bord" {...provided.draggableProps} ref={provided.innerRef}>
-                                                    <Board board={bord} provided={provided} index={bordIndex} />
+                                                <div id={`bord_${bord?.id}`} key={bordIndex} className={`bord ${bord?.focused ? `focusBoard` : ``} ${bordIndex == 0 ? `firstBoard` : ``}`} {...provided.draggableProps} ref={provided.innerRef}>
+                                                    <Board board={bord} provided={provided} index={bordIndex} drag={onDragEnd} />
                                                 </div>
                                             )}
                                         </Draggable>

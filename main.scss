@@ -535,9 +535,6 @@ input {
                 justify-content: flex-start !important;
             }
         }
-        .columnStats {
-            display: none !important;
-        }
     }
 }
 
@@ -615,6 +612,9 @@ input {
 }
 
 @media (max-width: 1395px) {
+    .columnStats {
+        display: none !important;
+    }
     .boardTitle {
         .middle {
             display: none !important;
@@ -705,7 +705,7 @@ body {
     &:has(._projects_boards) {
         // overflow-y: hidden;
         article {
-
+            overflow: hidden;
             .board {
                 .column {
                     min-height: 550px;
@@ -856,7 +856,6 @@ form {
         font-size: 12px;
         max-height: 35px;
         font-weight: 400;
-        // filter: invert(1);
         border-radius: var(--borderRadius);
         padding: 10px 25px;
         outline: none !important;
@@ -1002,6 +1001,9 @@ textarea {
     max-width: 100%;
     align-items: center;
     justify-content: space-between;
+    &.isColumn {
+        flex-direction: column !important;
+    }
     &.row {
         grid-gap: 13px;
         flex-direction: row !important;
@@ -1082,6 +1084,9 @@ textarea {
         }
     }
     &.complete {
+        img {
+            filter: invert(1);
+        }
         @media (min-width: 1120px) {
             font-size: 1em !important;
         }
@@ -1233,6 +1238,34 @@ textarea {
     background: rgba(0, 40, 46, 0.5);
 }
 
+.focusBoard {
+    transition: var(--transition);
+    .board {
+        transition: var(--transition);
+        align-items: flex-start;
+        .column {
+            transition: var(--transition);
+            grid-gap: 10px !important;
+            .items {
+                transition: var(--transition);
+                max-height: 100%;
+            }
+        }
+    }
+}
+
+.item:has(img) {
+    // max-width: 33%;
+    .itemRow {
+        border-radius: var(--borderRadius) !important;
+        // background: var(--blackGlass) !important;
+        // flex-direction: column !important;
+    }
+    .subTasks {
+        display: none;
+    }
+}
+
 .alert {
     width: 450px;
     height: 450px;
@@ -1248,7 +1281,8 @@ textarea {
     box-shadow: 0 0 8px 0px black;
     // background: var(--blackGlass);
     border-radius: var(--borderRadius);
-    background: rgba(0, 194, 255, 0.4);
+    background: rgba(1, 47, 74, 0.75);
+    // background: rgba(0, 194, 255, 0.4);
 
     .alertTitle {
         width: 95%;
@@ -1260,12 +1294,37 @@ textarea {
     }
 
     .inner {
-        overflow: auto;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
         max-width: 95%;
+        overflow: auto;
         max-height: 86%;
-        padding: 0 15px 0 0;
-        *:first-child {
-            padding: 0;
+        align-items: center;
+        justify-content: center;
+        // padding: 0 15px 0 0;
+    }
+
+    form {
+        width: 45%;
+        grid-gap: 15px;
+        margin: 0 auto;
+        h3 {
+            font-size: 2em;
+            font-style: italic;
+            align-self: flex-start;
+        }
+        input {
+            width: 100%;
+        }
+        button {
+            width: 33%;
+            padding: 5px 0;
+            filter: invert(1);
+            align-self: flex-end;
+            justify-content: center;
+            background: var(--blackGlass);
         }
     }
 
@@ -1273,7 +1332,7 @@ textarea {
         height: 120px;
     }
 
-    button {
+    .alertButton {
         position: absolute;
         filter: invert(1);
         right: 15px;
@@ -1507,18 +1566,29 @@ textarea {
                     margin-bottom: 0 !important;
                 }
 
+                // img {
+                //     &.itemImage {
+                //         border-top: solid 1px var(--gameBlue);
+                //         border-left: solid 1px var(--gameBlue);
+                //         border-right: solid 1px var(--gameBlue);
+                //     }
+                // }
+
                 &:hover {
                     .itemRow {
                         background: linear-gradient(90deg, black 35px, var(--blackGlass) 35px);
+                        img {
+                            filter: invert(1);
+                        }
+                    }
+                    &:not(.itemOrder) {
+                        filter: invert(1);
                     }
                     &:not(.complete) {
                         .taskChangeLabel {
                             color: white;
                             filter: invert(0);
                         }
-                    }
-                    &:not(.itemOrder) {
-                        filter: invert(1);
                     }
                     .itemSep {
                         filter: invert(1);
@@ -1583,6 +1653,9 @@ textarea {
 
                 .itemRow {
                     border-radius: var(--borderRadius);
+                    &:not(.completed) {
+                        border-bottom-right-radius: 0;
+                    }
                     /* Neumorphic Inner shadow */
                     box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.2);
 
@@ -1892,7 +1965,6 @@ textarea {
                         }
                         .taskChangeLabel {
                             color: black;
-                            // filter: invert(0) !important;
                         }
                         .itemOrder {
                             filter: invert(0);
@@ -2325,6 +2397,36 @@ footer {
         }
     }
 }
+
+.columns {
+    max-height: 100%;
+    transition: var(--transition);
+    &.collapsed {
+        opacity: 0;
+        margin: -8px 0;
+        max-height: 0px;
+        pointer-events: none;
+        // animation: fadeOutThenRemove 0.24s ease-in-out;
+        // * {
+        //     opacity: 0;
+        //     max-height: 0px;
+        //     pointer-events: none;
+        // }
+    }
+}
+
+// @keyframes fadeOutThenRemove {
+//     0% {
+//         display: flex;
+//     }
+//     99% {
+//         opacity: 0.1;
+//     }
+//     100% {
+//         opacity: 0;
+//         display: none;
+//     }
+// }
 
 .board {
     width: 100%;
