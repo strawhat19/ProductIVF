@@ -250,12 +250,12 @@ function Board(props) {
                                             </button>
                                         </form>
                                     </section>
-                                    {devEnv && <div className="itemButtons customButtons">
+                                    <div className="itemButtons customButtons">
                                         <button id={`delete_${board?.id}`} onClick={(e) => deleteBoard(e, board)} title={`Delete Board`} className={`iconButton deleteButton`}>
                                             <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-trash"></i>
                                             <span className={`iconButtonText textOverflow extended`}>Delete</span>
                                         </button>
-                                    </div>}
+                                    </div>
                                 </div>
                             </div>
                         </div>
