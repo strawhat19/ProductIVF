@@ -1,0 +1,20 @@
+{
+    "boards": {
+        "title": "Boards",
+        "theme": {
+            "layout": "full"
+        }
+    },
+    "board": {
+        "title": "Board",
+        "theme": {
+            "layout": "full"
+        }
+    },
+    "lists": {
+        "title": "Lists",
+        "theme": {
+            "layout": "full"
+        }
+    }
+}

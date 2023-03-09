@@ -1,0 +1,23 @@
+{
+    "boards": {
+        "title": "Boards",
+        "theme": {
+            "layout": "full"
+        }
+    },
+    "games": {
+        "title": "Games"
+    },
+    "board": {
+        "title": "Board",
+        "theme": {
+            "layout": "full"
+        }
+    },
+    "lists": {
+        "title": "Lists",
+        "theme": {
+            "layout": "full"
+        }
+    }
+}
