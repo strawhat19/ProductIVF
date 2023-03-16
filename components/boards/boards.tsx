@@ -148,7 +148,7 @@ export default function Boards(props) {
         </div>
         <DragDropContext onDragEnd={onDragEnd}>
             <div id={`allBoards`} className={`boards`}>
-                <div className={`flex ${boards && boards?.length > 0 ? `hasBoards` : `noBoards`}`}>
+                <div className={`flex ${boards && boards?.length > 0 ? `hasBoards` : `noBoards`} ${boards && boards?.length == 1 ? `oneBoard` : ``}`}>
                     {boards && boards?.length > 0 && <Droppable droppableId={`all_boards`}>
                         {(provided, snapshot) => (
                             <div className={`all_boards_div ${snapshot.isDraggingOver ? `isDraggingOver` : ``}`} ref={provided.innerRef} {...provided.droppableProps}>

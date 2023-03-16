@@ -703,14 +703,21 @@ body {
     transition: var(--transition);
 
     &:has(._projects_boards) {
-        // overflow-y: hidden;
+        &:not(:has(.focusBoard)) {
+            &:has(.oneBoard) {
+                overflow-y: hidden;
+            }
+        }
         article {
             overflow: hidden;
+            h1 {
+                margin: -10px 0 -7px 0;
+            }
             .board {
                 .column {
-                    min-height: 550px;
+                    min-height: 530px;
                     .items {
-                        min-height: 430px;
+                        min-height: 410px;
                     }
                 }
             }
