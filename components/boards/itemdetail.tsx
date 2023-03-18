@@ -1,7 +1,8 @@
+import Image from 'next/image';
 import { useState } from 'react';
+import { formatDate } from '../../pages/_app';
 import { getSubTaskPercentage } from './column';
 import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
-import { formatDate } from '../../pages/_app';
 
 export default function ItemDetail(props) {
     let [disabled, setDisabled] = useState(false);
@@ -53,7 +54,28 @@ export default function ItemDetail(props) {
 
     return (
         <div id={`detail_view_${item?.id}`} className={`detailView flex row`}>
-            {image && <img className={`itemImage`} src={image} alt={item?.content} style={{minWidth: `50%`, maxWidth: `50%`, maxHeight: 675}} onError={(e) => setDisabled(true)} onLoad={(e) => setDisabled(false)} />}
+            {image && (
+            //     <Image
+            //     className={`itemImage detailViewImage`}
+            //     src={image}
+            //     alt={item?.content}
+            //     layout={`responsive`}
+            //     width={500}
+            //     height={500}
+            //     onError={(e) => setDisabled(true)}
+            //     onLoad={(e) => setDisabled(false)}
+            //     onLoadingComplete={(result: any) => {
+            //       if (result.error) {
+            //         console.log(`Error`);
+            //         setDisabled(true);
+            //       } else {
+            //         console.log(`Image Loaded`);
+            //         setDisabled(false);
+            //       }
+            //     }}
+            //   />
+                <img className={`itemImage detailViewImage`} src={image} alt={item?.content} onError={(e) => setDisabled(true)} onLoad={(e) => setDisabled(false)} />
+            )}
             <form onInput={(e) => refreshDetails(e)} onSubmit={(e) => saveItem(e)} className={`changeInputs flex isColumn`} data-index={index + 1}>
                 <div className={`formTop`}>
                     <h3><strong>{item?.content}</strong> - Details</h3>

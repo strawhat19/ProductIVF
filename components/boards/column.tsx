@@ -369,7 +369,7 @@ export default function Column(props) {
                                                     <span className="itemOrder rowIndexOrder">
                                                         <i className={`itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>{itemIndex + 1}</i>
                                                     </span>
-                                                    {item?.image && <img className={`itemImage`} style={{maxWidth: 175, maxHeight: 350, width: `auto`, marginLeft: -13}} src={item?.image} alt={item?.content} />}
+                                                    {item?.image && <img className={`itemImage boardItemImage`} src={item?.image} alt={item?.content} />}
                                                     <div className="itemContents">
                                                         <span className="flex row itemContent boardItemContent itemName textOverflow extended">
                                                             {/* <textarea onBlur={(e) => changeLabel(e, item)} className={`changeLabel`} defaultValue={item.content} /> */}
