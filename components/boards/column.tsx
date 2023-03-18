@@ -1,13 +1,21 @@
 import SubTasks from './subtasks';
+import ItemDetail from './itemdetail';
 import React, { useContext } from 'react';
 import 'react-circular-progressbar/dist/styles.css';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
 import { showAlert, formatDate, generateUniqueID, StateContext, dev, capitalizeAllWords } from '../../pages/_app';
-import ItemDetail from './itemdetail';
+
+export const getSubTaskPercentage = (subtasks) => {
+    let subtasksProgress = 0;
+    let completeTasks = subtasks.filter(task => task.complete);
+    subtasksProgress = parseFloat(((completeTasks.length / subtasks.length) * 100).toFixed(1));
+    return subtasksProgress;
+}
 
 export default function Column(props) {
     let count = 0;
+    const { board } = props;
     const { boards, setBoards, setLoading, setSystemStatus, devEnv, completeFiltered, boardCategories, tasksFiltered } = useContext<any>(StateContext);
 
     const itemActiveFilters = (itm) => {
@@ -129,7 +137,7 @@ export default function Column(props) {
         let listItems = e.target.previousSibling;
         let newItemID = `item_${nextIndex}`;
         let itemID = `${newItemID}_${generateUniqueID()}`;
-        let content = formFields[0].value;
+        let content = formFields.createItem.value;
         let rank = formFields.rank.value;
         if (!rank || rank == ``) rank = nextIndex;
         rank = parseInt(rank);
@@ -178,8 +186,16 @@ export default function Column(props) {
         });
     }
 
-    const manageItem = (e, item) => {
-        showAlert(item?.content, <ItemDetail item={item} boards={boards} setBoards={setBoards} />, `95%`, `95%`);
+    const manageItem = (e, item, index) => {
+        if (!e.target.classList.contains(`changeLabel`)) {
+            let isButton = e.target.classList.contains(`iconButton`);
+            if (isButton) {
+                let isManageButton = e.target.classList.contains(`manageButton`);
+                if (isManageButton) showAlert(item?.content, <ItemDetail item={item} index={index} board={board} boards={boards} setBoards={setBoards} />, `75%`, `75%`);
+            } else {
+                showAlert(item?.content, <ItemDetail item={item} index={index} board={board} boards={boards} setBoards={setBoards} />, `75%`, `75%`);
+            }
+        }
     }
 
     const changeLabel = (e, item) => {
@@ -247,6 +263,7 @@ export default function Column(props) {
     const deleteItem = (e, item, columnId, index, itemId) => {
         let isButton = e.target.classList.contains(`iconButton`);
         if (isButton) {
+            e.preventDefault();
             setLoading(true);
             setSystemStatus(`Deleting Item.`);
             const column = props.board.columns[columnId];
@@ -264,7 +281,6 @@ export default function Column(props) {
                 },
                 columns: {
                     ...props.board.columns,
-                    updated: formatDate(new Date()),
                     [columnId]: {
                         ...column,
                         itemIds: newItemIds
@@ -276,13 +292,6 @@ export default function Column(props) {
                 setLoading(false);
             }, 1000);   
         }
-    }
-
-    const getSubTaskPercentage = (subtasks) => {
-        let subtasksProgress = 0;
-        let completeTasks = subtasks.filter(task => task.complete);
-        subtasksProgress = parseFloat(((completeTasks.length / subtasks.length) * 100).toFixed(1));
-        return subtasksProgress;
     }
 
     const deleteColumn = (columnId, index) => {
@@ -356,7 +365,7 @@ export default function Column(props) {
                                     <Draggable key={item.id} draggableId={item.id} index={itemIndex}>
                                         {provided => (
                                             <div id={item.id} className={`item completeItem ${item.complete ? `complete` : ``} container ${snapshot.isDragging ? `dragging` : ``}`} title={item.content} {...provided.draggableProps} ref={provided.innerRef}>
-                                                <div onClick={(e) => completeItem(e, item.id, itemIndex, item)} {...provided.dragHandleProps} className={`itemRow flex row ${item?.complete ? `completed` : `incomplete`} ${item.subtasks.length > 0 ? `hasTasksRow` : `noTasksRow`}`}>
+                                                <div onClick={(e) => manageItem(e, item, itemIndex)} {...provided.dragHandleProps} className={`itemRow flex row ${item?.complete ? `completed` : `incomplete`} ${item.subtasks.length > 0 ? `hasTasksRow` : `noTasksRow`}`}>
                                                     <span className="itemOrder rowIndexOrder">
                                                         <i className={`itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>{itemIndex + 1}</i>
                                                     </span>
@@ -427,7 +436,7 @@ export default function Column(props) {
                                                         <button id={`complete_${item.id}`} onClick={(e) => completeItem(e, item.id, itemIndex, item)} title={`Complete Item`} className={`iconButton wordIconButton completeButton`}>
                                                             <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas ${item.complete ? `fa-history` : `fa-check-circle`}`}></i>
                                                         </button>
-                                                        <button id={`manage_${item.id}`} onClick={(e) => manageItem(e, item)} title={`Manage Item`} className={`iconButton wordIconButton manageButton`}>
+                                                        <button id={`manage_${item.id}`} onClick={(e) => manageItem(e, item, itemIndex)} title={`Manage Item`} className={`iconButton wordIconButton manageButton`}>
                                                             <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-bars`}></i>
                                                         </button>
                                                     </div>
@@ -444,8 +453,8 @@ export default function Column(props) {
                     </Droppable>
                     <form title={`Add Item`} id={`add_item_form_${props.column.id}`} className={`flex addItemForm itemButtons unset addForm`} style={{ width: `100%`, flexDirection: `row` }} onSubmit={(e) => addNewItem(e)}>
                         <input placeholder={`Add`} type="text" name="createItem" required />
-                        <input style={{padding: `10px 0px 10px 15px`, minWidth: `75px`, maxWidth: `75px`}} placeholder={`Img`} type="text" name="itemImage" />
                         <input name={`rank`} placeholder={props.items.filter(itm => itemActiveFilters(itm)).length + 1} defaultValue={props.items.filter(itm => itemActiveFilters(itm)).length + 1} type={`number`} min={1} />
+                        <input style={{padding: `10px 0px 10px 15px`, minWidth: `75px`, maxWidth: `75px`}} placeholder={`Img`} type="text" name="itemImage" />
                         <button type={`submit`} title={`Add Item`} className={`iconButton createList wordIconButton`}>
                             <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-plus"></i>
                             <span className={`iconButtonText textOverflow extended`}>

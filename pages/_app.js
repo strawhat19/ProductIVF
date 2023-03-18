@@ -765,7 +765,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       //   window.removeEventListener(`resize`, () => windowEvents());
       //   window.removeEventListener(`scroll`, () => windowEvents());
       }
-    }, [user, users, authState, dark])
+    }, [rte, user, users, authState, dark])
 
     return <StateContext.Provider value={{ router, rte, setRte, updates, setUpdates, content, setContent, width, setWidth, user, setUser, page, setPage, mobileMenu, setMobileMenu, users, setUsers, authState, setAuthState, emailField, setEmailField, devEnv, setDevEnv, mobileMenuBreakPoint, platform, setPlatform, focus, setFocus, highScore, setHighScore, color, setColor, dark, setDark, colorPref, setColorPref, lists, setLists, showLeaders, setShowLeaders, items, setItems, qotd, setQotd, alertOpen, setAlertOpen, mobile, setMobile, systemStatus, setSystemStatus, loading, setLoading, anim, setAnimComplete, IDs, setIDs, boardLoaded, setBoardLoaded, board, setBoard, completeFiltered, setCompleteFiltered, boardCategories, setBoardCategories, categories, setCategories, boards, setBoards, browser, setBrowser, onMac, rearranging, setRearranging, tasksFiltered, setTasksFiltered }}>
       {(browser != `chrome` || onMac) ? <AnimatePresence mode={`wait`}>

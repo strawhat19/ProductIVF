@@ -14,7 +14,7 @@ export enum BoardTypes {
 
 export default function Boards(props) {
     let [updates, setUpdates] = useState(0);
-    const { board, boards, setBoards, router, setLoading, setSystemStatus, IDs, setIDs, devEnv, setRte } = useContext<any>(StateContext);
+    const { rte, board, boards, setBoards, router, setLoading, setSystemStatus, IDs, setIDs, devEnv, setRte } = useContext<any>(StateContext);
 
     const addNewBoard = (e) => {
         e.preventDefault();
@@ -112,7 +112,7 @@ export default function Boards(props) {
         return () => {
             setRte(replaceAll(router.route, `/`, `_`));
         };
-    }, [boards]);
+    }, [boards, rte]);
 
     return <>
         {/* {devEnv && <button onClick={(e) => showAlert(`All Boards`, <div>All Boards</div>, `69%`, `69%`)} className="iconButton alertTest" style={{justifyContent: `center`}}>Alert</button>} */}

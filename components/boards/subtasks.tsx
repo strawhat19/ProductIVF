@@ -157,7 +157,7 @@ export default function SubTasks(props) {
                                 return (
                                     <Draggable key={`${taskIndex + 1}_${subtask.id}_subtask_key`} draggableId={`${taskIndex + 1}_${subtask.id}_draggable_subtask`} index={taskIndex}>
                                         {(provided, snapshot) => (
-                                            <div id={`${taskIndex + 1}_${subtask.id}_task`} className={`subTaskItem ${subtask?.complete ? `complete` : `activeTask`} ${snapshot.isDragging ? `dragging` : ``}`} title={subtask?.task} {...provided.draggableProps} ref={provided.innerRef} {...provided.dragHandleProps}>
+                                            <div id={`${taskIndex + 1}_${subtask.id}_task`} className={`subTaskItem ${subtask?.complete ? `complete` : `activeTask`} ${snapshot.isDragging ? `dragging` : ``}`} title={subtask?.task} {...provided.draggableProps} ref={provided.innerRef} {...provided.dragHandleProps} style={{ ...provided.draggableProps.style }}>
                                                 <div className="item subtaskHandle">
                                                     <span className="itemOrder">
                                                         <i className={`itemIndex ${subtask?.complete ? `completedIndex` : `activeIndex`}`}>{taskIndex + 1}</i>

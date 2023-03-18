@@ -1122,7 +1122,17 @@ textarea {
         font-size: 0.65em !important;
     }
     .subTaskItem {
+        padding: 0px;
+        user-select: none;
+        position: relative;
+        box-sizing: border-box;
         font-size: 0.85em !important;
+        &.dragging {
+            opacity: 1 !important;
+            z-index: 9999 !important;
+            top: 50px !important;
+            left: 15px !important;
+        }
     }
     input {
         padding-top: 7px !important;
@@ -2744,5 +2754,79 @@ footer {
 .column.dragging {
     .columnStats {
         display: none !important;
+    }
+}
+
+.detailView {
+    form {
+        .formTop {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            h3 {
+                text-align: left;
+            }
+            .CircularProgressbar {
+                max-height: 110px;
+            }
+        }
+        .toggle-buttons {
+            width: 100%;
+            grid-gap: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            button {
+                width: 100%;
+                &.deleteButton {
+                    filter: invert(0);
+                }
+            }
+            .toggle-button {
+              display: flex;
+              padding: 5px 10px;
+              border-radius: 5px;
+              background: black;
+              align-items: center;
+              justify-content: center;
+              cursor: pointer !important;
+              label {
+                cursor: pointer !important;
+              }
+              input[type="radio"] {
+                display: none;
+              }
+              &.active {
+                  background: var(--gameBlue);
+                  color: #fff;
+                  &:hover {
+                      background: var(--gameBlueInverse);
+                  }
+              }
+            }
+        }
+        &::before {
+            content: attr(data-index);
+            position: absolute;
+            height: 100%;
+            width: 35px;
+            left: 0;
+            top: 0;
+            font-weight: 400;
+            font-size: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: white;
+            color: var(--gameBlue);
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+        }
+        button {
+            &:disabled {
+                opacity: 0.35;
+            }
+        }
     }
 }
