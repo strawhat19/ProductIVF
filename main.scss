@@ -701,6 +701,12 @@ body {
     overflow-x: hidden;
     transition: var(--transition);
 
+    div {
+        &:has(time) {
+            display: none !important;
+        }
+    }
+
     &:has(._projects_boards) {
         &:not(:has(.focusBoard)) {
             &:has(.oneBoard) {
@@ -718,12 +724,6 @@ body {
                     .items {
                         min-height: 480px;
                     }
-                }
-            }
-
-            div {
-                &:has(time) {
-                    display: none !important;
                 }
             }
         }
@@ -1519,7 +1519,7 @@ textarea {
             gap: 0em;
             display: grid;
             overflow-y: auto;
-            max-height: 359px;
+            min-height: 359px;
             overflow-x: hidden;
             width: 100% !important;
 
