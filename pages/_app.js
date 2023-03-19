@@ -723,7 +723,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       if (cachedBoards && cachedBoards?.length > 0) {
         setBoards(cachedBoards);
       } else {
-        setBoards(buggedBoards);
+        setBoards([]);
       }
 
       let toc = document.querySelector(`.nextra-toc`);
