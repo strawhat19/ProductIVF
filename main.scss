@@ -435,7 +435,6 @@ input {
 }
 
 @media (max-width: 515px) {
-
     .status {
         display: none !important;
     }
@@ -702,6 +701,12 @@ body {
     overflow-x: hidden;
     transition: var(--transition);
 
+    div {
+        &:has(time) {
+            display: none !important;
+        }
+    }
+
     &:has(._projects_boards) {
         &:not(:has(.focusBoard)) {
             &:has(.oneBoard) {
@@ -715,16 +720,10 @@ body {
             }
             .board {
                 .column {
-                    min-height: 530px;
+                    min-height: 585px;
                     .items {
-                        min-height: 410px;
+                        min-height: 480px;
                     }
-                }
-            }
-
-            div {
-                &:has(time) {
-                    display: none !important;
                 }
             }
         }
@@ -811,9 +810,9 @@ section {
 
 ::-webkit-scrollbar {
     position: relative;
-    border-radius: var(--borderRadius);
     width: 4px !important;
     background: black !important;
+    border-radius: var(--borderRadius);
 }
 
 ::-webkit-scrollbar-thumb {
@@ -823,8 +822,8 @@ section {
 
 ::-webkit-scrollbar {
     position: relative;
-    border-radius: var(--borderRadius);
     width: 4px !important;
+    border-radius: var(--borderRadius);
     background: var(--blackGlass) !important;
 }
 
@@ -1068,8 +1067,8 @@ textarea {
 }
 
 .item {
-    font-size: 1em !important;
     font-weight: 600 !important;
+    font-size: 1.002em !important;
     &:hover {
         @media (min-width: 1120px) {
             font-size: 1em !important;
@@ -1520,7 +1519,7 @@ textarea {
             gap: 0em;
             display: grid;
             overflow-y: auto;
-            max-height: 359px;
+            min-height: 359px;
             overflow-x: hidden;
             width: 100% !important;
 
@@ -2489,7 +2488,7 @@ footer {
         min-height: 475px;
         position: relative;
         align-items: center;
-        padding: 1em !important;
+        padding: 10px !important;
         grid-gap: 0px !important;
         min-width: 32.25% !important;
         justify-content: space-between;
