@@ -1519,7 +1519,7 @@ textarea {
             gap: 0em;
             display: grid;
             overflow-y: auto;
-            max-height: 359px;
+            min-height: 367px;
             overflow-x: hidden;
             width: 100% !important;
 
