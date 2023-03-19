@@ -1261,11 +1261,19 @@ textarea {
     background: rgba(0, 40, 46, 0.5);
 }
 
+.unfocusedBoard {
+    .column {
+        .items {
+            max-height: 350px;
+        }
+    }
+}
+
 .focusBoard {
     transition: var(--transition);
     .board {
-        transition: var(--transition);
         align-items: flex-start;
+        transition: var(--transition);
         .column {
             transition: var(--transition);
             grid-gap: 10px !important;
@@ -2467,7 +2475,7 @@ footer {
     width: 100%;
     display: flex;
     font-size: 1.05em;
-    align-items: center;
+    align-items: flex-start;
     // &.clipColumns {
     //     .column {
     //         &.dragging {
@@ -2496,7 +2504,7 @@ footer {
         position: relative;
         align-items: center;
         padding: 10px !important;
-        grid-gap: 0px !important;
+        grid-gap: 10px !important;
         min-width: 32.25% !important;
         justify-content: space-between;
         border-radius: var(--borderRadius);
