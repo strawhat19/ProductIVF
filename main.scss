@@ -390,6 +390,11 @@ input {
 
 .createBoard {
     margin-top: 10px !important;
+    &.lists {
+        .formItems {
+            min-height: inherit !important;
+        }
+    }
 }
 
 .itemFooter {
@@ -701,9 +706,11 @@ body {
     overflow-x: hidden;
     transition: var(--transition);
 
-    div {
-        &:has(time) {
-            display: none !important;
+    article {
+        div {
+            &:has(time) {
+                display: none !important;
+            }
         }
     }
 
@@ -720,9 +727,9 @@ body {
             }
             .board {
                 .column {
-                    min-height: 585px;
+                    min-height: 590px;
                     .items {
-                        min-height: 480px;
+                        min-height: 485px;
                     }
                 }
             }
@@ -895,8 +902,8 @@ form {
             padding: 1em;
             outline: none;
             min-height: 60px;
-            border-radius: var(--borderRadius);
             position: relative;
+            border-radius: var(--borderRadius);
     
             &::before {
                 transform: translate(-50%, -50%);
@@ -1491,12 +1498,12 @@ textarea {
     }
 
     .list {
-        // max-height: 550px !important;
         position: relative;
-        border-radius: var(--borderRadius);
         width: 100% !important;
-        padding: 1em !important;
+        padding: 10px !important;
         min-width: 100% !important;
+        // max-height: 550px !important;
+        border-radius: var(--borderRadius);
         background: var(--gameBlueSoft) !important;
 
         .listName {
@@ -1519,7 +1526,7 @@ textarea {
             gap: 0em;
             display: grid;
             overflow-y: auto;
-            min-height: 359px;
+            min-height: 367px;
             overflow-x: hidden;
             width: 100% !important;
 
@@ -2485,7 +2492,7 @@ footer {
             max-width: 25px !important;
         }
         // user-select: none;
-        min-height: 475px;
+        min-height: 455px;
         position: relative;
         align-items: center;
         padding: 10px !important;
@@ -2551,7 +2558,7 @@ footer {
         .items {
             display: flex;
             grid-gap: 10px;
-            min-height: 359px;
+            min-height: 350px;
             padding: 0 !important;
             .item {
                 min-height: min-content;
