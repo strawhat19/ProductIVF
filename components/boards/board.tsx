@@ -21,14 +21,14 @@ function Board(props) {
     const boardNameRef = useRef();
     const [updates, setUpdates] = useState(0);
     const [board, setBoard] = useState(props.board);
-    const { boards, setBoards, setLoading, setSystemStatus, devEnv, completeFiltered, setCompleteFiltered, boardCategories, setBoardCategories, setCategories, setRearranging, setPage, tasksFiltered, setTasksFiltered } = useContext<any>(StateContext);
+    const { boards, setBoards, setLoading, setSystemStatus, devEnv, completeFiltered, setCompleteFiltered, boardCategories, setBoardCategories, setCategories, setRearranging, setPage, tasksFiltered, setTasksFiltered, IDs, setIDs } = useContext<any>(StateContext);
 
     const addNewColumn = (e) => {
         e.preventDefault();
         setLoading(true);
         setSystemStatus(`Creating Column.`);
         let newListID = `list_${board?.columnOrder.length + 1}`;
-        let columnID = `${newListID}_${generateUniqueID()}`;
+        let columnID = `${newListID}_${generateUniqueID(IDs)}`;
         let formFields = e.target.children;
 
         const newColumnOrder = Array.from(board?.columnOrder);
@@ -49,6 +49,8 @@ function Board(props) {
                 [columnID]: newColumn
             }
         });
+
+        setIDs([...IDs, columnID])
 
         e.target.reset();
         setTimeout(() => {
@@ -126,9 +128,8 @@ function Board(props) {
             return;
         }
 
-        const thisItem = board?.items[draggableId];
-        thisItem.updated = formatDate(new Date());
-
+        // const thisItem = board?.items[draggableId];
+        // thisItem.updated = formatDate(new Date());
 
         const startItemIds = Array.from(start.itemIds);
         startItemIds.splice(source.index, 1);

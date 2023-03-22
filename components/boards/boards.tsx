@@ -26,6 +26,8 @@ export default function Boards(props) {
 
         let newBoardID = `board_${boards?.length + 1 ?? 1}_${generateUniqueID(IDs)}`;
         setSystemStatus(`Creating Board ${boardName}.`);
+        let newColumn1ID = `column_1_${generateUniqueID(IDs)}`;
+        let newColumn2ID = `column_2_${generateUniqueID(IDs)}`;
 
         let newBoard = {
             // rows: [].concat(...getBoardColumnsFromType(boardType).map(col => col.rows)),
@@ -34,17 +36,17 @@ export default function Boards(props) {
             expanded: true,
             name: boardName,
             columnOrder: [
-                `list_1_11_08_PM_3_3_2023_lzuk8f724`,
-                `list_2_11_08_PM_3_3_2023_qf2w88ika`
+                newColumn1ID,
+                newColumn2ID,
             ],
             columns: {
-                list_1_11_08_PM_3_3_2023_lzuk8f724: {
-                    id: `list_1_11_08_PM_3_3_2023_lzuk8f724`,
+                [newColumn1ID]: {
+                    id: newColumn1ID,
                     title: `active`,
                     itemIds: []
                 },
-                list_2_11_08_PM_3_3_2023_qf2w88ika: {
-                    id: `list_2_11_08_PM_3_3_2023_qf2w88ika`,
+                [newColumn2ID]: {
+                    id: newColumn2ID,
                     title: `complete`,
                     itemIds: []
                 }
@@ -60,7 +62,7 @@ export default function Boards(props) {
         // }
 
         setBoards([newBoard, ...boards]);
-        // setIDs([...IDs, newBoard.id]);
+        setIDs([...IDs, newBoard.id, newColumn1ID, newColumn2ID]);
 
         e.target.reset();
         // window.requestAnimationFrame(() => {
@@ -125,12 +127,14 @@ export default function Boards(props) {
                             <form onSubmit={(e) => addNewBoard(e)} title={`Add Board`} id={`addBoardForm`} className={`addBoardForm flex addListForm itemButtons addForm`} style={{ width: `100%`, flexDirection: `row` }}>
                                 <div className={`inputGroup flex row`}>
                                     <input maxLength={35} placeholder={`Name of Board`} type="text" name="createBoard" required />
-                                    {devEnv && <select id={`select_board_type`} name={`selectBoardType`}>
-                                        <option id={`board_option_default`} value={`Select Board Type`}>Select Board Type</option>
-                                        {Object.values(BoardTypes).map(type => {
-                                            return <option key={type} id={`board_option_${type}`} value={type}>{type}</option>
-                                        })}
-                                    </select>}
+                                    {devEnv && <div className={`selectBoardTypeWrapper`}>
+                                        <select title={`Select Board Type`} name={`selectBoardType`} id={`select_board_type`}>
+                                            <option id={`board_option_default`} value={`Select Board Type`}>Select Board Type</option>
+                                            {Object.values(BoardTypes).map(type => {
+                                                return <option key={type} id={`board_option_${type}`} value={type}>{type}</option>
+                                            })}
+                                        </select>    
+                                    </div>}
                                 </div>
                                 <button type={`submit`} title={`Create Board`} className={`iconButton createList`}>
                                     <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-list"></i>

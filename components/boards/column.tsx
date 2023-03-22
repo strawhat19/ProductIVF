@@ -452,6 +452,7 @@ export default function Column(props) {
                         )}
                     </Droppable>
                     <form title={`Add Item`} id={`add_item_form_${props.column.id}`} className={`flex addItemForm itemButtons unset addForm`} style={{ width: `100%`, flexDirection: `row` }} onSubmit={(e) => addNewItem(e)}>
+                        <div className={`chooseItemTypeIcon`}>+</div>
                         <input placeholder={`Add`} type="text" name="createItem" required />
                         <input name={`rank`} placeholder={props.items.filter(itm => itemActiveFilters(itm)).length + 1} defaultValue={props.items.filter(itm => itemActiveFilters(itm)).length + 1} type={`number`} min={1} />
                         <input style={{padding: `10px 0px 10px 15px`, minWidth: `75px`, maxWidth: `75px`}} placeholder={`Img`} type="text" name="itemImage" />

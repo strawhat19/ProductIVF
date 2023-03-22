@@ -329,18 +329,32 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
             padding: 10px 0px 10px 15px !important;
         }
     }
+    .selectBoardTypeWrapper {
+        max-width: 29%;
+        padding-right: 5px;
+        background: var(--blackGlass);
+        border-radius: var(--borderRadius);
+    }
     select {
         display: flex;
-        max-width: 29%;
+        // max-width: 29%;
         font-size: 12px;
         min-height: 33px;
-        border-radius: var(--borderRadius);
         flex-direction: row;
         align-items: center;
         text-transform: none;
         justify-content: center;
+        background: transparent;
         padding: 5px 15px 5px 15px;
-        background: var(--blackGlass);
+        border-radius: var(--borderRadius);
+        option {
+            color: white;
+            font-size: 12px;
+            min-height: 33px;
+            padding: 5px 15px 5px 15px;
+            background: var(--blackGlass);
+            border-radius: var(--borderRadius);
+        }
         &:focus-visible {
             border: 0 !important;
             outline: none !important;
@@ -363,6 +377,38 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
             color: var(--gameBlue);
             border-top-left-radius: 4px;
             border-bottom-left-radius: 4px;
+        }
+    }
+    &.addBoardForm {
+        input {
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+    }
+    &.addItemForm {
+        &::before {
+            display: none;
+        }
+    }
+    .chooseItemTypeIcon {
+        position: absolute;
+        transition: var(--transition);
+        height: 100%;
+        width: 35px;
+        left: 0;
+        top: 0;
+        font-weight: 400;
+        font-size: 30px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: white;
+        color: var(--gameBlue);
+        border-top-left-radius: 4px;
+        border-bottom-left-radius: 4px;
+        cursor: pointer;
+        &:hover {
+            box-shadow: 0 0 10px white;
         }
     }
 }
@@ -2785,7 +2831,7 @@ footer {
 
 .detailView {
     .detailViewImage {
-        min-width: 50%;
+        // min-width: 50%;
         max-width: 50%;
         max-height: 675px;
     }
