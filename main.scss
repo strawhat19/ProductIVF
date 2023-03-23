@@ -430,6 +430,9 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
         &:not(.menuTypeIcon) {
             position: absolute;
         }
+        span {
+            pointer-events: none;
+        }
         i {
             font-size: 25px;
             text-align: center;
