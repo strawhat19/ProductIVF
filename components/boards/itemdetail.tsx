@@ -1,26 +1,34 @@
 import Image from 'next/image';
 import { useState } from 'react';
-import { formatDate } from '../../pages/_app';
+import { capWords, formatDate, generateUniqueID } from '../../pages/_app';
 import { getSubTaskPercentage } from './column';
 import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
 
 export default function ItemDetail(props) {
     let [disabled, setDisabled] = useState(false);
-    const { item, index, board, boards, setBoards } = props;
     let [image, setImage] = useState(props.item.image ?? undefined);
+    const { item, index, board, boards, setBoards, IDs, setIDs } = props;
     const [active, setActive] = useState(item?.complete ? `complete` : `active`);
 
     const saveItem = (e) => {
         e.preventDefault();
+        console.log(`saveItem`, e);
         let formFields = e.target.children;
         let itemName = formFields.itemName.value;
         let imageLink = formFields.itemImageLink.value;
-        // let itemSubtask = formFields.itemSubtask.value;
+        let itemSubtask = formFields.itemSubtask.value;
         item.complete = active == `active` ? false : true;
+        item.updated = formatDate(new Date());
         item.content = itemName;
         item.image = imageLink;
-        // if (itemSubtask) item.subtasks.push()
-        item.updated = formatDate(new Date());
+        if (itemSubtask != ``) {
+            item.subtasks.push({
+                id: `${item?.subtasks?.length + 1}_subtask_${generateUniqueID(IDs)}`,
+                created: formatDate(new Date()),
+                task: capWords(itemSubtask),
+                complete: false,
+            });
+        }
         localStorage.setItem(`boards`, JSON.stringify(boards));
         setBoards(JSON.parse(localStorage.getItem(`boards`)) || []);
         let closeButton: any = document.querySelector(`.alertButton`);
@@ -29,6 +37,7 @@ export default function ItemDetail(props) {
 
     const deleteItem = (e) => {
         e.preventDefault();
+        console.log(`deleteItem`, e);
        
         delete board.items[item.id];
             
@@ -119,9 +128,9 @@ export default function ItemDetail(props) {
                 <input type={`text`} name={`itemName`} placeholder={`Item Name`} defaultValue={item?.content} />
                 <input type={`text`} name={`itemImageLink`} placeholder={`Item Image`} defaultValue={item?.image} />
                 <input type={`text`} name={`itemVideoLink`} placeholder={`Item Video`} defaultValue={item?.video} />
-                {/* <input type={`text`} name={`itemSubtask`} placeholder={`Item Subtask`} /> */}
+                <input type={`text`} name={`itemSubtask`} placeholder={`Item Subtask`} />
                 <div className="toggle-buttons">
-                    <button onClick={(e) => deleteItem(e)} className={`iconButton deleteButton`}>Delete</button>
+                    {/* <button onClick={(e) => deleteItem(e)} className={`iconButton deleteButton`}>Delete</button> */}
                     <button disabled={disabled} className={`iconButton saveButton`} type={`submit`}>Save</button>
                 </div>
             </form>

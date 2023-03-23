@@ -1683,6 +1683,9 @@ textarea {
                 &.unfocus {
                     pointer-events: none;
                     filter: blur(3px);
+                    &.complete {
+                        filter: invert(1) blur(3px) !important;
+                    }
                     opacity: 0.35;
                 }
 
