@@ -15,9 +15,11 @@ export default function ItemDetail(props) {
         let formFields = e.target.children;
         let itemName = formFields.itemName.value;
         let imageLink = formFields.itemImageLink.value;
+        // let itemSubtask = formFields.itemSubtask.value;
         item.complete = active == `active` ? false : true;
         item.content = itemName;
         item.image = imageLink;
+        // if (itemSubtask) item.subtasks.push()
         item.updated = formatDate(new Date());
         localStorage.setItem(`boards`, JSON.stringify(boards));
         setBoards(JSON.parse(localStorage.getItem(`boards`)) || []);
@@ -116,6 +118,8 @@ export default function ItemDetail(props) {
                 </div>
                 <input type={`text`} name={`itemName`} placeholder={`Item Name`} defaultValue={item?.content} />
                 <input type={`text`} name={`itemImageLink`} placeholder={`Item Image`} defaultValue={item?.image} />
+                <input type={`text`} name={`itemVideoLink`} placeholder={`Item Video`} defaultValue={item?.video} />
+                {/* <input type={`text`} name={`itemSubtask`} placeholder={`Item Subtask`} /> */}
                 <div className="toggle-buttons">
                     <button onClick={(e) => deleteItem(e)} className={`iconButton deleteButton`}>Delete</button>
                     <button disabled={disabled} className={`iconButton saveButton`} type={`submit`}>Save</button>

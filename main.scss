@@ -390,23 +390,54 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
             display: none;
         }
     }
-    .chooseItemTypeIcon {
-        position: absolute;
+    .itemTypesMenu {
         transition: var(--transition);
+        margin-bottom: 108px;
+        position: absolute;
+        display: flex;
+        grid-gap: 3px;
+        bottom: 0px;
         height: 100%;
         width: 35px;
         left: 0;
+        .typeIcon {
+            border-radius: var(--borderRadius);
+        }
+        &:not(.show) {
+            pointer-events: none;
+            margin-bottom: 75px;
+            opacity: 0;
+        }
+    }
+    .typeIcon {
         top: 0;
-        font-weight: 400;
-        font-size: 30px;
+        left: 0;
+        width: 35px;
+        height: 100%;
         display: flex;
-        justify-content: center;
+        font-size: 35px;
+        cursor: pointer;
+        min-height: 33px;
+        max-height: 33px;
+        font-weight: 400;
         align-items: center;
         background: white;
         color: var(--gameBlue);
+        justify-content: center;
         border-top-left-radius: 4px;
+        transition: var(--transition);
         border-bottom-left-radius: 4px;
-        cursor: pointer;
+        &:not(.menuTypeIcon) {
+            position: absolute;
+        }
+        i {
+            font-size: 25px;
+            text-align: center;
+            pointer-events: none;
+            &.textual {
+                font-size: 17px;
+            }
+        }
         &:hover {
             box-shadow: 0 0 10px white;
         }
@@ -773,9 +804,9 @@ body {
             }
             .board {
                 .column {
-                    min-height: 590px;
+                    min-height: 621px;
                     .items {
-                        min-height: 485px;
+                        min-height: 515px;
                     }
                 }
             }
@@ -1397,11 +1428,21 @@ textarea {
         }
         button {
             width: 33%;
+            color: black;
             padding: 5px 0;
-            filter: invert(1);
+            font-weight: 600;
+            background: white;
             align-self: flex-end;
             justify-content: center;
-            background: var(--blackGlass);
+            transition: var(--transition);
+            &.deleteButton {
+                color: white;
+                background: red;
+                &:hover {
+                    font-weight: 800;
+                    color: black;
+                }
+            }
         }
     }
 
@@ -1411,13 +1452,20 @@ textarea {
 
     .alertButton {
         position: absolute;
-        filter: invert(1);
+        background: black;
+        font-weight: 900;
+        font-size: 16px;
+        // filter: invert(1);
+        color: var(--gameBlue);
         right: 15px;
         top: 15px;
         width: 35px;
         display: flex;
         justify-content: center;
         align-items: center;
+        &:hover {
+            color: white;
+        }
     }
 
     h3,
@@ -1425,11 +1473,6 @@ textarea {
         padding: 5px 0;
         text-align: center;
     }
-}
-
-.alertButton {
-    filter: invert(1);
-    background: white;
 }
 
 .hoverLink {
@@ -1631,8 +1674,14 @@ textarea {
                 justify-content: space-between;
                 // flex-direction: row !important;
                 border-radius: var(--borderRadius);
-                transition: filter var(--transition);
+                transition: filter, opacity var(--transition);
                 // transition: height 1500ms var(--delayedTransition);
+
+                &.unfocus {
+                    pointer-events: none;
+                    filter: blur(3px);
+                    opacity: 0.35;
+                }
 
                 span {
                     width: 100%;
@@ -1760,12 +1809,28 @@ textarea {
                     max-height: 100%;
                     font-weight: 700;
                     text-align: center;
+                    position: relative;
                     align-items: center;
+                    flex-direction: row;
                     color: var(--gameBlue);
                     height: 100% !important;
                     justify-content: center;
                     border-top-left-radius: 4px;
                     border-bottom-left-radius: 4px;
+                    .itemIndex {
+                        justify-content: center;
+                        flex-direction: row;
+                        align-items: center;
+                        grid-gap: 3px;
+                    }
+                    .itemIconType {
+                        opacity: 0.45;
+                        font-size: 0.85em;
+                        max-width: fit-content;
+                        &.Task {
+                            font-size: 0.65em;
+                        }
+                    }
                     // transition: var(--transition);
 
                     // .itemIndex {
@@ -2566,6 +2631,7 @@ footer {
             }
             .columnStats {
                 font-weight: 700;
+                padding-right: 3px;
             }
             &:hover {
                 i {
@@ -2890,12 +2956,12 @@ footer {
             width: 35px;
             left: 0;
             top: 0;
-            font-weight: 400;
+            font-weight: 600;
             font-size: 30px;
             display: flex;
             justify-content: center;
             align-items: center;
-            background: white;
+            background: black;
             color: var(--gameBlue);
             border-top-left-radius: 4px;
             border-bottom-left-radius: 4px;

@@ -1,8 +1,9 @@
 import SubTasks from './subtasks';
+import { ItemTypes } from './boards';
 import ItemDetail from './itemdetail';
-import React, { useContext } from 'react';
 import 'react-circular-progressbar/dist/styles.css';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
+import React, { useContext, useEffect, useState } from 'react';
 import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
 import { showAlert, formatDate, generateUniqueID, StateContext, dev, capitalizeAllWords } from '../../pages/_app';
 
@@ -16,7 +17,8 @@ export const getSubTaskPercentage = (subtasks) => {
 export default function Column(props) {
     let count = 0;
     const { board } = props;
-    const { boards, setBoards, setLoading, setSystemStatus, devEnv, completeFiltered, boardCategories, tasksFiltered } = useContext<any>(StateContext);
+    let [itemTypeMenuOpen, setItemTypeMenuOpen] = useState(false);
+    const { boards, setBoards, setLoading, setSystemStatus, devEnv, completeFiltered, boardCategories, tasksFiltered, IDs, setIDs } = useContext<any>(StateContext);
 
     const itemActiveFilters = (itm) => {
         if (completeFiltered) {
@@ -30,101 +32,33 @@ export default function Column(props) {
         }
     }
 
-    const kmpSearch = (pattern, text) => {
-        if (pattern.length == 0) return false; // Immediate match
-      
-        // Compute longest suffix-prefix table
-        var lsp = [0]; // Base case
-        for (var i = 1; i < pattern.length; i++) {
-          var j = lsp[i - 1]; // Start by assuming we're extending the previous LSP
-          while (j > 0 && pattern[i] !== pattern[j])
-            j = lsp[j - 1];
-          if (pattern[i] === pattern[j])
-            j++;
-          lsp.push(j);
-        }
-      
-        // Walk through text string
-        var j = 0; // Number of chars matched in pattern
-        for (var i = 0; i < text.length; i++) {
-          while (j > 0 && text[i] != pattern[j])
-            j = lsp[j - 1]; // Fall back in the pattern
-          if (text[i]  == pattern[j]) {
-            j++; // Next char matched, increment position
-            if (j == pattern.length)
-              return i - (j - 1) ? true : false;
-          }
-        }
-        return false; // Not found
-      }
-
-    const matchCriteria = (itm) => {
-        let text = itm.content;
-        boardCategories.map(cat => cat.word).forEach(pattern => {
-            if (pattern.length == 0) return 0; // Immediate match
-        
-            // Compute longest suffix-prefix table
-            let lsp = [0]; // Base case
-            for (let i = 1; i < pattern.length; i++) {
-                let j = lsp[i - 1]; // Start by assuming we're extending the previous LSP
-                while (j > 0 && pattern[i] !== pattern[j])
-                j = lsp[j - 1];
-                if (pattern[i] === pattern[j])
-                j++;
-                lsp.push(j);
-            }
-            
-            // Walk through text string
-            let j = 0; // Number of chars matched in pattern
-            for (let i = 0; i < text.length; i++) {
-                while (j > 0 && text[i] != pattern[j])
-                j = lsp[j - 1]; // Fall back in the pattern
-                if (text[i]  == pattern[j]) {
-                j++; // Next char matched, increment position
-                if (j == pattern.length)
-                    return i - (j - 1);
+    const getTypeIcon = (type, plain?) => {
+        switch (type) {
+            default:
+                return `+`;
+            case ItemTypes.Task:
+                if (plain) {
+                    return `✔`
+                } else {
+                    return <span style={{fontSize: 20, textAlign: `center`}}>✔</span>;
                 }
+            case ItemTypes.Image:
+                return <i style={{display: `contents`}} className="fas fa-image"></i>;
+            case ItemTypes.Video:
+                return <i style={{display: `contents`}} className="fab fa-youtube"></i>;
+        }
+    }
+
+    const changeItemType = (e, type?, column?) => {
+        if (!e.target.classList.contains(`menuTypeIcon`)) {
+            setItemTypeMenuOpen(!itemTypeMenuOpen);
+        } else {
+            if (type && type != column?.itemType) {
+                column.itemType = type;
+                localStorage.setItem(`boards`, JSON.stringify(boards));
+                setItemTypeMenuOpen(!itemTypeMenuOpen);
             }
-            return -1; // Not found
-        })
-    }
-
-    const wordInCategories = itm => {
-        // console.log(matchCriteria(itm));
-        // boardCategories.forEach(cat => {
-        //     return kmpSearch(cat.word, itm.content);
-        // });
-        let condition =  boardCategories.map(cat => cat.word).includes(itm.content.toLowerCase().slice(0,3))
-        || boardCategories.map(cat => cat.word).includes(itm.content.toLowerCase().slice(0,4)) || boardCategories.map(cat => cat.word).includes(itm.content.toLowerCase().slice(5));
-        // console.log(itm.content, condition);
-        return (
-            condition
-        );
-        // itm.content.toLowerCase().split(` `).forEach(wrd => {
-        //    boardCategories.map(cat => cat.word).includes(wrd);
-        // })
-        // boardCategories.map(cat => {
-        //     console.log(cat.word);
-        //     console.log(itm.content.toLowerCase().split(` `));
-        //     console.log(itm.content.toLowerCase().split(` `).includes(cat.word));
-        //     return itm.content.toLowerCase().split(` `).includes(cat.word);
-        // });
-    }
-
-    const wordOfCategory = itm => {
-        return itm.content.slice(0,4);
-    }
-
-    const copyItem = (e, item) => {
-        navigator.clipboard.writeText(item.content);
-        // Highlight Target Text
-        let parentItemElement = e.target.parentElement.parentElement;
-        let itemContentElement = parentItemElement.querySelector(`.itemContent`);
-        let selection = window.getSelection();
-        let range = document.createRange();
-        range.selectNodeContents(itemContentElement);
-        selection.removeAllRanges();
-        selection.addRange(range);
+        };
     }
 
     const addNewItem = (e) => {
@@ -134,23 +68,26 @@ export default function Column(props) {
         const column = props.board.columns[props.column.id];
         let nextIndex = column.itemIds.length + 1;
         setSystemStatus(`Creating Item.`);
+        let video = formFields.itemVideo && formFields.itemVideo.value ? formFields.itemVideo.value : ``;
+        let image = formFields.itemImage && formFields.itemImage.value ? formFields.itemImage.value : ``;
         let listItems = e.target.previousSibling;
         let newItemID = `item_${nextIndex}`;
-        let itemID = `${newItemID}_${generateUniqueID()}`;
+        let itemID = `${newItemID}_${generateUniqueID(IDs)}`;
         let content = formFields.createItem.value;
         let rank = formFields.rank.value;
         if (!rank || rank == ``) rank = nextIndex;
         rank = parseInt(rank);
         rank = rank > nextIndex ? nextIndex : rank; 
-        let image = formFields.itemImage.value ?? ``;
         const newItemIds = Array.from(column.itemIds);
         newItemIds.splice(rank - 1,0,itemID);
 
         const newItem = {
             image,
+            video,
             id: itemID,
             subtasks: [],
             complete: false,
+            type: props?.column?.itemType,
             created: formatDate(new Date()),
             content: capitalizeAllWords(content),
         }
@@ -170,6 +107,8 @@ export default function Column(props) {
                 }
             }
         });
+
+        setIDs([...IDs, newItem?.id]);
 
         e.target.reset();
         e.target.children[0].focus();
@@ -191,8 +130,12 @@ export default function Column(props) {
             let isButton = e.target.classList.contains(`iconButton`);
             if (isButton) {
                 let isManageButton = e.target.classList.contains(`manageButton`);
-                if (isManageButton) showAlert(item?.content, <ItemDetail item={item} index={index} board={board} boards={boards} setBoards={setBoards} />, `75%`, `75%`);
+                if (isManageButton) {
+                    dev() && console.log(`Item ${index + 1}`, item);
+                    showAlert(item?.content, <ItemDetail item={item} index={index} board={board} boards={boards} setBoards={setBoards} />, `75%`, `75%`);
+                };
             } else {
+                dev() && console.log(`Item ${index + 1}`, item);
                 showAlert(item?.content, <ItemDetail item={item} index={index} board={board} boards={boards} setBoards={setBoards} />, `75%`, `75%`);
             }
         }
@@ -344,7 +287,7 @@ export default function Column(props) {
                                     {props.column.title}    
                                 </div>
                                 <div className="columnStats flex row end">
-                                    <span className="subscript" style={{display: `contents`,}}><span className="slashes">{props.items.filter(itm => itemActiveFilters(itm) && itm?.complete).length}</span> Done <div className="slashes" style={{display: `contents`}}> // </div> <span className="slashes">{props.items.filter(itm => itemActiveFilters(itm)).length}</span> Items</span><span className="subscript" style={{display: `contents`,}}> - <span className="slashes">{[].concat(...props.items.filter(itm => itemActiveFilters(itm)).map(itm => itm?.subtasks)).filter(itm => itm?.complete).length}</span> Done <div className="slashes" style={{display: `contents`}}> // </div> <span className="slashes">{[].concat(...props.items.filter(itm => itemActiveFilters(itm)).map(itm => itm?.subtasks)).length}</span> Tasks</span>
+                                    <span className="subscript" style={{display: `contents`,}}><span className="slashes">{props.items.filter(itm => itemActiveFilters(itm) && itm?.complete).length}</span> ✔ <div className="slashes" style={{display: `contents`}}> // </div> <span className="slashes">{props.items.filter(itm => itemActiveFilters(itm)).length}</span> ☰</span><span className="subscript" style={{display: `contents`,}}> - <span className="slashes">{[].concat(...props.items.filter(itm => itemActiveFilters(itm)).map(itm => itm?.subtasks)).filter(itm => itm?.complete).length}</span> ✔ <div className="slashes" style={{display: `contents`}}> // </div> <span className="slashes">{[].concat(...props.items.filter(itm => itemActiveFilters(itm)).map(itm => itm?.subtasks)).length}</span> ☰</span>
                                 </div>
                             </div>
                         </h3>
@@ -364,10 +307,11 @@ export default function Column(props) {
                                     return (
                                     <Draggable key={item.id} draggableId={item.id} index={itemIndex}>
                                         {provided => (
-                                            <div id={item.id} className={`item completeItem ${item.complete ? `complete` : ``} container ${snapshot.isDragging ? `dragging` : ``}`} title={item.content} {...provided.draggableProps} ref={provided.innerRef}>
+                                            <div id={item.id} className={`item completeItem ${item.complete ? `complete` : ``} container ${snapshot.isDragging ? `dragging` : ``} ${itemTypeMenuOpen ? `unfocus` : ``}`} title={item.content} {...provided.draggableProps} ref={provided.innerRef}>
                                                 <div onClick={(e) => manageItem(e, item, itemIndex)} {...provided.dragHandleProps} className={`itemRow flex row ${item?.complete ? `completed` : `incomplete`} ${item.subtasks.length > 0 ? `hasTasksRow` : `noTasksRow`}`}>
                                                     <span className="itemOrder rowIndexOrder">
-                                                        <i className={`itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>{itemIndex + 1}</i>
+                                                        {/* <i className={`itemIconType itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>{getTypeIcon(item?.type)}</i> */}
+                                                        <i className={`itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>{(item?.type == ItemTypes.Item || item?.type == ItemTypes.Task) && <span className={`itemIconType ${item?.type}`}>{getTypeIcon(item?.type, true)}</span>} {itemIndex + 1}</i>
                                                     </span>
                                                     {item?.image && <img className={`itemImage boardItemImage`} src={item?.image} alt={item?.content} />}
                                                     <div className="itemContents">
@@ -441,7 +385,7 @@ export default function Column(props) {
                                                         </button>
                                                     </div>
                                                 </div>
-                                                {!tasksFiltered && item.subtasks && <SubTasks item={item} />}
+                                                {(!tasksFiltered && item.subtasks && (item?.type == ItemTypes.Task || item?.subtasks?.length > 0)) && <SubTasks item={item} />}
                                             </div>
                                         )}
                                     </Draggable>
@@ -452,10 +396,14 @@ export default function Column(props) {
                         )}
                     </Droppable>
                     <form title={`Add Item`} id={`add_item_form_${props.column.id}`} className={`flex addItemForm itemButtons unset addForm`} style={{ width: `100%`, flexDirection: `row` }} onSubmit={(e) => addNewItem(e)}>
-                        <div className={`chooseItemTypeIcon`}>+</div>
+                        <div className={`itemTypesMenu ${itemTypeMenuOpen ? `show` : ``}`}>
+                            {Object.values(ItemTypes).filter(type => type !== props?.column?.itemType).map((type, typeIndex) => <div key={typeIndex} title={type} onClick={(e) => changeItemType(e, type, props.column)} className={`typeIcon menuTypeIcon`}>{getTypeIcon(type)}</div>)}
+                        </div>
+                        <div title={props?.column?.itemType} onClick={(e) => changeItemType(e)} className={`typeIcon`}>{getTypeIcon(props?.column?.itemType)}</div>
                         <input placeholder={`Add`} type="text" name="createItem" required />
+                        {props?.column?.itemType == ItemTypes.Image && <input style={{padding: `10px 0px 10px 15px`, minWidth: `75px`, maxWidth: `75px`}} placeholder={`Img Url`} type="text" name="itemImage" />}
+                        {props?.column?.itemType == ItemTypes.Video && <input style={{padding: `10px 0px 10px 15px`, minWidth: `75px`, maxWidth: `75px`}} placeholder={`Youtube Url`} type="text" name="itemVideo" />}
                         <input name={`rank`} placeholder={props.items.filter(itm => itemActiveFilters(itm)).length + 1} defaultValue={props.items.filter(itm => itemActiveFilters(itm)).length + 1} type={`number`} min={1} />
-                        <input style={{padding: `10px 0px 10px 15px`, minWidth: `75px`, maxWidth: `75px`}} placeholder={`Img`} type="text" name="itemImage" />
                         <button type={`submit`} title={`Add Item`} className={`iconButton createList wordIconButton`}>
                             <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-plus"></i>
                             <span className={`iconButtonText textOverflow extended`}>
@@ -471,3 +419,100 @@ export default function Column(props) {
         </Draggable>
     )
 }
+
+// const kmpSearch = (pattern, text) => {
+    //     if (pattern.length == 0) return false; // Immediate match
+      
+    //     // Compute longest suffix-prefix table
+    //     var lsp = [0]; // Base case
+    //     for (var i = 1; i < pattern.length; i++) {
+    //       var j = lsp[i - 1]; // Start by assuming we're extending the previous LSP
+    //       while (j > 0 && pattern[i] !== pattern[j])
+    //         j = lsp[j - 1];
+    //       if (pattern[i] === pattern[j])
+    //         j++;
+    //       lsp.push(j);
+    //     }
+      
+    //     // Walk through text string
+    //     var j = 0; // Number of chars matched in pattern
+    //     for (var i = 0; i < text.length; i++) {
+    //       while (j > 0 && text[i] != pattern[j])
+    //         j = lsp[j - 1]; // Fall back in the pattern
+    //       if (text[i]  == pattern[j]) {
+    //         j++; // Next char matched, increment position
+    //         if (j == pattern.length)
+    //           return i - (j - 1) ? true : false;
+    //       }
+    //     }
+    //     return false; // Not found
+    //   }
+
+    // const matchCriteria = (itm) => {
+    //     let text = itm.content;
+    //     boardCategories.map(cat => cat.word).forEach(pattern => {
+    //         if (pattern.length == 0) return 0; // Immediate match
+        
+    //         // Compute longest suffix-prefix table
+    //         let lsp = [0]; // Base case
+    //         for (let i = 1; i < pattern.length; i++) {
+    //             let j = lsp[i - 1]; // Start by assuming we're extending the previous LSP
+    //             while (j > 0 && pattern[i] !== pattern[j])
+    //             j = lsp[j - 1];
+    //             if (pattern[i] === pattern[j])
+    //             j++;
+    //             lsp.push(j);
+    //         }
+            
+    //         // Walk through text string
+    //         let j = 0; // Number of chars matched in pattern
+    //         for (let i = 0; i < text.length; i++) {
+    //             while (j > 0 && text[i] != pattern[j])
+    //             j = lsp[j - 1]; // Fall back in the pattern
+    //             if (text[i]  == pattern[j]) {
+    //             j++; // Next char matched, increment position
+    //             if (j == pattern.length)
+    //                 return i - (j - 1);
+    //             }
+    //         }
+    //         return -1; // Not found
+    //     })
+    // }
+
+    // const wordInCategories = itm => {
+    //     // console.log(matchCriteria(itm));
+    //     // boardCategories.forEach(cat => {
+    //     //     return kmpSearch(cat.word, itm.content);
+    //     // });
+    //     let condition =  boardCategories.map(cat => cat.word).includes(itm.content.toLowerCase().slice(0,3))
+    //     || boardCategories.map(cat => cat.word).includes(itm.content.toLowerCase().slice(0,4)) || boardCategories.map(cat => cat.word).includes(itm.content.toLowerCase().slice(5));
+    //     // console.log(itm.content, condition);
+    //     return (
+    //         condition
+    //     );
+    //     // itm.content.toLowerCase().split(` `).forEach(wrd => {
+    //     //    boardCategories.map(cat => cat.word).includes(wrd);
+    //     // })
+    //     // boardCategories.map(cat => {
+    //     //     console.log(cat.word);
+    //     //     console.log(itm.content.toLowerCase().split(` `));
+    //     //     console.log(itm.content.toLowerCase().split(` `).includes(cat.word));
+    //     //     return itm.content.toLowerCase().split(` `).includes(cat.word);
+    //     // });
+    // }
+
+    // const wordOfCategory = itm => {
+    //     return itm.content.slice(0,4);
+    // }
+
+    // const copyItem = (e, item) => {
+    //     navigator.clipboard.writeText(item.content);
+    //     // Highlight Target Text
+    //     let parentItemElement = e.target.parentElement.parentElement;
+    //     let itemContentElement = parentItemElement.querySelector(`.itemContent`);
+    //     let selection = window.getSelection();
+    //     let range = document.createRange();
+    //     range.selectNodeContents(itemContentElement);
+    //     selection.removeAllRanges();
+    //     selection.addRange(range);
+    // }

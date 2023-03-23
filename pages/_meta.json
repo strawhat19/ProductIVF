@@ -24,11 +24,10 @@
       }
     }
   },
-  "contact": {
-    "title": "Contact ↗",
+  "boards": {
+    "title": "Boards ↗",
     "type": "page",
-    "href": "https://piratechs.com/",
-    "newWindow": true
+    "href": "/projects/boards"
   },
   "projects": {
     "title": "Projects",

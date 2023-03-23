@@ -12,6 +12,13 @@ export enum BoardTypes {
     SelectBoardType = `Select Board Type`,
 }
 
+export enum ItemTypes {
+    Video = `Video`,
+    Image = `Image`,
+    Item = `Item`,
+    Task = `Task`
+}
+
 export default function Boards(props) {
     let [updates, setUpdates] = useState(0);
     const { rte, board, boards, setBoards, router, setLoading, setSystemStatus, IDs, setIDs, devEnv, setRte } = useContext<any>(StateContext);
@@ -127,14 +134,14 @@ export default function Boards(props) {
                             <form onSubmit={(e) => addNewBoard(e)} title={`Add Board`} id={`addBoardForm`} className={`addBoardForm flex addListForm itemButtons addForm`} style={{ width: `100%`, flexDirection: `row` }}>
                                 <div className={`inputGroup flex row`}>
                                     <input maxLength={35} placeholder={`Name of Board`} type="text" name="createBoard" required />
-                                    {devEnv && <div className={`selectBoardTypeWrapper`}>
+                                    {/* {devEnv && <div className={`selectBoardTypeWrapper`}>
                                         <select title={`Select Board Type`} name={`selectBoardType`} id={`select_board_type`}>
                                             <option id={`board_option_default`} value={`Select Board Type`}>Select Board Type</option>
                                             {Object.values(BoardTypes).map(type => {
                                                 return <option key={type} id={`board_option_${type}`} value={type}>{type}</option>
                                             })}
                                         </select>    
-                                    </div>}
+                                    </div>} */}
                                 </div>
                                 <button type={`submit`} title={`Create Board`} className={`iconButton createList`}>
                                     <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-list"></i>
