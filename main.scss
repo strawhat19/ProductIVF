@@ -2840,6 +2840,50 @@ footer {
 //     }
 // }
 
+.projectLinks {
+    display: flex;
+    flex-flow: row;
+    grid-gap: 15px;
+    align-items: center;
+    justify-content: flex-start;
+    i {
+        color: var(--gameBlue);
+        max-width: max-content;
+    }
+}
+
+@media (max-width: 485px) {
+    .filterFormDiv {
+        #filter_tasks, #filter_completed {
+            display: none;
+        }
+    }
+}
+
+@media (max-width: 405px) {
+    .filterFormDiv {
+       button {
+        display: none;
+       }
+    }
+}
+
+.avatarAndUser {
+    display: flex;
+    flex-flow: row;
+    grid-gap: 15px;
+    align-items: center;
+    justify-content: flex-start;
+    .gitUserNameLink {
+        font-size: 13px;
+        font-weight: 400;
+        align-self: center !important;
+    }
+    .projectAvatar {
+        max-width: 50px;
+    }
+}
+
 .projects {
     flex-wrap: wrap;
     // flex-direction: row !important;

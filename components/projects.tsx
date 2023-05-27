@@ -102,8 +102,15 @@ export default function Projects() {
                 <div className="inner row flex">
                   <div className="projectOrder itemOrder">{projectIndex + 1}</div>
                   <div className="projectContents flex">
-                    <a target={`_blank`} href={project?.url} className={`projectName projectLink hoverLink`}>{project?.name}</a>
-                    {overrideUser && <img alt={`Project Owner`} src={overrideUser?.avatar} className={`projectAvatar`} />}
+                    <div className="projectLinks">
+                      <a target={`_blank`} href={project?.url} className={`projectName projectLink hoverLink`}>{project?.name}</a>
+                      {project?.homepage && project?.homepage != `` && <a title={`View the Live Link`} target={`_blank`} href={project?.homepage}><i className="fas fa-globe-americas"></i></a>}
+                      <a title={`View the Code`} href={project?.url} target={`_blank`}><i className="fab fa-github"></i></a>
+                    </div>
+                    {overrideUser && <div className={`avatarAndUser`}>
+                      <img alt={`Project Owner`} src={overrideUser?.avatar} className={`projectAvatar`} />
+                      <a href={project?.owner?.html_url} target={`_blank`} className={`gitUserNameLink hoverLink`}>by {overrideUser?.login}</a>
+                    </div>}
                     <div className="projectTopics flex row">
                       {project?.topics.length > 0 && project?.topics.map((topic, topicIndex) => {
                         return (
