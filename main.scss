@@ -13,20 +13,9 @@
 }
 
 :root {
-    --html: #f16529;
-    --css: #2862e9;
-    --js: #f7df1e;
-    --php: #7377ad;
-    --node: #73ab60;
-    --sass: #f783ac;
-    --sql: #f783ac;
-    --mongo: #00684a;
-    --node: #3eb112;
-    --git: #e94e31;
-    --swift: #f4993a;
-    --discord: #7289DA;
-    --skeleton: #4c4c4c;
-    --bg: #1f1f1f;
+    --darkBG: black;
+    --lightBG: white;
+    --bg: #010000;
     --posterH: 250px;
     --posterW: 165px;
     --steel: #7a7a7a;
@@ -42,8 +31,25 @@
     --softBlack2: #636363;
     --piratechsDark: #10141d;
     --main: rgb(0, 216, 255);
+    --nextraColor: var(--nextra);
     --gameBlueInverse: #ff3d00;
-    // --gameBlueSoft: var(--nextra);
+
+    // Logos
+    --html: #f16529;
+    --css: #2862e9;
+    --js: #f7df1e;
+    --php: #7377ad;
+    --node: #73ab60;
+    --sass: #f783ac;
+    --sql: #f783ac;
+    --mongo: #00684a;
+    --node: #3eb112;
+    --git: #e94e31;
+    --swift: #f4993a;
+    --discord: #7289DA;
+    --skeleton: #4c4c4c;
+
+    // Semi Transparent
     --authGlass: rgba(0, 0, 0, 0.05);
     --mainTeal: rgba(32, 143, 163, 1);
     --blackGlass: rgba(0, 0, 0, 0.75);
@@ -58,6 +64,29 @@
     --softSkyBlue: rgba(132, 169, 177, 1) !important;
     --delayedTransition: cubic-bezier(0.77, 0.2, 0.05, 1);
     --transition: 0.24s cubic-bezier(0.77, 0.2, 0.05, 1) !important;
+}
+
+.dark {
+    aside {
+        border-right: 1px solid var(--main) !important;
+    }
+    .nextra-nav-container {
+        border-bottom: 1px solid var(--main);
+        background: var(--darkBG) !important;
+        nav, .nextra-nav-container-blur {
+            background: var(--darkBG) !important;
+        }
+    }
+}
+
+.light {
+    .nextra-nav-container {
+        // border-bottom: 1px solid var(--main);
+        background: var(--lightBG) !important;
+        nav, .nextra-nav-container-blur {
+            background: var(--lightBG) !important;
+        }
+    }
 }
 
 .titleRow {
@@ -98,10 +127,6 @@
 }
 
 .dark {
-
-    // .Lists {
-    //     --nextra-primary-hue: ;
-    // }
 
     .line {
         &::before {
