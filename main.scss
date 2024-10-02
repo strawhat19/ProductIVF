@@ -192,6 +192,7 @@
 
 article {
     padding: 1em 0;
+    min-height: calc(94vh - var(--nextra-navbar-height)) !important;
     main {
         max-width: 92rem !important;
         width: 100% !important;
@@ -570,8 +571,15 @@ input {
 @media (min-width: 768px) {
     aside {
         width: auto !important;
+        display: none !important;
     }
 }
+
+// @media (min-width: 850px) {
+//     aside {
+//         display: none !important;
+//     }
+// }
 
 @media (max-width: 850px) {
     nav {
@@ -831,10 +839,12 @@ body {
                 margin: -10px 0 -7px 0;
             }
             .board {
+                --boardColumnHeight: 605px;
                 .column {
-                    min-height: 621px;
+                    align-items: flex-start;
+                    min-height: var(--boardColumnHeight);
                     .items {
-                        min-height: 515px;
+                        min-height: calc(var(--boardColumnHeight) - 115px);
                     }
                 }
             }

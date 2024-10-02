@@ -13,6 +13,22 @@ export const getCurrentPageName = () => {
   return window.location.hash.slice(window.location.hash.lastIndexOf(`/`)).replace(`/`, ``);
 };
 
+export const setThemeMode = (theme) => {
+  let html = document.documentElement;
+  if (html.classList.contains(`dark`)) html.classList.remove(`dark`);
+  if (html.classList.contains(`light`)) html.classList.remove(`light`);
+  html.classList.add(theme);
+  html.style = `color-scheme: ${theme}`;
+  html.setAttribute(`data-theme`, theme);
+  localStorage.setItem(`theme`, theme);
+}
+
+export const setThemeUI = () => {
+  let themeMode = localStorage.getItem(`theme`) ? localStorage.getItem(`theme`) : `dark`;
+  localStorage.setItem(`alertOpen`, false);
+  setThemeMode(themeMode);
+}
+
 export const formatDate = (date, specificPortion) => {
   let hours = date.getHours();
   let minutes = date.getMinutes();
@@ -696,6 +712,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       let cachedBoard = JSON.parse(localStorage.getItem(`board`));
       let cachedBoards = JSON.parse(localStorage.getItem(`boards`));
 
+      setThemeUI();
       setDevEnv(dev());
       setUpdates(updates);
       setPlatform(navigator?.userAgent);

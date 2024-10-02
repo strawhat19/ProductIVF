@@ -5,35 +5,5 @@
       "pagination": false,
       "layout": "full"
     }
-  },
-  "about": {
-    "title": "About",
-    "type": "page"
-  },
-  "company": {
-    "title": "Company",
-    "type": "menu",
-    "items": {
-      "about": {
-        "title": "Piratechs",
-        "href": "https://piratechs.com/"
-      },
-      "contact": {
-        "title": "Text Me",
-        "href": "sms:6787903980"
-      }
-    }
-  },
-  "boards": {
-    "title": "Boards ↗",
-    "type": "page",
-    "href": "/projects/boards"
-  },
-  "projects": {
-    "title": "Projects",
-    "theme": {
-      "layout": "full"
-    }
-  },
-  "code-snippets": "Code Snippets"
+  }
 }
