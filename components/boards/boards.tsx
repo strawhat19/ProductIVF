@@ -1,7 +1,7 @@
 import Board from './board';
 import { useState, useEffect, useContext } from 'react';
 import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
-import { capWords, dev, formatDate, generateUniqueID, replaceAll, showAlert, StateContext } from '../../pages/_app';
+import { capWords, dev, formatDate, generateUniqueID, replaceAll, StateContext } from '../../pages/_app';
 
 export enum BoardTypes {
     Table = `Table`,
@@ -31,7 +31,8 @@ export default function Boards(props) {
         let boardName = capWords(formFields.createBoard.value);
         let titleWidth = `${(boardName.length * 8.5) + 80}px`;
 
-        let newBoardID = `board_${boards?.length + 1 ?? 1}_${generateUniqueID(IDs)}`;
+        let boardIDX = boards?.length + 1 ? boards?.length + 1 : 1;
+        let newBoardID = `board_${boardIDX}_${generateUniqueID(IDs)}`;
         setSystemStatus(`Creating Board ${boardName}.`);
         let newColumn1ID = `column_1_${generateUniqueID(IDs)}`;
         let newColumn2ID = `column_2_${generateUniqueID(IDs)}`;

@@ -1,9 +1,9 @@
 
 import Column from './column';
-import React, { useState, useContext, useEffect, useRef } from 'react';
-import { DragDropContext, Droppable, onDragStart } from 'react-beautiful-dnd';
-import { capitalizeAllWords, dev, formatDate, generateUniqueID, StateContext } from '../../pages/_app';
 import { ItemTypes } from './boards';
+import { DragDropContext, Droppable } from 'react-beautiful-dnd';
+import React, { useState, useContext, useEffect, useRef } from 'react';
+import { capitalizeAllWords, dev, formatDate, generateUniqueID, StateContext } from '../../pages/_app';
 
 export const addBoardScrollBars = () => {
     let boardColumnItems = document.querySelectorAll(`.boardColumnItems`);
@@ -36,9 +36,10 @@ function Board(props) {
         newColumnOrder.push(columnID);
 
         const newColumn = {
-            id: columnID,
-            title: formFields[0].value,
             itemIds: [],
+            id: columnID,
+            itemType: ItemTypes.Task,
+            title: formFields[0].value,
         };
 
         setBoard({
