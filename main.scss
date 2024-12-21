@@ -1400,17 +1400,15 @@ textarea {
     }
 }
 
-.item:has(img) {
-    // max-width: 33%;
-    .itemRow {
-        border-radius: var(--borderRadius) !important;
-        background: var(--blackGlass) !important;
-        // flex-direction: column !important;
-    }
-    .subTasks {
-        display: none;
-    }
-}
+// .item:has(img) {
+//     .itemRow {
+//         border-radius: var(--borderRadius) !important;
+//         background: var(--blackGlass) !important;
+//     }
+//     .subTasks {
+//         display: none;
+//     }
+// }
 
 .alert {
     width: 450px;
