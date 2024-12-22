@@ -1,4 +1,5 @@
 @use './styles/toast';
+@use './styles/image';
 
 /* Montserrat */
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
@@ -982,17 +983,25 @@ p em {
 
 form {
     height: 100% !important;
-    input {
+    textarea {
+        width: 100%;
+        min-height: 100px;
+        max-height: 100% !important;
+        &::placeholder {
+            opacity: 0.5;
+        }
+    }
+    input, textarea {
         font-size: 12px;
         max-height: 35px;
         font-weight: 400;
-        border-radius: var(--borderRadius);
-        padding: 10px 25px;
+        padding: 10px 15px;
         outline: none !important;
-        font-family: "Montserrat";
-        background: var(--blackGlass) !important;
-        transition: var(--transition);
         color: white !important;
+        font-family: "Montserrat";
+        transition: var(--transition);
+        border-radius: var(--borderRadius);
+        background: var(--blackGlass) !important;
         // box-shadow: 0 0 10px var(--gameBlueSoft),0 0 20px var(--gameBlueSoft);
 
         label {
@@ -1443,16 +1452,18 @@ textarea {
     }
 
     form {
-        width: 45%;
+        width: 98%;
         grid-gap: 15px;
         margin: 0 auto;
         h3 {
             font-size: 2em;
             font-style: italic;
-            align-self: flex-start;
         }
         input {
             width: 100%;
+            &::placeholder {
+                opacity: 0.5;
+            }
         }
         button {
             width: 33%;
@@ -2976,8 +2987,6 @@ footer {
 
 .detailView {
     .detailViewImage {
-        // min-width: 50%;
-        max-width: 50%;
         max-height: 675px;
     }
     form {

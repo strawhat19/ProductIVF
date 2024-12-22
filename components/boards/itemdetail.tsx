@@ -1,7 +1,7 @@
-import Image from 'next/image';
 import { useState } from 'react';
-import { capWords, formatDate, generateUniqueID } from '../../pages/_app';
+import CustomImage from '../custom-image';
 import { getSubTaskPercentage } from './column';
+import { capWords, formatDate, generateUniqueID } from '../../pages/_app';
 import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
 
 export default function ItemDetail(props) {
@@ -12,13 +12,15 @@ export default function ItemDetail(props) {
 
     const saveItem = (e) => {
         e.preventDefault();
-        console.log(`saveItem`, e);
-        let formFields = e.target.children;
-        let itemName = formFields.itemName.value;
-        let imageLink = formFields.itemImageLink.value;
-        let itemSubtask = formFields.itemSubtask.value;
+        let form = e?.target;
+        let { itemName: itemNameField, itemImageLink, itemSubtask: itemSubtaskField, itemDescriptionField } = form;
+        let itemName = itemNameField?.value;
+        let imageLink = itemImageLink?.value;
+        let itemSubtask = itemSubtaskField?.value;
+        let itemDescription = itemDescriptionField?.value;
         item.complete = active == `active` ? false : true;
         item.updated = formatDate(new Date());
+        item.description = itemDescription;
         item.content = itemName;
         item.image = imageLink;
         if (itemSubtask != ``) {
@@ -85,29 +87,24 @@ export default function ItemDetail(props) {
             //       }
             //     }}
             //   />
-                <img className={`itemImage detailViewImage`} src={image} alt={item?.content} onError={(e) => setDisabled(true)} onLoad={(e) => setDisabled(false)} />
+                <figure className={`customDetailImage`} style={{ maxWidth: `40%` }}>
+                    <CustomImage 
+                        src={image} 
+                        alt={item?.content} 
+                        className={`itemImage detailViewImage`} 
+                        onError={(e) => setDisabled(true)} onLoad={(e) => setDisabled(false)} 
+                    />
+                </figure>
             )}
             <form onInput={(e) => refreshDetails(e)} onSubmit={(e) => saveItem(e)} className={`changeInputs flex isColumn`} data-index={index + 1}>
                 <div className={`formTop`}>
-                    <h3><strong>{item?.content}</strong> - Details</h3>
+                    <h3><strong>{item?.type}</strong></h3>
                     {item.subtasks.length > 0 && <div className={`progress`} title={`Progress: ${getSubTaskPercentage(item.subtasks)}%`}>
                         <CircularProgressbar value={getSubTaskPercentage(item.subtasks)} text={`${getSubTaskPercentage(item.subtasks)}%`} styles={buildStyles({
-                            // Rotation of path and trail, in number of turns (0-1)
                             rotation: 0.5,
-
-                            // Whether to use rounded or flat corners on the ends - can use 'butt' or 'round'
                             strokeLinecap: 'butt',
-
-                            // Text size
                             textSize: '24px',
-
-                            // How long animation takes to go from one percentage to another, in seconds
                             pathTransitionDuration: 0.5,
-
-                            // Can specify path transition in more detail, or remove it entirely
-                            // pathTransition: 'none',
-
-                            // Colors
                             pathColor: getSubTaskPercentage(item.subtasks) < 100 ? `rgba(0, 194, 255, ${getSubTaskPercentage(item.subtasks) / 100})` : `#00c2ff`,
                             trailColor: 'rgba(0, 194, 255, 0.2)',
                             backgroundColor: '#3e98c7',
@@ -125,13 +122,41 @@ export default function ItemDetail(props) {
                         <label>Complete</label>
                     </div>
                 </div>
-                <input type={`text`} name={`itemName`} placeholder={`Item Name`} defaultValue={item?.content} />
-                <input type={`text`} name={`itemImageLink`} placeholder={`Item Image`} defaultValue={item?.image} />
-                <input type={`text`} name={`itemVideoLink`} placeholder={`Item Video`} defaultValue={item?.video} />
-                <input type={`text`} name={`itemSubtask`} placeholder={`Item Subtask`} />
+                <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
+                    <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
+                        Title
+                    </div>
+                    <input type={`text`} name={`itemName`} className={`itemNameField`} placeholder={`Item Name`} defaultValue={item?.content} />
+                </div>
+                <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
+                    <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
+                        Description
+                    </div>
+                    <textarea name={`itemDescriptionField`} className={`itemDescriptionField`} placeholder={`Item Description`} defaultValue={item?.description} />
+                </div>
+                <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
+                    <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
+                        Image
+                    </div>
+                    <input type={`text`} name={`itemImageLink`} className={`itemImageLinkField`} placeholder={`Item Image`} defaultValue={item?.image} />
+                </div>
+                <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
+                    <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
+                        Video
+                    </div>
+                    <input type={`text`} name={`itemVideoLink`} className={`itemVideoLinkField`} placeholder={`Item Video`} defaultValue={item?.video} />
+                </div>
+                <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
+                    <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
+                        Subtask
+                    </div>
+                    <input type={`text`} name={`itemSubtask`} className={`itemSubtaskField`} placeholder={`Item Subtask`} />
+                </div>
                 <div className="toggle-buttons">
                     {/* <button onClick={(e) => deleteItem(e)} className={`iconButton deleteButton`}>Delete</button> */}
-                    <button disabled={disabled} className={`iconButton saveButton`} type={`submit`}>Save</button>
+                    <button disabled={disabled} className={`iconButton saveButton`} type={`submit`}>
+                        Save
+                    </button>
                 </div>
             </form>
         </div>

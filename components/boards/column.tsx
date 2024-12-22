@@ -1,9 +1,10 @@
 import SubTasks from './subtasks';
 import { ItemTypes } from './boards';
 import ItemDetail from './itemdetail';
+import CustomImage from '../custom-image';
+import React, { useContext, useState } from 'react';
 import 'react-circular-progressbar/dist/styles.css';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
-import React, { useContext, useEffect, useState } from 'react';
 import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
 import { showAlert, formatDate, generateUniqueID, StateContext, dev, capitalizeAllWords } from '../../pages/_app';
 
@@ -18,7 +19,7 @@ export default function Column(props) {
     let count = 0;
     const { board } = props;
     let [itemTypeMenuOpen, setItemTypeMenuOpen] = useState(false);
-    const { boards, setBoards, setLoading, setSystemStatus, devEnv, completeFiltered, boardCategories, tasksFiltered, IDs, setIDs } = useContext<any>(StateContext);
+    const { boards, setBoards, setLoading, setSystemStatus, completeFiltered, tasksFiltered, IDs, setIDs } = useContext<any>(StateContext);
 
     const itemActiveFilters = (itm) => {
         if (completeFiltered) {
@@ -87,6 +88,7 @@ export default function Column(props) {
             id: itemID,
             subtasks: [],
             complete: false,
+            description: ``,
             type: props?.column?.itemType,
             created: formatDate(new Date()),
             content: capitalizeAllWords(content),
@@ -132,11 +134,11 @@ export default function Column(props) {
                 let isManageButton = e.target.classList.contains(`manageButton`);
                 if (isManageButton) {
                     dev() && console.log(`Item ${index + 1}`, item);
-                    showAlert(item?.content, <ItemDetail item={item} index={index} board={board} boards={boards} setBoards={setBoards} />, `75%`, `75%`);
+                    showAlert(item?.content, <ItemDetail item={item} index={index} board={board} boards={boards} setBoards={setBoards} />, `95%`, `75%`);
                 };
             } else {
                 dev() && console.log(`Item ${index + 1}`, item);
-                showAlert(item?.content, <ItemDetail item={item} index={index} board={board} boards={boards} setBoards={setBoards} />, `75%`, `75%`);
+                showAlert(item?.content, <ItemDetail item={item} index={index} board={board} boards={boards} setBoards={setBoards} />, `95%`, `75%`);
             }
         }
     }
@@ -313,7 +315,7 @@ export default function Column(props) {
                                                         {/* <i className={`itemIconType itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>{getTypeIcon(item?.type)}</i> */}
                                                         <i className={`itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>{(item?.type == ItemTypes.Item || item?.type == ItemTypes.Task) && <span className={`itemIconType ${item?.type}`}>{getTypeIcon(item?.type, true)}</span>} {itemIndex + 1}</i>
                                                     </span>
-                                                    {item?.image && <img className={`itemImage boardItemImage`} src={item?.image} alt={item?.content} />}
+                                                    {item?.image && <CustomImage className={`itemImage boardItemImage`} src={item?.image} alt={item?.content} useLazyLoad={true} />}
                                                     <div className="itemContents">
                                                         <span className="flex row itemContent boardItemContent itemName textOverflow extended">
                                                             {/* <textarea onBlur={(e) => changeLabel(e, item)} className={`changeLabel`} defaultValue={item.content} /> */}
