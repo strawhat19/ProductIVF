@@ -1,5 +1,8 @@
 import '../main.scss';
+import 'react-toastify/dist/ReactToastify.css';
+
 import ReactDOM from 'react-dom/client';
+import { ToastContainer } from 'react-toastify';
 import { AnimatePresence, motion } from 'framer-motion';
 import { createContext, useRef, useState, useEffect } from 'react';
 
@@ -806,5 +809,17 @@ export default function ProductIVF({ Component, pageProps, router }) {
       </AnimatePresence> : <div className={`pageWrapContainer ${page.toUpperCase()}`}>
         <Component {...pageProps} />
       </div>}
+      <ToastContainer
+        position={`bottom-left`}
+        hideProgressBar={false}
+        pauseOnHover={false}
+        newestOnTop={false}
+        autoClose={3500}
+        pauseOnFocusLoss
+        theme={`dark`}
+        closeOnClick
+        rtl={false}
+        draggable
+      />
     </StateContext.Provider>
 }

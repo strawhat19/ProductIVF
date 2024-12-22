@@ -385,7 +385,7 @@ export default function Column(props) {
                                                         </button>
                                                     </div>
                                                 </div>
-                                                {(!tasksFiltered && item.subtasks && (item?.subtasks?.length > 0)) && <SubTasks item={item} />}
+                                                {!tasksFiltered && item.subtasks && <SubTasks item={item} />}
                                             </div>
                                         )}
                                     </Draggable>

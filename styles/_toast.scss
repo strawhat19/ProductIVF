@@ -1,0 +1,11 @@
+.Toastify__toast-container {
+    --toastify-container-width: 350px;
+    .Toastify__toast {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        .Toastify__close-button {
+            display: none;
+        }
+    }
+}

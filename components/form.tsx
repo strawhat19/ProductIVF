@@ -1,8 +1,10 @@
 'use client';
+
 import { db } from '../firebase';
+import { toast } from 'react-toastify';
+import { collection, getDocs } from 'firebase/firestore';
 import { useContext, useEffect, useRef, useState } from 'react';
-import { collection, doc, getDocs, setDoc } from 'firebase/firestore';
-import { defaultContent, formatDate, capitalizeAllWords, createXML, StateContext, showAlert } from '../pages/_app';
+import { defaultContent, formatDate, capitalizeAllWords, StateContext, showAlert } from '../pages/_app';
 
 export const convertHexToRGB = (HexString?:any, returnObject?: any) => {
   let r = parseInt(HexString.slice(1, 3), 16),
@@ -84,6 +86,7 @@ export default function Form(props?: any) {
         console.log(clicked?.value);
         break;
       case `Next`:
+        toast.error(`Authentication Not Implemented Yet`);
         // getDocs(collection(db, `users`)).then((snapshot) => {
         //   let latestUsers = snapshot.docs.map((doc: any) => doc.data()).sort((a: any, b: any) => b?.highScore - a?.highScore);
         //   let macthingEmails = latestUsers.filter((usr: any) => usr?.email.toLowerCase() == email.toLowerCase());
@@ -97,11 +100,11 @@ export default function Form(props?: any) {
         //   setAuthState(`Sign Up`);
         // }
         // });
-        showAlert(`Whoah There!`, <div className={`formWarning`}>
-          <h2 style={{fontSize: `1.5em`}}>
-            Ok so, I haven't quite put user authentication in yet, I will soon! For now, this is not supported yet, apologies!
-          </h2>
-        </div>, `420px`, `auto`);
+        // showAlert(`Whoah There!`, <div className={`formWarning`}>
+        //   <h2 style={{fontSize: `1.5em`}}>
+        //     Ok so, I haven't quite put user authentication in yet, I will soon! For now, this is not supported yet, apologies!
+        //   </h2>
+        // </div>, `420px`, `auto`);
         break;
       case `Back`:
         setUpdates(updates+1);
