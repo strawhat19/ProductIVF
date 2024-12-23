@@ -26,7 +26,6 @@ export default function Board(props) {
 
     const filterSubtasks = (e?: any) => {
         setTasksFiltered(!tasksFiltered);
-        console.log(`filterSubtasks`, !tasksFiltered);
         localStorage.setItem(`tasksFiltered`, JSON.stringify(!tasksFiltered));
     }
 

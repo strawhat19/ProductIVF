@@ -3,6 +3,13 @@ import { useState, useEffect, useContext } from 'react';
 import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
 import { capWords, dev, formatDate, generateUniqueID, replaceAll, StateContext } from '../../pages/_app';
 
+export enum ItemTypes {
+    Task = `Task`,
+    Item = `Item`,
+    Image = `Image`,
+    Video = `Video`,
+}
+
 export enum BoardTypes {
     Table = `Table`,
     TierList = `Tier List`,
@@ -10,13 +17,6 @@ export enum BoardTypes {
     Spreadsheet = `Spreadsheet`,
     KanbanBoard = `Kanban Board`,
     SelectBoardType = `Select Board Type`,
-}
-
-export enum ItemTypes {
-    Video = `Video`,
-    Image = `Image`,
-    Item = `Item`,
-    Task = `Task`
 }
 
 export default function Boards(props) {
