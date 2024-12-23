@@ -1,14 +1,21 @@
 import { useState } from 'react';
 import CustomImage from '../custom-image';
-import { getSubTaskPercentage } from './column';
+import { getSubTaskPercentage } from './item';
 import { capWords, formatDate, generateUniqueID } from '../../pages/_app';
 import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
 
 export default function ItemDetail(props) {
     let [disabled, setDisabled] = useState(false);
     let [image, setImage] = useState(props.item.image ?? undefined);
-    const { item, index, board, boards, setBoards, IDs, setIDs } = props;
+    const { item, index, boards, setBoards, IDs } = props;
     const [active, setActive] = useState(item?.complete ? `complete` : `active`);
+
+    const refreshDetails = (e) => {
+        e.preventDefault();
+        if (e.target.name == `itemImageLink`) {
+            setImage(e.target.value);
+        }
+    }
 
     const saveItem = (e) => {
         e.preventDefault();
@@ -37,56 +44,9 @@ export default function ItemDetail(props) {
         if (closeButton) closeButton.click();
     }
 
-    const deleteItem = (e) => {
-        e.preventDefault();
-        console.log(`deleteItem`, e);
-       
-        delete board.items[item.id];
-            
-        Object.values(board.columns).forEach((column: any) => {
-            const itemIndex = column.itemIds.indexOf(item.id);
-            if (itemIndex !== -1) {
-                column.itemIds.splice(itemIndex, 1);
-            }
-        });
-
-        board.updated = formatDate(new Date());
-
-        localStorage.setItem(`boards`, JSON.stringify(boards));
-        setBoards(JSON.parse(localStorage.getItem(`boards`)) || []);
-        let closeButton: any = document.querySelector(`.alertButton`);
-        if (closeButton) closeButton.click();
-    }
-
-    const refreshDetails = (e) => {
-        e.preventDefault();
-        if (e.target.name == `itemImageLink`) {
-            setImage(e.target.value);
-        }
-    }
-
     return (
         <div id={`detail_view_${item?.id}`} className={`detailView flex row`}>
             {image && (
-            //     <Image
-            //     className={`itemImage detailViewImage`}
-            //     src={image}
-            //     alt={item?.content}
-            //     layout={`responsive`}
-            //     width={500}
-            //     height={500}
-            //     onError={(e) => setDisabled(true)}
-            //     onLoad={(e) => setDisabled(false)}
-            //     onLoadingComplete={(result: any) => {
-            //       if (result.error) {
-            //         console.log(`Error`);
-            //         setDisabled(true);
-            //       } else {
-            //         console.log(`Image Loaded`);
-            //         setDisabled(false);
-            //       }
-            //     }}
-            //   />
                 <figure className={`customDetailImage`} style={{ maxWidth: `40%` }}>
                     <CustomImage 
                         src={image} 

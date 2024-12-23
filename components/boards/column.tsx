@@ -6,13 +6,6 @@ import Item, { getTypeIcon, manageItem } from './item';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { formatDate, generateUniqueID, StateContext, capitalizeAllWords } from '../../pages/_app';
 
-export const getSubTaskPercentage = (subtasks) => {
-    let subtasksProgress = 0;
-    let completeTasks = subtasks.filter(task => task.complete);
-    subtasksProgress = parseFloat(((completeTasks.length / subtasks.length) * 100).toFixed(1));
-    return subtasksProgress;
-}
-
 export default function Column(props) {
     let count = 0;
     const { board } = props;

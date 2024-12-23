@@ -2,10 +2,16 @@ import { ItemTypes } from './boards';
 import ItemDetail from './itemdetail';
 import React, { useContext } from 'react';
 import CustomImage from '../custom-image';
-import { getSubTaskPercentage } from './column';
 import 'react-circular-progressbar/dist/styles.css';
 import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
 import { showAlert, formatDate, dev, StateContext, capitalizeAllWords } from '../../pages/_app';
+
+export const getSubTaskPercentage = (subtasks) => {
+    let subtasksProgress = 0;
+    let completeTasks = subtasks.filter(task => task.complete);
+    subtasksProgress = parseFloat(((completeTasks.length / subtasks.length) * 100).toFixed(1));
+    return subtasksProgress;
+}
 
 export const getTypeIcon = (type, plain?) => {
     switch (type) {

@@ -24,6 +24,42 @@ export default function Board(props) {
     const [board, setBoard] = useState(props.board);
     const { setBoards, setLoading, setSystemStatus, completeFiltered, setCompleteFiltered, setPage, tasksFiltered, setTasksFiltered, IDs, setIDs } = useContext<any>(StateContext);
 
+    const deleteBoard = (e, bord) => {
+        setBoards(prevBoards => {
+            return prevBoards.filter(brd => brd.id != bord.id);
+        })
+    }
+
+    const onDragStart = (dragStartEvent) => {
+        if (dev()) {
+            setLoading(true);
+            setSystemStatus(`Rearranging...`);
+        }
+    }
+
+    const expandCollapseBoard = (e, board) => {
+        setBoard(prevBoard => {
+            return {
+                ...prevBoard,
+                expanded: !prevBoard.expanded
+            }
+        });
+    }
+
+    const changeLabel = (e, item, setItem) => {
+        let value = e.target.value == `` ? capitalizeAllWords(item.name) : capitalizeAllWords(e.target.value);
+        if (!e.target.value || e.target.value == ``) {
+            e.target.value = capitalizeAllWords(item.name);
+            return;
+        };
+        let titleWidth = `${(value.length * 8.5) + 80}px`;
+        e.target.value = capitalizeAllWords(value);
+        e.target.style.width = titleWidth;
+        if (item.id.includes(`board`)) {
+            setItem({ ...item, titleWidth, updated: formatDate(new Date()), name: capitalizeAllWords(value)});
+        }
+    }
+
     const addNewColumn = (e) => {
         e.preventDefault();
         setLoading(true);
@@ -63,19 +99,6 @@ export default function Board(props) {
             setLoading(false);
             setSystemStatus(`Created Column.`);
         }, 1000);
-    }
-
-    const deleteBoard = (e, bord) => {
-        setBoards(prevBoards => {
-            return prevBoards.filter(brd => brd.id != bord.id);
-        })
-    }
-
-    const onDragStart = (dragStartEvent) => {
-        if (dev()) {
-            setLoading(true);
-            setSystemStatus(`Rearranging...`);
-        }
     }
 
     const onDragEnd = (dragEndEvent) => {
@@ -155,29 +178,6 @@ export default function Board(props) {
         });
     }
 
-    const changeLabel = (e, item, setItem) => {
-        let value = e.target.value == `` ? capitalizeAllWords(item.name) : capitalizeAllWords(e.target.value);
-        if (!e.target.value || e.target.value == ``) {
-            e.target.value = capitalizeAllWords(item.name);
-            return;
-        };
-        let titleWidth = `${(value.length * 8.5) + 80}px`;
-        e.target.value = capitalizeAllWords(value);
-        e.target.style.width = titleWidth;
-        if (item.id.includes(`board`)) {
-            setItem({ ...item, titleWidth, updated: formatDate(new Date()), name: capitalizeAllWords(value)});
-        }
-    }
-
-    const expandCollapseBoard = (e, board) => {
-        setBoard(prevBoard => {
-            return {
-                ...prevBoard,
-                expanded: !prevBoard.expanded
-            }
-        });
-    }
-
     useEffect(() => {
         if (updates > 0) {
             // dev() && board?.columnOrder &&  board?.columnOrder.length > 0 && console.log(`Updated Board`, board);
@@ -216,28 +216,32 @@ export default function Board(props) {
     return (
         <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
             <section className={`boardsTitle boards`} style={{paddingBottom: 0}}>
-                <div className="board boardTitle">
+                <div className={`board boardTitle`}>
                     <div {...props.provided.dragHandleProps} id={`titleRowOfBoard`} className={`titleRow flex row`}>
-                        <div className="flex row innerRow">
-                            <div className="flex row left">
-                                <h3><span className="subscript itemOrder slashes">{props.index + 1}</span></h3>
+                        <div className={`flex row innerRow`}>
+                            <div className={`flex row left`}>
+                                <h3><span className={`subscript itemOrder slashes`}>{props.index + 1}</span></h3>
                                 <h2><input type={`text`} id={`${board.id}_change_label`} ref={boardNameRef} title={board?.name} onBlur={(e) => changeLabel(e, board, setBoard)} className={`changeLabel textOverflow`} name={`boardName`} defaultValue={board?.name ?? `Board`} style={{width: board.titleWidth ? board.titleWidth : `75px`}} /></h2>
-                                <h3 className="boardDate">
-                                    <span className="subscript rowDate itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
+                                <h3 className={`boardDate`}>
+                                    <span className={`subscript rowDate itemDate itemName itemCreated itemUpdated textOverflow extended flex row`}>
                                         <i> - </i>
                                         <i className={`status`}>{board && board?.created && !board?.updated ? `Cre.` : `Upd.` }</i> 
                                         <i><span className={`itemDateTime`}>{board?.updated ?? board?.created}</span></i>
                                     </span>
                                 </h3>
                             </div>
-                            <h3 className={`divSep`}><span className="subscript" style={{color: `var(--gameBlue)`}}>|</span></h3>
-                            <div className="flex row middle">
+                            <h3 className={`divSep`}><span className={`subscript`} style={{color: `var(--gameBlue)`}}>|</span></h3>
+                            <div className={`flex row middle`}>
                                 <h3>{board?.columnOrder && board?.columnOrder?.length} <span className={`subscript`}>Column(s)</span></h3>
                                 <h3>{board?.items && Object.entries(board?.items).length} <span className={`subscript`}>Items(s)</span></h3>
                             </div>
-                            <h3 className={`divSep`}><span className="subscript" style={{color: `var(--gameBlue)`}}>|</span></h3>
-                            <div className="flex row right">
-                                <h3 className="filtersSubscript"><span className="subscript">Filters</span></h3>
+                            <h3 className={`divSep`}><span className={`subscript`} style={{color: `var(--gameBlue)`}}>|</span></h3>
+                            <div className={`flex row right`}>
+                                <h3 className={`filtersSubscript`}>
+                                    <span className={`subscript`}>
+                                        Filters   
+                                    </span>
+                                </h3>
                                 <div className="filterFormDiv filterButtons itemButtons" style={{textAlign: `center`, justifyContent: `space-between`, alignItems: `center`}}>
                                     <button onClick={(e) =>  setTasksFiltered(!tasksFiltered)} id={`filter_tasks`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Filter Tasks`} className={`iconButton deleteButton filterButton ${tasksFiltered ? `filterActive` : `filterInactive`}`}>
                                         <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${tasksFiltered ? `fa-times-circle` : `fa-list-ol`}`}></i>
