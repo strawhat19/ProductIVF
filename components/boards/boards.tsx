@@ -21,7 +21,7 @@ export enum ItemTypes {
 
 export default function Boards(props) {
     let [updates, setUpdates] = useState(0);
-    const { rte, boards, setBoards, router, setLoading, setSystemStatus, IDs, setIDs, setRte } = useContext<any>(StateContext);
+    const { rte, boards, setBoards, router, tasksFiltered, setLoading, setSystemStatus, IDs, setIDs, setRte } = useContext<any>(StateContext);
 
     const addNewBoard = (e) => {
         e.preventDefault();

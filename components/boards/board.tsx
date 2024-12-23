@@ -24,6 +24,12 @@ export default function Board(props) {
     const [board, setBoard] = useState(props.board);
     const { setBoards, setLoading, setSystemStatus, completeFiltered, setCompleteFiltered, setPage, tasksFiltered, setTasksFiltered, IDs, setIDs } = useContext<any>(StateContext);
 
+    const filterSubtasks = (e?: any) => {
+        setTasksFiltered(!tasksFiltered);
+        console.log(`filterSubtasks`, !tasksFiltered);
+        localStorage.setItem(`tasksFiltered`, JSON.stringify(!tasksFiltered));
+    }
+
     const deleteBoard = (e, bord) => {
         setBoards(prevBoards => {
             return prevBoards.filter(brd => brd.id != bord.id);
@@ -242,8 +248,8 @@ export default function Board(props) {
                                         Filters   
                                     </span>
                                 </h3>
-                                <div className="filterFormDiv filterButtons itemButtons" style={{textAlign: `center`, justifyContent: `space-between`, alignItems: `center`}}>
-                                    <button onClick={(e) =>  setTasksFiltered(!tasksFiltered)} id={`filter_tasks`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Filter Tasks`} className={`iconButton deleteButton filterButton ${tasksFiltered ? `filterActive` : `filterInactive`}`}>
+                                <div className={`filterFormDiv filterButtons itemButtons`} style={{textAlign: `center`, justifyContent: `space-between`, alignItems: `center`}}>
+                                    <button onClick={(e) =>  filterSubtasks(e)} id={`filter_tasks`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Filter Tasks`} className={`iconButton deleteButton filterButton ${tasksFiltered ? `filterActive` : `filterInactive`}`}>
                                         <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${tasksFiltered ? `fa-times-circle` : `fa-list-ol`}`}></i>
                                         <span className={`iconButtonText textOverflow extended`}>Tasks</span>
                                     </button>

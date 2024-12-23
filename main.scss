@@ -194,7 +194,7 @@
 }
 
 article {
-    padding: 1em 0;
+    padding: 8px 0 1em;
     min-height: calc(94vh - var(--nextra-navbar-height)) !important;
     main {
         max-width: 92rem !important;
@@ -842,7 +842,7 @@ body {
                 margin: -10px 0 -7px 0;
             }
             .board {
-                --boardColumnHeight: 605px;
+                --boardColumnHeight: 685px;
                 .column {
                     align-items: flex-start;
                     min-height: var(--boardColumnHeight);

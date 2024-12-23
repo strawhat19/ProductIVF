@@ -141,192 +141,192 @@ export const initialBoardData = {
 
 export const defaultBoards = [{
   "items": [
-      {
+    {
+      "id": "item_1_2_20_AM_2_21_2023_5vfc49t8p",
+      "complete": false,
+      "type": "To Do",
+      "content": "Ayooo",
+      "created": "2:20 AM 2/21/2023",
+      "updated": "2:20 AM 2/21/2023"
+    },
+    {
+      "id": "item_7_2_20_AM_2_21_2023_hmhsll51c",
+      "complete": true,
+      "type": "To Do",
+      "content": "Whaddup",
+      "created": "2:20 AM 2/21/2023",
+      "updated": "2:20 AM 2/21/2023"
+    },
+    {
+      "id": "item_2_2_24_AM_2_21_2023_v7vdvq7xb",
+      "complete": false,
+      "type": "To Do",
+      "content": "Test Item",
+      "created": "2:24 AM 2/21/2023",
+      "updated": "7:12 PM 2/21/2023"
+    },
+    {
+      "id": "item_1_2_47_AM_2_21_2023_ufobm8gds",
+      "complete": true,
+      "type": "Active",
+      "content": "Detect Categories",
+      "created": "2:47 AM 2/21/2023",
+      "updated": "7:12 PM 2/21"
+    },
+    {
+      "id": "item_1_1_06_AM_2_21_2023_puvkbf5jt",
+      "complete": true,
+      "type": "Completed",
+      "content": "AdHoc Bug Fixes",
+      "created": "1:06 AM 2/21/2023",
+      "updated": "2:19 AM 2/21/2023"
+    },
+    {
+      "id": "item_2_1_07_AM_2_21_2023_qmpi9w53n",
+      "complete": true,
+      "type": "Completed",
+      "content": "Deploy New Code Changes",
+      "created": "1:07 AM 2/21/2023",
+      "updated": "1:46 AM 2/21/2023"
+    },
+    {
+      "id": "item_2_1_07_AM_2_21_2023_x1qs0ba58",
+      "complete": true,
+      "type": "Completed",
+      "content": "Release 1.5",
+      "created": "1:07 AM 2/21/2023",
+      "updated": "1:45 AM 2/21/2023"
+    },
+    {
+      "id": "item_2_1_07_AM_2_21_2023_cod2k6ysu",
+      "complete": true,
+      "type": "Completed",
+      "content": "Fix Notification Bugs",
+      "created": "1:07 AM 2/21/2023",
+      "updated": "1:07 AM 2/21/2023"
+    },
+    {
+      "id": "item_2_1_08_AM_2_21_2023_cph525xnf",
+      "complete": true,
+      "type": "Completed",
+      "content": "Refine Items In Board",
+      "created": "1:08 AM 2/21/2023",
+      "updated": "2:20 AM 2/21/2023"
+    },
+    {
+      "id": "item_2_1_46_AM_2_21_2023_vqp5ysdv4",
+      "complete": true,
+      "type": "Completed",
+      "content": "Filter Completed",
+      "created": "1:46 AM 2/21/2023",
+      "updated": "1:46 AM 2/21/2023"
+    }
+  ],
+  "columns": [
+    {
+      "id": "col-1",
+      "name": "To Do",
+      "type": "To Do",
+      "created": "1:59 AM 2/23/2023",
+      "rows": [
+        {
           "id": "item_1_2_20_AM_2_21_2023_5vfc49t8p",
           "complete": false,
           "type": "To Do",
           "content": "Ayooo",
           "created": "2:20 AM 2/21/2023",
           "updated": "2:20 AM 2/21/2023"
-      },
-      {
+        },
+        {
           "id": "item_7_2_20_AM_2_21_2023_hmhsll51c",
           "complete": true,
           "type": "To Do",
           "content": "Whaddup",
           "created": "2:20 AM 2/21/2023",
           "updated": "2:20 AM 2/21/2023"
-      },
-      {
+        },
+        {
           "id": "item_2_2_24_AM_2_21_2023_v7vdvq7xb",
           "complete": false,
           "type": "To Do",
           "content": "Test Item",
           "created": "2:24 AM 2/21/2023",
           "updated": "7:12 PM 2/21/2023"
-      },
-      {
+        }
+      ]
+    },
+    {
+      "id": "col-2",
+      "name": "In Progress",
+      "type": "Active",
+      "created": "1:59 AM 2/23/2023",
+      "rows": [
+        {
           "id": "item_1_2_47_AM_2_21_2023_ufobm8gds",
           "complete": true,
           "type": "Active",
           "content": "Detect Categories",
           "created": "2:47 AM 2/21/2023",
           "updated": "7:12 PM 2/21"
-      },
-      {
+        }
+      ]
+    },
+    {
+      "id": "col-3",
+      "name": "Completed",
+      "type": "Complete",
+      "created": "1:59 AM 2/23/2023",
+      "rows": [
+        {
           "id": "item_1_1_06_AM_2_21_2023_puvkbf5jt",
           "complete": true,
           "type": "Completed",
           "content": "AdHoc Bug Fixes",
           "created": "1:06 AM 2/21/2023",
           "updated": "2:19 AM 2/21/2023"
-      },
-      {
+        },
+        {
           "id": "item_2_1_07_AM_2_21_2023_qmpi9w53n",
           "complete": true,
           "type": "Completed",
           "content": "Deploy New Code Changes",
           "created": "1:07 AM 2/21/2023",
           "updated": "1:46 AM 2/21/2023"
-      },
-      {
+        },
+        {
           "id": "item_2_1_07_AM_2_21_2023_x1qs0ba58",
           "complete": true,
           "type": "Completed",
           "content": "Release 1.5",
           "created": "1:07 AM 2/21/2023",
           "updated": "1:45 AM 2/21/2023"
-      },
-      {
+        },
+        {
           "id": "item_2_1_07_AM_2_21_2023_cod2k6ysu",
           "complete": true,
           "type": "Completed",
           "content": "Fix Notification Bugs",
           "created": "1:07 AM 2/21/2023",
           "updated": "1:07 AM 2/21/2023"
-      },
-      {
+        },
+        {
           "id": "item_2_1_08_AM_2_21_2023_cph525xnf",
           "complete": true,
           "type": "Completed",
           "content": "Refine Items In Board",
           "created": "1:08 AM 2/21/2023",
           "updated": "2:20 AM 2/21/2023"
-      },
-      {
+        },
+        {
           "id": "item_2_1_46_AM_2_21_2023_vqp5ysdv4",
           "complete": true,
           "type": "Completed",
           "content": "Filter Completed",
           "created": "1:46 AM 2/21/2023",
           "updated": "1:46 AM 2/21/2023"
-      }
-  ],
-  "columns": [
-      {
-          "id": "col-1",
-          "name": "To Do",
-          "type": "To Do",
-          "created": "1:59 AM 2/23/2023",
-          "rows": [
-              {
-                  "id": "item_1_2_20_AM_2_21_2023_5vfc49t8p",
-                  "complete": false,
-                  "type": "To Do",
-                  "content": "Ayooo",
-                  "created": "2:20 AM 2/21/2023",
-                  "updated": "2:20 AM 2/21/2023"
-              },
-              {
-                  "id": "item_7_2_20_AM_2_21_2023_hmhsll51c",
-                  "complete": true,
-                  "type": "To Do",
-                  "content": "Whaddup",
-                  "created": "2:20 AM 2/21/2023",
-                  "updated": "2:20 AM 2/21/2023"
-              },
-              {
-                  "id": "item_2_2_24_AM_2_21_2023_v7vdvq7xb",
-                  "complete": false,
-                  "type": "To Do",
-                  "content": "Test Item",
-                  "created": "2:24 AM 2/21/2023",
-                  "updated": "7:12 PM 2/21/2023"
-              }
-          ]
-      },
-      {
-          "id": "col-2",
-          "name": "In Progress",
-          "type": "Active",
-          "created": "1:59 AM 2/23/2023",
-          "rows": [
-              {
-                  "id": "item_1_2_47_AM_2_21_2023_ufobm8gds",
-                  "complete": true,
-                  "type": "Active",
-                  "content": "Detect Categories",
-                  "created": "2:47 AM 2/21/2023",
-                  "updated": "7:12 PM 2/21"
-              }
-          ]
-      },
-      {
-          "id": "col-3",
-          "name": "Completed",
-          "type": "Complete",
-          "created": "1:59 AM 2/23/2023",
-          "rows": [
-              {
-                  "id": "item_1_1_06_AM_2_21_2023_puvkbf5jt",
-                  "complete": true,
-                  "type": "Completed",
-                  "content": "AdHoc Bug Fixes",
-                  "created": "1:06 AM 2/21/2023",
-                  "updated": "2:19 AM 2/21/2023"
-              },
-              {
-                  "id": "item_2_1_07_AM_2_21_2023_qmpi9w53n",
-                  "complete": true,
-                  "type": "Completed",
-                  "content": "Deploy New Code Changes",
-                  "created": "1:07 AM 2/21/2023",
-                  "updated": "1:46 AM 2/21/2023"
-              },
-              {
-                  "id": "item_2_1_07_AM_2_21_2023_x1qs0ba58",
-                  "complete": true,
-                  "type": "Completed",
-                  "content": "Release 1.5",
-                  "created": "1:07 AM 2/21/2023",
-                  "updated": "1:45 AM 2/21/2023"
-              },
-              {
-                  "id": "item_2_1_07_AM_2_21_2023_cod2k6ysu",
-                  "complete": true,
-                  "type": "Completed",
-                  "content": "Fix Notification Bugs",
-                  "created": "1:07 AM 2/21/2023",
-                  "updated": "1:07 AM 2/21/2023"
-              },
-              {
-                  "id": "item_2_1_08_AM_2_21_2023_cph525xnf",
-                  "complete": true,
-                  "type": "Completed",
-                  "content": "Refine Items In Board",
-                  "created": "1:08 AM 2/21/2023",
-                  "updated": "2:20 AM 2/21/2023"
-              },
-              {
-                  "id": "item_2_1_46_AM_2_21_2023_vqp5ysdv4",
-                  "complete": true,
-                  "type": "Completed",
-                  "content": "Filter Completed",
-                  "created": "1:46 AM 2/21/2023",
-                  "updated": "1:46 AM 2/21/2023"
-              }
-          ]
-      }
+        }
+      ]
+    }
   ],
   "created": "1:59 AM 2/23/2023",
   "type": "Kanban",
@@ -675,7 +675,6 @@ export default function ProductIVF({ Component, pageProps, router }) {
     let [items, setItems] = useState([]);
     let [board, setBoard] = useState({});
     let [dark, setDark] = useState(false);
-    let [height, setHeight] = useState(0);
     let [boards, setBoards] = useState([]);
     let [updates, setUpdates] = useState(0);
     let [onMac, setOnMac] = useState(false);
@@ -699,7 +698,6 @@ export default function ProductIVF({ Component, pageProps, router }) {
     let [showLeaders, setShowLeaders] = useState(false);
     let [content, setContent] = useState(`defaultContent`);
     let [tasksFiltered, setTasksFiltered] = useState(false);
-    let [animCompleted, setAnimCompleted] = useState(false);
     let [boardCategories, setBoardCategories] = useState([]);
     let [year, setYear] = useState(new Date().getFullYear());
     let [completeFiltered, setCompleteFiltered] = useState(false);
@@ -711,7 +709,13 @@ export default function ProductIVF({ Component, pageProps, router }) {
       if (loaded.current) return;
       loaded.current = true;
       localStorage.setItem(`alertOpen`, false);
-      let storedUser = JSON.parse(localStorage.getItem(`user`));
+
+      let storedTaskFilterPreference = null;
+      let hasStoredTaskFilterPreference = localStorage.getItem(`tasksFiltered`);
+      if (hasStoredTaskFilterPreference) storedTaskFilterPreference = JSON.parse(hasStoredTaskFilterPreference);
+      if (storedTaskFilterPreference != null) setTasksFiltered(storedTaskFilterPreference);
+
+      // let storedUser = JSON.parse(localStorage.getItem(`user`));
       let cachedBoard = JSON.parse(localStorage.getItem(`board`));
       let cachedBoards = JSON.parse(localStorage.getItem(`boards`));
 
