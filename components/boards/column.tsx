@@ -7,6 +7,7 @@ import 'react-circular-progressbar/dist/styles.css';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
 import { showAlert, formatDate, generateUniqueID, StateContext, dev, capitalizeAllWords } from '../../pages/_app';
+import Item from './item';
 
 export const getSubTaskPercentage = (subtasks) => {
     let subtasksProgress = 0;
@@ -311,81 +312,14 @@ export default function Column(props) {
                                         {provided => (
                                             <div id={item.id} className={`item completeItem ${item.complete ? `complete` : ``} container ${snapshot.isDragging ? `dragging` : ``} ${itemTypeMenuOpen ? `unfocus` : ``}`} title={item.content} {...provided.draggableProps} ref={provided.innerRef}>
                                                 <div onClick={(e) => manageItem(e, item, itemIndex)} {...provided.dragHandleProps} className={`itemRow flex row ${item?.complete ? `completed` : `incomplete`} ${item.subtasks.length > 0 ? `hasTasksRow` : `noTasksRow`}`}>
-                                                    <span className="itemOrder rowIndexOrder">
-                                                        {/* <i className={`itemIconType itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>{getTypeIcon(item?.type)}</i> */}
-                                                        <i className={`itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>{(item?.type == ItemTypes.Item || item?.type == ItemTypes.Task) && <span className={`itemIconType ${item?.type}`}>{getTypeIcon(item?.type, true)}</span>} {itemIndex + 1}</i>
-                                                    </span>
-                                                    {item?.image && <CustomImage className={`itemImage boardItemImage`} src={item?.image} alt={item?.content} useLazyLoad={true} />}
-                                                    <div className="itemContents">
-                                                        <span className="flex row itemContent boardItemContent itemName textOverflow extended">
-                                                            {/* <textarea onBlur={(e) => changeLabel(e, item)} className={`changeLabel`} defaultValue={item.content} /> */}
-                                                            <span onBlur={(e) => changeLabel(e, item)} contentEditable suppressContentEditableWarning className={`changeLabel`}>{item.content}</span>
-                                                            {/* {item.subtasks.length > 0 && (
-                                                                <div className="progress">
-                                                                    <div className="progressBar" style={{clipPath: `polygon(0% 0%, 0% 100%, 25% 100%, 25% 25%, 75% 25%, 75% 75%, 25% 75%, 25% 100%, 100% 100%, 100% 0%)`}}></div>
-                                                                </div>
-                                                            )} */}
-                                                        </span>
-                                                        {/* {devEnv && wordInCategories(item) && <span className="itemCategory itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
-                                                            <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-hashtag"></i> 
-                                                            <span className={`itemDateTime`}>{wordOfCategory(item)}</span>
-                                                        </span>} */}
-                                                        <hr className={`itemSep`} style={{height: 1, borderColor: `var(--gameBlue)`}} />
-                                                        <div className="itemFooter flex row">
-                                                            {item.created && !item.updated ? (
-                                                            <span className="itemDate itemName itemCreated textOverflow extended flex row">
-                                                                <i className={`status`}>Cre.</i> 
-                                                                <span className={`itemDateTime`}>{formatDate(new Date(item.created))}</span>
-                                                            </span>
-                                                            ) : item.updated ? (
-                                                            <span className="itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
-                                                                <i className={`status`}>Upd.</i> 
-                                                                <span className={`itemDateTime`}>{formatDate(new Date(item.updated))}</span>
-                                                            </span>
-                                                            ) : null}
-                                                            {!tasksFiltered && item.subtasks && item.subtasks.length > 0 && <>
-                                                                <span className={`subtaskIndex subscript flex row`}><span className={`slashes`}>✔</span> {item.subtasks.filter(subtask => subtask.complete).length} <span className="slashes">//</span> {item.subtasks.length}</span>
-                                                            </>}
-                                                        </div>
-                                                    </div>
-                                                    {!tasksFiltered && item.subtasks.length > 0 && <div className={`progress`}>
-                                                        <CircularProgressbar value={getSubTaskPercentage(item.subtasks)} text={`${getSubTaskPercentage(item.subtasks)}%`} styles={buildStyles({
-                                                            // Rotation of path and trail, in number of turns (0-1)
-                                                            rotation: 0.5,
-
-                                                            // Whether to use rounded or flat corners on the ends - can use 'butt' or 'round'
-                                                            strokeLinecap: 'butt',
-
-                                                            // Text size
-                                                            textSize: '24px',
-
-                                                            // How long animation takes to go from one percentage to another, in seconds
-                                                            pathTransitionDuration: 0.5,
-
-                                                            // Can specify path transition in more detail, or remove it entirely
-                                                            // pathTransition: 'none',
-
-                                                            // Colors
-                                                            pathColor: getSubTaskPercentage(item.subtasks) < 100 ? `rgba(0, 194, 255, ${getSubTaskPercentage(item.subtasks) / 100})` : `#00b900`,
-                                                            trailColor: 'rgba(0, 194, 255, 0.2)',
-                                                            backgroundColor: '#3e98c7',
-                                                            textColor: '#fff',
-                                                        })} />
-                                                    </div>}
-                                                    <div className="itemButtons customButtons">
-                                                        {/* <button id={`copy_${item.id}`} onClick={(e) => copyItem(e, item)} title={`Copy Item`} className={`iconButton ${ItemActions.Copy} copyButton wordIconButton`}>
-                                                            <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-copy`}></i>
-                                                        </button> */}
-                                                        <button id={`delete_${item.id}`} onClick={(e) => deleteItem(e, item, props.column.id, itemIndex, item.id)} title={`Delete Item`} className={`iconButton deleteButton wordIconButton`}>
-                                                            <i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-trash"></i>
-                                                        </button>
-                                                        <button id={`complete_${item.id}`} onClick={(e) => completeItem(e, item.id, itemIndex, item)} title={`Complete Item`} className={`iconButton wordIconButton completeButton`}>
-                                                            <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas ${item.complete ? `fa-history` : `fa-check-circle`}`}></i>
-                                                        </button>
-                                                        <button id={`manage_${item.id}`} onClick={(e) => manageItem(e, item, itemIndex)} title={`Manage Item`} className={`iconButton wordIconButton manageButton`}>
-                                                            <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-bars`}></i>
-                                                        </button>
-                                                    </div>
+                                                    <Item 
+                                                        item={item} 
+                                                        count={count} 
+                                                        board={board} 
+                                                        column={props.column} 
+                                                        itemIndex={itemIndex} 
+                                                        setBoard={props.setBoard} 
+                                                    />
                                                 </div>
                                                 {!tasksFiltered && item.subtasks && <SubTasks item={item} />}
                                             </div>
@@ -421,100 +355,3 @@ export default function Column(props) {
         </Draggable>
     )
 }
-
-// const kmpSearch = (pattern, text) => {
-    //     if (pattern.length == 0) return false; // Immediate match
-      
-    //     // Compute longest suffix-prefix table
-    //     var lsp = [0]; // Base case
-    //     for (var i = 1; i < pattern.length; i++) {
-    //       var j = lsp[i - 1]; // Start by assuming we're extending the previous LSP
-    //       while (j > 0 && pattern[i] !== pattern[j])
-    //         j = lsp[j - 1];
-    //       if (pattern[i] === pattern[j])
-    //         j++;
-    //       lsp.push(j);
-    //     }
-      
-    //     // Walk through text string
-    //     var j = 0; // Number of chars matched in pattern
-    //     for (var i = 0; i < text.length; i++) {
-    //       while (j > 0 && text[i] != pattern[j])
-    //         j = lsp[j - 1]; // Fall back in the pattern
-    //       if (text[i]  == pattern[j]) {
-    //         j++; // Next char matched, increment position
-    //         if (j == pattern.length)
-    //           return i - (j - 1) ? true : false;
-    //       }
-    //     }
-    //     return false; // Not found
-    //   }
-
-    // const matchCriteria = (itm) => {
-    //     let text = itm.content;
-    //     boardCategories.map(cat => cat.word).forEach(pattern => {
-    //         if (pattern.length == 0) return 0; // Immediate match
-        
-    //         // Compute longest suffix-prefix table
-    //         let lsp = [0]; // Base case
-    //         for (let i = 1; i < pattern.length; i++) {
-    //             let j = lsp[i - 1]; // Start by assuming we're extending the previous LSP
-    //             while (j > 0 && pattern[i] !== pattern[j])
-    //             j = lsp[j - 1];
-    //             if (pattern[i] === pattern[j])
-    //             j++;
-    //             lsp.push(j);
-    //         }
-            
-    //         // Walk through text string
-    //         let j = 0; // Number of chars matched in pattern
-    //         for (let i = 0; i < text.length; i++) {
-    //             while (j > 0 && text[i] != pattern[j])
-    //             j = lsp[j - 1]; // Fall back in the pattern
-    //             if (text[i]  == pattern[j]) {
-    //             j++; // Next char matched, increment position
-    //             if (j == pattern.length)
-    //                 return i - (j - 1);
-    //             }
-    //         }
-    //         return -1; // Not found
-    //     })
-    // }
-
-    // const wordInCategories = itm => {
-    //     // console.log(matchCriteria(itm));
-    //     // boardCategories.forEach(cat => {
-    //     //     return kmpSearch(cat.word, itm.content);
-    //     // });
-    //     let condition =  boardCategories.map(cat => cat.word).includes(itm.content.toLowerCase().slice(0,3))
-    //     || boardCategories.map(cat => cat.word).includes(itm.content.toLowerCase().slice(0,4)) || boardCategories.map(cat => cat.word).includes(itm.content.toLowerCase().slice(5));
-    //     // console.log(itm.content, condition);
-    //     return (
-    //         condition
-    //     );
-    //     // itm.content.toLowerCase().split(` `).forEach(wrd => {
-    //     //    boardCategories.map(cat => cat.word).includes(wrd);
-    //     // })
-    //     // boardCategories.map(cat => {
-    //     //     console.log(cat.word);
-    //     //     console.log(itm.content.toLowerCase().split(` `));
-    //     //     console.log(itm.content.toLowerCase().split(` `).includes(cat.word));
-    //     //     return itm.content.toLowerCase().split(` `).includes(cat.word);
-    //     // });
-    // }
-
-    // const wordOfCategory = itm => {
-    //     return itm.content.slice(0,4);
-    // }
-
-    // const copyItem = (e, item) => {
-    //     navigator.clipboard.writeText(item.content);
-    //     // Highlight Target Text
-    //     let parentItemElement = e.target.parentElement.parentElement;
-    //     let itemContentElement = parentItemElement.querySelector(`.itemContent`);
-    //     let selection = window.getSelection();
-    //     let range = document.createRange();
-    //     range.selectNodeContents(itemContentElement);
-    //     selection.removeAllRanges();
-    //     selection.addRange(range);
-    // }

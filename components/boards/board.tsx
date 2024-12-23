@@ -18,11 +18,11 @@ export const addBoardScrollBars = () => {
     });
 }
 
-function Board(props) {
+export default function Board(props) {
     const boardNameRef = useRef();
     const [updates, setUpdates] = useState(0);
     const [board, setBoard] = useState(props.board);
-    const { boards, setBoards, setLoading, setSystemStatus, devEnv, completeFiltered, setCompleteFiltered, boardCategories, setBoardCategories, setCategories, setRearranging, setPage, tasksFiltered, setTasksFiltered, IDs, setIDs } = useContext<any>(StateContext);
+    const { setBoards, setLoading, setSystemStatus, completeFiltered, setCompleteFiltered, setPage, tasksFiltered, setTasksFiltered, IDs, setIDs } = useContext<any>(StateContext);
 
     const addNewColumn = (e) => {
         e.preventDefault();
@@ -129,9 +129,6 @@ function Board(props) {
             });
             return;
         }
-
-        // const thisItem = board?.items[draggableId];
-        // thisItem.updated = formatDate(new Date());
 
         const startItemIds = Array.from(start.itemIds);
         startItemIds.splice(source.index, 1);
@@ -301,5 +298,3 @@ function Board(props) {
         </DragDropContext>
     )
 }
-
-export default Board;
