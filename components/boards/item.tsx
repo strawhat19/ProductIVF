@@ -7,6 +7,39 @@ import 'react-circular-progressbar/dist/styles.css';
 import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
 import { showAlert, formatDate, dev, StateContext, capitalizeAllWords } from '../../pages/_app';
 
+export const getTypeIcon = (type, plain?) => {
+    switch (type) {
+        default:
+            return `+`;
+        case ItemTypes.Task:
+            if (plain) {
+                return `✔`
+            } else {
+                return <span style={{fontSize: 20, textAlign: `center`}}>✔</span>;
+            }
+        case ItemTypes.Image:
+            return <i style={{display: `contents`}} className={`fas fa-image`} />;
+        case ItemTypes.Video:
+            return <i style={{display: `contents`}} className={`fab fa-youtube`} />;
+    }
+}
+
+export const manageItem = (e, item, index, board, boards, setBoards) => {
+    if (!e.target.classList.contains(`changeLabel`)) {
+        let isButton = e.target.classList.contains(`iconButton`);
+        if (isButton) {
+            let isManageButton = e.target.classList.contains(`manageButton`);
+            if (isManageButton) {
+                dev() && console.log(`Item ${index + 1}`, item);
+                showAlert(item?.content, <ItemDetail item={item} index={index} board={board} boards={boards} setBoards={setBoards} />, `95%`, `75%`);
+            };
+        } else {
+            dev() && console.log(`Item ${index + 1}`, item);
+            showAlert(item?.content, <ItemDetail item={item} index={index} board={board} boards={boards} setBoards={setBoards} />, `95%`, `75%`);
+        }
+    }
+}
+
 export default function Item({ item, count, column, itemIndex, board, setBoard }: any) {
     const { boards, setBoards, tasksFiltered, setLoading, setSystemStatus } = useContext<any>(StateContext);
 
@@ -21,22 +54,6 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
         item.updated = formatDate(new Date());
         item.content = capitalizeAllWords(value);
         localStorage.setItem(`boards`, JSON.stringify(boards));
-    }
-
-    const manageItem = (e, item, index) => {
-        if (!e.target.classList.contains(`changeLabel`)) {
-            let isButton = e.target.classList.contains(`iconButton`);
-            if (isButton) {
-                let isManageButton = e.target.classList.contains(`manageButton`);
-                if (isManageButton) {
-                    dev() && console.log(`Item ${index + 1}`, item);
-                    showAlert(item?.content, <ItemDetail item={item} index={index} board={board} boards={boards} setBoards={setBoards} />, `95%`, `75%`);
-                };
-            } else {
-                dev() && console.log(`Item ${index + 1}`, item);
-                showAlert(item?.content, <ItemDetail item={item} index={index} board={board} boards={boards} setBoards={setBoards} />, `95%`, `75%`);
-            }
-        }
     }
 
     const completeItem = (e, itemId, index, item) => {
@@ -193,7 +210,7 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
                 <button id={`complete_${item.id}`} onClick={(e) => completeItem(e, item.id, itemIndex, item)} title={`Complete Item`} className={`iconButton wordIconButton completeButton`}>
                     <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas ${item.complete ? `fa-history` : `fa-check-circle`}`}></i>
                 </button>
-                <button id={`manage_${item.id}`} onClick={(e) => manageItem(e, item, itemIndex)} title={`Manage Item`} className={`iconButton wordIconButton manageButton`}>
+                <button id={`manage_${item.id}`} onClick={(e) => manageItem(e, item, itemIndex, board, boards, setBoards)} title={`Manage Item`} className={`iconButton wordIconButton manageButton`}>
                     <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-bars`}></i>
                 </button>
             </div>

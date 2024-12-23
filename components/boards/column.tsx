@@ -1,13 +1,10 @@
 import SubTasks from './subtasks';
 import { ItemTypes } from './boards';
-import ItemDetail from './itemdetail';
-import CustomImage from '../custom-image';
 import React, { useContext, useState } from 'react';
 import 'react-circular-progressbar/dist/styles.css';
+import Item, { getTypeIcon, manageItem } from './item';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
-import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
-import { showAlert, formatDate, generateUniqueID, StateContext, dev, capitalizeAllWords } from '../../pages/_app';
-import Item from './item';
+import { formatDate, generateUniqueID, StateContext, capitalizeAllWords } from '../../pages/_app';
 
 export const getSubTaskPercentage = (subtasks) => {
     let subtasksProgress = 0;
@@ -34,23 +31,6 @@ export default function Column(props) {
         }
     }
 
-    const getTypeIcon = (type, plain?) => {
-        switch (type) {
-            default:
-                return `+`;
-            case ItemTypes.Task:
-                if (plain) {
-                    return `✔`
-                } else {
-                    return <span style={{fontSize: 20, textAlign: `center`}}>✔</span>;
-                }
-            case ItemTypes.Image:
-                return <i style={{display: `contents`}} className="fas fa-image"></i>;
-            case ItemTypes.Video:
-                return <i style={{display: `contents`}} className="fab fa-youtube"></i>;
-        }
-    }
-
     const changeItemType = (e, type?, column?) => {
         if (!e.target.classList.contains(`menuTypeIcon`)) {
             setItemTypeMenuOpen(!itemTypeMenuOpen);
@@ -60,7 +40,56 @@ export default function Column(props) {
                 localStorage.setItem(`boards`, JSON.stringify(boards));
                 setItemTypeMenuOpen(!itemTypeMenuOpen);
             }
+        }
+    }
+
+    const changeColumnLabel = (e, item) => {
+        let elemValue = e.target.textContent;
+        let value = elemValue == `` ? capitalizeAllWords(item.task) : capitalizeAllWords(elemValue);
+        if (!elemValue || elemValue == ``) {
+            elemValue = capitalizeAllWords(item.task);
+            return;
         };
+        elemValue = capitalizeAllWords(value);
+        item.updated = formatDate(new Date());
+        item.title = capitalizeAllWords(value);
+        localStorage.setItem(`boards`, JSON.stringify(boards));
+    }
+
+    const deleteColumn = (columnId, index) => {
+        setLoading(true);
+        setSystemStatus(`Deleting Column.`);
+        const columnItems = props.board.columns[columnId].itemIds;
+
+        const finalItems = columnItems.reduce((previousValue, currentValue) => {
+            const { [currentValue]: oldItem, ...newItem } = previousValue;
+            return newItem;
+        }, props.board.items);
+
+        const columns = props.board.columns;
+        const { [columnId]: oldColumn, ...newColumns } = columns;
+
+        const newColumnOrder = Array.from(props.board.columnOrder);
+        newColumnOrder.splice(index, 1);
+
+        props.setBoard(prevBoard => {
+            return {
+                ...prevBoard,
+                updated: formatDate(new Date()),
+                items: {
+                    ...finalItems
+                },
+                columns: {
+                    ...newColumns
+                },
+                columnOrder: newColumnOrder
+            }
+        });
+
+        setTimeout(() => {
+            setSystemStatus(`Deleted Column.`);
+            setLoading(false);
+        }, 1000);
     }
 
     const addNewItem = (e) => {
@@ -128,154 +157,6 @@ export default function Column(props) {
         });
     }
 
-    const manageItem = (e, item, index) => {
-        if (!e.target.classList.contains(`changeLabel`)) {
-            let isButton = e.target.classList.contains(`iconButton`);
-            if (isButton) {
-                let isManageButton = e.target.classList.contains(`manageButton`);
-                if (isManageButton) {
-                    dev() && console.log(`Item ${index + 1}`, item);
-                    showAlert(item?.content, <ItemDetail item={item} index={index} board={board} boards={boards} setBoards={setBoards} />, `95%`, `75%`);
-                };
-            } else {
-                dev() && console.log(`Item ${index + 1}`, item);
-                showAlert(item?.content, <ItemDetail item={item} index={index} board={board} boards={boards} setBoards={setBoards} />, `95%`, `75%`);
-            }
-        }
-    }
-
-    const changeLabel = (e, item) => {
-        let elemValue = e.target.textContent;
-        let value = elemValue == `` ? capitalizeAllWords(item.task) : capitalizeAllWords(elemValue);
-        if (!elemValue || elemValue == ``) {
-            elemValue = capitalizeAllWords(item.task);
-            return;
-        };
-        elemValue = capitalizeAllWords(value);
-        item.updated = formatDate(new Date());
-        item.content = capitalizeAllWords(value);
-        localStorage.setItem(`boards`, JSON.stringify(boards));
-    }
-
-    const changeColumnLabel = (e, item) => {
-        let elemValue = e.target.textContent;
-        let value = elemValue == `` ? capitalizeAllWords(item.task) : capitalizeAllWords(elemValue);
-        if (!elemValue || elemValue == ``) {
-            elemValue = capitalizeAllWords(item.task);
-            return;
-        };
-        elemValue = capitalizeAllWords(value);
-        item.updated = formatDate(new Date());
-        item.title = capitalizeAllWords(value);
-        localStorage.setItem(`boards`, JSON.stringify(boards));
-    }
-
-    const completeItem = (e, itemId, index, item) => {
-        let button = e.target;
-        let isButton = button.classList.contains(`iconButton`);
-        if (isButton) {
-            let completeButton = button.classList.contains(`completeButton`);
-            if (!completeButton) return;
-        }
-        if (!e.target.classList.contains(`changeLabel`)) {
-            completeActions(item, index, itemId, isButton);
-        }
-    }
-
-    const completeActions = (item, index, itemId, isButton) => {
-        if (count == 0) {
-            setLoading(true);
-            setSystemStatus(`Marking Item as Complete.`);
-
-            props.board.items[itemId].updated = formatDate(new Date());
-            props.board.items[itemId].complete = !props.board.items[itemId].complete;
-
-            props.setBoard({
-                ...props.board,
-                updated: formatDate(new Date()),
-                items: {
-                    ...props.board.items
-                },
-            });
-
-            setTimeout(() => {
-                setSystemStatus(item.complete ? `Marked Item as Complete.` : `Reopened Item.`);
-                setLoading(false);
-            }, 1000);
-            if (isButton) count = count + 1;
-        }
-    }
-
-    const deleteItem = (e, item, columnId, index, itemId) => {
-        let isButton = e.target.classList.contains(`iconButton`);
-        if (isButton) {
-            e.preventDefault();
-            setLoading(true);
-            setSystemStatus(`Deleting Item.`);
-            const column = props.board.columns[columnId];
-            const newItemIds = Array.from(column.itemIds);
-            newItemIds.splice(index, 1);
-
-            const items = props.board.items;
-            const { [itemId]: oldItem, ...newItems } = items;
-
-            props.setBoard({
-                ...props.board,
-                updated: formatDate(new Date()),
-                items: {
-                    ...newItems
-                },
-                columns: {
-                    ...props.board.columns,
-                    [columnId]: {
-                        ...column,
-                        itemIds: newItemIds
-                    }
-                }
-            });
-            setTimeout(() => {
-                setSystemStatus(`Deleted Item ${item.content}.`);
-                setLoading(false);
-            }, 1000);   
-        }
-    }
-
-    const deleteColumn = (columnId, index) => {
-        setLoading(true);
-        setSystemStatus(`Deleting Column.`);
-        const columnItems = props.board.columns[columnId].itemIds;
-
-        const finalItems = columnItems.reduce((previousValue, currentValue) => {
-            const { [currentValue]: oldItem, ...newItem } = previousValue;
-            return newItem;
-        }, props.board.items);
-
-        const columns = props.board.columns;
-        const { [columnId]: oldColumn, ...newColumns } = columns;
-
-        const newColumnOrder = Array.from(props.board.columnOrder);
-        newColumnOrder.splice(index, 1);
-
-        props.setBoard(prevBoard => {
-            return {
-                ...prevBoard,
-                updated: formatDate(new Date()),
-                items: {
-                    ...finalItems
-                },
-                columns: {
-                    ...newColumns
-                },
-                columnOrder: newColumnOrder
-            }
-        });
-
-        setTimeout(() => {
-            setSystemStatus(`Deleted Column.`);
-            setLoading(false);
-        }, 1000);
-    }
-
     return (
         <Draggable draggableId={props.column.id} index={props.index}>
             {(provided, snapshot) => (
@@ -311,7 +192,7 @@ export default function Column(props) {
                                     <Draggable key={item.id} draggableId={item.id} index={itemIndex}>
                                         {provided => (
                                             <div id={item.id} className={`item completeItem ${item.complete ? `complete` : ``} container ${snapshot.isDragging ? `dragging` : ``} ${itemTypeMenuOpen ? `unfocus` : ``}`} title={item.content} {...provided.draggableProps} ref={provided.innerRef}>
-                                                <div onClick={(e) => manageItem(e, item, itemIndex)} {...provided.dragHandleProps} className={`itemRow flex row ${item?.complete ? `completed` : `incomplete`} ${item.subtasks.length > 0 ? `hasTasksRow` : `noTasksRow`}`}>
+                                                <div onClick={(e) => manageItem(e, item, itemIndex, board, boards, setBoards)} {...provided.dragHandleProps} className={`itemRow flex row ${item?.complete ? `completed` : `incomplete`} ${item.subtasks.length > 0 ? `hasTasksRow` : `noTasksRow`}`}>
                                                     <Item 
                                                         item={item} 
                                                         count={count} 
