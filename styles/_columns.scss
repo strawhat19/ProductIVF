@@ -1,0 +1,60 @@
+.layoutButton {
+    &.activeLayout {
+        &:focus {
+            filter: invert(1) !important;
+        }
+        background: black;
+        color: white !important;
+    }
+}
+
+.multiCol {
+    .column2Layout {
+        display: none;
+    }
+    .column3Layout {
+        display: none;
+    }
+}
+
+.columns_2 {
+    .column3Layout {
+        display: none;
+    }
+}
+
+@media (min-width: 855px) {
+    .layoutCols_3 {
+        &:not(.multiCol) {
+            .listItems {
+                display: grid !important;
+                min-height: auto !important;
+                grid-template-columns: auto auto auto;
+            }
+        }
+    }
+}
+
+@media (min-width: 600px) {
+    .layoutCols_2 {
+        &:not(.multiCol) {
+            .listItems {
+                display: grid !important;
+                min-height: auto !important;
+                grid-template-columns: auto auto;
+            }
+        }
+    }
+}
+
+@media (max-width: 855px) {
+    .column3Layout {
+        display: none !important;
+    }
+}
+
+@media (max-width: 600px) {
+    .column2Layout {
+        display: none !important;
+    }
+}
