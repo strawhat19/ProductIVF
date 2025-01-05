@@ -172,27 +172,29 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
                     <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-hashtag"></i> 
                     <span className={`itemDateTime`}>{wordOfCategory(item)}</span>
                 </span>} */}
-                <hr className={`itemSep`} style={{height: 1, borderColor: `var(--gameBlue)`}} />
-                <div className={`itemFooter flex row`}>
-                    {item.created && !item.updated ? (
-                    <span className={`itemDate itemName itemCreated textOverflow extended flex row`}>
-                        <i className={`status`}>Cre.</i> 
-                        <span className={`itemDateTime`}>
-                            {formatDate(new Date(item.created))}
+                {(item?.image || column?.details && column?.details == true) ? <>
+                    <hr className={`itemSep`} style={{height: 1, borderColor: `var(--gameBlue)`}} />
+                    <div className={`itemFooter flex row`}>
+                        {item.created && !item.updated ? (
+                        <span className={`itemDate itemName itemCreated textOverflow extended flex row`}>
+                            <i className={`status`}>Cre.</i> 
+                            <span className={`itemDateTime`}>
+                                {formatDate(new Date(item.created))}
+                            </span>
                         </span>
-                    </span>
-                    ) : item.updated ? (
-                    <span className={`itemDate itemName itemCreated itemUpdated textOverflow extended flex row`}>
-                        <i className={`status`}>Upd.</i> 
-                        <span className={`itemDateTime`}>
-                            {formatDate(new Date(item.updated))}
+                        ) : item.updated ? (
+                        <span className={`itemDate itemName itemCreated itemUpdated textOverflow extended flex row`}>
+                            <i className={`status`}>Upd.</i> 
+                            <span className={`itemDateTime`}>
+                                {formatDate(new Date(item.updated))}
+                            </span>
                         </span>
-                    </span>
-                    ) : null}
-                    {!tasksFiltered && item.subtasks && item.subtasks.length > 0 && <>
-                        <span className={`subtaskIndex subscript flex row`}><span className={`slashes`}>✔</span> {item.subtasks.filter(subtask => subtask.complete).length} <span className={`slashes`}>//</span> {item.subtasks.length}</span>
-                    </>}
-                </div>
+                        ) : null}
+                        {!tasksFiltered && item.subtasks && item.subtasks.length > 0 && <>
+                            <span className={`subtaskIndex subscript flex row`}><span className={`slashes`}>✔</span> {item.subtasks.filter(subtask => subtask.complete).length} <span className={`slashes`}>//</span> {item.subtasks.length}</span>
+                        </>}
+                    </div>
+                </> : <></>}
             </div>
             {!tasksFiltered && item.subtasks.length > 0 && <div className={`progress`}>
                 <CircularProgressbar value={getSubTaskPercentage(item.subtasks)} text={`${getSubTaskPercentage(item.subtasks)}%`} styles={buildStyles({

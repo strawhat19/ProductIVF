@@ -49,6 +49,24 @@ export default function Column(props) {
         localStorage.setItem(`boards`, JSON.stringify(boards));
     }
 
+    const adjustColumnsDetails = (column) => {
+        let showDetails = column?.details && column?.details == true;
+        column.details = !showDetails;
+
+        props.setBoard(prevBoard => {
+            return {
+                ...prevBoard,
+                updated: formatDate(new Date()),
+                columns: {
+                    ...prevBoard?.columns,
+                    [column?.id]: column,
+                },
+            }
+        });
+
+        localStorage.setItem(`boards`, JSON.stringify(boards));
+    }
+
     const adjustColumnsLayout = (column, columnsNum: number) => {
         if (columnsNum >= 0 && columnsNum <= 3 && column.layoutCols != columnsNum) {
             column.layoutCols = columnsNum;
@@ -115,7 +133,6 @@ export default function Column(props) {
         setSystemStatus(`Creating Item.`);
         let video = formFields.itemVideo && formFields.itemVideo.value ? formFields.itemVideo.value : ``;
         let image = formFields.itemImage && formFields.itemImage.value ? formFields.itemImage.value : ``;
-        let listItems = e.target.previousSibling;
         let newItemID = `item_${nextIndex}`;
         let itemID = `${newItemID}_${generateUniqueID(IDs)}`;
         let content = formFields.createItem.value;
@@ -158,17 +175,20 @@ export default function Column(props) {
 
         e.target.reset();
         e.target.children[0].focus();
+
         setTimeout(() => {
             setSystemStatus(`Created Item.`);
             setLoading(false);
         }, 1000);
-        window.requestAnimationFrame(() => {
-            if (rank <= 5) {
-                return listItems.scrollTop = 0;
-            } else {
-                return listItems.scrollTop = listItems.scrollHeight;
+
+        let itemsElement = document.querySelector(`#items_of_${props.column.id}`);
+        if (itemsElement) {
+            if (rank > 7) {
+                setTimeout(() => {
+                    itemsElement.scrollTop = itemsElement.scrollHeight;
+                }, 0);
             }
-        });
+        }
     }
 
     return (
@@ -191,6 +211,12 @@ export default function Column(props) {
                                 </div>
                             </h3>
                             <div className={`itemButtons customButtons`}>
+                                <button id={`details_Columns_${props.column.id}`} style={{ pointerEvents: `all` }} onClick={(e) => adjustColumnsDetails(props.column)} title={`Details`} className={`iconButton detailsButton`}>
+                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-bars`}></i>
+                                    <span className={`iconButtonText textOverflow extended`}>
+                                        Details
+                                    </span>
+                                </button>
                                 {dev() ? <>
                                     <button id={`layout_3Columns_${props.column.id}`} style={{ pointerEvents: `all` }} onClick={(e) => adjustColumnsLayout(props.column, 3)} title={`3 Columns`} className={`iconButton layoutButton column3Layout ${props?.column?.layoutCols ? (props?.column?.layoutCols == 3 ? `activeLayout` : `inactive`) : ``}`}>
                                         <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-th`}></i>
