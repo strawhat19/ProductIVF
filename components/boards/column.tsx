@@ -1,10 +1,13 @@
-import SubTasks from './subtasks';
+import Tasks from './tasks';
+// import SubTasks from './subtasks';
 import { ItemTypes } from './boards';
-import React, { useContext, useState } from 'react';
 import 'react-circular-progressbar/dist/styles.css';
+import React, { useContext, useState } from 'react';
 import Item, { getTypeIcon, manageItem } from './item';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { formatDate, generateUniqueID, StateContext, capitalizeAllWords, dev } from '../../pages/_app';
+import SubTasks from './subtasks';
+import SwapyTasks from './swapy-tasks';
 
 export default function Column(props) {
     let count = 0;
@@ -258,7 +261,9 @@ export default function Column(props) {
                                                             setBoard={props.setBoard} 
                                                         />
                                                     </div>
-                                                    {!tasksFiltered && item.subtasks && <SubTasks item={item} />}
+                                                    {/* {!tasksFiltered && item.subtasks && <SwapyTasks item={item} />} */}
+                                                    {!tasksFiltered && item.subtasks && <SubTasks item={item} useSwapy={true} />}
+                                                    {/* {!tasksFiltered && item.subtasks && itemIndex % 2 != 0 && <Tasks item={item} items={item?.subtasks} />} */}
                                                 </div>
                                             )}
                                         </Draggable>

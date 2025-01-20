@@ -1,3 +1,16 @@
+._tasks {
+    width: 100%;
+    grid-gap: 0;
+    display: flex;
+    flex-direction: column;
+    // padding: 10px 0;
+}
+
+._task {
+    width: 100%;
+    background: var(--blackGlass);
+}
+
 .layoutButton {
     &.activeLayout {
         &:focus {

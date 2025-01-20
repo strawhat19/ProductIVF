@@ -1,5 +1,6 @@
+import { createSwapy, Swapy, utils } from 'swapy';
 import { addBoardScrollBars } from './board';
-import { useState, useContext } from 'react';
+import { useState, useContext, useRef, useEffect, useMemo } from 'react';
 import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
 import { capWords, dev, formatDate, generateUniqueID, StateContext } from '../../pages/_app';
 
@@ -17,10 +18,20 @@ export const randArray = (array) => {
 }
 
 export default function SubTasks(props) {
-    const { item } = props;
+    const { item, useSwapy = false } = props;
+
+    const swapyRef = useRef<Swapy | null>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+    
     const startingSubTasks = item.subtasks && item.subtasks.length > 0 ? item.subtasks : [];
+
     const [subtasks, setSubtasks] = useState(startingSubTasks);
     const { boards, setLoading, setSystemStatus } = useContext<any>(StateContext);
+
+    const [slotItemMap, setSlotItemMap] = useState(utils.initSlotItemMap(subtasks, `id`));
+    const slottedItems = useMemo(() => utils.toSlottedItems(subtasks, `id`, slotItemMap), [subtasks, slotItemMap]);
+
+    useEffect(() => utils.dynamicSwapy(swapyRef.current, subtasks, `id`, slotItemMap, setSlotItemMap), [subtasks]);
 
     const addSubtask = (e) => {
         e.preventDefault();
@@ -51,12 +62,16 @@ export default function SubTasks(props) {
         localStorage.setItem(`boards`, JSON.stringify(boards));
         // localStorage.setItem(`board`, JSON.stringify({...board, updated: formatDate(new Date())}));
 
+        utils.dynamicSwapy(swapyRef.current, subtasks, `id`, slotItemMap, setSlotItemMap);
+
         e.target.reset();
         e.target.children[0].focus();
+
         setTimeout(() => {
             setSystemStatus(`Created Task.`);
             setLoading(false);
         }, 1000);
+
         window.requestAnimationFrame(() => {
             if (rank <= 5) {
                 return subtasksList.scrollTop = 0;
@@ -82,15 +97,15 @@ export default function SubTasks(props) {
 
     const completeSubtask = (e, subtask) => {
         setLoading(true);
-        setSystemStatus(`Marking Task as ${subtask.complete ? `Reopened` : `Complete`}.`);
-        subtask.complete = !subtask.complete;
+        setSystemStatus(`Marking Task as ${subtask?.complete ? `Reopened` : `Complete`}.`);
+        subtask.complete = !subtask?.complete;
         item.updated = formatDate(new Date());
         subtask.updated = formatDate(new Date());
         dev() && console.log(`Task`, subtask);
         localStorage.setItem(`boards`, JSON.stringify(boards));
         // localStorage.setItem(`board`, JSON.stringify({...board, updated: formatDate(new Date())}));
         setTimeout(() => {
-            setSystemStatus(`Marked Task as ${subtask.complete ? `Complete` : `Reopened`}.`);
+            setSystemStatus(`Marked Task as ${subtask?.complete ? `Complete` : `Reopened`}.`);
             setLoading(false);
         }, 1000);
     }
@@ -98,14 +113,18 @@ export default function SubTasks(props) {
     const deleteSubtask = (e, subtask) => {
         setLoading(true);
         setSystemStatus(`Deleting Task.`);
-        setSubtasks(prevTasks => {
-            let newSubtasks = prevTasks.filter(task => task.id != subtask.id);
-            item.subtasks = newSubtasks;
-            addBoardScrollBars();
-            localStorage.setItem(`boards`, JSON.stringify(boards));
-            // localStorage.setItem(`board`, JSON.stringify({...board, updated: formatDate(new Date())}));
-            return newSubtasks;
-        });
+        let newSubtasks = slotItemMap.filter(task => task.item != subtask?.id);
+        item.subtasks = newSubtasks;
+        addBoardScrollBars();
+        localStorage.setItem(`boards`, JSON.stringify(boards));
+        
+        let element = document.querySelector(`.task_${subtask?.id}`);
+        if (element) element.remove();
+
+        // localStorage.setItem(`board`, JSON.stringify({...board, updated: formatDate(new Date())}));
+
+        // utils.dynamicSwapy(swapyRef.current, newSubtasks, `id`, slotItemMap, setSlotItemMap);
+
         setTimeout(() => {
             setSystemStatus(`Deleted Task.`);
             setLoading(false);
@@ -114,7 +133,7 @@ export default function SubTasks(props) {
     
     const onDragEnd = (dragEndEvent) => {
         dev() && console.log(`Subtasks Drag`, dragEndEvent);
-        const { destination, source, draggableId, type } = dragEndEvent;
+        const { destination, source } = dragEndEvent;
 
         // console.log({source, destination, draggableId});
 
@@ -136,79 +155,229 @@ export default function SubTasks(props) {
         // localStorage.setItem(`board`, JSON.stringify(board));
     };
 
+    useEffect(() => {
+        if (containerRef.current) {
+            swapyRef.current = createSwapy(containerRef.current, {
+                animation: `spring`,
+                autoScrollOnDrag: true,
+            });
+    
+            swapyRef.current.onSwapEnd(({ hasChanged, slotItemMap }) => {
+                if (hasChanged) {
+                    let swappedItemIDs = Object.values(slotItemMap.asObject);
+                    let swappedData = swappedItemIDs.map(id => subtasks.find(itm => itm?.id == id));
+                    let swappedItems = swappedData.map(itm => itm?.task);
+
+                    dev() && console.log(`Swapped`, {item, swappedItems, swappedData});
+
+                    // setSubtasks(swappedData);
+                    item.subtasks = swappedData;
+                    addBoardScrollBars();
+                    localStorage.setItem(`boards`, JSON.stringify(boards));
+                }
+            });
+        }
+
+        return () => {
+            if (swapyRef.current) {
+                swapyRef.current?.destroy();
+                swapyRef.current = null;
+            }
+        }
+    }, [item, subtasks])
+
     return <>
-        <DragDropContext onDragEnd={onDragEnd}>
+       {useSwapy ? <>
             <div id={`${item.id}_subTasks`} className={`rowSubtasks subTasks`}>
                 <div className={`subTaskElement flex ${subtasks.length > 0 ? `hasTasks` : `noTasks`}`}>
-                    <Droppable droppableId={`${item.id}_subtaskItems`}>
-                        {(provided, snapshot) => (
-                            <div style={{marginTop: -1}} className={`subTaskItems ${snapshot.isDraggingOver ? `isDraggingOver` : ``}`} ref={provided.innerRef} {...provided.droppableProps}>
-                                {subtasks.map((subtask, taskIndex) => {
-                                    return (
-                                        <Draggable key={`${taskIndex + 1}_${subtask.id}_subtask_key`} draggableId={`${taskIndex + 1}_${subtask.id}_draggable_subtask`} index={taskIndex}>
-                                            {(provided, snapshot) => {
-                                                const draggableStyle = {
-                                                    ...provided.draggableProps.style,
-                                                    transform: snapshot.isDragging
-                                                        ? `${provided.draggableProps.style?.transform} translateY(0px)`
-                                                        : provided.draggableProps.style?.transform,
-                                                };
-                                                return (
-                                                    <div id={`${taskIndex + 1}_${subtask.id}_task`} className={`subTaskItem ${subtask?.complete ? `complete` : `activeTask`} ${snapshot.isDragging ? `dragging` : ``}`} title={subtask?.task} {...provided.draggableProps} ref={provided.innerRef} {...provided.dragHandleProps} style={draggableStyle}>
-                                                        <div className="item subtaskHandle">
-                                                            <span className="itemOrder">
-                                                                <i className={`itemIndex ${subtask?.complete ? `completedIndex` : `activeIndex`}`}>{taskIndex + 1}</i>
-                                                            </span>
-                                                            {/* <div title={subtask.task} className={`taskContent ${subtask.complete ? `complete` : ``}`}>
-                                                                {subtask.task}
-                                                            </div> */}
-                                                            <div className={`subtaskActions flex row ${subtask?.complete ? `complete` : `activeTask`}`}>
-                                                                <span onBlur={(e) => changeLabel(e, subtask)} contentEditable suppressContentEditableWarning className={`changeLabel taskChangeLabel ${subtask?.complete ? `complete` : `activeTask`}`}>{subtask?.task}</span>
-                                                                {subtask?.created && !subtask?.updated ? (
-                                                                <span className="itemDate itemName itemCreated textOverflow extended flex row">
-                                                                    <i className={`status`}>Cre.</i> 
-                                                                    <span className={`itemDateTime`}>{formatDate(new Date(subtask?.created))}</span>
-                                                                </span>
-                                                                ) : subtask?.updated ? (
-                                                                <span className="itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
-                                                                    <i className={`status`}>Upd.</i> 
-                                                                    <span className={`itemDateTime`}>{formatDate(new Date(subtask?.updated))}</span>
-                                                                </span>
-                                                                ) : null}
-                                                                {/* <input title={`${subtask.complete ? `Reopen` : `Complete`} Task`} onChange={(e) => completeSubtask(e, subtask)} id={`${subtask.id}_checkbox`} type="checkbox" defaultChecked={subtask.complete} /> */}
-                                                            </div>
-                                                            <div className="itemButtons customButtons">
-                                                                <button id={`delete_${subtask.id}`} onClick={(e) => deleteSubtask(e, subtask)} title={`Delete Task`} className={`iconButton deleteButton wordIconButton`}>
-                                                                    <i style={{color: `var(--gameBlue)`, fontSize: 9}} className="fas fa-trash"></i>
-                                                                </button>
-                                                                <input title={`${subtask.complete ? `Reopen` : `Complete`} Task`} className={`taskCheckbox ${subtask?.complete ? `complete` : `activeTask`}`} onChange={(e) => completeSubtask(e, subtask)} id={`${subtask.id}_checkbox`} type="checkbox" defaultChecked={subtask.complete} />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                )
-                                            }}
-                                        </Draggable>
-                                    )
-                                })}
-                                {provided.placeholder}
-                            </div>
-                        )}
-                    </Droppable>
+                    <div ref={containerRef} style={{ marginTop: -1 }} className="subTaskItems">
+                        {slottedItems.map(({ slotId, itemId, item: subtask }: any, taskIndex) => {
+                        // {slottedItems.map(({ slotId, itemId, item: subtask }: any, taskIndex) => {
+                            return (
+                                <div
+                                    title={subtask?.task}
+                                    key={slotId} data-swapy-slot={slotId}
+                                    className={`task_${subtask?.id} slot subTaskItem ${subtask?.complete ? `complete` : `activeTask`}`}
+                                >
+                                    <div className="item subtaskHandle" key={itemId} data-swapy-item={itemId}>
+                                        <span className="itemOrder">
+                                            <i
+                                                className={`itemIndex ${
+                                                    subtask?.complete ? `completedIndex` : `activeIndex`
+                                                }`}
+                                            >
+                                                {taskIndex + 1}
+                                            </i>
+                                        </span>
+                                        <div
+                                            className={`subtaskActions flex row ${
+                                            subtask?.complete ? `complete` : `activeTask`}`}
+                                        >
+                                            <span
+                                                onBlur={(e) => changeLabel(e, subtask)}
+                                                contentEditable
+                                                suppressContentEditableWarning
+                                                className={`changeLabel taskChangeLabel ${
+                                                    subtask?.complete ? `complete` : `activeTask`
+                                                }`}
+                                            >
+                                                {subtask?.task}
+                                            </span>
+                                            {subtask?.created && !subtask?.updated ? (
+                                                <span className="itemDate itemName itemCreated textOverflow extended flex row">
+                                                    <i className={`status`}>Cre.</i>
+                                                    <span className={`itemDateTime`}>
+                                                        {formatDate(new Date(subtask?.created))}
+                                                    </span>
+                                                </span>
+                                            ) : subtask?.updated ? (
+                                                <span className="itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
+                                                    <i className={`status`}>Upd.</i>
+                                                    <span className={`itemDateTime`}>
+                                                        {formatDate(new Date(subtask?.updated))}
+                                                    </span>
+                                                </span>
+                                            ) : null}
+                                        </div>
+                                        <div className="itemButtons customButtons">
+                                            <button
+                                                title={`Delete Task`}
+                                                onClick={(e) => deleteSubtask(e, subtask)}
+                                                className={`iconButton deleteButton wordIconButton`}
+                                            >
+                                                <i
+                                                    className="fas fa-trash"
+                                                    style={{ color: `var(--gameBlue)`, fontSize: 9 }}
+                                                />
+                                            </button>
+                                            <input
+                                                className={`taskCheckbox ${
+                                                    subtask?.complete ? `complete` : `activeTask`
+                                                }`}
+                                                onChange={(e) => completeSubtask(e, subtask)}
+                                                type="checkbox"
+                                                defaultChecked={subtask?.complete}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
                     <form onSubmit={(e) => addSubtask(e)} className="subtaskAddForm addForm flex row">
-                        <input type="text" id={`${item.id}_createSubtask`} name={`createSubtask changeLabel`} placeholder={`Create Subtask +`} required />
-                        <input type="number" id={`${item.id}_createSubtask_rank`} name={`rank`} defaultValue={subtasks.length + 1} />
-                        <button type={`submit`} title={`Add Task`} className={`iconButton createList wordIconButton`}>
-                            <i style={{ color: `var(--gameBlue)`, fontSize: 10 }} className="fas fa-plus"></i>
+                        <input
+                            type="text"
+                            id={`${item.id}_createSubtask`}
+                            name={`createSubtask changeLabel`}
+                            placeholder={`Create Subtask +`}
+                            required
+                        />
+                        <input
+                            type="number"
+                            id={`${item.id}_createSubtask_rank`}
+                            name={`rank`}
+                            defaultValue={subtasks.length + 1}
+                        />
+                        <button
+                            type={`submit`}
+                            title={`Add Task`}
+                            className={`iconButton createList wordIconButton`}
+                        >
+                            <i
+                            style={{ color: `var(--gameBlue)`, fontSize: 10 }}
+                            className="fas fa-plus"
+                            ></i>
                             <span className={`iconButtonText textOverflow extended`}>
-                                <span>Add</span>
-                                <span className={`itemLength index`} style={{ padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content` }}>
-                                    {/* {list.items.length + 1} */}
-                                </span>
+                            <span>Add</span>
+                            <span
+                                className={`itemLength index`}
+                                style={{
+                                    padding: `0 5px`,
+                                    color: `var(--gameBlue)`,
+                                    maxWidth: `fit-content`,
+                                }}
+                            ></span>
                             </span>
                         </button>
                     </form>
                 </div>
             </div>
-        </DragDropContext>
+       </> : <>
+            <DragDropContext onDragEnd={onDragEnd}>
+                <div id={`${item.id}_subTasks`} className={`rowSubtasks subTasks`}>
+                    <div className={`subTaskElement flex ${subtasks.length > 0 ? `hasTasks` : `noTasks`}`}>
+                        <Droppable droppableId={`${item.id}_subtaskItems`}>
+                            {(provided, snapshot) => (
+                                <div style={{marginTop: -1}} className={`subTaskItems ${snapshot.isDraggingOver ? `isDraggingOver` : ``}`} ref={provided.innerRef} {...provided.droppableProps}>
+                                    {subtasks.map((subtask, taskIndex) => {
+                                        return (
+                                            <Draggable key={`${taskIndex + 1}_${subtask?.id}_subtask_key`} draggableId={`${taskIndex + 1}_${subtask?.id}_draggable_subtask`} index={taskIndex}>
+                                                {(provided, snapshot) => {
+                                                    const draggableStyle = {
+                                                        ...provided.draggableProps.style,
+                                                        transform: snapshot.isDragging
+                                                            ? `${provided.draggableProps.style?.transform} translateY(0px)`
+                                                            : provided.draggableProps.style?.transform,
+                                                    };
+                                                    return (
+                                                        <div id={`${taskIndex + 1}_${subtask?.id}_task`} className={`subTaskItem ${subtask?.complete ? `complete` : `activeTask`} ${snapshot.isDragging ? `dragging` : ``}`} title={subtask?.task} {...provided.draggableProps} ref={provided.innerRef} {...provided.dragHandleProps} style={draggableStyle}>
+                                                            <div className="item subtaskHandle">
+                                                                <span className="itemOrder">
+                                                                    <i className={`itemIndex ${subtask?.complete ? `completedIndex` : `activeIndex`}`}>{taskIndex + 1}</i>
+                                                                </span>
+                                                                <div className={`subtaskActions flex row ${subtask?.complete ? `complete` : `activeTask`}`}>
+                                                                    <span onBlur={(e) => changeLabel(e, subtask)} contentEditable suppressContentEditableWarning className={`changeLabel taskChangeLabel ${subtask?.complete ? `complete` : `activeTask`}`}>
+                                                                        {subtask?.task}
+                                                                    </span>
+                                                                    {subtask?.created && !subtask?.updated ? (
+                                                                    <span className="itemDate itemName itemCreated textOverflow extended flex row">
+                                                                        <i className={`status`}>Cre.</i> 
+                                                                        <span className={`itemDateTime`}>
+                                                                            {formatDate(new Date(subtask?.created))}
+                                                                        </span>
+                                                                    </span>
+                                                                    ) : subtask?.updated ? (
+                                                                    <span className="itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
+                                                                        <i className={`status`}>Upd.</i> 
+                                                                        <span className={`itemDateTime`}>{formatDate(new Date(subtask?.updated))}</span>
+                                                                    </span>
+                                                                    ) : null}
+                                                                </div>
+                                                                <div className="itemButtons customButtons">
+                                                                    <button id={`delete_${subtask?.id}`} onClick={(e) => deleteSubtask(e, subtask)} title={`Delete Task`} className={`iconButton deleteButton wordIconButton`}>
+                                                                        <i style={{color: `var(--gameBlue)`, fontSize: 9}} className="fas fa-trash"></i>
+                                                                    </button>
+                                                                    <input title={`${subtask?.complete ? `Reopen` : `Complete`} Task`} className={`taskCheckbox ${subtask?.complete ? `complete` : `activeTask`}`} onChange={(e) => completeSubtask(e, subtask)} id={`${subtask?.id}_checkbox`} type="checkbox" defaultChecked={subtask?.complete} />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    )
+                                                }}
+                                            </Draggable>
+                                        )
+                                    })}
+                                <div>
+                                    {provided.placeholder}
+                                </div>
+                                </div>
+                            )}
+                        </Droppable>
+                        <form onSubmit={(e) => addSubtask(e)} className="subtaskAddForm addForm flex row">
+                            <input type="text" id={`${item.id}_createSubtask`} name={`createSubtask changeLabel`} placeholder={`Create Subtask +`} required />
+                            <input type="number" id={`${item.id}_createSubtask_rank`} name={`rank`} defaultValue={subtasks.length + 1} />
+                            <button type={`submit`} title={`Add Task`} className={`iconButton createList wordIconButton`}>
+                                <i style={{ color: `var(--gameBlue)`, fontSize: 10 }} className="fas fa-plus"></i>
+                                <span className={`iconButtonText textOverflow extended`}>
+                                    <span>Add</span>
+                                    <span className={`itemLength index`} style={{ padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content` }}>
+                                        {/* {list.items.length + 1} */}
+                                    </span>
+                                </span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </DragDropContext>
+       </>}
     </>
 }
