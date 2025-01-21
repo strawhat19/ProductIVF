@@ -8,7 +8,7 @@ export default function Tasks({ item, items = [] }: any) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { boards, setLoading, setSystemStatus } = useContext<any>(StateContext);
 
-  const [slotItemMap,] = useState(utils.initSlotItemMap(items, `id`));
+  const [slotItemMap, setSlotItemMap] = useState(utils.initSlotItemMap(items, `id`));
   const slottedItems = useMemo(() => utils.toSlottedItems(items, `id`, slotItemMap), [items, slotItemMap]);
 
   const changeLabel = (e, item) => {
@@ -43,10 +43,21 @@ export default function Tasks({ item, items = [] }: any) {
   const deleteSubtask = (e, subtask) => {
     setLoading(true);
     setSystemStatus(`Deleting Task.`);
+
+    console.log(`pre Boards`, boards);
+
+    item.subtasks = item.subtasks.filter((task: any) => task.id !== subtask.id);
+    const updatedSlotItemMap = utils.initSlotItemMap(items, "id");
+    setSlotItemMap(updatedSlotItemMap);
+    utils.dynamicSwapy(swapyRef.current, items, "id", updatedSlotItemMap, setSlotItemMap);
+
+    console.log(`post Boards`, boards);
+
+    // localStorage.setItem("boards", JSON.stringify(boards));
+    // addBoardScrollBars();
     // setSubtasks(prevTasks => {
-    //     let newSubtasks = prevTasks.filter(task => task.id != subtask.id);
+        // let newSubtasks = updatedSlotItemMap.filter((task: any) => task.id != subtask.id);
     //     item.subtasks = newSubtasks;
-    //     addBoardScrollBars();
     //     localStorage.setItem(`boards`, JSON.stringify(boards));
     //     // localStorage.setItem(`board`, JSON.stringify({...board, updated: formatDate(new Date())}));
     //     return newSubtasks;
@@ -66,13 +77,13 @@ export default function Tasks({ item, items = [] }: any) {
 
       swapyRef.current.onSwapEnd(({ hasChanged, slotItemMap }) => {
         if (hasChanged) {
-            let swappedItemIDs = Object.values(slotItemMap.asObject);
-            let swappedData = swappedItemIDs.map(id => items.find(itm => itm?.id == id));
-            let swappedItems = swappedData.map(itm => itm.task);
-            dev() && console.log(`Swapped`, {item, swappedItems});
-            item.subtasks = swappedData;
-            addBoardScrollBars();
-            localStorage.setItem(`boards`, JSON.stringify(boards));
+          let swappedItemIDs = Object.values(slotItemMap.asObject);
+          let swappedData = swappedItemIDs.map(id => items.find(itm => itm?.id == id));
+          let swappedItems = swappedData.map(itm => itm.task);
+          dev() && console.log(`Swapped`, {item, swappedItems});
+          item.subtasks = swappedData;
+          addBoardScrollBars();
+          localStorage.setItem(`boards`, JSON.stringify(boards));
         }
       });
     }
@@ -134,10 +145,10 @@ export default function Tasks({ item, items = [] }: any) {
 
                         </div>
                         <div className={`itemButtons customButtons`}>
-                            <button id={`delete_${item.id}`} onClick={(e) => deleteSubtask(e, item)} title={`Delete Task`} className={`iconButton deleteButton wordIconButton`}>
-                                <i style={{color: `var(--gameBlue)`, fontSize: 9}} className={`fas fa-trash`} />
-                            </button>
-                            <input title={`${item.complete ? `Reopen` : `Complete`} Task`} className={`taskCheckbox ${item?.complete ? `complete` : `activeTask`}`} onChange={(e) => completeSubtask(e, item)} id={`${item.id}_checkbox`} type={`checkbox`} defaultChecked={item.complete} />
+                          <button id={`delete_${item.id}`} onClick={(e) => deleteSubtask(e, item)} title={`Delete Task`} className={`iconButton deleteButton wordIconButton`}>
+                              <i style={{color: `var(--gameBlue)`, fontSize: 9}} className={`fas fa-trash`} />
+                          </button>
+                          <input title={`${item.complete ? `Reopen` : `Complete`} Task`} className={`taskCheckbox ${item?.complete ? `complete` : `activeTask`}`} onChange={(e) => completeSubtask(e, item)} id={`${item.id}_checkbox`} type={`checkbox`} defaultChecked={item.complete} />
                         </div>
                     </div>
                 </div>

@@ -262,7 +262,7 @@ export default function Board(props) {
                                     </button>
                                     <section className={`addListFormItemSection`} style={{ margin: 0, padding: 0 }}>
                                         <form onSubmit={addNewColumn} title={`Add Column`} id={`addListForm`} className={`flex addListForm itemButtons addForm`} style={{ width: `100%`, flexDirection: `row` }}>
-                                            <input maxLength={35} placeholder={`New Column`} type="text" name="createItem" required />
+                                            <input autoComplete={`off`} maxLength={35} placeholder={`New Column`} type="text" name="createItem" required />
                                             <button type={`submit`} title={`Create Column`} className={`submit iconButton createList`}>
                                                 <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-list"></i>
                                                 <span className={`iconButtonText textOverflow extended`}>

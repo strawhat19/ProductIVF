@@ -2,6 +2,7 @@ import Board from './board';
 import { useState, useEffect, useContext } from 'react';
 import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
 import { capWords, dev, formatDate, generateUniqueID, replaceAll, StateContext } from '../../pages/_app';
+import SwapyExample from './swapy-example';
 
 export enum ItemTypes {
     Task = `Task`,
@@ -125,6 +126,7 @@ export default function Boards(props) {
     }, [boards, rte]);
 
     return <>
+        {/* <SwapyExample /> */}
         {/* {devEnv && <button onClick={(e) => showAlert(`All Boards`, <div>All Boards</div>, `69%`, `69%`)} className="iconButton alertTest" style={{justifyContent: `center`}}>Alert</button>} */}
         <div className="createBoard lists extended">
             <div className={`list items addListDiv`}>
@@ -134,7 +136,7 @@ export default function Boards(props) {
                         <section className={`addBoardFormSection addListFormItemSection`} style={{ margin: 0 }}>
                             <form onSubmit={(e) => addNewBoard(e)} title={`Add Board`} id={`addBoardForm`} className={`addBoardForm flex addListForm itemButtons addForm`} style={{ width: `100%`, flexDirection: `row` }}>
                                 <div className={`inputGroup flex row`}>
-                                    <input maxLength={35} placeholder={`Name of Board`} type="text" name="createBoard" required />
+                                    <input autoComplete={`off`} maxLength={35} placeholder={`Name of Board`} type="text" name="createBoard" required />
                                     {/* {devEnv && <div className={`selectBoardTypeWrapper`}>
                                         <select title={`Select Board Type`} name={`selectBoardType`} id={`select_board_type`}>
                                             <option id={`board_option_default`} value={`Select Board Type`}>Select Board Type</option>

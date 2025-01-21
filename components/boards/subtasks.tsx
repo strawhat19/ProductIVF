@@ -1,5 +1,5 @@
-import { createSwapy, Swapy, utils } from 'swapy';
 import { addBoardScrollBars } from './board';
+import { createSwapy, Swapy, utils } from 'swapy';
 import { useState, useContext, useRef, useEffect, useMemo } from 'react';
 import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
 import { capWords, dev, formatDate, generateUniqueID, StateContext } from '../../pages/_app';
@@ -33,54 +33,6 @@ export default function SubTasks(props) {
 
     useEffect(() => utils.dynamicSwapy(swapyRef.current, subtasks, `id`, slotItemMap, setSlotItemMap), [subtasks]);
 
-    const addSubtask = (e) => {
-        e.preventDefault();
-        let formFields = e.target.children;
-        setLoading(true);
-        let nextSubtaskIndex = subtasks.length + 1;
-        setSystemStatus(`Creating Task.`);
-        let subtasksList = e.target.previousSibling;
-        let newSubtaskID = `subtask_${nextSubtaskIndex}`;
-        let subtaskID = `${newSubtaskID}_${generateUniqueID()}`;
-        let task = formFields[0].value;
-        let rank = formFields.rank.value;
-        if (!rank || rank == ``) rank = nextSubtaskIndex;
-        rank = parseInt(rank);
-        rank = rank > nextSubtaskIndex ? nextSubtaskIndex : rank; 
-
-        const newSubtask = {
-            id: subtaskID,
-            complete: false,
-            task: capitalizeAllWords(task),
-            created: formatDate(new Date()),
-        }
-
-        subtasks.splice(rank-1,0,newSubtask);
-        item.subtasks = subtasks;
-        addBoardScrollBars();
-        item.updated = formatDate(new Date());
-        localStorage.setItem(`boards`, JSON.stringify(boards));
-        // localStorage.setItem(`board`, JSON.stringify({...board, updated: formatDate(new Date())}));
-
-        utils.dynamicSwapy(swapyRef.current, subtasks, `id`, slotItemMap, setSlotItemMap);
-
-        e.target.reset();
-        e.target.children[0].focus();
-
-        setTimeout(() => {
-            setSystemStatus(`Created Task.`);
-            setLoading(false);
-        }, 1000);
-
-        window.requestAnimationFrame(() => {
-            if (rank <= 5) {
-                return subtasksList.scrollTop = 0;
-            } else {
-                return subtasksList.scrollTop = subtasksList.scrollHeight;
-            }
-        });
-    }
-
     const changeLabel = (e, item) => {
         let elemValue = e.target.textContent;
         let value = elemValue == `` ? capitalizeAllWords(item.task) : capitalizeAllWords(elemValue);
@@ -110,20 +62,97 @@ export default function SubTasks(props) {
         }, 1000);
     }
 
+    const addSubtask = (e) => {
+        e.preventDefault();
+        let formFields = e.target.children;
+        setLoading(true);
+        let nextSubtaskIndex = subtasks.length + 1;
+        setSystemStatus(`Creating Task.`);
+        let subtasksList = e.target.previousSibling;
+        let newSubtaskID = `subtask_${nextSubtaskIndex}`;
+        let subtaskID = `${newSubtaskID}_${generateUniqueID()}`;
+        let task = formFields[0].value;
+        let rank = formFields.rank.value;
+        if (!rank || rank == ``) rank = nextSubtaskIndex;
+        rank = parseInt(rank);
+        rank = rank > nextSubtaskIndex ? nextSubtaskIndex : rank; 
+
+        const newSubtask = {
+            id: subtaskID,
+            complete: false,
+            task: capitalizeAllWords(task),
+            created: formatDate(new Date()),
+        }
+
+        const updatedTasks = [
+            ...subtasks.slice(0, rank - 1), // Tasks before the rank
+            newSubtask,                     // The new subtask
+            ...subtasks.slice(rank - 1),    // Tasks after the rank
+        ];
+
+        setSubtasks(updatedTasks);
+        item.subtasks = updatedTasks;
+        item.updated = formatDate(new Date());
+
+        const updatedSlotItemMap = utils.initSlotItemMap(updatedTasks, `id`);
+        setSlotItemMap(updatedSlotItemMap);
+
+        utils.dynamicSwapy(swapyRef.current, updatedTasks, `id`, updatedSlotItemMap, setSlotItemMap);
+
+        localStorage.setItem(`boards`, JSON.stringify(boards));
+        addBoardScrollBars();
+
+        console.log(`Added Subtask`, {
+            boards, 
+            subtasks,
+            newSubtask, 
+            slotItemMap, 
+            updatedTasks,
+            slottedItems, 
+        });
+
+        e.target.reset();
+        e.target.children[0].focus();
+
+        setTimeout(() => {
+            setSystemStatus(`Created Task.`);
+            setLoading(false);
+        }, 1000);
+
+        window.requestAnimationFrame(() => {
+            if (rank <= 5) {
+                return subtasksList.scrollTop = 0;
+            } else {
+                return subtasksList.scrollTop = subtasksList.scrollHeight;
+            }
+        });
+    }
+
     const deleteSubtask = (e, subtask) => {
         setLoading(true);
         setSystemStatus(`Deleting Task.`);
-        let newSubtasks = slotItemMap.filter(task => task.item != subtask?.id);
-        item.subtasks = newSubtasks;
-        addBoardScrollBars();
+
+        const updatedTasks = subtasks.filter(tsk => tsk.id !== subtask.id);
+
+        setSubtasks(updatedTasks);
+        item.subtasks = updatedTasks;
+        item.updated = formatDate(new Date());
+
+        const updatedSlotItemMap = utils.initSlotItemMap(updatedTasks, `id`);
+        setSlotItemMap(updatedSlotItemMap);
+
+        utils.dynamicSwapy(swapyRef.current, updatedTasks, `id`, updatedSlotItemMap, setSlotItemMap);
+
+        console.log(`Deleted Subtask`, {
+            boards, 
+            subtask, 
+            slotItemMap, 
+            slottedItems, 
+            updatedTasks,
+        });
+
         localStorage.setItem(`boards`, JSON.stringify(boards));
-        
-        let element = document.querySelector(`.task_${subtask?.id}`);
-        if (element) element.remove();
-
-        // localStorage.setItem(`board`, JSON.stringify({...board, updated: formatDate(new Date())}));
-
-        // utils.dynamicSwapy(swapyRef.current, newSubtasks, `id`, slotItemMap, setSlotItemMap);
+        addBoardScrollBars();
 
         setTimeout(() => {
             setSystemStatus(`Deleted Task.`);
@@ -165,7 +194,7 @@ export default function SubTasks(props) {
             swapyRef.current.onSwapEnd(({ hasChanged, slotItemMap }) => {
                 if (hasChanged) {
                     let swappedItemIDs = Object.values(slotItemMap.asObject);
-                    let swappedData = swappedItemIDs.map(id => subtasks.find(itm => itm?.id == id));
+                    let swappedData = swappedItemIDs.map(id => subtasks.find(itm => itm?.id == id)).filter(itm => itm != undefined && item != null);
                     let swappedItems = swappedData.map(itm => itm?.task);
 
                     dev() && console.log(`Swapped`, {item, swappedItems, swappedData});
@@ -257,6 +286,7 @@ export default function SubTasks(props) {
                                                 onChange={(e) => completeSubtask(e, subtask)}
                                                 type="checkbox"
                                                 defaultChecked={subtask?.complete}
+                                                autoComplete={`off`}
                                             />
                                         </div>
                                     </div>
@@ -270,12 +300,14 @@ export default function SubTasks(props) {
                             id={`${item.id}_createSubtask`}
                             name={`createSubtask changeLabel`}
                             placeholder={`Create Subtask +`}
+                            autoComplete={`off`}
                             required
                         />
                         <input
                             type="number"
                             id={`${item.id}_createSubtask_rank`}
                             name={`rank`}
+                            autoComplete={`off`}
                             defaultValue={subtasks.length + 1}
                         />
                         <button
@@ -347,7 +379,7 @@ export default function SubTasks(props) {
                                                                     <button id={`delete_${subtask?.id}`} onClick={(e) => deleteSubtask(e, subtask)} title={`Delete Task`} className={`iconButton deleteButton wordIconButton`}>
                                                                         <i style={{color: `var(--gameBlue)`, fontSize: 9}} className="fas fa-trash"></i>
                                                                     </button>
-                                                                    <input title={`${subtask?.complete ? `Reopen` : `Complete`} Task`} className={`taskCheckbox ${subtask?.complete ? `complete` : `activeTask`}`} onChange={(e) => completeSubtask(e, subtask)} id={`${subtask?.id}_checkbox`} type="checkbox" defaultChecked={subtask?.complete} />
+                                                                    <input autoComplete={`off`} title={`${subtask?.complete ? `Reopen` : `Complete`} Task`} className={`taskCheckbox ${subtask?.complete ? `complete` : `activeTask`}`} onChange={(e) => completeSubtask(e, subtask)} id={`${subtask?.id}_checkbox`} type="checkbox" defaultChecked={subtask?.complete} />
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -363,8 +395,8 @@ export default function SubTasks(props) {
                             )}
                         </Droppable>
                         <form onSubmit={(e) => addSubtask(e)} className="subtaskAddForm addForm flex row">
-                            <input type="text" id={`${item.id}_createSubtask`} name={`createSubtask changeLabel`} placeholder={`Create Subtask +`} required />
-                            <input type="number" id={`${item.id}_createSubtask_rank`} name={`rank`} defaultValue={subtasks.length + 1} />
+                            <input autoComplete={`off`} type="text" id={`${item.id}_createSubtask`} name={`createSubtask changeLabel`} placeholder={`Create Subtask +`} required />
+                            <input autoComplete={`off`} type="number" id={`${item.id}_createSubtask_rank`} name={`rank`} defaultValue={subtasks.length + 1} />
                             <button type={`submit`} title={`Add Task`} className={`iconButton createList wordIconButton`}>
                                 <i style={{ color: `var(--gameBlue)`, fontSize: 10 }} className="fas fa-plus"></i>
                                 <span className={`iconButtonText textOverflow extended`}>
