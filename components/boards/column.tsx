@@ -9,6 +9,7 @@ import { formatDate, generateUniqueID, StateContext, capitalizeAllWords, dev } f
 import SubTasks from './subtasks';
 import SwapyTasks from './swapy-tasks';
 import Dnd from './dnd';
+import DndKitTasks from '../tasks/dndkit-tasks';
 
 export default function Column(props) {
     let count = 0;
@@ -262,8 +263,9 @@ export default function Column(props) {
                                                             setBoard={props.setBoard} 
                                                         />
                                                     </div>
+                                                    {!tasksFiltered && item.subtasks && <DndKitTasks item={item} />}
                                                     {/* {!tasksFiltered && item.subtasks && <Dnd item={item} />} */}
-                                                    {!tasksFiltered && item.subtasks && <SwapyTasks item={item} />}
+                                                    {/* {!tasksFiltered && item.subtasks && <SwapyTasks item={item} />} */}
                                                     {/* {!tasksFiltered && item.subtasks && <SubTasks item={item} useSwapy={true} />} */}
                                                     {/* {!tasksFiltered && item.subtasks && itemIndex % 2 != 0 && <Tasks item={item} items={item?.subtasks} />} */}
                                                 </div>
