@@ -1,15 +1,10 @@
 import Tasks from './tasks';
-// import SubTasks from './subtasks';
 import { ItemTypes } from './boards';
 import 'react-circular-progressbar/dist/styles.css';
 import React, { useContext, useState } from 'react';
 import Item, { getTypeIcon, manageItem } from './item';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { formatDate, generateUniqueID, StateContext, capitalizeAllWords, dev } from '../../pages/_app';
-import SubTasks from './subtasks';
-import SwapyTasks from './swapy-tasks';
-import Dnd from './dnd';
-import DndKitTasks from '../tasks/dndkit-tasks';
 
 export default function Column(props) {
     let count = 0;
@@ -207,7 +202,18 @@ export default function Column(props) {
                             </div>
                             <h3 className={`listNameRow nx-tracking-light ${props.column.title.length > 25 ? `longName` : ``}`} id={`list_name_of_${props.column.id}`} style={{ position: `relative`, fontStyle: `italic` }}>
                                 <div className={`listName textOverflow extended flex row`} style={{ fontSize: 13, fontWeight: 600 }}>
-                                    <div onBlur={(e) => changeColumnLabel(e, props.column)} className={`columnName changeLabel`} contentEditable suppressContentEditableWarning>
+                                    <div 
+                                        contentEditable 
+                                        suppressContentEditableWarning
+                                        className={`columnName changeLabel`} 
+                                        onBlur={(e) => changeColumnLabel(e, props.column)} 
+                                        onKeyDown={(e) => {
+                                            if (e.key === `Enter`) {
+                                              e.preventDefault();
+                                              (e.target as any).blur();
+                                            }
+                                        }}
+                                    >
                                         {props.column.title}    
                                     </div>
                                     <div className={`columnStats flex row end`}>
@@ -263,11 +269,7 @@ export default function Column(props) {
                                                             setBoard={props.setBoard} 
                                                         />
                                                     </div>
-                                                    {!tasksFiltered && item.subtasks && <DndKitTasks column={props.column} item={item} />}
-                                                    {/* {!tasksFiltered && item.subtasks && <Dnd item={item} />} */}
-                                                    {/* {!tasksFiltered && item.subtasks && <SwapyTasks item={item} />} */}
-                                                    {/* {!tasksFiltered && item.subtasks && <SubTasks item={item} useSwapy={true} />} */}
-                                                    {/* {!tasksFiltered && item.subtasks && itemIndex % 2 != 0 && <Tasks item={item} items={item?.subtasks} />} */}
+                                                    {!tasksFiltered && item.subtasks && <Tasks column={props.column} item={item} />}
                                                 </div>
                                             )}
                                         </Draggable>

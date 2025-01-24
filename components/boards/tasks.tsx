@@ -1,163 +1,334 @@
+import { CSS } from '@dnd-kit/utilities';
 import { addBoardScrollBars } from './board';
-import { createSwapy, Swapy, utils } from 'swapy';
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { capitalizeAllWords, dev, formatDate, StateContext } from '../../pages/_app';
+import React, { useState, useContext, useEffect } from 'react';
+import { capWords, dev, formatDate, generateUniqueID, StateContext } from '../../pages/_app';
+import { DndContext, PointerSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core';
+import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
+import { restrictToFirstScrollableAncestor, restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers';
 
-export default function Tasks({ item, items = [] }: any) {
-  const swapyRef = useRef<Swapy | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { boards, setLoading, setSystemStatus } = useContext<any>(StateContext);
+function reorder(list, oldIndex, newIndex) {
+  return arrayMove(list, oldIndex, newIndex);
+}
 
-  const [slotItemMap, setSlotItemMap] = useState(utils.initSlotItemMap(items, `id`));
-  const slottedItems = useMemo(() => utils.toSlottedItems(items, `id`, slotItemMap), [items, slotItemMap]);
+function SortableSubtaskItem({ subtask, isLast, column, index, changeLabel, completeSubtask, deleteSubtask }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: subtask.id });
 
-  const changeLabel = (e, item) => {
-    let elemValue = e.target.textContent;
-    let value = elemValue == `` ? capitalizeAllWords(item.task) : capitalizeAllWords(elemValue);
-    if (!elemValue || elemValue == ``) {
-      elemValue = capitalizeAllWords(item.task);
-      return;
-    };
-    elemValue = capitalizeAllWords(value);
-    item.task = capitalizeAllWords(value);
-    item.updated = formatDate(new Date());
-    localStorage.setItem(`boards`, JSON.stringify(boards));
-    // localStorage.setItem(`board`, JSON.stringify({...board, updated: formatDate(new Date())}));
-  }
-
-  const completeSubtask = (e, subtask) => {
-    setLoading(true);
-    setSystemStatus(`Marking Task as ${subtask.complete ? `Reopened` : `Complete`}.`);
-    subtask.complete = !subtask.complete;
-    item.updated = formatDate(new Date());
-    subtask.updated = formatDate(new Date());
-    dev() && console.log(`Task`, subtask);
-    localStorage.setItem(`boards`, JSON.stringify(boards));
-    // localStorage.setItem(`board`, JSON.stringify({...board, updated: formatDate(new Date())}));
-    setTimeout(() => {
-      setSystemStatus(`Marked Task as ${subtask.complete ? `Complete` : `Reopened`}.`);
-      setLoading(false);
-    }, 1000);
-  }
-
-  const deleteSubtask = (e, subtask) => {
-    setLoading(true);
-    setSystemStatus(`Deleting Task.`);
-
-    console.log(`pre Boards`, boards);
-
-    item.subtasks = item.subtasks.filter((task: any) => task.id !== subtask.id);
-    const updatedSlotItemMap = utils.initSlotItemMap(items, "id");
-    setSlotItemMap(updatedSlotItemMap);
-    utils.dynamicSwapy(swapyRef.current, items, "id", updatedSlotItemMap, setSlotItemMap);
-
-    console.log(`post Boards`, boards);
-
-    // localStorage.setItem("boards", JSON.stringify(boards));
-    // addBoardScrollBars();
-    // setSubtasks(prevTasks => {
-        // let newSubtasks = updatedSlotItemMap.filter((task: any) => task.id != subtask.id);
-    //     item.subtasks = newSubtasks;
-    //     localStorage.setItem(`boards`, JSON.stringify(boards));
-    //     // localStorage.setItem(`board`, JSON.stringify({...board, updated: formatDate(new Date())}));
-    //     return newSubtasks;
-    // });
-    setTimeout(() => {
-      setSystemStatus(`Deleted Task.`);
-      setLoading(false);
-    }, 1000);
-  }
-      
-  useEffect(() => {
-    if (containerRef.current) {
-      swapyRef.current = createSwapy(containerRef.current, {
-        animation: `spring`,
-        autoScrollOnDrag: true,
-      });
-
-      swapyRef.current.onSwapEnd(({ hasChanged, slotItemMap }) => {
-        if (hasChanged) {
-          let swappedItemIDs = Object.values(slotItemMap.asObject);
-          let swappedData = swappedItemIDs.map(id => items.find(itm => itm?.id == id));
-          let swappedItems = swappedData.map(itm => itm.task);
-          dev() && console.log(`Swapped`, {item, swappedItems});
-          item.subtasks = swappedData;
-          addBoardScrollBars();
-          localStorage.setItem(`boards`, JSON.stringify(boards));
-        }
-      });
-    }
-
-    return () => {
-      if (swapyRef.current) {
-        swapyRef.current.destroy();
-        swapyRef.current = null;
-      }
-    };
-  }, []);
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+    opacity: isDragging ? 0.8 : 1,
+  };
 
   return (
-    <div ref={containerRef} className={`_tasks tasksContainer`}>
-      {slottedItems?.length > 0 ? (
-        slottedItems.map(({ slotId, itemId, item }: any, itmIndex) => (
-          <div className={`slot`} key={slotId} data-swapy-slot={slotId}>
-            <div id={`${itemId}_task`} className={`_task taskItem`} data-swapy-item={itemId}>
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <div className={`task_${subtask.id} subTaskItem ${subtask.complete ? 'complete' : 'activeTask'} ${isLast ? `dndLast` : ``}`}>
+        <div className="draggableItem item subtaskHandle">
+          <span className="itemOrder taskComponentBG">
+            <i className={`itemIndex ${subtask.complete ? 'completedIndex' : 'activeIndex'}`}>
+              {index + 1}
+            </i>
+          </span>
 
-                <div id={`${itmIndex + 1}_${item.id}_task`} title={item?.task} className={`subTaskItem ${item?.complete ? `complete` : `activeTask`}`}>
-                    
-                    <div className={`item subtaskHandle`}>
+          <div className={`subtaskActions flex row taskComponentBG ${subtask.complete ? 'complete' : 'activeTask'}`}>
 
-                        <span className={`itemOrder`}>
-                            <i className={`itemIndex ${item?.complete ? `completedIndex` : `activeIndex`}`}>
-                                {itmIndex + 1}
-                            </i>
-                        </span>
+            <span
+              contentEditable
+              suppressContentEditableWarning
+              onBlur={(e) => changeLabel(e, subtask)}
+              onMouseDown={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
+              className={`changeLabel taskChangeLabel ${subtask.complete ? 'complete' : 'activeTask'}`}
+              onKeyDown={(e) => {
+                if (e.key === `Enter`) {
+                  e.preventDefault();
+                  (e.target as any).blur();
+                }
+              }}
+            >
+              {subtask.task}
+            </span>
 
-                        <div className={`subtaskActions flex row ${item?.complete ? `complete` : `activeTask`}`}>
+            {column?.details && column?.details == true ? (
+              subtask.created && !subtask.updated ? (
+                <span className="itemDate itemName itemCreated textOverflow extended flex row">
+                  <i className="status">Cre.</i>
+                  <span className="itemDateTime">
+                    {formatDate(new Date(subtask.created))}
+                  </span>
+                </span>
+              ) : subtask.updated ? (
+                <span className="itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
+                  <i className="status">Upd.</i>
+                  <span className="itemDateTime">
+                    {formatDate(new Date(subtask.updated))}
+                  </span>
+                </span>
+              ) : null
+            ) : <></>}
 
-                            <span onBlur={(e) => changeLabel(e, item)} contentEditable suppressContentEditableWarning className={`changeLabel taskChangeLabel ${item?.complete ? `complete` : `activeTask`}`}>
-                                {item?.task}
-                            </span>
-
-                            {item?.created && !item?.updated ? (
-
-                                <span className={`itemDate itemName itemCreated textOverflow extended flex row`}>
-                                    <i className={`status`}>
-                                        Cre.
-                                    </i> 
-                                    <span className={`itemDateTime`}>
-                                        {formatDate(new Date(item?.created))}
-                                    </span>
-                                </span>
-
-                            ) : item?.updated ? (
-
-                                <span className={`itemDate itemName itemCreated itemUpdated textOverflow extended flex row`}>
-                                    <i className={`status`}>
-                                        Upd.
-                                    </i> 
-                                    <span className={`itemDateTime`}>
-                                        {formatDate(new Date(item?.updated))}
-                                    </span>
-                                </span>
-
-                            ) : null}
-
-                        </div>
-                        <div className={`itemButtons customButtons`}>
-                          <button id={`delete_${item.id}`} onClick={(e) => deleteSubtask(e, item)} title={`Delete Task`} className={`iconButton deleteButton wordIconButton`}>
-                              <i style={{color: `var(--gameBlue)`, fontSize: 9}} className={`fas fa-trash`} />
-                          </button>
-                          <input title={`${item.complete ? `Reopen` : `Complete`} Task`} className={`taskCheckbox ${item?.complete ? `complete` : `activeTask`}`} onChange={(e) => completeSubtask(e, item)} id={`${item.id}_checkbox`} type={`checkbox`} defaultChecked={item.complete} />
-                        </div>
-                    </div>
-                </div>
-            </div>
           </div>
-        ))
-      ) : (
-        <p>No tasks available</p>
-      )}
+
+          <div className="itemButtons customButtons taskComponentBG taskButtons">
+            <button
+              title="Delete Task"
+              onMouseDown={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={(e) => deleteSubtask(e, subtask)}
+              className="iconButton deleteButton wordIconButton"
+            >
+              <i className="fas fa-trash" style={{ color: 'var(--gameBlue)', fontSize: 9 }} />
+            </button>
+            <input
+              type="checkbox"
+              autoComplete="off"
+              defaultChecked={subtask.complete}
+              onMouseDown={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
+              onChange={(e) => completeSubtask(e, subtask)}
+              className={`task_check_box taskCheckbox ${subtask.complete ? 'complete' : 'activeTask'}`}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function Tasks(props) {
+  const { item, column } = props;
+  const { boards, setLoading, setSystemStatus } = useContext<any>(StateContext);
+
+  // If item.subtasks exist, use them; otherwise empty
+  const [subtasks, setSubtasks] = useState(item?.subtasks?.length ? item.subtasks : []);
+  const [deletedTaskIDs, setDeletedTaskIDs] = useState<string[]>([]);
+
+  // We’ll set up dnd-kit sensors. PointerSensor covers basic mouse/touch
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      // optional: tweak activation constraints, e.g. require drag of 8px
+      // activationConstraint: { distance: 8 },
+    })
+  );
+
+  // Capitalize words
+  const capitalizeAllWords = capWords;
+
+  // Called when user edits label
+  const changeLabel = (e, taskItem) => {
+    let elemValue = e.target.textContent || '';
+    const newValue = capitalizeAllWords(elemValue || taskItem.task);
+    taskItem.task = newValue;
+    taskItem.updated = formatDate(new Date());
+
+    localStorage.setItem('boards', JSON.stringify(boards));
+  };
+
+  // Toggle complete
+  const completeSubtask = (e, subtask) => {
+    setLoading(true);
+    setSystemStatus(`Marking Task as ${subtask.complete ? 'Reopened' : 'Complete'}.`);
+
+    subtask.complete = !subtask.complete;
+    subtask.updated = formatDate(new Date());
+    item.updated = formatDate(new Date());
+
+    localStorage.setItem('boards', JSON.stringify(boards));
+    setTimeout(() => {
+      setSystemStatus(`Marked Task as ${subtask.complete ? 'Complete' : 'Reopened'}.`);
+      setLoading(false);
+    }, 1000);
+  };
+
+  // Add subtask with rank insertion
+  const addSubtask = (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setSystemStatus('Creating Task.');
+
+    const formFields = e.target.children;
+    const newTaskText = formFields[0].value.trim();
+    let rank = formFields.rank.value;
+
+    const nextIndex = subtasks.length + 1;
+    if (!rank) rank = nextIndex;
+    rank = Math.min(parseInt(rank, 10), nextIndex);
+
+    const subtaskID = `subtask_${nextIndex}_${generateUniqueID()}`;
+    const newSubtask = {
+      id: subtaskID,
+      complete: false,
+      task: capitalizeAllWords(newTaskText),
+      created: formatDate(new Date()),
+    };
+
+    const updatedTasks = [
+      ...subtasks.slice(0, rank - 1),
+      newSubtask,
+      ...subtasks.slice(rank - 1),
+    ];
+
+    setSubtasks(updatedTasks);
+    item.subtasks = updatedTasks;
+    item.updated = formatDate(new Date());
+
+    localStorage.setItem('boards', JSON.stringify(boards));
+    addBoardScrollBars();
+
+    // Reset form
+    e.target.reset();
+    formFields[0].focus();
+
+    setTimeout(() => {
+      setSystemStatus('Created Task.');
+      setLoading(false);
+    }, 1000);
+
+    // Scroll new subtask into view
+    const subtasksList = e.target.previousSibling;
+    window.requestAnimationFrame(() => {
+      if (rank <= 5) {
+        subtasksList.scrollTop = 0;
+      } else {
+        subtasksList.scrollTop = subtasksList.scrollHeight;
+      }
+    });
+  };
+
+  // Delete subtask
+  const deleteSubtask = (e, subtask) => {
+    setLoading(true);
+    setSystemStatus('Deleting Task.');
+
+    const subtaskIDToDelete = subtask.id;
+    setDeletedTaskIDs((prev) => [...prev, subtaskIDToDelete]);
+
+    const updatedTasks = subtasks.filter(
+      (tsk) => tsk.id !== subtaskIDToDelete && !deletedTaskIDs.includes(tsk.id)
+    );
+
+    setSubtasks(updatedTasks);
+    item.subtasks = updatedTasks;
+    item.updated = formatDate(new Date());
+
+    localStorage.setItem('boards', JSON.stringify(boards));
+    addBoardScrollBars();
+
+    setTimeout(() => {
+      setSystemStatus('Deleted Task.');
+      setLoading(false);
+    }, 1000);
+  };
+
+  // dnd-kit onDragEnd
+  const handleDragEnd = ({ active, over }) => {
+    // If no valid drop target or same position, do nothing
+    if (!over || active.id === over.id) return;
+
+    // Find the indexes for the item being dragged and the target
+    const oldIndex = subtasks.findIndex((tsk) => tsk.id === active.id);
+    const newIndex = subtasks.findIndex((tsk) => tsk.id === over.id);
+
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    // Reorder the array
+    const updated = reorder(subtasks, oldIndex, newIndex);
+    setSubtasks(updated);
+
+    item.subtasks = updated;
+    item.updated = formatDate(new Date());
+    localStorage.setItem('boards', JSON.stringify(boards));
+    dev() && console.log('Dragged and reordered:', updated);
+    addBoardScrollBars();
+  };
+
+  // Sync outside changes
+  useEffect(() => {
+    if (item.subtasks && item.subtasks.length !== subtasks.length) {
+      setSubtasks(item.subtasks);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item.subtasks]);
+
+  return (
+    <div id={`${item.id}_subTasks`} className={`rowSubtasks subTasks dndkitTasks`}>
+      <div className={`subTaskElement flex ${subtasks.length > 0 ? 'hasTasks' : 'noTasks'}`}>
+        {/* The scrollable container for tasks */}
+        <div style={{ marginTop: -1 }} className="subTaskItems">
+          {/* DndContext wraps the entire area that can be dragged */}
+          <DndContext
+            sensors={sensors}
+            autoScroll={true}
+            onDragEnd={handleDragEnd}
+            collisionDetection={closestCenter}
+            // onDragOver={(e) => onDragover(e)}
+            modifiers={[restrictToVerticalAxis, restrictToFirstScrollableAncestor, restrictToWindowEdges]}
+          >
+            {/* SortableContext defines which items we can reorder, and how */}
+            <SortableContext
+              items={subtasks.map((t) => t.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {subtasks.map((subtask, index) => {
+                if (deletedTaskIDs.includes(subtask.id)) return null;
+                let isLast = index == subtasks.length - 1; 
+
+                return (
+                  <SortableSubtaskItem
+                    index={index}
+                    isLast={isLast}
+                    column={column}
+                    key={subtask.id}
+                    subtask={subtask}
+                    changeLabel={changeLabel}
+                    deleteSubtask={(e) => deleteSubtask(e, subtask)}
+                    completeSubtask={(e) => completeSubtask(e, subtask)}
+                  />
+                );
+              })}
+            </SortableContext>
+          </DndContext>
+        </div>
+
+        {/* Form to add a new subtask */}
+        <form onSubmit={addSubtask} className="subtaskAddForm addForm flex row">
+          <input
+            type="text"
+            id={`${item.id}_createSubtask`}
+            name="createSubtask changeLabel"
+            placeholder="Create Subtask +"
+            autoComplete="off"
+            required
+          />
+          <input
+            type="number"
+            id={`${item.id}_createSubtask_rank`}
+            name="rank"
+            autoComplete="off"
+            defaultValue={subtasks.length + 1}
+          />
+          <button
+            type="submit"
+            title="Add Task"
+            className="iconButton createList wordIconButton"
+          >
+            <i style={{ color: 'var(--gameBlue)', fontSize: 10 }} className="fas fa-plus" />
+            <span className="iconButtonText textOverflow extended">
+              <span>Add</span>
+              <span
+                className="itemLength index"
+                style={{ padding: '0 5px', color: 'var(--gameBlue)', maxWidth: 'fit-content' }}
+              />
+            </span>
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

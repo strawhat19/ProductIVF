@@ -2,8 +2,6 @@ import Board from './board';
 import { useState, useEffect, useContext } from 'react';
 import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
 import { capWords, dev, formatDate, generateUniqueID, replaceAll, StateContext } from '../../pages/_app';
-import SwapyExample from './swapy-example';
-import SwapyExample2 from './swapy-example-2';
 
 export enum ItemTypes {
     Task = `Task`,
