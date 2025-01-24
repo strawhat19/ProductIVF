@@ -52,7 +52,6 @@ export const formatDate = (date, specificPortion) => {
 };
 
 export const generateUniqueID = (existingIDs, name) => {
-
   let newID = Math.random().toString(36).substr(2, 9);
   if (existingIDs && existingIDs.length > 0) {
     while (existingIDs.includes(newID)) {
@@ -67,7 +66,6 @@ export const generateUniqueID = (existingIDs, name) => {
   } else {
     return `${formatDate(new Date())}_${newID}`.replace(/\s+/g, `_`).replace(/[:/]/g, `_`);
   }
-
 };
 
 export const initialBoardData = {

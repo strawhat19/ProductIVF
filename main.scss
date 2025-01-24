@@ -62,6 +62,7 @@
     --mainGlass: rgba(255, 28, 11, 0.75);
     --dangerColor: rgba(255, 28, 11, 0.75);
     --softWhite: rgba(255, 255, 255, 0.87);
+    --whiteGlass: rgba(255, 255, 255, 0.75);
     --gameBlueSoft: rgba(0, 194, 255, 0.75);
     --nextra: rgba(0, 170, 255, 0.5) !important;
     --menuBackground: var(--blackGlass) !important;
@@ -839,11 +840,12 @@ body {
         }
         article {
             overflow: hidden;
+            padding-top: max(env(safe-area-inset-top),1.5rem);
             h1 {
                 margin: -10px 0 -7px 0;
             }
             .board {
-                --boardColumnHeight: 685px;
+                --boardColumnHeight: 661px;
                 .column {
                     align-items: flex-start;
                     min-height: var(--boardColumnHeight);
@@ -1113,7 +1115,7 @@ textarea {
         font-weight: 700 !important;
         &:hover {
             &:not(:focus-visible) {
-                background: rgba(0, 194, 255, 0.2);
+                background: var(--darkCheckBox);
                 filter: invert(0) !important;
                 color: white !important;
             }
@@ -1121,7 +1123,7 @@ textarea {
     }
     &::selection {
         color: black;
-        background: rgba(0, 194, 255, 0.2) !important;
+        background: var(--darkCheckBox) !important;
     }
     &:not(:focus-visible) {
         &::selection {
@@ -1130,7 +1132,7 @@ textarea {
     }
     &:hover {
         &:not(:focus-visible) {
-            background: rgba(0, 194, 255, 0.2);
+            background: var(--darkCheckBox);
         }
     }
 }
@@ -1826,7 +1828,14 @@ textarea {
                                 &::before {
                                     color: black !important;
                                 }
-                                background: rgba(0, 194, 255, 0.2) !important;
+                                background: var(--darkCheckBox) !important;
+                            }
+                            .draggableItem {
+                                &:hover {
+                                    input[type="checkbox"] {
+                                        background: var(--lightCheckBox) !important;
+                                    }
+                                }
                             }
                         }
                     }
@@ -1932,6 +1941,9 @@ textarea {
 
                 .itemButtons {
                     padding: 6px 15px 6px 6px !important;
+                    &.taskButtons {
+                        padding: 6px 8px 6px 6px !important;
+                    }
                     // min-height: 100% !important;
                     // max-height: 100% !important;
                     // height: 100% !important;
@@ -2125,7 +2137,7 @@ textarea {
                                 max-width: 8px !important;
                                 padding: 7px 8px !important;
                                 border-radius: var(--borderRadius);
-                                background: rgba(0, 194, 255, 0.2) !important;
+                                background: var(--darkCheckBox) !important;
                                 &::before {
                                     color: #fff;
                                     background: var(--gameBlue);
@@ -2783,13 +2795,19 @@ footer {
                         }
                     }
                     .subTaskItem {
+                        &.dndLast {
+                            .itemOrder {
+                                border-bottom-left-radius:  var(--borderRadius) !important;
+                            }
+                            border-bottom-left-radius:  var(--borderRadius) !important;
+                        }
                         &:last-child {
                             .itemOrder {
                                 border-bottom-left-radius: var(--borderRadius) !important;
                             }
                             border-bottom: 0px solid transparent !important;
                             border-bottom-right-radius: var(--borderRadius);
-                            border-bottom-left-radius: var(--borderRadius);
+                            border-bottom-left-radius: 0;
                         }
                     }
                 }

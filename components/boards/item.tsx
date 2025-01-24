@@ -159,7 +159,18 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
             <div className={`itemContents`}>
                 <span className={`flex row itemContent boardItemContent itemName textOverflow extended`}>
                     {/* <textarea onBlur={(e) => changeLabel(e, item)} className={`changeLabel`} defaultValue={item.content} /> */}
-                    <span onBlur={(e) => changeLabel(e, item)} contentEditable suppressContentEditableWarning className={`changeLabel`}>
+                    <span 
+                        contentEditable 
+                        className={`changeLabel`}
+                        suppressContentEditableWarning 
+                        onBlur={(e) => changeLabel(e, item)} 
+                        onKeyDown={(e) => {
+                            if (e.key === `Enter`) {
+                              e.preventDefault();
+                              (e.target as any).blur();
+                            }
+                        }}
+                    >
                         {item.content}
                     </span>
                     {/* {item.subtasks.length > 0 && (

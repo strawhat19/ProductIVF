@@ -1,7 +1,7 @@
-import SubTasks from './subtasks';
+import Tasks from './tasks';
 import { ItemTypes } from './boards';
-import React, { useContext, useState } from 'react';
 import 'react-circular-progressbar/dist/styles.css';
+import React, { useContext, useState } from 'react';
 import Item, { getTypeIcon, manageItem } from './item';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { formatDate, generateUniqueID, StateContext, capitalizeAllWords, dev } from '../../pages/_app';
@@ -202,7 +202,18 @@ export default function Column(props) {
                             </div>
                             <h3 className={`listNameRow nx-tracking-light ${props.column.title.length > 25 ? `longName` : ``}`} id={`list_name_of_${props.column.id}`} style={{ position: `relative`, fontStyle: `italic` }}>
                                 <div className={`listName textOverflow extended flex row`} style={{ fontSize: 13, fontWeight: 600 }}>
-                                    <div onBlur={(e) => changeColumnLabel(e, props.column)} className={`columnName changeLabel`} contentEditable suppressContentEditableWarning>
+                                    <div 
+                                        contentEditable 
+                                        suppressContentEditableWarning
+                                        className={`columnName changeLabel`} 
+                                        onBlur={(e) => changeColumnLabel(e, props.column)} 
+                                        onKeyDown={(e) => {
+                                            if (e.key === `Enter`) {
+                                              e.preventDefault();
+                                              (e.target as any).blur();
+                                            }
+                                        }}
+                                    >
                                         {props.column.title}    
                                     </div>
                                     <div className={`columnStats flex row end`}>
@@ -258,7 +269,7 @@ export default function Column(props) {
                                                             setBoard={props.setBoard} 
                                                         />
                                                     </div>
-                                                    {!tasksFiltered && item.subtasks && <SubTasks item={item} />}
+                                                    {!tasksFiltered && item.subtasks && <Tasks column={props.column} item={item} />}
                                                 </div>
                                             )}
                                         </Draggable>
@@ -274,10 +285,10 @@ export default function Column(props) {
                             {Object.values(ItemTypes).filter(type => type !== props?.column?.itemType).map((type, typeIndex) => <div key={typeIndex} title={type} onClick={(e) => changeItemType(e, type, props.column)} className={`typeIcon menuTypeIcon`}>{getTypeIcon(type)}</div>)}
                         </div>
                         <div title={`Change ${props?.column?.itemType} Type`} onClick={(e) => changeItemType(e)} className={`typeIcon`}>{getTypeIcon(props?.column?.itemType)}</div>
-                        <input placeholder={`Add`} type="text" name="createItem" required />
-                        {props?.column?.itemType == ItemTypes.Image && <input style={{padding: `10px 0px 10px 15px`, minWidth: `75px`, maxWidth: `75px`}} placeholder={`Img Url`} type="text" name="itemImage" />}
-                        {props?.column?.itemType == ItemTypes.Video && <input style={{padding: `10px 0px 10px 15px`, minWidth: `100px`, maxWidth: `75px`}} placeholder={`Youtube Url`} type="text" name="itemVideo" />}
-                        <input name={`rank`} placeholder={props.items.filter(itm => itemActiveFilters(itm)).length + 1} defaultValue={props.items.filter(itm => itemActiveFilters(itm)).length + 1} type={`number`} min={1} />
+                        <input autoComplete={`off`} placeholder={`Add`} type="text" name="createItem" required />
+                        {props?.column?.itemType == ItemTypes.Image && <input autoComplete={`off`} style={{padding: `10px 0px 10px 15px`, minWidth: `75px`, maxWidth: `75px`}} placeholder={`Img Url`} type="text" name="itemImage" />}
+                        {props?.column?.itemType == ItemTypes.Video && <input autoComplete={`off`} style={{padding: `10px 0px 10px 15px`, minWidth: `100px`, maxWidth: `75px`}} placeholder={`Youtube Url`} type="text" name="itemVideo" />}
+                        <input autoComplete={`off`} name={`rank`} placeholder={props.items.filter(itm => itemActiveFilters(itm)).length + 1} defaultValue={props.items.filter(itm => itemActiveFilters(itm)).length + 1} type={`number`} min={1} />
                         <button type={`submit`} title={`Add Item`} className={`iconButton createList wordIconButton`}>
                             <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-plus"></i>
                             <span className={`iconButtonText textOverflow extended`}>
