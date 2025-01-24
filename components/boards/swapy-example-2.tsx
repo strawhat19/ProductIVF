@@ -52,13 +52,13 @@ function SwapyExample2() {
         {slottedItems.map(({ slotId, itemId, item }) => (
           <div className="slot" key={slotId} data-swapy-slot={slotId} style={{ ...rowStyles, background: `white` }}>
             {item &&
-              <div className="item" data-swapy-item={itemId} key={itemId} style={{ ...rowStyles, alignItems: `stretch` }}>
+              <div className="item" data-swapy-item={itemId} key={itemId} style={{ ...rowStyles, alignItems: `stretch`, justifyContent: `space-evenly` }}>
                 <span>
                   {item.title}
                 </span>
                 <span className="delete" data-swapy-no-drag onClick={() => {
                   setItems(items.filter(i => i.id !== item.id))
-                }}></span>
+                }}>Delete Me</span>
               </div>
             }
           </div>

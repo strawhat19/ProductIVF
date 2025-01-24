@@ -44,7 +44,6 @@ export default function SwapyTasks(props) {
     item.task = capitalizeAllWords(value);
     item.updated = formatDate(new Date());
     localStorage.setItem(`boards`, JSON.stringify(boards));
-    // localStorage.setItem(`board`, JSON.stringify({...board, updated: formatDate(new Date())}));
   }
 
   const completeSubtask = (e, subtask) => {
@@ -55,7 +54,6 @@ export default function SwapyTasks(props) {
     subtask.updated = formatDate(new Date());
     dev() && console.log(`Task`, subtask);
     localStorage.setItem(`boards`, JSON.stringify(boards));
-    // localStorage.setItem(`board`, JSON.stringify({...board, updated: formatDate(new Date())}));
     setTimeout(() => {
       setSystemStatus(`Marked Task as ${subtask?.complete ? `Complete` : `Reopened`}.`);
       setLoading(false);
@@ -177,12 +175,17 @@ export default function SwapyTasks(props) {
           let swappedItemIDs = Object.values(slotItemMap.asObject);
           let swappedData = swappedItemIDs.map(id => subtasks.find(itm => itm?.id == id)).filter(itm => itm != undefined && item != null);
           let swappedItems = swappedData.map(itm => itm?.task);
+      
+          // Update React state so your UI matches the new order:
+          setSubtasks(swappedData);
+          // setSlotItemMap(slotItemMap.asArray);
 
-          dev() && console.log(`Swapped`, {item, swappedItems, swappedData});
-
+          dev() && console.log(`Swapped`, {item, swappedItems, swappedData, slotItemMap, arr: slotItemMap?.asArray});
+      
+          // Also update the `item` object (if needed) and localStorage:
           item.subtasks = swappedData;
+          localStorage.setItem('boards', JSON.stringify(boards));
           addBoardScrollBars();
-          localStorage.setItem(`boards`, JSON.stringify(boards));
         }
       });
     }
@@ -193,7 +196,7 @@ export default function SwapyTasks(props) {
         swapyRef.current = null;
       }
     }
-  }, [item, subtasks])
+  }, [item, subtasks, slotItemMap])
 
   return <>
     <div id={`${item.id}_subTasks`} className={`rowSubtasks subTasks`}>
