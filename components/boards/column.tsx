@@ -263,7 +263,7 @@ export default function Column(props) {
                                                             setBoard={props.setBoard} 
                                                         />
                                                     </div>
-                                                    {!tasksFiltered && item.subtasks && <DndKitTasks item={item} />}
+                                                    {!tasksFiltered && item.subtasks && <DndKitTasks column={props.column} item={item} />}
                                                     {/* {!tasksFiltered && item.subtasks && <Dnd item={item} />} */}
                                                     {/* {!tasksFiltered && item.subtasks && <SwapyTasks item={item} />} */}
                                                     {/* {!tasksFiltered && item.subtasks && <SubTasks item={item} useSwapy={true} />} */}

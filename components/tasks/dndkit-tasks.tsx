@@ -26,7 +26,7 @@ function reorder(list, oldIndex, newIndex) {
 }
 
 // A single "sortable" subtask item:
-function SortableSubtaskItem({ subtask, index, changeLabel, completeSubtask, deleteSubtask }) {
+function SortableSubtaskItem({ subtask, isLast, column, index, changeLabel, completeSubtask, deleteSubtask }) {
   // Hook from dnd-kit. Ties this item to the sorting system
   const {
     attributes,
@@ -49,7 +49,7 @@ function SortableSubtaskItem({ subtask, index, changeLabel, completeSubtask, del
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
       {/* Original markup you had for subtask */}
-      <div className={`task_${subtask.id} subTaskItem ${subtask.complete ? 'complete' : 'activeTask'}`}>
+      <div className={`task_${subtask.id} subTaskItem ${subtask.complete ? 'complete' : 'activeTask'} ${isLast ? `dndLast` : ``}`}>
         <div className="draggableItem item subtaskHandle">
           <span className="itemOrder taskComponentBG">
             <i className={`itemIndex ${subtask.complete ? 'completedIndex' : 'activeIndex'}`}>
@@ -67,25 +67,27 @@ function SortableSubtaskItem({ subtask, index, changeLabel, completeSubtask, del
               {subtask.task}
             </span>
 
-            {/* Timestamps */}
-            {subtask.created && !subtask.updated ? (
-              <span className="itemDate itemName itemCreated textOverflow extended flex row">
-                <i className="status">Cre.</i>
-                <span className="itemDateTime">
-                  {formatDate(new Date(subtask.created))}
+            {column?.details && column?.details == true ? (
+              subtask.created && !subtask.updated ? (
+                <span className="itemDate itemName itemCreated textOverflow extended flex row">
+                  <i className="status">Cre.</i>
+                  <span className="itemDateTime">
+                    {formatDate(new Date(subtask.created))}
+                  </span>
                 </span>
-              </span>
-            ) : subtask.updated ? (
-              <span className="itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
-                <i className="status">Upd.</i>
-                <span className="itemDateTime">
-                  {formatDate(new Date(subtask.updated))}
+              ) : subtask.updated ? (
+                <span className="itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
+                  <i className="status">Upd.</i>
+                  <span className="itemDateTime">
+                    {formatDate(new Date(subtask.updated))}
+                  </span>
                 </span>
-              </span>
-            ) : null}
+              ) : null
+            ) : <></>}
+
           </div>
 
-          <div className="itemButtons customButtons taskComponentBG">
+          <div className="itemButtons customButtons taskComponentBG taskButtons">
             <button
               title="Delete Task"
               onMouseDown={(e) => e.stopPropagation()}
@@ -96,7 +98,7 @@ function SortableSubtaskItem({ subtask, index, changeLabel, completeSubtask, del
               <i className="fas fa-trash" style={{ color: 'var(--gameBlue)', fontSize: 9 }} />
             </button>
             <input
-              className={`taskCheckbox ${subtask.complete ? 'complete' : 'activeTask'}`}
+              className={`task_check_box taskCheckbox ${subtask.complete ? 'complete' : 'activeTask'}`}
               onChange={(e) => completeSubtask(e, subtask)}
               onMouseDown={(e) => e.stopPropagation()}
               onPointerDown={(e) => e.stopPropagation()}
@@ -112,7 +114,7 @@ function SortableSubtaskItem({ subtask, index, changeLabel, completeSubtask, del
 }
 
 export default function DndKitTasks(props) {
-  const { item } = props;
+  const { item, column } = props;
   const { boards, setLoading, setSystemStatus } = useContext<any>(StateContext);
 
   // If item.subtasks exist, use them; otherwise empty
@@ -287,10 +289,13 @@ export default function DndKitTasks(props) {
             >
               {subtasks.map((subtask, index) => {
                 if (deletedTaskIDs.includes(subtask.id)) return null;
+                let isLast = index == subtasks.length - 1; 
 
                 return (
                   <SortableSubtaskItem
                     index={index}
+                    isLast={isLast}
+                    column={column}
                     key={subtask.id}
                     subtask={subtask}
                     changeLabel={changeLabel}
