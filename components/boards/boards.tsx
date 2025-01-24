@@ -127,7 +127,7 @@ export default function Boards(props) {
     }, [boards, rte]);
 
     return <>
-        <SwapyExample2 />
+        {/* <SwapyExample2 /> */}
         {/* {devEnv && <button onClick={(e) => showAlert(`All Boards`, <div>All Boards</div>, `69%`, `69%`)} className="iconButton alertTest" style={{justifyContent: `center`}}>Alert</button>} */}
         <div className="createBoard lists extended">
             <div className={`list items addListDiv`}>

@@ -8,6 +8,7 @@ import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { formatDate, generateUniqueID, StateContext, capitalizeAllWords, dev } from '../../pages/_app';
 import SubTasks from './subtasks';
 import SwapyTasks from './swapy-tasks';
+import Dnd from './dnd';
 
 export default function Column(props) {
     let count = 0;
@@ -261,6 +262,7 @@ export default function Column(props) {
                                                             setBoard={props.setBoard} 
                                                         />
                                                     </div>
+                                                    {/* {!tasksFiltered && item.subtasks && <Dnd item={item} />} */}
                                                     {!tasksFiltered && item.subtasks && <SwapyTasks item={item} />}
                                                     {/* {!tasksFiltered && item.subtasks && <SubTasks item={item} useSwapy={true} />} */}
                                                     {/* {!tasksFiltered && item.subtasks && itemIndex % 2 != 0 && <Tasks item={item} items={item?.subtasks} />} */}
