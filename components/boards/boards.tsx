@@ -3,6 +3,7 @@ import { useState, useEffect, useContext } from 'react';
 import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
 import { capWords, dev, formatDate, generateUniqueID, replaceAll, StateContext } from '../../pages/_app';
 import SwapyExample from './swapy-example';
+import SwapyExample2 from './swapy-example-2';
 
 export enum ItemTypes {
     Task = `Task`,
@@ -126,7 +127,7 @@ export default function Boards(props) {
     }, [boards, rte]);
 
     return <>
-        {/* <SwapyExample /> */}
+        <SwapyExample2 />
         {/* {devEnv && <button onClick={(e) => showAlert(`All Boards`, <div>All Boards</div>, `69%`, `69%`)} className="iconButton alertTest" style={{justifyContent: `center`}}>Alert</button>} */}
         <div className="createBoard lists extended">
             <div className={`list items addListDiv`}>
