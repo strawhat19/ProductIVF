@@ -57,7 +57,7 @@ export default function Board(props) {
             e.target.value = capitalizeAllWords(item.name);
             return;
         };
-        let titleWidth = `${(value.length * 8.5) + 80}px`;
+        let titleWidth = `${(value.length * 8.5) + 69}px`;
         e.target.value = capitalizeAllWords(value);
         e.target.style.width = titleWidth;
         if (item.id.includes(`board`)) {
@@ -225,8 +225,28 @@ export default function Board(props) {
                     <div {...props.provided.dragHandleProps} id={`titleRowOfBoard`} className={`titleRow flex row`}>
                         <div className={`flex row innerRow`}>
                             <div className={`flex row left`}>
-                                <h3><span className={`subscript itemOrder slashes`}>{props.index + 1}</span></h3>
-                                <h2><input type={`text`} id={`${board.id}_change_label`} ref={boardNameRef} title={board?.name} onBlur={(e) => changeLabel(e, board, setBoard)} className={`changeLabel textOverflow`} name={`boardName`} defaultValue={board?.name ?? `Board`} style={{width: board.titleWidth ? board.titleWidth : `75px`}} /></h2>
+                                <h3 className={`boardIndexBadge`}>
+                                    <span className={`subscript itemOrder slashes`}>{props.index + 1}</span>
+                                </h3>
+                                <h2 className={`boardTitleField`}>
+                                    <input 
+                                        type={`text`} 
+                                        ref={boardNameRef} 
+                                        name={`boardName`} 
+                                        title={board?.name} 
+                                        id={`${board.id}_change_label`} 
+                                        defaultValue={board?.name ?? `Board`} 
+                                        className={`changeLabel textOverflow`} 
+                                        onBlur={(e) => changeLabel(e, board, setBoard)} 
+                                        style={{ width: board.titleWidth ? board.titleWidth : `75px` }} 
+                                        onKeyDown={(e) => {
+                                            if (e.key === `Enter`) {
+                                                e.preventDefault();
+                                                (e.target as any).blur();
+                                            }
+                                        }}
+                                    />
+                                </h2>
                                 <h3 className={`boardDate`}>
                                     <span className={`subscript rowDate itemDate itemName itemCreated itemUpdated textOverflow extended flex row`}>
                                         <i> - </i>

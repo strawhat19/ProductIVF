@@ -21,15 +21,15 @@ function SortableSubtaskItem({ subtask, isLast, column, index, changeLabel, comp
   } = useSortable({ id: subtask.id });
 
   const style = {
-    transform: CSS.Translate.toString(transform),
     transition,
     opacity: isDragging ? 0.8 : 1,
+    transform: CSS.Translate.toString(transform),
   };
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
       <div className={`task_${subtask.id} subTaskItem ${subtask.complete ? 'complete' : 'activeTask'} ${isLast ? `dndLast` : ``}`}>
-        <div className="draggableItem item subtaskHandle">
+        <div className="cursorGrab draggableItem item subtaskHandle">
           <span className="itemOrder taskComponentBG">
             <i className={`itemIndex ${subtask.complete ? 'completedIndex' : 'activeIndex'}`}>
               {index + 1}
@@ -44,7 +44,7 @@ function SortableSubtaskItem({ subtask, isLast, column, index, changeLabel, comp
               onBlur={(e) => changeLabel(e, subtask)}
               onMouseDown={(e) => e.stopPropagation()}
               onPointerDown={(e) => e.stopPropagation()}
-              className={`changeLabel taskChangeLabel ${subtask.complete ? 'complete' : 'activeTask'}`}
+              className={`changeLabel taskChangeLabel stretchEditable ${subtask.complete ? 'complete' : 'activeTask'}`}
               onKeyDown={(e) => {
                 if (e.key === `Enter`) {
                   e.preventDefault();
@@ -249,12 +249,6 @@ export default function Tasks(props) {
       setSubtasks(item.subtasks);
     }
   }, [item.subtasks]);
-
-  // useEffect(() => {
-  //   if (board && board?.columns[column.id] && board?.columns[]) {
-  //     setSubtasks(item.subtasks);
-  //   }
-  // }, [board]);
 
   return (
     <div id={`${item.id}_subTasks`} className={`rowSubtasks subTasks dndkitTasks`}>

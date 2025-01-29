@@ -205,8 +205,8 @@ export default function Column(props) {
                                     <div 
                                         contentEditable 
                                         suppressContentEditableWarning
-                                        className={`columnName changeLabel`} 
                                         onBlur={(e) => changeColumnLabel(e, props.column)} 
+                                        className={`columnName changeLabel stretchEditable`} 
                                         onKeyDown={(e) => {
                                             if (e.key === `Enter`) {
                                               e.preventDefault();

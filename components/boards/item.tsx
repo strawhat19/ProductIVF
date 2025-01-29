@@ -166,9 +166,9 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
                     {/* <textarea onBlur={(e) => changeLabel(e, item)} className={`changeLabel`} defaultValue={item.content} /> */}
                     <span 
                         contentEditable 
-                        className={`changeLabel`}
                         suppressContentEditableWarning 
                         onBlur={(e) => changeLabel(e, item)} 
+                        className={`changeLabel stretchEditable`}
                         onKeyDown={(e) => {
                             if (e.key === `Enter`) {
                               e.preventDefault();

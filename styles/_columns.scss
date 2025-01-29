@@ -3,6 +3,17 @@
     --darkCheckBox: rgba(0, 194, 255, 0.2);
 }
 
+.cursorGrab {
+    cursor: grab !important;
+    &:has(:active) {
+        cursor: grabbing !important;
+    }
+}
+
+.stretchEditable {
+    max-width: unset !important;
+}
+
 .droppableSubtasksArea {
     display: block;
 }
@@ -11,7 +22,6 @@
     &:hover {
         .taskComponentBG {
             color: black;
-            // background: rgba(255, 255, 255, 0.35) !important;
             &.itemButtons {
                 filter: invert(0) !important;
                 input {
