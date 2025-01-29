@@ -226,18 +226,14 @@ export default function Tasks(props) {
     }, 1000);
   };
 
-  // dnd-kit onDragEnd
   const handleDragEnd = ({ active, over }) => {
-    // If no valid drop target or same position, do nothing
     if (!over || active.id === over.id) return;
 
-    // Find the indexes for the item being dragged and the target
     const oldIndex = subtasks.findIndex((tsk) => tsk.id === active.id);
     const newIndex = subtasks.findIndex((tsk) => tsk.id === over.id);
 
     if (oldIndex === -1 || newIndex === -1) return;
 
-    // Reorder the array
     const updated = reorder(subtasks, oldIndex, newIndex);
     setSubtasks(updated);
 
@@ -248,13 +244,17 @@ export default function Tasks(props) {
     addBoardScrollBars();
   };
 
-  // Sync outside changes
   useEffect(() => {
     if (item.subtasks && item.subtasks.length !== subtasks.length) {
       setSubtasks(item.subtasks);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item.subtasks]);
+
+  // useEffect(() => {
+  //   if (board && board?.columns[column.id] && board?.columns[]) {
+  //     setSubtasks(item.subtasks);
+  //   }
+  // }, [board]);
 
   return (
     <div id={`${item.id}_subTasks`} className={`rowSubtasks subTasks dndkitTasks`}>

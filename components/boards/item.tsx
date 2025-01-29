@@ -99,6 +99,11 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
             board.items[itemId].updated = formatDate(new Date());
             board.items[itemId].complete = !board.items[itemId].complete;
 
+            // Complete Tasks On Complete Item
+            // for (let i = 0; i < board.items[itemId].subtasks.length; i++) {
+            //     board.items[itemId].subtasks[i].complete = !board.items[itemId].subtasks[i].complete;
+            // }
+
             setBoard({
                 ...board,
                 updated: formatDate(new Date()),
