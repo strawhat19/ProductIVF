@@ -9,6 +9,7 @@ import { formatDate, generateUniqueID, StateContext, capitalizeAllWords, dev } f
 export default function Column(props) {
     let count = 0;
     const { board } = props;
+    let [hoverItemForm, setHoverItemForm] = useState(false);
     let [itemTypeMenuOpen, setItemTypeMenuOpen] = useState(false);
     const { boards, setBoards, setLoading, setSystemStatus, completeFiltered, tasksFiltered, IDs, setIDs } = useContext<any>(StateContext);
 
@@ -228,7 +229,7 @@ export default function Column(props) {
                                         Details
                                     </span>
                                 </button>
-                                {dev() ? <>
+                                {/* {dev() ? <>
                                     <button id={`layout_3Columns_${props.column.id}`} style={{ pointerEvents: `all` }} onClick={(e) => adjustColumnsLayout(props.column, 3)} title={`3 Columns`} className={`iconButton layoutButton column3Layout ${props?.column?.layoutCols ? (props?.column?.layoutCols == 3 ? `activeLayout` : `inactive`) : ``}`}>
                                         <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-th`}></i>
                                         <span className={`iconButtonText textOverflow extended`}>
@@ -241,7 +242,7 @@ export default function Column(props) {
                                             2 Columns
                                         </span>
                                     </button>
-                                </> : <></>}
+                                </> : <></>} */}
                                 <button id={`delete_${props.column.id}`} style={{ pointerEvents: `all` }} onClick={(e) => deleteColumn(props.column.id, props.index)} title={`Delete List`} className={`iconButton deleteButton`}>
                                     <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-trash`}></i>
                                     <span className={`iconButtonText textOverflow extended`}>
@@ -258,7 +259,7 @@ export default function Column(props) {
                                         return (
                                         <Draggable key={item.id} draggableId={item.id} index={itemIndex}>
                                             {provided => (
-                                                <div id={item.id} className={`item completeItem ${item.complete ? `complete` : ``} container ${snapshot.isDragging ? `dragging` : ``} ${itemTypeMenuOpen ? `unfocus` : ``}`} title={item.content} {...provided.draggableProps} ref={provided.innerRef}>
+                                                <div id={item.id} className={`item boardItem ${hoverItemForm ? `itemHoverToExpand` : ``} completeItem ${item.complete ? `complete` : ``} container ${snapshot.isDragging ? `dragging` : ``} ${itemTypeMenuOpen ? `unfocus` : ``}`} title={item.content} {...provided.draggableProps} ref={provided.innerRef}>
                                                     <div onClick={(e) => manageItem(e, item, itemIndex, board, boards, setBoards)} {...provided.dragHandleProps} className={`itemRow flex row ${item?.complete ? `completed` : `incomplete`} ${item.subtasks.length > 0 ? `hasTasksRow` : `noTasksRow`}`}>
                                                         <Item 
                                                             item={item} 

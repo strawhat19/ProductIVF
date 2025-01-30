@@ -1706,9 +1706,9 @@ textarea {
                 cursor: grab;
                 display: flex;
                 grid-gap: 0px;
-                // grid-gap: 14px;
                 font-size: 0.8em;
                 min-height: 35px;
+                // grid-gap: 14px;
                 position: relative;
                 align-items: center;
                 padding: 0em !important;
@@ -1717,7 +1717,7 @@ textarea {
                 // flex-direction: row !important;
                 border-radius: var(--borderRadius);
                 transition: filter, opacity var(--transition);
-                // transition: height 1500ms var(--delayedTransition);
+                // transition: height, min-height, max-height 5s var(--delayedTransition);
 
                 &.unfocus {
                     pointer-events: none;
@@ -3078,6 +3078,24 @@ footer {
         button {
             &:disabled {
                 opacity: 0.35;
+            }
+        }
+    }
+}
+
+.lists .list .items .item .subTasks .subTaskElement {
+    .boardTaskHandle {
+        &:hover {
+            .itemButtons {
+                input {
+                    &[type="checkbox"] {
+                        &.task_check_box {
+                            &[data-checkbox="true"] {
+                                background: var(--darkCheckBox) !important;
+                            }
+                        }
+                    }
+                }
             }
         }
     }

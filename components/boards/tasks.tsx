@@ -27,10 +27,10 @@ function SortableSubtaskItem({ subtask, isLast, column, index, changeLabel, comp
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <div className={`task_${subtask.id} subTaskItem ${subtask.complete ? 'complete' : 'activeTask'} ${isLast ? `dndLast` : ``}`}>
-        <div className="cursorGrab draggableItem item subtaskHandle">
-          <span className="itemOrder taskComponentBG">
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners} className={`boardTaskDraggableWrap`}>
+      <div className={`task_${subtask.id} boardTask subTaskItem ${subtask.complete ? 'complete' : 'activeTask'} ${isLast ? `dndLast` : ``}`}>
+        <div className={`boardTaskHandle cursorGrab draggableItem item subtaskHandle ${subtask.complete ? 'complete' : 'activeTask'}`}>
+          <span className={`itemOrder taskComponentBG`}>
             <i className={`itemIndex ${subtask.complete ? 'completedIndex' : 'activeIndex'}`}>
               {index + 1}
             </i>
@@ -88,6 +88,7 @@ function SortableSubtaskItem({ subtask, isLast, column, index, changeLabel, comp
             <input
               type="checkbox"
               autoComplete="off"
+              data-checkbox="true"
               defaultChecked={subtask.complete}
               onMouseDown={(e) => e.stopPropagation()}
               onPointerDown={(e) => e.stopPropagation()}

@@ -1,6 +1,78 @@
 :root {
     --lightCheckBox: rgba(255, 61, 0, 0.2);
     --darkCheckBox: rgba(0, 194, 255, 0.2);
+    --whiteGlassInvert: rgba(191, 230, 244, 1);
+}
+
+.columnStats {
+    max-width: fit-content !important;
+}
+
+.detailsButton {
+    border-radius: 0 !important;
+}
+
+.boardItem {
+    &.complete {
+        .boardTask {
+            &.complete {
+                .itemOrder {
+                    .itemIndex {
+                        color: var(--gameBlueInverse) !important;
+                    }
+                }
+                .changeLabel {
+                    color: black;
+                }
+                .itemButtons {
+                    filter: invert(0) !important;
+                }
+            }
+        }
+    }
+    &:not(:hover) {
+        &:not(.complete) {
+            .boardTaskDraggableWrap {
+                &:has(.complete) {
+                    .boardTask {
+                        &.complete {
+                            color: black;
+                            background: linear-gradient(90deg, black 35px, var(--whiteGlassInvert) 35px) !important;
+                            .itemButtons {
+                                input {
+                                    &.task_check_box {
+                                        &::before {
+                                            color: black !important;
+                                        }
+                                    }
+                                }
+                                button {
+                                    background: black;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    &:not(&:has(.itemFooter)) {
+        .progress {
+            padding: 3px;
+        }
+    }
+    &.itemHoverToExpand {
+        &:not(:hover) {
+            --boardItemHeight: 58px;
+            &:has(.itemFooter) {
+                --boardItemHeight: 71px;
+            }
+            overflow-y: hidden;
+            height: var(--boardItemHeight) !important;
+            min-height: var(--boardItemHeight) !important;
+            max-height: var(--boardItemHeight) !important;
+        }
+    }
 }
 
 .cursorGrab {
@@ -42,8 +114,8 @@
     width: 100%;
     grid-gap: 0;
     display: flex;
-    flex-direction: column;
     // padding: 10px 0;
+    flex-direction: column;
 }
 
 ._task {
