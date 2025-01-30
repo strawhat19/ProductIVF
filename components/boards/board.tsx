@@ -2,6 +2,7 @@
 import Column from './column';
 import { ItemTypes } from './boards';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
+import { forceFieldBlurOnPressEnter } from '../../shared/constants';
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { capitalizeAllWords, dev, formatDate, generateUniqueID, StateContext } from '../../pages/_app';
 
@@ -238,13 +239,8 @@ export default function Board(props) {
                                         defaultValue={board?.name ?? `Board`} 
                                         className={`changeLabel textOverflow`} 
                                         onBlur={(e) => changeLabel(e, board, setBoard)} 
+                                        onKeyDown={(e) => forceFieldBlurOnPressEnter(e)}
                                         style={{ width: board.titleWidth ? board.titleWidth : `75px` }} 
-                                        onKeyDown={(e) => {
-                                            if (e.key === `Enter`) {
-                                                e.preventDefault();
-                                                (e.target as any).blur();
-                                            }
-                                        }}
                                     />
                                 </h2>
                                 <h3 className={`boardDate`}>

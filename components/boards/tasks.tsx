@@ -3,6 +3,7 @@ import { addBoardScrollBars } from './board';
 import React, { useState, useContext, useEffect } from 'react';
 import { capWords, dev, formatDate, generateUniqueID, StateContext } from '../../pages/_app';
 import { DndContext, PointerSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core';
+import { forceFieldBlurOnPressEnter, removeExtraSpacesFromString } from '../../shared/constants';
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { restrictToFirstScrollableAncestor, restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers';
 
@@ -40,15 +41,23 @@ function SortableSubtaskItem({ subtask, isLast, column, index, changeLabel, comp
 
             <span
               contentEditable
+              spellCheck={false}
               suppressContentEditableWarning
               onBlur={(e) => changeLabel(e, subtask)}
               onMouseDown={(e) => e.stopPropagation()}
               onPointerDown={(e) => e.stopPropagation()}
+              onKeyDown={(e) => forceFieldBlurOnPressEnter(e)}
               className={`changeLabel taskChangeLabel stretchEditable ${subtask.complete ? 'complete' : 'activeTask'}`}
-              onKeyDown={(e) => {
-                if (e.key === `Enter`) {
-                  e.preventDefault();
-                  (e.target as any).blur();
+              onInput={(e) => {
+                const target = e.target as HTMLSpanElement;
+                if (target.innerText.length > 30) {
+                  target.innerText = target.innerText.substring(0, 30);
+                  const range = document.createRange();
+                  const selection = window.getSelection();
+                  range.selectNodeContents(target);
+                  range.collapse(false);
+                  selection?.removeAllRanges();
+                  selection?.addRange(range);
                 }
               }}
             >
@@ -57,16 +66,20 @@ function SortableSubtaskItem({ subtask, isLast, column, index, changeLabel, comp
 
             {column?.details && column?.details == true ? (
               subtask.created && !subtask.updated ? (
-                <span className="itemDate itemName itemCreated textOverflow extended flex row">
-                  <i className="status">Cre.</i>
-                  <span className="itemDateTime">
+                <span className={`itemDate ${subtask?.complete ? `taskCompleteDate` : `taskActiveDate`} itemName itemCreated textOverflow extended flex row`}>
+                  <i className={`status`}>
+                    Cre.
+                  </i>
+                  <span className={`itemDateTime`}>
                     {formatDate(new Date(subtask.created))}
                   </span>
                 </span>
               ) : subtask.updated ? (
-                <span className="itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
-                  <i className="status">Upd.</i>
-                  <span className="itemDateTime">
+                <span className={`itemDate ${subtask?.complete ? `taskCompleteDate` : `taskActiveDate`} itemName itemCreated itemUpdated textOverflow extended flex row`}>
+                  <i className={`status`}>
+                    Upd.
+                  </i>
+                  <span className={`itemDateTime`}>
                     {formatDate(new Date(subtask.updated))}
                   </span>
                 </span>
@@ -123,12 +136,15 @@ export default function Tasks(props) {
 
   // Called when user edits label
   const changeLabel = (e, taskItem) => {
-    let elemValue = e.target.textContent || '';
+    let elemValue = e.target.textContent || ``;
     const newValue = capitalizeAllWords(elemValue || taskItem.task);
-    taskItem.task = newValue;
+    const cleanedValue = removeExtraSpacesFromString(newValue);
+    
+    e.target.innerHTML = cleanedValue;
+    taskItem.task = cleanedValue;
     taskItem.updated = formatDate(new Date());
 
-    localStorage.setItem('boards', JSON.stringify(boards));
+    localStorage.setItem(`boards`, JSON.stringify(boards));
   };
 
   // Toggle complete

@@ -4,6 +4,7 @@ import 'react-circular-progressbar/dist/styles.css';
 import React, { useContext, useState } from 'react';
 import Item, { getTypeIcon, manageItem } from './item';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
+import { forceFieldBlurOnPressEnter, removeExtraSpacesFromString } from '../../shared/constants';
 import { formatDate, generateUniqueID, StateContext, capitalizeAllWords, dev } from '../../pages/_app';
 
 export default function Column(props) {
@@ -44,9 +45,15 @@ export default function Column(props) {
             elemValue = capitalizeAllWords(item.task);
             return;
         };
-        elemValue = capitalizeAllWords(value);
+
+        elemValue = removeExtraSpacesFromString(value);
+        elemValue = capitalizeAllWords(elemValue);
+
+        e.target.innerHTML = elemValue;
+        item.title = elemValue;
+        item.content = elemValue;
         item.updated = formatDate(new Date());
-        item.title = capitalizeAllWords(value);
+        
         localStorage.setItem(`boards`, JSON.stringify(boards));
     }
 
@@ -205,15 +212,11 @@ export default function Column(props) {
                                 <div className={`listName textOverflow extended flex row`} style={{ fontSize: 13, fontWeight: 600 }}>
                                     <div 
                                         contentEditable 
+                                        spellCheck={false}
                                         suppressContentEditableWarning
+                                        onKeyDown={(e) => forceFieldBlurOnPressEnter(e)}
                                         onBlur={(e) => changeColumnLabel(e, props.column)} 
                                         className={`columnName changeLabel stretchEditable`} 
-                                        onKeyDown={(e) => {
-                                            if (e.key === `Enter`) {
-                                              e.preventDefault();
-                                              (e.target as any).blur();
-                                            }
-                                        }}
                                     >
                                         {props.column.title}    
                                     </div>
@@ -283,12 +286,22 @@ export default function Column(props) {
                     </div>
                     <form title={`Add Item`} id={`add_item_form_${props.column.id}`} className={`flex addItemForm itemButtons unset addForm`} style={{ width: `100%`, flexDirection: `row` }} onSubmit={(e) => addNewItem(e)}>
                         <div className={`itemTypesMenu ${itemTypeMenuOpen ? `show` : ``}`}>
-                            {Object.values(ItemTypes).filter(type => type !== props?.column?.itemType).map((type, typeIndex) => <div key={typeIndex} title={type} onClick={(e) => changeItemType(e, type, props.column)} className={`typeIcon menuTypeIcon`}>{getTypeIcon(type)}</div>)}
+                            {Object.values(ItemTypes).filter(type => type !== props?.column?.itemType).map((type, typeIndex) => (
+                                <div key={typeIndex} title={type} onClick={(e) => changeItemType(e, type, props.column)} className={`typeIcon menuTypeIcon`}>
+                                    {getTypeIcon(type)}
+                                </div>
+                            ))}
                         </div>
-                        <div title={`Change ${props?.column?.itemType} Type`} onClick={(e) => changeItemType(e)} className={`typeIcon`}>{getTypeIcon(props?.column?.itemType)}</div>
+                        <div title={`Change ${props?.column?.itemType} Type`} onClick={(e) => changeItemType(e)} className={`typeIcon`}>
+                            {getTypeIcon(props?.column?.itemType)}
+                        </div>
                         <input autoComplete={`off`} placeholder={`Add`} type="text" name="createItem" required />
-                        {props?.column?.itemType == ItemTypes.Image && <input autoComplete={`off`} style={{padding: `10px 0px 10px 15px`, minWidth: `75px`, maxWidth: `75px`}} placeholder={`Img Url`} type="text" name="itemImage" />}
-                        {props?.column?.itemType == ItemTypes.Video && <input autoComplete={`off`} style={{padding: `10px 0px 10px 15px`, minWidth: `100px`, maxWidth: `75px`}} placeholder={`Youtube Url`} type="text" name="itemVideo" />}
+                        {props?.column?.itemType == ItemTypes.Image && (
+                            <input autoComplete={`off`} style={{padding: `10px 0px 10px 15px`, minWidth: `75px`, maxWidth: `75px`}} placeholder={`Img Url`} type="text" name="itemImage" />
+                        )}
+                        {props?.column?.itemType == ItemTypes.Video && (
+                            <input autoComplete={`off`} style={{padding: `10px 0px 10px 15px`, minWidth: `100px`, maxWidth: `75px`}} placeholder={`Youtube Url`} type="text" name="itemVideo" />
+                        )}
                         <input autoComplete={`off`} name={`rank`} placeholder={props.items.filter(itm => itemActiveFilters(itm)).length + 1} defaultValue={props.items.filter(itm => itemActiveFilters(itm)).length + 1} type={`number`} min={1} />
                         <button type={`submit`} title={`Add Item`} className={`iconButton createList wordIconButton`}>
                             <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-plus"></i>

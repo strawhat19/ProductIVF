@@ -342,9 +342,9 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
 }
 
 .addForm {
-    border-radius: var(--borderRadius);
-    position: relative;
     max-height: 35px;
+    position: relative;
+    border-radius: var(--borderRadius);
     .inputGroup {
         grid-gap: 5px !important;
         max-height: 33px !important;
@@ -2056,6 +2056,9 @@ textarea {
                                         .itemDate {
                                             justify-content: flex-end;
                                             margin-right: 10px !important;
+                                            &.taskCompleteDate {
+                                                color: white !important;
+                                            }
                                         }
                                         input[type="checkbox"] {
                                             font-size: 8px !important;
@@ -2076,7 +2079,7 @@ textarea {
                         .addForm {
                             border-radius: 0;
                             max-height: 26px;
-                            padding: 17px 5px 20px 5px;
+                            padding: 14px 5px 16px;
                             background: transparent !important;
                             border-top: 1px solid var(--gameBlue);
                             button {

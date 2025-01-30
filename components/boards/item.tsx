@@ -5,8 +5,10 @@ import CustomImage from '../custom-image';
 import 'react-circular-progressbar/dist/styles.css';
 import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
 import { showAlert, formatDate, dev, StateContext, capitalizeAllWords } from '../../pages/_app';
+import { forceFieldBlurOnPressEnter, removeExtraSpacesFromString } from '../../shared/constants';
 
-export const getSubTaskPercentage = (subtasks) => {
+export const getSubTaskPercentage = (subtasks: any[]) => {
+    if (subtasks.length == 0) return 0;
     let subtasksProgress = 0;
     let completeTasks = subtasks.filter(task => task.complete);
     subtasksProgress = parseFloat(((completeTasks.length / subtasks.length) * 100).toFixed(1));
@@ -56,9 +58,15 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
             elemValue = capitalizeAllWords(item.task);
             return;
         };
-        elemValue = capitalizeAllWords(value);
+
+        elemValue = removeExtraSpacesFromString(value);
+        elemValue = capitalizeAllWords(elemValue);
+
+        e.target.innerHTML = elemValue;
+        item.title = elemValue;
+        item.content = elemValue;
         item.updated = formatDate(new Date());
-        item.content = capitalizeAllWords(value);
+
         localStorage.setItem(`boards`, JSON.stringify(boards));
     }
 
@@ -89,6 +97,29 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
             case ItemTypes.Video:
                 return <i style={{display: `contents`}} className={`fab fa-youtube`} />;
         }
+    }
+
+    const renderProgressChart = (tasks: any[]) => {
+        tasks = tasks.length > 0 ? tasks : [];
+        const progress = getSubTaskPercentage(tasks);
+        return (
+            <div className={`progress`}>
+                <CircularProgressbar 
+                    value={progress} 
+                    text={`${progress}%`} 
+                    styles={buildStyles({
+                        rotation: 0.5,
+                        textSize: `24px`,
+                        textColor: `#fff`,
+                        strokeLinecap: `butt`,
+                        backgroundColor: `#3e98c7`,
+                        pathTransitionDuration: 0.5,
+                        trailColor: `rgba(0, 194, 255, 0.2)`,
+                        pathColor: progress < 100 ? `rgba(0, 194, 255, ${progress / 100})` : `#00b900`,
+                    })} 
+                />
+        </div>
+        )
     }
 
     const completeActions = (item, index, itemId, isButton) => {
@@ -166,15 +197,11 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
                     {/* <textarea onBlur={(e) => changeLabel(e, item)} className={`changeLabel`} defaultValue={item.content} /> */}
                     <span 
                         contentEditable 
+                        spellCheck={false}
                         suppressContentEditableWarning 
                         onBlur={(e) => changeLabel(e, item)} 
                         className={`changeLabel stretchEditable`}
-                        onKeyDown={(e) => {
-                            if (e.key === `Enter`) {
-                              e.preventDefault();
-                              (e.target as any).blur();
-                            }
-                        }}
+                        onKeyDown={(e) => forceFieldBlurOnPressEnter(e)}
                     >
                         {item.content}
                     </span>
@@ -212,18 +239,7 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
                     </div>
                 </> : <></>}
             </div>
-            {!tasksFiltered && item.subtasks.length > 0 && <div className={`progress`}>
-                <CircularProgressbar value={getSubTaskPercentage(item.subtasks)} text={`${getSubTaskPercentage(item.subtasks)}%`} styles={buildStyles({
-                    rotation: 0.5,
-                    strokeLinecap: 'butt',
-                    textSize: '24px',
-                    pathTransitionDuration: 0.5,
-                    pathColor: getSubTaskPercentage(item.subtasks) < 100 ? `rgba(0, 194, 255, ${getSubTaskPercentage(item.subtasks) / 100})` : `#00b900`,
-                    trailColor: 'rgba(0, 194, 255, 0.2)',
-                    backgroundColor: '#3e98c7',
-                    textColor: '#fff',
-                })} />
-            </div>}
+            {renderProgressChart(item?.subtasks)}
             <div className={`itemButtons customButtons`}>
                 {/* <button id={`copy_${item.id}`} onClick={(e) => copyItem(e, item)} title={`Copy Item`} className={`iconButton ${ItemActions.Copy} copyButton wordIconButton`}>
                     <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-copy`}></i>
