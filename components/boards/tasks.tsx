@@ -3,15 +3,15 @@ import { addBoardScrollBars } from './board';
 import React, { useState, useContext, useEffect } from 'react';
 import { capWords, dev, formatDate, generateUniqueID, StateContext } from '../../pages/_app';
 import { DndContext, PointerSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core';
-import { forceFieldBlurOnPressEnter, removeExtraSpacesFromString } from '../../shared/constants';
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { restrictToFirstScrollableAncestor, restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers';
+import { forceFieldBlurOnPressEnter, nameFields, removeExtraSpacesFromString, setMaxLengthOnField } from '../../shared/constants';
 
 function reorder(list, oldIndex, newIndex) {
   return arrayMove(list, oldIndex, newIndex);
 }
 
-function SortableSubtaskItem({ subtask, isLast, column, index, changeLabel, completeSubtask, deleteSubtask }) {
+function SortableSubtaskItem({ item, subtask, isLast, column, index, changeLabel, completeSubtask, deleteSubtask }) {
   const {
     attributes,
     listeners,
@@ -29,15 +29,15 @@ function SortableSubtaskItem({ subtask, isLast, column, index, changeLabel, comp
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners} className={`boardTaskDraggableWrap`}>
-      <div className={`task_${subtask.id} boardTask subTaskItem ${subtask.complete ? 'complete' : 'activeTask'} ${isLast ? `dndLast` : ``}`}>
-        <div className={`boardTaskHandle cursorGrab draggableItem item subtaskHandle ${subtask.complete ? 'complete' : 'activeTask'}`}>
+      <div className={`task_${subtask.id} boardTask subTaskItem ${(item?.complete || subtask?.complete) ? 'complete' : 'activeTask'} ${isLast ? `dndLast` : ``}`}>
+        <div className={`boardTaskHandle cursorGrab draggableItem item subtaskHandle ${(item?.complete || subtask?.complete) ? 'complete' : 'activeTask'}`}>
           <span className={`itemOrder taskComponentBG`}>
-            <i className={`itemIndex ${subtask.complete ? 'completedIndex' : 'activeIndex'}`}>
+            <i className={`itemIndex ${(item?.complete || subtask?.complete) ? 'completedIndex' : 'activeIndex'}`}>
               {index + 1}
             </i>
           </span>
 
-          <div className={`subtaskActions flex row taskComponentBG ${subtask.complete ? 'complete' : 'activeTask'}`}>
+          <div className={`subtaskActions flex row taskComponentBG ${(item?.complete || subtask?.complete) ? 'complete' : 'activeTask'}`}>
 
             <span
               contentEditable
@@ -47,26 +47,15 @@ function SortableSubtaskItem({ subtask, isLast, column, index, changeLabel, comp
               onMouseDown={(e) => e.stopPropagation()}
               onPointerDown={(e) => e.stopPropagation()}
               onKeyDown={(e) => forceFieldBlurOnPressEnter(e)}
-              className={`changeLabel taskChangeLabel stretchEditable ${subtask.complete ? 'complete' : 'activeTask'}`}
-              onInput={(e) => {
-                const target = e.target as HTMLSpanElement;
-                if (target.innerText.length > 30) {
-                  target.innerText = target.innerText.substring(0, 30);
-                  const range = document.createRange();
-                  const selection = window.getSelection();
-                  range.selectNodeContents(target);
-                  range.collapse(false);
-                  selection?.removeAllRanges();
-                  selection?.addRange(range);
-                }
-              }}
+              onInput={(e) => setMaxLengthOnField(e, nameFields.task.max)}
+              className={`changeLabel taskChangeLabel stretchEditable ${(item?.complete || subtask?.complete) ? 'complete' : 'activeTask'}`}
             >
               {subtask.task}
             </span>
 
             {column?.details && column?.details == true ? (
               subtask.created && !subtask.updated ? (
-                <span className={`itemDate ${subtask?.complete ? `taskCompleteDate` : `taskActiveDate`} itemName itemCreated textOverflow extended flex row`}>
+                <span className={`itemDate ${(item?.complete || subtask?.complete) ? `taskCompleteDate` : `taskActiveDate`} itemName itemCreated textOverflow extended flex row`}>
                   <i className={`status`}>
                     Cre.
                   </i>
@@ -75,7 +64,7 @@ function SortableSubtaskItem({ subtask, isLast, column, index, changeLabel, comp
                   </span>
                 </span>
               ) : subtask.updated ? (
-                <span className={`itemDate ${subtask?.complete ? `taskCompleteDate` : `taskActiveDate`} itemName itemCreated itemUpdated textOverflow extended flex row`}>
+                <span className={`itemDate ${(item?.complete || subtask?.complete) ? `taskCompleteDate` : `taskActiveDate`} itemName itemCreated itemUpdated textOverflow extended flex row`}>
                   <i className={`status`}>
                     Upd.
                   </i>
@@ -102,11 +91,13 @@ function SortableSubtaskItem({ subtask, isLast, column, index, changeLabel, comp
               type="checkbox"
               autoComplete="off"
               data-checkbox="true"
-              defaultChecked={subtask.complete}
+              disabled={item?.complete}
               onMouseDown={(e) => e.stopPropagation()}
               onPointerDown={(e) => e.stopPropagation()}
               onChange={(e) => completeSubtask(e, subtask)}
-              className={`task_check_box taskCheckbox ${subtask.complete ? 'complete' : 'activeTask'}`}
+              checked={item?.complete || subtask?.complete}
+              defaultChecked={(item?.complete || subtask?.complete)}
+              className={`task_check_box taskCheckbox ${(item?.complete || subtask?.complete) ? 'complete' : 'activeTask'}`}
             />
           </div>
         </div>
@@ -150,15 +141,15 @@ export default function Tasks(props) {
   // Toggle complete
   const completeSubtask = (e, subtask) => {
     setLoading(true);
-    setSystemStatus(`Marking Task as ${subtask.complete ? 'Reopened' : 'Complete'}.`);
+    setSystemStatus(`Marking Task as ${subtask?.complete ? 'Reopened' : 'Complete'}.`);
 
-    subtask.complete = !subtask.complete;
+    subtask.complete = !subtask?.complete;
     subtask.updated = formatDate(new Date());
     item.updated = formatDate(new Date());
 
     localStorage.setItem('boards', JSON.stringify(boards));
     setTimeout(() => {
-      setSystemStatus(`Marked Task as ${subtask.complete ? 'Complete' : 'Reopened'}.`);
+      setSystemStatus(`Marked Task as ${subtask?.complete ? 'Complete' : 'Reopened'}.`);
       setLoading(false);
     }, 1000);
   };
@@ -292,6 +283,7 @@ export default function Tasks(props) {
 
                 return (
                   <SortableSubtaskItem
+                    item={item}
                     index={index}
                     isLast={isLast}
                     column={column}

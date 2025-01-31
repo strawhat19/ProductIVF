@@ -8,6 +8,7 @@ import { showAlert, formatDate, dev, StateContext, capitalizeAllWords } from '..
 import { forceFieldBlurOnPressEnter, removeExtraSpacesFromString } from '../../shared/constants';
 
 export const getSubTaskPercentage = (subtasks: any[], item, isActive = null) => {
+    if (item?.complete) return 100;
     if (subtasks.length == 0) {
         if (isActive != null) return item?.complete ? 100 : (isActive == true ? 0 : 100);
         else return item?.complete ? 100 : 0;
@@ -192,7 +193,13 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
         <div id={`itemElement_${item.id}`} className={`itemComponent itemInnerRow flex row`}>
             <span className={`itemOrder rowIndexOrder`}>
                 {/* <i className={`itemIconType itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>{getTypeIcon(item?.type)}</i> */}
-                <i className={`itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>{(item?.type == ItemTypes.Item || item?.type == ItemTypes.Task) && <span className={`itemIconType ${item?.type}`}>{getTypeIcon(item?.type, true)}</span>} {itemIndex + 1}</i>
+                <i className={`itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>
+                    {(item?.type == ItemTypes.Item || item?.type == ItemTypes.Task) && (
+                        <span className={`itemIconType ${item?.type}`}>
+                            {getTypeIcon(item?.type, true)}
+                        </span>
+                    )} {itemIndex + 1}
+                </i>
             </span>
             {item?.image && <CustomImage className={`itemImage boardItemImage`} src={item?.image} alt={item?.content} useLazyLoad={true} />}
             <div className={`itemContents`}>
@@ -237,7 +244,13 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
                         </span>
                         ) : null}
                         {!tasksFiltered && item.subtasks && item.subtasks.length > 0 && <>
-                            <span className={`subtaskIndex subscript flex row`}><span className={`slashes`}>✔</span> {item.subtasks.filter(subtask => subtask.complete).length} <span className={`slashes`}>//</span> {item.subtasks.length}</span>
+                            <span className={`subtaskIndex subscript flex row gap5`}>
+                                <span className={`slashes`}>
+                                    ✔
+                                </span> {item?.complete ? item.subtasks.length : item.subtasks.filter(subtask => subtask.complete).length} <span className={`slashes`}>
+                                    //
+                                </span> {item.subtasks.length}
+                            </span>
                         </>}
                     </div>
                 </> : <></>}
