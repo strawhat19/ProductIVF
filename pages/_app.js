@@ -702,6 +702,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
     let [tasksFiltered, setTasksFiltered] = useState(false);
     let [boardCategories, setBoardCategories] = useState([]);
     let [year, setYear] = useState(new Date().getFullYear());
+    let [itemTypeMenuOpen, setItemTypeMenuOpen] = useState(false);
     let [completeFiltered, setCompleteFiltered] = useState(false);
     
     useEffect(() => {
@@ -794,7 +795,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       }
     }, [rte, user, users, authState, dark])
 
-    return <StateContext.Provider value={{ router, rte, setRte, updates, setUpdates, content, setContent, width, setWidth, user, setUser, page, setPage, mobileMenu, setMobileMenu, users, setUsers, authState, setAuthState, emailField, setEmailField, devEnv, setDevEnv, mobileMenuBreakPoint, platform, setPlatform, focus, setFocus, highScore, setHighScore, color, setColor, dark, setDark, colorPref, setColorPref, lists, setLists, showLeaders, setShowLeaders, items, setItems, qotd, setQotd, alertOpen, setAlertOpen, mobile, setMobile, systemStatus, setSystemStatus, loading, setLoading, anim, setAnimComplete, IDs, setIDs, boardLoaded, setBoardLoaded, board, setBoard, completeFiltered, setCompleteFiltered, boardCategories, setBoardCategories, categories, setCategories, boards, setBoards, browser, setBrowser, onMac, rearranging, setRearranging, tasksFiltered, setTasksFiltered, menuPosition, setMenuPosition, menuRef, selected, setSelected }}>
+    return <StateContext.Provider value={{ router, rte, setRte, updates, setUpdates, content, setContent, width, setWidth, user, setUser, page, setPage, mobileMenu, setMobileMenu, users, setUsers, authState, setAuthState, emailField, setEmailField, devEnv, setDevEnv, mobileMenuBreakPoint, platform, setPlatform, focus, setFocus, highScore, setHighScore, color, setColor, dark, setDark, colorPref, setColorPref, lists, setLists, showLeaders, setShowLeaders, items, setItems, qotd, setQotd, alertOpen, setAlertOpen, mobile, setMobile, systemStatus, setSystemStatus, loading, setLoading, anim, setAnimComplete, IDs, setIDs, boardLoaded, setBoardLoaded, board, setBoard, completeFiltered, setCompleteFiltered, boardCategories, setBoardCategories, categories, setCategories, boards, setBoards, browser, setBrowser, onMac, rearranging, setRearranging, tasksFiltered, setTasksFiltered, menuPosition, setMenuPosition, menuRef, selected, setSelected, itemTypeMenuOpen, setItemTypeMenuOpen }}>
       {(browser != `chrome` || onMac) ? <AnimatePresence mode={`wait`}>
         <motion.div className={`${rte} pageWrapContainer ${page.toUpperCase()}`} key={router.route} initial="pageInitial" animate="pageAnimate" exit="pageExit" transition={{ duration: 0.35 }} variants={{
           pageInitial: {
@@ -816,16 +817,17 @@ export default function ProductIVF({ Component, pageProps, router }) {
         <Component {...pageProps} />
       </div>}
       <ToastContainer
-        position={`bottom-left`}
-        hideProgressBar={false}
-        pauseOnHover={false}
-        newestOnTop={false}
-        autoClose={3500}
-        pauseOnFocusLoss
-        theme={`dark`}
-        closeOnClick
-        rtl={false}
         draggable
+        rtl={false}
+        closeOnClick
+        theme={`dark`}
+        autoClose={3500}
+        newestOnTop={false}
+        pauseOnHover={false}
+        position={`top-right`}
+        hideProgressBar={false}
+        pauseOnFocusLoss={false}
+        style={{ marginTop: 55 }}
       />
       <ContextMenu menuRef={menuRef} menuPosition={menuPosition} />
     </StateContext.Provider>

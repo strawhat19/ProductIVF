@@ -11,8 +11,7 @@ export default function Column(props) {
     let count = 0;
     const { board } = props;
     let [hoverItemForm, setHoverItemForm] = useState(false);
-    let [itemTypeMenuOpen, setItemTypeMenuOpen] = useState(false);
-    const { boards, setBoards, setLoading, setSystemStatus, completeFiltered, tasksFiltered, IDs, setIDs } = useContext<any>(StateContext);
+    const { boards, setBoards, setLoading, setSystemStatus, completeFiltered, tasksFiltered, IDs, setIDs, itemTypeMenuOpen, setItemTypeMenuOpen, menuPosition } = useContext<any>(StateContext);
 
     const itemActiveFilters = (itm) => {
         if (completeFiltered) {
@@ -285,7 +284,7 @@ export default function Column(props) {
                         </Droppable>
                     </div>
                     <form title={`Add Item`} id={`add_item_form_${props.column.id}`} className={`flex addItemForm itemButtons unset addForm`} style={{ width: `100%`, flexDirection: `row` }} onSubmit={(e) => addNewItem(e)}>
-                        <div className={`itemTypesMenu ${itemTypeMenuOpen ? `show` : ``}`}>
+                        <div className={`itemTypesMenu ${(itemTypeMenuOpen && menuPosition == null) ? `show` : ``}`}>
                             {Object.values(ItemTypes).filter(type => type !== props?.column?.itemType).map((type, typeIndex) => (
                                 <div key={typeIndex} title={type} onClick={(e) => changeItemType(e, type, props.column)} className={`typeIcon menuTypeIcon`}>
                                     {getTypeIcon(type)}

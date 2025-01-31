@@ -1,9 +1,44 @@
 import { useContext } from 'react';
+import { toast } from 'react-toastify';
 import { StateContext } from '../../pages/_app';
 
 export default function ContextMenu({menuRef, menuPosition}) {
-    let { selected, setBoards, setMenuPosition } = useContext<any>(StateContext);
+    let { selected, setBoards, setMenuPosition, setItemTypeMenuOpen, setSelected } = useContext<any>(StateContext);
     let ids = (selected == null || selected?.column == undefined || selected?.column == null) ? [] : Array.from(selected?.column?.itemIds);
+
+    const onDismiss = () => {
+        setSelected(null);
+        setMenuPosition(null);
+        setItemTypeMenuOpen(false);
+    }
+
+    const onClose = () => {
+        onDismiss();
+    }
+
+    const manageItemDetails = () => {
+        onDismiss();
+        toast.info(`In Development!`);
+    }
+
+    const onRightClick = () => {
+        onDismiss();
+    }
+
+    const copyToClipBoard = () => {
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(selected?.item?.title);
+            toast.success(`Copied to Clipboard`);
+        }
+        onDismiss();
+    }
+
+    // const showDefaultContextMenu = (event: React.MouseEvent) => {
+    //     // onDismiss();
+    //     setTimeout(() => {
+    //       document.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, clientX: event.clientX, clientY: event.clientY }));
+    //     }, 0);
+    // };
 
     const moveItemToPosition = (top = true) => {
         const itemIds = top == true ? [
@@ -24,7 +59,7 @@ export default function ContextMenu({menuRef, menuPosition}) {
             }
         };
         setBoards(prevBoards => prevBoards.map(brd => brd.id == selected?.board?.id ? updatedBoard : brd));
-        setMenuPosition(null);
+        onDismiss();
     }
 
     return menuPosition && (
@@ -35,6 +70,7 @@ export default function ContextMenu({menuRef, menuPosition}) {
                 padding: 0,
                 zIndex: 1000,
                 width: `auto`,
+                minWidth: 170,
                 border: `none`,
                 borderRadius: 5,
                 top: menuPosition.y,
@@ -46,16 +82,28 @@ export default function ContextMenu({menuRef, menuPosition}) {
             }}
         >
             <ul className={`customContextMenuOptions`}>
+                <li className={`customContextMenuOption flex gap15`} onClick={() => onClose()}>
+                    <i className={`fas fa-times`} style={{ color: `var(--gameBlueSoft)` }} /> <span>Close</span>
+                </li>
+                <li className={`customContextMenuOption flex gap15`} onClick={() => copyToClipBoard()}>
+                    <i className={`fas fa-copy`} style={{ color: `var(--gameBlueSoft)` }} /> <span>Copy</span>
+                </li>
+                {/* <li className={`customContextMenuOption flex gap15`} onClick={() => manageItemDetails()}>
+                    <i className={`fas fa-bars`} style={{ color: `var(--gameBlueSoft)` }} /> <span>Manage</span>
+                </li> */}
                {ids?.indexOf(selected?.item?.id) > 0 && (
-                   <li className={`customContextMenuOption flex gap15`} onClick={() => moveItemToPosition()}>
-                        <i className={`fas fa-sort-amount-up`} style={{ color: `var(--gameBlueSoft)` }} /> <span>Move to Top of Column</span>
+                    <li className={`customContextMenuOption flex gap15`} onClick={() => moveItemToPosition()}>
+                        <i className={`fas fa-sort-amount-up`} style={{ color: `var(--gameBlueSoft)` }} /> <span>To Top</span>
                     </li>
-               )}
-               {(ids?.indexOf(selected?.item?.id) < ids?.length - 1) && (
-                   <li className={`customContextMenuOption flex gap15`} onClick={() => moveItemToPosition(false)}>
-                        <i className={`fas fa-sort-amount-down`} style={{ color: `var(--gameBlueSoft)` }} /> <span>Move to Bottom of Column</span>
+                )}
+                {(ids?.indexOf(selected?.item?.id) < ids?.length - 1) && (
+                    <li className={`customContextMenuOption flex gap15`} onClick={() => moveItemToPosition(false)}>
+                        <i className={`fas fa-sort-amount-down`} style={{ color: `var(--gameBlueSoft)` }} /> <span>To Bottom</span>
                     </li>
-               )}
+                )}
+                {/* <li className={`customContextMenuOption flex gap15`} onClick={() => onRightClick()}>
+                    <i className={`fas fa-mouse-pointer`} style={{ color: `var(--gameBlueSoft)` }} /> <span>Right Click</span>
+                </li> */}
             </ul>
         </div>
     );

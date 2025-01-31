@@ -234,7 +234,9 @@ export default function Board(props) {
                         <div className={`flex row innerRow`}>
                             <div className={`flex row left`}>
                                 <h3 className={`boardIndexBadge`}>
-                                    <span className={`subscript itemOrder slashes`}>{props.index + 1}</span>
+                                    <span className={`subscript itemOrder slashes`}>
+                                        {props.index + 1}
+                                    </span>
                                 </h3>
                                 <h2 className={`boardTitleField`}>
                                     <input 
@@ -244,17 +246,23 @@ export default function Board(props) {
                                         title={board?.name} 
                                         id={`${board.id}_change_label`} 
                                         defaultValue={board?.name ?? `Board`} 
-                                        className={`changeLabel textOverflow`} 
                                         onBlur={(e) => changeLabel(e, board, setBoard)} 
                                         onKeyDown={(e) => forceFieldBlurOnPressEnter(e)}
+                                        className={`boardNameField changeLabel textOverflow`} 
                                         style={{ width: board.titleWidth ? board.titleWidth : `75px` }} 
                                     />
                                 </h2>
                                 <h3 className={`boardDate`}>
                                     <span className={`subscript rowDate itemDate itemName itemCreated itemUpdated textOverflow extended flex row`}>
                                         <i> - </i>
-                                        <i className={`status`}>{board && board?.created && !board?.updated ? `Cre.` : `Upd.` }</i> 
-                                        <i><span className={`itemDateTime`}>{board?.updated ?? board?.created}</span></i>
+                                        <i className={`status`}>
+                                            {board && board?.created && !board?.updated ? `Cre.` : `Upd.` }
+                                        </i> 
+                                        <i>
+                                            <span className={`itemDateTime`}>
+                                                {board?.updated ?? board?.created}
+                                            </span>
+                                        </i>
                                     </span>
                                 </h3>
                             </div>

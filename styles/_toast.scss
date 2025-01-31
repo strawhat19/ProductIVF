@@ -1,5 +1,6 @@
 .Toastify__toast-container {
     --toastify-container-width: 350px;
+    --toastify-toast-min-height: auto;
     .Toastify__toast {
         width: 100%;
         display: flex;

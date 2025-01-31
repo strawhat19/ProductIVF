@@ -53,7 +53,7 @@ export const manageItem = (e, item, index, board, boards, setBoards) => {
 }
 
 export default function Item({ item, count, column, itemIndex, board, setBoard }: any) {
-    const { boards, setBoards, tasksFiltered, setLoading, setSystemStatus, setSelected, menuRef, setMenuPosition } = useContext<any>(StateContext);
+    const { boards, setBoards, tasksFiltered, setLoading, setSystemStatus, setSelected, menuRef, setMenuPosition, itemTypeMenuOpen, setItemTypeMenuOpen } = useContext<any>(StateContext);
 
     const changeLabel = (e, item) => {
         let elemValue = e.target.textContent;
@@ -89,13 +89,15 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
     const onRightClick = (e: React.MouseEvent<HTMLDivElement>, item, column) => {
         e.preventDefault();
         setSelected({item, column, board});
+        setItemTypeMenuOpen(!itemTypeMenuOpen);
         setMenuPosition({ x: e.clientX, y: e.clientY });
     }
     
     const handleClickOutside = (event: MouseEvent) => {
         if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-            setMenuPosition(null);
             setSelected(null);
+            setMenuPosition(null);
+            setItemTypeMenuOpen(false);
         }
     };
 

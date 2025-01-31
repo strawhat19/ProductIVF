@@ -296,12 +296,12 @@ nav {
     &:not(.extended) {
         max-width: 60%;
     }
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-    max-width: 100% !important;
-    overflow: hidden !important;
+    max-width: 100%;
     margin: 0 !important;
     display: inline-block;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important;
 }
 
 html[class~=dark] .dark\:nx-bg-dark {
@@ -634,6 +634,10 @@ input {
                 min-width: 48.9% !important;
             }
         }
+    }
+    .boardItem:not(.boardItem:has(.itemFooter)) .progress {
+        top: -0.6px;
+        padding: 5px;
     }
 }
 
