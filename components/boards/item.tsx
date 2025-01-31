@@ -7,8 +7,11 @@ import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
 import { showAlert, formatDate, dev, StateContext, capitalizeAllWords } from '../../pages/_app';
 import { forceFieldBlurOnPressEnter, removeExtraSpacesFromString } from '../../shared/constants';
 
-export const getSubTaskPercentage = (subtasks: any[]) => {
-    if (subtasks.length == 0) return 0;
+export const getSubTaskPercentage = (subtasks: any[], item, isActive = null) => {
+    if (subtasks.length == 0) {
+        if (isActive != null) return item?.complete ? 100 : (isActive == true ? 0 : 100);
+        else return item?.complete ? 100 : 0;
+    };
     let subtasksProgress = 0;
     let completeTasks = subtasks.filter(task => task.complete);
     subtasksProgress = parseFloat(((completeTasks.length / subtasks.length) * 100).toFixed(1));
@@ -99,9 +102,9 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
         }
     }
 
-    const renderProgressChart = (tasks: any[]) => {
+    const renderProgressChart = (tasks: any[], item) => {
         tasks = tasks.length > 0 ? tasks : [];
-        const progress = getSubTaskPercentage(tasks);
+        const progress = getSubTaskPercentage(tasks, item);
         return (
             <div className={`progress`}>
                 <CircularProgressbar 
@@ -239,7 +242,7 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
                     </div>
                 </> : <></>}
             </div>
-            {renderProgressChart(item?.subtasks)}
+            {renderProgressChart(item?.subtasks, item)}
             <div className={`itemButtons customButtons`}>
                 {/* <button id={`copy_${item.id}`} onClick={(e) => copyItem(e, item)} title={`Copy Item`} className={`iconButton ${ItemActions.Copy} copyButton wordIconButton`}>
                     <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-copy`}></i>

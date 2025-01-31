@@ -6,8 +6,8 @@ import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
 
 export default function ItemDetail(props) {
     let [disabled, setDisabled] = useState(false);
-    let [image, setImage] = useState(props.item.image ?? undefined);
     const { item, index, boards, setBoards, IDs } = props;
+    let [image, setImage] = useState(props.item.image ?? undefined);
     const [active, setActive] = useState(item?.complete ? `complete` : `active`);
 
     const refreshDetails = (e) => {
@@ -15,6 +15,29 @@ export default function ItemDetail(props) {
         if (e.target.name == `itemImageLink`) {
             setImage(e.target.value);
         }
+    }
+
+    const renderProgressChart = (tasks, item, active, injectedProgress = null) => {
+        let progress = getSubTaskPercentage(tasks, item, active === `active`);
+        progress = injectedProgress != null ? injectedProgress : progress;
+        return (
+            <div className={`progress`} title={`Progress: ${progress}%`}>
+                <CircularProgressbar 
+                    value={progress} 
+                    text={`${progress}%`} 
+                    styles={buildStyles({
+                        rotation: 0.5,
+                        textSize: `24px`,
+                        textColor: `#fff`,
+                        strokeLinecap: `butt`,
+                        backgroundColor: `#3e98c7`,
+                        pathTransitionDuration: 0.5,
+                        trailColor: `rgba(0, 194, 255, 0.2)`,
+                        pathColor: progress < 100 ? `rgba(0, 194, 255, ${progress / 100})` : `#00c2ff`,
+                    })} 
+                />
+            </div>
+        )
     }
 
     const saveItem = (e) => {
@@ -51,35 +74,51 @@ export default function ItemDetail(props) {
                     <CustomImage 
                         src={image} 
                         alt={item?.content} 
+                        onError={(e) => setDisabled(true)} 
+                        onLoad={(e) => setDisabled(false)} 
                         className={`itemImage detailViewImage`} 
-                        onError={(e) => setDisabled(true)} onLoad={(e) => setDisabled(false)} 
                     />
                 </figure>
             )}
             <form onInput={(e) => refreshDetails(e)} onSubmit={(e) => saveItem(e)} className={`changeInputs flex isColumn`} data-index={index + 1}>
                 <div className={`formTop`}>
-                    <h3><strong>{item?.type}</strong></h3>
-                    {item.subtasks.length > 0 && <div className={`progress`} title={`Progress: ${getSubTaskPercentage(item.subtasks)}%`}>
-                        <CircularProgressbar value={getSubTaskPercentage(item.subtasks)} text={`${getSubTaskPercentage(item.subtasks)}%`} styles={buildStyles({
-                            rotation: 0.5,
-                            strokeLinecap: 'butt',
-                            textSize: '24px',
-                            pathTransitionDuration: 0.5,
-                            pathColor: getSubTaskPercentage(item.subtasks) < 100 ? `rgba(0, 194, 255, ${getSubTaskPercentage(item.subtasks) / 100})` : `#00c2ff`,
-                            trailColor: 'rgba(0, 194, 255, 0.2)',
-                            backgroundColor: '#3e98c7',
-                            textColor: '#fff',
-                        })} />
-                    </div>}
+                    <h3>
+                        <strong>
+                            {item?.type}
+                        </strong>
+                    </h3>
+                    {renderProgressChart(item?.subtasks, item, active, active === `active` ? 0 : null)}
                 </div>
                 <div className={`toggle-buttons`}>
-                    <div className={`toggle-button iconButton ${active === `active` ? `active` : ``}`} onClick={() => setActive(`active`)}>
-                        <input type={`radio`} name={`toggleActive`} value={`active`} checked={active === `active`} onChange={() => {}} />
-                        <label>Active</label>
+                    <div 
+                        onClick={() => setActive(`active`)}
+                        className={`toggle-button iconButton ${active === `active` ? `active` : ``}`} 
+                    >
+                        <input 
+                            type={`radio`} 
+                            value={`active`} 
+                            onChange={() => {}} 
+                            name={`toggleActive`} 
+                            checked={active === `active`} 
+                        />
+                        <label>
+                            Active
+                        </label>
                     </div>
-                    <div className={`toggle-button iconButton ${active === `complete` ? `active` : ``}`} onClick={() => setActive(`complete`)}>
-                        <input type={`radio`} name={`toggleComplete`} value={`complete`} checked={active === `complete`} onChange={() => {}} />
-                        <label>Complete</label>
+                    <div 
+                        onClick={() => setActive(`complete`)}
+                        className={`toggle-button iconButton ${active === `complete` ? `active` : ``}`} 
+                    >
+                        <input 
+                            type={`radio`} 
+                            value={`complete`} 
+                            onChange={() => {}} 
+                            name={`toggleComplete`} 
+                            checked={active === `complete`} 
+                        />
+                        <label>
+                            Complete
+                        </label>
                     </div>
                 </div>
                 <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
