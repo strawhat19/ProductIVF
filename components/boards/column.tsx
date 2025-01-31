@@ -75,26 +75,26 @@ export default function Column(props) {
         localStorage.setItem(`boards`, JSON.stringify(boards));
     }
 
-    const adjustColumnsLayout = (column, columnsNum: number) => {
-        if (columnsNum >= 0 && columnsNum <= 3 && column.layoutCols != columnsNum) {
-            column.layoutCols = columnsNum;
-        } else {
-            column.layoutCols = 1;
-        }
+    // const adjustColumnsLayout = (column, columnsNum: number) => {
+    //     if (columnsNum >= 0 && columnsNum <= 3 && column.layoutCols != columnsNum) {
+    //         column.layoutCols = columnsNum;
+    //     } else {
+    //         column.layoutCols = 1;
+    //     }
         
-        props.setBoard(prevBoard => {
-            return {
-                ...prevBoard,
-                updated: formatDate(new Date()),
-                columns: {
-                    ...prevBoard?.columns,
-                    [column?.id]: column,
-                },
-            }
-        });
+    //     props.setBoard(prevBoard => {
+    //         return {
+    //             ...prevBoard,
+    //             updated: formatDate(new Date()),
+    //             columns: {
+    //                 ...prevBoard?.columns,
+    //                 [column?.id]: column,
+    //             },
+    //         }
+    //     });
 
-        localStorage.setItem(`boards`, JSON.stringify(boards));
-    }
+    //     localStorage.setItem(`boards`, JSON.stringify(boards));
+    // }
 
     const deleteColumn = (columnId, index) => {
         setLoading(true);

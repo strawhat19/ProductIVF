@@ -96,7 +96,7 @@ function SortableSubtaskItem({ item, subtask, isLast, column, index, changeLabel
               onPointerDown={(e) => e.stopPropagation()}
               onChange={(e) => completeSubtask(e, subtask)}
               checked={item?.complete || subtask?.complete}
-              defaultChecked={(item?.complete || subtask?.complete)}
+              // defaultChecked={item?.complete || subtask?.complete}
               className={`task_check_box taskCheckbox ${(item?.complete || subtask?.complete) ? 'complete' : 'activeTask'}`}
             />
           </div>

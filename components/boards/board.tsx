@@ -23,7 +23,7 @@ export default function Board(props) {
     const boardNameRef = useRef();
     const [updates, setUpdates] = useState(0);
     const [board, setBoard] = useState(props.board);
-    const { setBoards, setLoading, setSystemStatus, completeFiltered, setCompleteFiltered, setPage, tasksFiltered, setTasksFiltered, IDs, setIDs } = useContext<any>(StateContext);
+    const { boards, setBoards, setLoading, setSystemStatus, completeFiltered, setCompleteFiltered, setPage, tasksFiltered, setTasksFiltered, IDs, setIDs } = useContext<any>(StateContext);
 
     const filterSubtasks = (e?: any) => {
         setTasksFiltered(!tasksFiltered);
@@ -80,7 +80,7 @@ export default function Board(props) {
         const newColumn = {
             itemIds: [],
             id: columnID,
-            itemType: ItemTypes.Task,
+            itemType: ItemTypes.Item,
             title: formFields[0].value,
         };
 
@@ -183,6 +183,13 @@ export default function Board(props) {
             }
         });
     }
+
+    useEffect(() => {
+        let thisBoard = boards.find(brd => brd.id == board.id);
+        if (thisBoard) {
+            setBoard(thisBoard);
+        }
+    }, [boards])
 
     useEffect(() => {
         if (updates > 0) {

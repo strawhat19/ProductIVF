@@ -1,0 +1,31 @@
+.customContextMenuOptions { 
+    margin: 0; 
+    padding: 0; 
+    list-style: none; 
+    .customContextMenuOption { 
+        cursor: pointer; 
+        font-size: 16px;
+        text-align: left;
+        font-weight: bold;
+        padding: 5px 25px; 
+        font-style: italic;
+        align-items: center;
+        justify-content: flex-start;
+        transition: var(--transition);
+        &:first-child {
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+        }
+        &:last-child {
+            border-bottom-left-radius: 5px;
+            border-bottom-right-radius: 5px;
+        }
+        &:not(:last-child) {
+            border-bottom: 1px solid var(--gameBlueSoft);
+        }
+        &:hover {
+            color: black;
+            background: rgba(191, 230, 244, 0.95);
+        }
+    }
+}

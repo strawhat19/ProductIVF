@@ -1,8 +1,8 @@
 import { ItemTypes } from './boards';
 import ItemDetail from './itemdetail';
-import React, { useContext } from 'react';
 import CustomImage from '../custom-image';
 import 'react-circular-progressbar/dist/styles.css';
+import React, { useContext, useEffect } from 'react';
 import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
 import { showAlert, formatDate, dev, StateContext, capitalizeAllWords } from '../../pages/_app';
 import { forceFieldBlurOnPressEnter, removeExtraSpacesFromString } from '../../shared/constants';
@@ -53,7 +53,7 @@ export const manageItem = (e, item, index, board, boards, setBoards) => {
 }
 
 export default function Item({ item, count, column, itemIndex, board, setBoard }: any) {
-    const { boards, setBoards, tasksFiltered, setLoading, setSystemStatus } = useContext<any>(StateContext);
+    const { boards, setBoards, tasksFiltered, setLoading, setSystemStatus, setSelected, menuRef, setMenuPosition } = useContext<any>(StateContext);
 
     const changeLabel = (e, item) => {
         let elemValue = e.target.textContent;
@@ -85,6 +85,24 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
             completeActions(item, index, itemId, isButton);
         }
     }
+
+    const onRightClick = (e: React.MouseEvent<HTMLDivElement>, item, column) => {
+        e.preventDefault();
+        setSelected({item, column, board});
+        setMenuPosition({ x: e.clientX, y: e.clientY });
+    }
+    
+    const handleClickOutside = (event: MouseEvent) => {
+        if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+            setMenuPosition(null);
+            setSelected(null);
+        }
+    };
+
+    useEffect(() => {
+        document.addEventListener("click", handleClickOutside);
+        return () => document.removeEventListener("click", handleClickOutside);
+    }, []);
 
     const getTypeIcon = (type, plain?) => {
         switch (type) {
@@ -190,7 +208,7 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
     }
 
     return <>
-        <div id={`itemElement_${item.id}`} className={`itemComponent itemInnerRow flex row`}>
+        <div id={`itemElement_${item.id}`} className={`itemComponent itemInnerRow flex row`} onContextMenu={(e) => onRightClick(e, item, column)}>
             <span className={`itemOrder rowIndexOrder`}>
                 {/* <i className={`itemIconType itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>{getTypeIcon(item?.type)}</i> */}
                 <i className={`itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>
