@@ -1,6 +1,7 @@
 
 import Column from './column';
 import { ItemTypes } from './boards';
+import ConfirmAction from '../context-menus/confirm-action';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { forceFieldBlurOnPressEnter } from '../../shared/constants';
 import React, { useState, useContext, useEffect, useRef } from 'react';
@@ -23,14 +24,37 @@ export default function Board(props) {
     const boardNameRef = useRef();
     const [updates, setUpdates] = useState(0);
     const [board, setBoard] = useState(props.board);
-    const { boards, setBoards, setLoading, setSystemStatus, completeFiltered, setCompleteFiltered, setPage, tasksFiltered, setTasksFiltered, IDs, setIDs } = useContext<any>(StateContext);
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [tasksFiltered, setTasksFiltered] = useState(false);
+    const { boards, setBoards, setLoading, setSystemStatus, completeFiltered, setCompleteFiltered, setPage, IDs, setIDs } = useContext<any>(StateContext);
 
     const filterSubtasks = (e?: any) => {
-        setTasksFiltered(!tasksFiltered);
-        localStorage.setItem(`tasksFiltered`, JSON.stringify(!tasksFiltered));
+        // setTasksFiltered(!tasksFiltered);
+        setBoard(prevBoard => {
+            return {
+                ...prevBoard,
+                tasksFiltered: !prevBoard.tasksFiltered
+            }
+        });
+        // localStorage.setItem(`tasksFiltered`, JSON.stringify(!tasksFiltered));
     }
 
-    const deleteBoard = (e, bord) => {
+    const deleteBoard = (e, bord, initialConfirm = true) => {
+        if (showConfirm == true) {
+            if (!initialConfirm) {
+                finallyDeleteBoard(bord);
+            }
+            setShowConfirm(false);
+        } else {
+            if (Object.values(bord?.columns).length > 0) {
+                setShowConfirm(true);
+            } else {
+                finallyDeleteBoard(bord);
+            }
+        }
+    }
+
+    const finallyDeleteBoard = (bord) => {
         setBoards(prevBoards => {
             return prevBoards.filter(brd => brd.id != bord.id);
         })
@@ -266,12 +290,16 @@ export default function Board(props) {
                                     </span>
                                 </h3>
                             </div>
-                            <h3 className={`divSep`}><span className={`subscript`} style={{color: `var(--gameBlue)`}}>|</span></h3>
+                            <h3 className={`divSep`}>
+                                <span className={`subscript`} style={{color: `var(--gameBlue)`}}>|</span>
+                            </h3>
                             <div className={`flex row middle`}>
                                 <h3>{board?.columnOrder && board?.columnOrder?.length} <span className={`subscript`}>Column(s)</span></h3>
                                 <h3>{board?.items && Object.entries(board?.items).length} <span className={`subscript`}>Items(s)</span></h3>
                             </div>
-                            <h3 className={`divSep`}><span className={`subscript`} style={{color: `var(--gameBlue)`}}>|</span></h3>
+                            <h3 className={`divSep`}>
+                                <span className={`subscript`} style={{color: `var(--gameBlue)`}}>|</span>
+                            </h3>
                             <div className={`flex row right`}>
                                 <h3 className={`filtersSubscript`}>
                                     <span className={`subscript`}>
@@ -279,21 +307,27 @@ export default function Board(props) {
                                     </span>
                                 </h3>
                                 <div className={`filterFormDiv filterButtons itemButtons`} style={{textAlign: `center`, justifyContent: `space-between`, alignItems: `center`}}>
-                                    <button onClick={(e) =>  filterSubtasks(e)} id={`filter_tasks`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Filter Tasks`} className={`iconButton deleteButton filterButton ${tasksFiltered ? `filterActive` : `filterInactive`}`}>
-                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${tasksFiltered ? `fa-times-circle` : `fa-list-ol`}`}></i>
-                                        <span className={`iconButtonText textOverflow extended`}>Tasks</span>
+                                    <button onClick={(e) =>  filterSubtasks(e)} id={`filter_tasks`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Filter Tasks`} className={`iconButton deleteButton filterButton ${board?.tasksFiltered ? `filterActive` : `filterInactive`}`}>
+                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${board?.tasksFiltered ? `fa-times-circle` : `fa-list-ol`}`}></i>
+                                        <span className={`iconButtonText textOverflow extended`}>
+                                            Tasks
+                                        </span>
                                     </button>
                                     <button onClick={(e) =>  setCompleteFiltered(!completeFiltered)} id={`filter_completed`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Filter Completed`} className={`iconButton deleteButton filterButton ${completeFiltered ? `filterActive` : `filterInactive`}`}>
                                         <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${completeFiltered ? `fa-times-circle` : `fa-check-circle`}`}></i>
-                                        <span className={`iconButtonText textOverflow extended`}>Completed</span>
+                                        <span className={`iconButtonText textOverflow extended`}>
+                                            Completed
+                                        </span>
                                     </button>
                                     <button onClick={(e) =>  setBoard({...board, focused: !board?.focused})} id={`focus_board`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Focus Board`} className={`iconButton deleteButton filterButton ${board?.focused ? `filterActive` : `filterInactive`}`}>
                                         <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${board?.focused ? `fas fa-compress-arrows-alt` : `fa-expand-arrows-alt`}`}></i>
-                                        <span className={`iconButtonText textOverflow extended`}>Focus</span>
+                                        <span className={`iconButtonText textOverflow extended`}>
+                                            Focus
+                                        </span>
                                     </button>
                                     <section className={`addListFormItemSection`} style={{ margin: 0, padding: 0 }}>
                                         <form onSubmit={addNewColumn} title={`Add Column`} id={`addListForm`} className={`flex addListForm itemButtons addForm`} style={{ width: `100%`, flexDirection: `row` }}>
-                                            <input autoComplete={`off`} maxLength={35} placeholder={`New Column`} type="text" name="createItem" required />
+                                            <input autoComplete={`off`} maxLength={35} placeholder={`Create List +`} type="text" name="createItem" required />
                                             <button type={`submit`} title={`Create Column`} className={`submit iconButton createList`}>
                                                 <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-list"></i>
                                                 <span className={`iconButtonText textOverflow extended`}>
@@ -304,10 +338,15 @@ export default function Board(props) {
                                             </button>
                                         </form>
                                     </section>
-                                    <div className="itemButtons customButtons">
-                                        <button id={`delete_${board?.id}`} onClick={(e) => deleteBoard(e, board)} title={`Delete Board`} className={`iconButton deleteButton`}>
-                                            <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-trash"></i>
-                                            <span className={`iconButtonText textOverflow extended`}>Delete</span>
+                                    <div className={`itemButtons customButtons`}>
+                                        <button id={`delete_${board?.id}`} onClick={(e) => deleteBoard(e, board)} title={`Delete Board`} className={`iconButton deleteButton deleteBoardButton ${showConfirm ? `cancelBtn` : ``}`}>
+                                            <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`mainIcon fas fa-${showConfirm ? `ban` : `trash`}`} />
+                                            <span className={`iconButtonText textOverflow extended`}>
+                                                {showConfirm ? `Cancel` : `Delete`}
+                                            </span>
+                                            {showConfirm && (
+                                                <ConfirmAction onConfirm={(e) => deleteBoard(e, board, false)} />
+                                            )}
                                         </button>
                                         <button onClick={(e) => expandCollapseBoard(e, board)} className={`iconButton`}>
                                             {board?.expanded ? <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-chevron-up"></i> : <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-chevron-down"></i>}

@@ -29,15 +29,15 @@ function SortableSubtaskItem({ item, subtask, isLast, column, index, changeLabel
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners} className={`boardTaskDraggableWrap`}>
-      <div className={`task_${subtask.id} boardTask subTaskItem ${(item?.complete || subtask?.complete) ? 'complete' : 'activeTask'} ${isLast ? `dndLast` : ``}`}>
-        <div className={`boardTaskHandle cursorGrab draggableItem item subtaskHandle ${(item?.complete || subtask?.complete) ? 'complete' : 'activeTask'}`}>
+      <div className={`task_${subtask.id} boardTask subTaskItem ${(item?.complete || subtask?.complete) ? `complete` : `activeTask`} ${isLast ? `dndLast` : ``}`}>
+        <div className={`boardTaskHandle cursorGrab draggableItem item subtaskHandle ${(item?.complete || subtask?.complete) ? `complete` : `activeTask`}`}>
           <span className={`itemOrder taskComponentBG`}>
-            <i className={`itemIndex ${(item?.complete || subtask?.complete) ? 'completedIndex' : 'activeIndex'}`}>
+            <i className={`itemIndex ${(item?.complete || subtask?.complete) ? `completedIndex` : `activeIndex`}`}>
               {index + 1}
             </i>
           </span>
 
-          <div className={`subtaskActions flex row taskComponentBG ${(item?.complete || subtask?.complete) ? 'complete' : 'activeTask'}`}>
+          <div className={`subtaskActions flex row taskComponentBG ${(item?.complete || subtask?.complete) ? `complete` : `activeTask`}`}>
 
             <span
               contentEditable
@@ -48,7 +48,7 @@ function SortableSubtaskItem({ item, subtask, isLast, column, index, changeLabel
               onPointerDown={(e) => e.stopPropagation()}
               onKeyDown={(e) => forceFieldBlurOnPressEnter(e)}
               onInput={(e) => setMaxLengthOnField(e, nameFields.task.max)}
-              className={`changeLabel taskChangeLabel stretchEditable ${(item?.complete || subtask?.complete) ? 'complete' : 'activeTask'}`}
+              className={`changeLabel taskChangeLabel stretchEditable ${(item?.complete || subtask?.complete) ? `complete` : `activeTask`}`}
             >
               {subtask.task}
             </span>
@@ -107,12 +107,12 @@ function SortableSubtaskItem({ item, subtask, isLast, column, index, changeLabel
 }
 
 export default function Tasks(props) {
-  const { item, column } = props;
+  const { item, column, showForm = true } = props;
   const { boards, setLoading, setSystemStatus } = useContext<any>(StateContext);
 
   // If item.subtasks exist, use them; otherwise empty
-  const [subtasks, setSubtasks] = useState(item?.subtasks?.length ? item.subtasks : []);
   const [deletedTaskIDs, setDeletedTaskIDs] = useState<string[]>([]);
+  const [subtasks, setSubtasks] = useState(item?.subtasks?.length ? item.subtasks : []);
 
   // We’ll set up dnd-kit sensors. PointerSensor covers basic mouse/touch
   const sensors = useSensors(
@@ -259,10 +259,10 @@ export default function Tasks(props) {
   }, [item.subtasks]);
 
   return (
-    <div id={`${item.id}_subTasks`} className={`rowSubtasks subTasks dndkitTasks`}>
-      <div className={`subTaskElement flex ${subtasks.length > 0 ? 'hasTasks' : 'noTasks'}`}>
+    <div id={`${item.id}_subTasks`} className={`rowSubtasks subTasks dndkitTasks  ${showForm ? `showForm` : `hideForm`}`}>
+      <div className={`subTaskElement flex ${subtasks.length > 0 ? `hasTasks` : `noTasks`} ${showForm ? `hasForm` : `noForm`}`}>
         {/* The scrollable container for tasks */}
-        <div style={{ marginTop: -1 }} className="subTaskItems">
+        <div style={{ marginTop: -1 }} className={`subTaskItems taskItems ${item?.complete ? `completedTasks` : `activeTasks`}`}>
           {/* DndContext wraps the entire area that can be dragged */}
           <DndContext
             sensors={sensors}
@@ -299,38 +299,39 @@ export default function Tasks(props) {
           </DndContext>
         </div>
 
-        {/* Form to add a new subtask */}
-        <form onSubmit={addSubtask} className="subtaskAddForm addForm flex row">
-          <input
-            type="text"
-            id={`${item.id}_createSubtask`}
-            name="createSubtask changeLabel"
-            placeholder="Create Subtask +"
-            autoComplete="off"
-            required
-          />
-          <input
-            type="number"
-            id={`${item.id}_createSubtask_rank`}
-            name="rank"
-            autoComplete="off"
-            defaultValue={subtasks.length + 1}
-          />
-          <button
-            type="submit"
-            title="Add Task"
-            className="iconButton createList wordIconButton"
-          >
-            <i style={{ color: 'var(--gameBlue)', fontSize: 10 }} className="fas fa-plus" />
-            <span className="iconButtonText textOverflow extended">
-              <span>Add</span>
-              <span
-                className="itemLength index"
-                style={{ padding: '0 5px', color: 'var(--gameBlue)', maxWidth: 'fit-content' }}
-              />
-            </span>
-          </button>
-        </form>
+        {(
+          <form onSubmit={addSubtask} className={`subtaskAddForm addForm flex row`}>
+            <input
+              required
+              type={`text`}
+              autoComplete={`off`}
+              placeholder={`Create Task +`}
+              id={`${item.id}_createSubtask`}
+              name={`createSubtask changeLabel`}
+            />
+            <input
+              name={`rank`}
+              type={`number`}
+              autoComplete={`off`}
+              defaultValue={subtasks.length + 1}
+              id={`${item.id}_createSubtask_rank`}
+            />
+            <button
+              type={`submit`}
+              title={`Add Task`}
+              className={`iconButton createList wordIconButton`}
+            >
+              <i style={{ color: `var(--gameBlue)`, fontSize: 10 }} className={`fas fa-plus`} />
+              <span className={`iconButtonText textOverflow extended`}>
+                <span>Add</span>
+                <span
+                  className={`itemLength index`}
+                  style={{ padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content` }}
+                />
+              </span>
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );

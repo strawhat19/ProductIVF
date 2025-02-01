@@ -94,7 +94,7 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
     }
     
     const handleClickOutside = (event: MouseEvent) => {
-        if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        if (menuRef?.current && !menuRef?.current?.contains(event?.target as Node)) {
             setSelected(null);
             setMenuPosition(null);
             setItemTypeMenuOpen(false);
@@ -102,8 +102,8 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
     };
 
     useEffect(() => {
-        document.addEventListener("click", handleClickOutside);
-        return () => document.removeEventListener("click", handleClickOutside);
+        document.addEventListener(`click`, handleClickOutside);
+        return () => document.removeEventListener(`click`, handleClickOutside);
     }, []);
 
     const getTypeIcon = (type, plain?) => {
@@ -221,7 +221,9 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
                     )} {itemIndex + 1}
                 </i>
             </span>
-            {item?.image && <CustomImage className={`itemImage boardItemImage`} src={item?.image} alt={item?.content} useLazyLoad={true} />}
+            {item?.image && (
+                <CustomImage className={`itemImage boardItemImage`} src={item?.image} alt={item?.content} useLazyLoad={true} />
+            )}
             <div className={`itemContents`}>
                 <span className={`flex row itemContent boardItemContent itemName textOverflow extended`}>
                     {/* <textarea onBlur={(e) => changeLabel(e, item)} className={`changeLabel`} defaultValue={item.content} /> */}

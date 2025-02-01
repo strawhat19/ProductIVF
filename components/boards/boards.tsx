@@ -21,7 +21,7 @@ export enum BoardTypes {
 
 export default function Boards(props) {
     let [updates, setUpdates] = useState(0);
-    const { rte, boards, setBoards, router, tasksFiltered, setLoading, setSystemStatus, IDs, setIDs, setRte } = useContext<any>(StateContext);
+    const { rte, boards, setBoards, router, setLoading, setSystemStatus, IDs, setIDs, setRte } = useContext<any>(StateContext);
 
     const addNewBoard = (e) => {
         e.preventDefault();
@@ -125,17 +125,18 @@ export default function Boards(props) {
     }, [boards, rte]);
 
     return <>
-        {/* <SwapyExample2 /> */}
         {/* {devEnv && <button onClick={(e) => showAlert(`All Boards`, <div>All Boards</div>, `69%`, `69%`)} className="iconButton alertTest" style={{justifyContent: `center`}}>Alert</button>} */}
-        <div className="createBoard lists extended">
+        <div className={`createBoard lists extended`}>
             <div className={`list items addListDiv`}>
-                <div className="formItems items">
-                    <div className="addListFormItem">
-                        <h2 style={{ fontWeight: 600, fontSize: 22, minWidth: `fit-content` }}>Create Board {boards?.boards && boards?.boards?.length + 1}</h2>
+                <div className={`formItems items`}>
+                    <div className={`addListFormItem`}>
+                        <h2 style={{ fontWeight: 600, fontSize: 22, minWidth: `fit-content` }}>
+                            Create Board {boards?.boards && boards?.boards?.length + 1}
+                        </h2>
                         <section className={`addBoardFormSection addListFormItemSection`} style={{ margin: 0 }}>
                             <form onSubmit={(e) => addNewBoard(e)} title={`Add Board`} id={`addBoardForm`} className={`addBoardForm flex addListForm itemButtons addForm`} style={{ width: `100%`, flexDirection: `row` }}>
                                 <div className={`inputGroup flex row`}>
-                                    <input autoComplete={`off`} maxLength={35} placeholder={`Name of Board`} type="text" name="createBoard" required />
+                                    <input autoComplete={`off`} maxLength={35} placeholder={`Create Board +`} type="text" name="createBoard" required />
                                     {/* {devEnv && <div className={`selectBoardTypeWrapper`}>
                                         <select title={`Select Board Type`} name={`selectBoardType`} id={`select_board_type`}>
                                             <option id={`board_option_default`} value={`Select Board Type`}>Select Board Type</option>

@@ -1978,8 +1978,9 @@ textarea {
                         grid-gap: 0;
                         margin: 0 0 0 35px;
                         width: calc(100% - 35px);
-                        background: var(--blackGlass);
+                        // background: var(--blackGlass);
                         /* Neumorphic Inner shadow */
+                        background: transparent !important;
                         box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.2);
 
                         /* Neumorphic Outer shadow */
@@ -1995,6 +1996,11 @@ textarea {
                         .subTaskItems {
                             padding: 0;
                             grid-gap: 0;
+                            background: var(--blackGlass) !important;
+                            &.completedTasks {
+                                border-bottom-right-radius: var(--borderRadius);
+                                border-bottom-left-radius: var(--borderRadius);
+                            }
                             .subTaskItem {
                                 background: linear-gradient(90deg, white 35px, transparent 35px);
                                 &:not(:last-child) {
@@ -2082,11 +2088,15 @@ textarea {
                         }
 
                         .addForm {
-                            border-radius: 0;
                             max-height: 26px;
-                            padding: 14px 5px 16px;
-                            background: transparent !important;
+                            padding: 14px 5px 15px;
+                            border-top-left-radius: 0;
+                            border-top-right-radius: 0;
+                            background: var(--blackGlass);
+                            // background: transparent !important;
                             border-top: 1px solid var(--gameBlue);
+                            border-bottom-left-radius: var(--borderRadius);
+                            border-bottom-right-radius: var(--borderRadius);
                             button {
                                 max-width: fit-content;
                                 height: 24px !important;
@@ -2299,18 +2309,21 @@ textarea {
 }
 
 .iconButton {
-    flex-direction: row !important;
-    justify-content: space-between;
-    background: var(--blackGlass);
-    transition: var(--transition);
-    font-weight: 700 !important;
-    align-items: center;
-    border-radius: var(--borderRadius);
-    font-size: 0.85em;
-    padding: 0px 0px;
-    min-height: 35px;
-    display: flex;
     width: 100%;
+    display: flex;
+    min-height: 35px;
+    padding: 0px 0px;
+    font-size: 0.75em;
+    align-items: center;
+    font-weight: 700 !important;
+    transition: var(--transition);
+    background: var(--blackGlass);
+    justify-content: space-between;
+    flex-direction: row !important;
+    border-radius: var(--borderRadius);
+    @media (max-width: 992px) {
+        font-size: 0.85em;
+    }
     span, i {
         pointer-events: none;
     }

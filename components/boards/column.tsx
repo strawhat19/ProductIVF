@@ -4,12 +4,14 @@ import 'react-circular-progressbar/dist/styles.css';
 import React, { useContext, useState } from 'react';
 import Item, { getTypeIcon, manageItem } from './item';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
+import ConfirmAction from '../context-menus/confirm-action';
 import { forceFieldBlurOnPressEnter, removeExtraSpacesFromString } from '../../shared/constants';
 import { formatDate, generateUniqueID, StateContext, capitalizeAllWords, dev } from '../../pages/_app';
 
 export default function Column(props) {
     let count = 0;
-    const { board } = props;
+    const { board, column } = props;
+    const [showConfirm, setShowConfirm] = useState(false);
     let [hoverItemForm, setHoverItemForm] = useState(false);
     const { boards, setBoards, setLoading, setSystemStatus, completeFiltered, tasksFiltered, IDs, setIDs, itemTypeMenuOpen, setItemTypeMenuOpen, menuPosition } = useContext<any>(StateContext);
 
@@ -95,7 +97,22 @@ export default function Column(props) {
     //     localStorage.setItem(`boards`, JSON.stringify(boards));
     // }
 
-    const deleteColumn = (columnId, index) => {
+    const deleteColumn = (columnId, index, initialConfirm = true) => {
+        if (showConfirm == true) {
+            if (!initialConfirm) {
+                finallyDeleteColumn(columnId, index);
+            }
+            setShowConfirm(false);
+        } else {
+            if (column?.itemIds?.length > 0) {
+                setShowConfirm(true);
+            } else {
+                finallyDeleteColumn(columnId, index);
+            }
+        }
+    }
+
+    const finallyDeleteColumn = (columnId, index) => {
         setLoading(true);
         setSystemStatus(`Deleting Column.`);
         const columnItems = props.board.columns[columnId].itemIds;
@@ -114,14 +131,10 @@ export default function Column(props) {
         props.setBoard(prevBoard => {
             return {
                 ...prevBoard,
+                items: { ...finalItems },
+                columns: { ...newColumns },
+                columnOrder: newColumnOrder,
                 updated: formatDate(new Date()),
-                items: {
-                    ...finalItems
-                },
-                columns: {
-                    ...newColumns
-                },
-                columnOrder: newColumnOrder
             }
         });
 
@@ -245,11 +258,14 @@ export default function Column(props) {
                                         </span>
                                     </button>
                                 </> : <></>} */}
-                                <button id={`delete_${props.column.id}`} style={{ pointerEvents: `all` }} onClick={(e) => deleteColumn(props.column.id, props.index)} title={`Delete List`} className={`iconButton deleteButton`}>
-                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-trash`}></i>
+                                <button id={`delete_${props.column.id}`} style={{ pointerEvents: `all` }} onClick={(e) => deleteColumn(props.column.id, props.index)} title={`Delete List`} className={`iconButton deleteButton deleteListButton ${showConfirm ? `cancelBtnList` : ``}`}>
+                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`mainIcon fas fa-${showConfirm ? `ban` : `trash`}`}></i>
                                     <span className={`iconButtonText textOverflow extended`}>
-                                        Delete
+                                        {showConfirm ? `Cancel` : `Delete`}
                                     </span>
+                                    {showConfirm && (
+                                        <ConfirmAction onConfirm={(e) => deleteColumn(props.column.id, props.index, false)} />
+                                    )}
                                 </button>
                             </div>
                         </div>
@@ -272,7 +288,9 @@ export default function Column(props) {
                                                             setBoard={props.setBoard} 
                                                         />
                                                     </div>
-                                                    {!tasksFiltered && item.subtasks && <Tasks column={props.column} item={item} />}
+                                                    {item.subtasks && (
+                                                        <Tasks column={props.column} item={item} showForm={!board?.tasksFiltered} />
+                                                    )}
                                                 </div>
                                             )}
                                         </Draggable>
@@ -294,7 +312,7 @@ export default function Column(props) {
                         <div title={`Change ${props?.column?.itemType} Type`} onClick={(e) => changeItemType(e)} className={`typeIcon`}>
                             {getTypeIcon(props?.column?.itemType)}
                         </div>
-                        <input autoComplete={`off`} placeholder={`Add`} type="text" name="createItem" required />
+                        <input autoComplete={`off`} placeholder={`Create Item +`} type="text" name="createItem" required />
                         {props?.column?.itemType == ItemTypes.Image && (
                             <input autoComplete={`off`} style={{padding: `10px 0px 10px 15px`, minWidth: `75px`, maxWidth: `75px`}} placeholder={`Img Url`} type="text" name="itemImage" />
                         )}

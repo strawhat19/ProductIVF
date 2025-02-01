@@ -4,6 +4,86 @@
     --whiteGlassInvert: rgba(191, 230, 244, 1);
 }
 
+.deleteBoardButton, .deleteListButton {
+    position: relative;
+    &.deleteListButton {
+        --width: 85px !important;   
+        width: var(--width) !important;
+        min-width: var(--width) !important;
+        max-width: var(--width) !important;
+    }
+}
+
+.cancelBtn {
+    i {
+        &.mainIcon {
+            font-size: 10px !important;
+        }
+    }
+}
+
+.hideForm {
+    .subTaskItems {
+        &.activeTasks {
+            border-bottom-left-radius: var(--borderRadius) !important;
+            border-bottom-right-radius: var(--borderRadius) !important;
+        }
+    }
+    .subTaskItem {
+        border-radius: 0 !important;
+        &:last-child {
+            &.activeTask {
+                &.dndLast {
+                    border-bottom-left-radius: var(--borderRadius) !important;
+                    border-bottom-right-radius: var(--borderRadius) !important;
+                }
+            }
+        }
+    }
+    .addForm {
+        display: none !important;
+    }
+}
+
+.confirmAction {
+    right: 0;
+    padding: 0;
+    width: 100%;
+    grid-gap: 0;
+    bottom: 40px;
+    border-radius: 3px;
+    position: absolute;
+    background: white;
+    min-width: max-content;
+    .confirmActionOption {
+        width: 100%;
+        display: flex;
+        grid-gap: 8px;
+        margin: 0 auto;
+        font-weight: 700;
+        flex-direction: row;
+        align-items: center;
+        padding: 3px 2px 3px 8px;
+        justify-content: flex-start;
+        transition: var(--transition);
+        &:hover {
+            background: black;
+            color: white !important;
+        }
+        &:first-child {
+            border-top-left-radius: var(--borderRadius);
+            border-top-right-radius: var(--borderRadius);
+        }
+        &:last-child {
+            border-bottom-left-radius: var(--borderRadius);
+            border-bottom-right-radius: var(--borderRadius);
+        }
+        &:not(:last-child) {
+            border-bottom: 1px solid var(--gameBlueSoft);
+        }
+    }
+}
+
 .columnStats {
     max-width: fit-content !important;
 }
