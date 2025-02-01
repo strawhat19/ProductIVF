@@ -2,6 +2,7 @@
 @use './styles/image';
 @use './styles/columns';
 @use './styles/contextmenu';
+@use './styles/itemsoverwrite';
 
 /* Montserrat */
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
@@ -1251,11 +1252,6 @@ textarea {
             }
             font-weight: 600 !important;
         }
-        .activeTask {
-            input[type="checkbox"] {
-                filter: invert(1);
-            }
-        }
     }
     .itemDate {
         font-weight: 600 !important;
@@ -1284,20 +1280,11 @@ textarea {
         }
     }
     &:hover {
-        .activeTask {
-            input[type="checkbox"] {
-                filter: invert(0) !important;
-            }
-        }
         .subtaskAddForm {
             border-top: 1px solid var(--gameBlueInverse) !important;
         }
         .slashes {
             color: var(--gameBlueInverse);
-        }
-        .changeLabel {
-            color: black;
-            filter: invert(1);
         }
         .subTaskItem {
             .itemDate {
@@ -1306,16 +1293,11 @@ textarea {
             &:hover {
                 .changeLabel {
                     filter: inherit;
-                    color: black !important;
+                    color: white !important;
                 }
-                input[type="checkbox"] {
-                    filter: inherit;
-                }
-            }
-            &.activeTask {
-                &:hover {
-                    input[type="checkbox"] {
-                        filter: invert(1) !important;
+                .itemButtons {
+                    button {
+                        background: white !important;
                     }
                 }
             }
@@ -1706,6 +1688,23 @@ textarea {
                 grid-template-columns: auto auto !important;
             }
 
+            &.boardColumnItems {
+                &:hover {
+                    .item {
+                        &.complete {
+                            .itemButtons {
+                                &.taskButtons {
+                                    filter: invert(0);
+                                    &.taskButtonsComplete {
+                                        filter: invert(0) !important;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             .item {
                 width: 100%;
                 cursor: grab;
@@ -1754,17 +1753,9 @@ textarea {
                     object-fit: cover !important;
                 }
 
-                // img {
-                //     &.itemImage {
-                //         border-top: solid 1px var(--gameBlue);
-                //         border-left: solid 1px var(--gameBlue);
-                //         border-right: solid 1px var(--gameBlue);
-                //     }
-                // }
-
                 &:hover {
                     .itemRow {
-                        background: linear-gradient(90deg, black 35px, var(--blackGlass) 35px);
+                        background: linear-gradient(90deg, var(--whiteGlass) 35px, var(--blackGlass) 35px);
                         img {
                             filter: invert(1);
                         }
@@ -1776,6 +1767,15 @@ textarea {
                         .taskChangeLabel {
                             color: white;
                             filter: invert(0);
+                            &.complete {
+                                color: black;
+                                font-weight: 700 !important;
+                            }
+                        }
+                        .itemButtons {
+                            button {
+                                color: var(--gameBlueInverse);
+                            }
                         }
                     }
                     .itemSep {
@@ -1789,9 +1789,6 @@ textarea {
                     }
                     .itemButtons {
                         filter: invert(1);
-                        button {
-                            background: black !important;
-                        }
                     }
                     &:not(.complete) {
                         .noTasks {
@@ -1804,19 +1801,10 @@ textarea {
                         filter: invert(1);
                         .CircularProgressbar-text {
                             font-weight: 600;
-                            fill: black !important;
                         }
                     }
                     .subTaskItem {
                         border-color: var(--gameBlueInverse) !important;
-                        .item {
-                            &:hover {
-                                .taskChangeLabel {
-                                    filter: invert(0);
-                                    color: black !important;
-                                }
-                            }
-                        }
                     }
                     .subtaskAddForm {
                         i {
@@ -1824,24 +1812,6 @@ textarea {
                         }
                         &::before {
                             color: var(--gameBlueInverse);
-                        }
-                    }
-
-                    .subTasks {
-                        .subTaskElement {
-                            input[type="checkbox"] {
-                                &::before {
-                                    color: black !important;
-                                }
-                                background: var(--darkCheckBox) !important;
-                            }
-                            .draggableItem {
-                                &:hover {
-                                    input[type="checkbox"] {
-                                        background: var(--lightCheckBox) !important;
-                                    }
-                                }
-                            }
                         }
                     }
                 }
@@ -1996,13 +1966,13 @@ textarea {
                         .subTaskItems {
                             padding: 0;
                             grid-gap: 0;
-                            background: var(--blackGlass) !important;
+                            background: transparent !important;
                             &.completedTasks {
                                 border-bottom-right-radius: var(--borderRadius);
                                 border-bottom-left-radius: var(--borderRadius);
                             }
                             .subTaskItem {
-                                background: linear-gradient(90deg, white 35px, transparent 35px);
+                                background: linear-gradient(90deg, var(--whiteGlass) 35px, var(--blackGlass) 35px);
                                 &:not(:last-child) {
                                     border-bottom: 1px solid var(--gameBlue);
                                 }
@@ -2018,11 +1988,20 @@ textarea {
                                     margin: 5px 15px 5px 0 !important;
                                 }
                                 &:hover {
-                                    background: linear-gradient(90deg, black 35px, transparent 35px);
+                                    background: linear-gradient(90deg, var(--blackGlass) 35px, var(--whiteGlass) 35px);
                                     .subtaskActions {
                                         input[type="checkbox"] {
                                             filter: invert(1);
+                                            background: white !important;
+                                            &:checked {
+                                                &::before {
+                                                    color: var(--gameBlueSoft) !important;
+                                                }
+                                            }
                                         }
+                                    }
+                                    .changeLabel {
+                                        color: white;
                                     }
                                 }
                                 .item {
@@ -2039,11 +2018,6 @@ textarea {
                                             color: black;
                                             font-weight: 600;
                                         }
-                                        i {
-                                            &:not(.status) {
-                                                color: var(--gameBlueInverse) !important;
-                                            }
-                                        }
                                     }
                                     .itemOrder {
                                         max-height: 23px;
@@ -2052,11 +2026,6 @@ textarea {
                                     }
                                     .taskContent {
                                         padding: 5px 0 5px 15px;
-                                        // &.complete {
-                                        //     text-decoration-thickness: 0;
-                                        //     text-decoration: line-through;
-                                        //     text-decoration-color: black;
-                                        // }
                                     }
                                     .subtaskActions {
                                         grid-gap: 5px;
@@ -2067,9 +2036,6 @@ textarea {
                                         .itemDate {
                                             justify-content: flex-end;
                                             margin-right: 10px !important;
-                                            &.taskCompleteDate {
-                                                color: white !important;
-                                            }
                                         }
                                         input[type="checkbox"] {
                                             font-size: 8px !important;
@@ -2178,24 +2144,15 @@ textarea {
 
                 &.complete {
                     filter: invert(1);
-                    // background: rgba(0, 0, 0, 0.5) !important;
-                    
                     &:hover {
-                        // .itemRow {
-                        //     background: linear-gradient(90deg, white 35px, var(--blackGlass) 35px) !important;
-                        // }
                         .changeLabel {
-                            color: white;
-                            text-decoration-color: white !important;
                             &:not(.taskChangeLabel) {
                                 filter: invert(0) !important;
-                                &:hover {
-                                    background: rgba(255, 61, 0, 0.2) !important;
-                                }
                             }
                         }
                         .taskChangeLabel {
-                            color: black;
+                            color: white;
+                            font-weight: 600 !important;
                         }
                         .itemOrder {
                             filter: invert(0);
@@ -2766,13 +2723,11 @@ footer {
                 min-height: min-content;
                 background: transparent !important;
                 .itemRow {
-                    background: linear-gradient(90deg, white 35px, var(--blackGlass) 35px);
+                    background: linear-gradient(90deg, var(--whiteGlass) 35px, var(--blackGlass) 35px);
                 }
                 .itemDate {
                     font-size: 9px;
-                    // max-width: 125px !important;
                     max-width: fit-content !important;
-                    // border-top: solid 1px var(--gameBlue);
                 }
                 &:hover {
                     cursor: move;
@@ -2807,7 +2762,7 @@ footer {
                         &.hasTasksRow {
                             border-bottom-right-radius: 0 !important;
                         }
-                        background: linear-gradient(90deg, white 35px, var(--blackGlass) 35px) !important;
+                        background: linear-gradient(90deg, var(--whiteGlass) 35px, var(--blackGlass) 35px) !important;
                     }
                     .subtaskAddForm {
                         display: none;
@@ -2821,14 +2776,12 @@ footer {
                                 border-bottom-left-radius:  var(--borderRadius) !important;
                             }
                             border-bottom-left-radius:  var(--borderRadius) !important;
+                            border-bottom-right-radius: var(--borderRadius) !important;
                         }
                         &:last-child {
                             .itemOrder {
                                 border-bottom-left-radius: var(--borderRadius) !important;
                             }
-                            border-bottom: 0px solid transparent !important;
-                            border-bottom-right-radius: var(--borderRadius);
-                            border-bottom-left-radius: 0;
                         }
                     }
                 }
@@ -3099,24 +3052,6 @@ footer {
         button {
             &:disabled {
                 opacity: 0.35;
-            }
-        }
-    }
-}
-
-.lists .list .items .item .subTasks .subTaskElement {
-    .boardTaskHandle {
-        &:hover {
-            .itemButtons {
-                input {
-                    &[type="checkbox"] {
-                        &.task_check_box {
-                            &[data-checkbox="true"] {
-                                background: var(--darkCheckBox) !important;
-                            }
-                        }
-                    }
-                }
             }
         }
     }

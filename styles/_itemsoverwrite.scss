@@ -1,0 +1,89 @@
+:root {
+    --dark: black !important;
+    --light: white !important;
+    --darkInverse: white !important;
+    --lightInverse: black !important;
+    --primary: var(--gameBlue) !important;
+    --primarySoft: var(--gameBlueSoft) !important;
+    --darkGradient: linear-gradient(90deg, var(--whiteGlass) 35px, var(--blackGlass) 35px) !important;
+    --lightGradient: linear-gradient(90deg, var(--blackGlass) 35px, var(--whiteGlass) 35px) !important;
+}
+
+.board {
+    .column {
+        * {
+            --gameBlueInverse: var(--primarySoft);
+        }
+        .changeItemTypeIcon {
+            z-index: 1;
+        }
+        .items {
+            * {
+                filter: invert(0) !important;
+            }
+            &.boardColumnItems {
+                .boardItem {
+                    .itemRow {
+                        &:hover {
+                            .itemName, .changeLabel, .itemDate {
+                                color: var(--dark) !important;
+                            }
+                            .progress {
+                                text {
+                                    fill: var(--dark) !important;
+                                }
+                            }
+                            .itemOptions {
+                                button {
+                                    background: var(--dark) !important;
+                                }
+                            }
+                            background: var(--lightGradient) !important;
+                        }
+                    }
+                    .boardTask {
+                        &.complete {
+                            .changeLabel {
+                                color: var(--dark) !important;
+                                text-decoration-color: var(--dark) !important;
+                                -webkit-text-decoration-color: var(--dark) !important;
+                            }
+                        }
+                    }
+                    &.complete {
+                        * {
+                            transition: 85ms var(--delayedTransition) !important;
+                        }
+                        .itemName, .changeLabel, .itemDate {
+                            color: var(--dark) !important;
+                        }
+                        .itemRow, .subTaskItem {
+                            background: var(--lightGradient) !important;
+                        }
+                        .boardTask {
+                            &:hover {
+                                .itemName, .changeLabel, .itemDate {
+                                    color: var(--darkInverse) !important;
+                                    text-decoration-color: var(--primary) !important;
+                                    -webkit-text-decoration-color: var(--primary) !important;
+                                }
+                                .taskOptions {
+                                    button {
+                                        background: var(--darkInverse) !important;
+                                    }
+                                    .taskCheckbox {
+                                        background: var(--darkInverse) !important;
+                                        &::before {
+                                            color: var(--primary) !important;
+                                        }
+                                    }
+                                }
+                                background: var(--darkGradient) !important;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

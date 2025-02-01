@@ -32,11 +32,9 @@
     .subTaskItem {
         border-radius: 0 !important;
         &:last-child {
-            &.activeTask {
-                &.dndLast {
-                    border-bottom-left-radius: var(--borderRadius) !important;
-                    border-bottom-right-radius: var(--borderRadius) !important;
-                }
+            &.dndLast {
+                border-bottom-left-radius: var(--borderRadius) !important;
+                border-bottom-right-radius: var(--borderRadius) !important;
             }
         }
     }
@@ -93,6 +91,17 @@
 }
 
 .boardItem {
+    &.activeBoardItem {
+        &:hover {
+            .itemButtons {
+                &.taskButtons {
+                    &.taskComplete {
+                        filter: invert(0) !important;
+                    }
+                }
+            }
+        }
+    }
     &.complete {
         .boardTask {
             &.complete {
@@ -117,7 +126,7 @@
                     .boardTask {
                         &.complete {
                             color: black;
-                            background: linear-gradient(90deg, black 35px, var(--whiteGlassInvert) 35px) !important;
+                            background: linear-gradient(90deg, var(--blackGlass) 35px, var(--whiteGlassInvert) 35px) !important;
                             .itemButtons {
                                 input {
                                     &.task_check_box {
@@ -186,9 +195,6 @@
                         filter: invert(0) !important;
                         background: var(--darkCheckBox) !important;
                     }
-                }
-                button {
-                    filter: invert(1) !important;
                 }
             }
         }

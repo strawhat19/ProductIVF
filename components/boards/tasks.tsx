@@ -1,6 +1,6 @@
 import { CSS } from '@dnd-kit/utilities';
 import { addBoardScrollBars } from './board';
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import { capWords, dev, formatDate, generateUniqueID, StateContext } from '../../pages/_app';
 import { DndContext, PointerSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
@@ -23,7 +23,8 @@ function SortableSubtaskItem({ item, subtask, isLast, column, index, changeLabel
 
   const style = {
     transition,
-    opacity: isDragging ? 0.8 : 1,
+    opacity: isDragging ? 1 : 1,
+    zIndex: isDragging ? 1000 : 1,
     transform: CSS.Translate.toString(transform),
   };
 
@@ -77,27 +78,26 @@ function SortableSubtaskItem({ item, subtask, isLast, column, index, changeLabel
 
           </div>
 
-          <div className="itemButtons customButtons taskComponentBG taskButtons">
+          <div className={`taskOptions itemOptions itemButtons customButtons taskComponentBG taskButtons ${subtask?.complete ? `taskComplete` : `taskActive`} ${item?.complete ? `itemComplete` : `itemActive`} ${(item?.complete || subtask?.complete) ? `taskButtonsComplete` : `taskButtonsActive`}`}>
             <button
-              title="Delete Task"
+              title={`Delete Task`}
               onMouseDown={(e) => e.stopPropagation()}
               onPointerDown={(e) => e.stopPropagation()}
               onClick={(e) => deleteSubtask(e, subtask)}
-              className="iconButton deleteButton wordIconButton"
+              className={`iconButton deleteButton deleteTaskButton wordIconButton`}
             >
-              <i className="fas fa-trash" style={{ color: 'var(--gameBlue)', fontSize: 9 }} />
+              <i className={`fas fa-trash`} style={{ color: `var(--gameBlue)`, fontSize: 9 }} />
             </button>
             <input
-              type="checkbox"
-              autoComplete="off"
-              data-checkbox="true"
+              type={`checkbox`}
+              data-checkbox={true}
+              autoComplete={`off`}
               disabled={item?.complete}
               onMouseDown={(e) => e.stopPropagation()}
               onPointerDown={(e) => e.stopPropagation()}
               onChange={(e) => completeSubtask(e, subtask)}
               checked={item?.complete || subtask?.complete}
-              // defaultChecked={item?.complete || subtask?.complete}
-              className={`task_check_box taskCheckbox ${(item?.complete || subtask?.complete) ? 'complete' : 'activeTask'}`}
+              className={`task_check_box taskCheckbox ${(item?.complete || subtask?.complete) ? `complete` : `activeTask`}`}
             />
           </div>
         </div>
@@ -110,7 +110,6 @@ export default function Tasks(props) {
   const { item, column, showForm = true } = props;
   const { boards, setLoading, setSystemStatus } = useContext<any>(StateContext);
 
-  // If item.subtasks exist, use them; otherwise empty
   const [deletedTaskIDs, setDeletedTaskIDs] = useState<string[]>([]);
   const [subtasks, setSubtasks] = useState(item?.subtasks?.length ? item.subtasks : []);
 
@@ -237,26 +236,25 @@ export default function Tasks(props) {
   const handleDragEnd = ({ active, over }) => {
     if (!over || active.id === over.id) return;
 
-    const oldIndex = subtasks.findIndex((tsk) => tsk.id === active.id);
     const newIndex = subtasks.findIndex((tsk) => tsk.id === over.id);
-
+    const oldIndex = subtasks.findIndex((tsk) => tsk.id === active.id);
+    
     if (oldIndex === -1 || newIndex === -1) return;
+    
+    const now = formatDate(new Date());
+    const tasks = subtasks.map(tsk => tsk.id == over.id || tsk.id == active.id ? ({ ...tsk, updated: now }) : tsk);
 
-    const updated = reorder(subtasks, oldIndex, newIndex);
+    let updated = reorder(tasks, oldIndex, newIndex);
     setSubtasks(updated);
 
+    item.updated = now;
     item.subtasks = updated;
-    item.updated = formatDate(new Date());
-    localStorage.setItem('boards', JSON.stringify(boards));
-    dev() && console.log('Dragged and reordered:', updated);
+
+    localStorage.setItem(`boards`, JSON.stringify(boards));
+
+    dev() && console.log(`Dragged and Reordered`, updated);
     addBoardScrollBars();
   };
-
-  useEffect(() => {
-    if (item.subtasks && item.subtasks.length !== subtasks.length) {
-      setSubtasks(item.subtasks);
-    }
-  }, [item.subtasks]);
 
   return (
     <div id={`${item.id}_subTasks`} className={`rowSubtasks subTasks dndkitTasks  ${showForm ? `showForm` : `hideForm`}`}>

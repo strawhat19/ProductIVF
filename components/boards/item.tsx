@@ -55,6 +55,21 @@ export const manageItem = (e, item, index, board, boards, setBoards) => {
 export default function Item({ item, count, column, itemIndex, board, setBoard }: any) {
     const { boards, setBoards, tasksFiltered, setLoading, setSystemStatus, setSelected, menuRef, setMenuPosition, itemTypeMenuOpen, setItemTypeMenuOpen } = useContext<any>(StateContext);
 
+    // const getLatestDateFromDatesArray = (dates: string[]): string => {
+    //     return dates.map(dateStr => new Date(dateStr)).reduce((latest, current) => (current > latest ? current : latest)).toLocaleString();
+    // }
+
+    // const getLatestUpdateDate = (itm) => {
+    //     let taskDates = itm?.subtasks?.length > 0 ? itm?.subtasks.map(tsk => tsk?.updated) : [];
+    //     let latestItemUpdatedDate = formatDate(new Date(itm?.updated));
+    //     let allItemDates = [latestItemUpdatedDate, ...taskDates];
+    //     let latestDate = getLatestDateFromDatesArray(allItemDates);
+
+    //     console.log(itm?.title, allItemDates);
+
+    //     return latestDate;
+    // }
+
     const changeLabel = (e, item) => {
         let elemValue = e.target.textContent;
         let value = elemValue == `` ? capitalizeAllWords(item.task) : capitalizeAllWords(elemValue);
@@ -125,7 +140,8 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
 
     const renderProgressChart = (tasks: any[], item) => {
         tasks = tasks.length > 0 ? tasks : [];
-        const progress = getSubTaskPercentage(tasks, item);
+        let allTasksComplete = tasks.every(tsk => tsk.complete);
+        let progress = (!item?.complete && allTasksComplete) ? 99 : getSubTaskPercentage(tasks, item);
         return (
             <div className={`progress`}>
                 <CircularProgressbar 
@@ -153,11 +169,6 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
 
             board.items[itemId].updated = formatDate(new Date());
             board.items[itemId].complete = !board.items[itemId].complete;
-
-            // Complete Tasks On Complete Item
-            // for (let i = 0; i < board.items[itemId].subtasks.length; i++) {
-            //     board.items[itemId].subtasks[i].complete = !board.items[itemId].subtasks[i].complete;
-            // }
 
             setBoard({
                 ...board,
@@ -210,7 +221,7 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
     }
 
     return <>
-        <div id={`itemElement_${item.id}`} className={`itemComponent itemInnerRow flex row`} onContextMenu={(e) => onRightClick(e, item, column)}>
+        <div id={`itemElement_${item.id}`} className={`itemComponent itemInnerRow flex row`} onContextMenu={(e) => dev() ? () => {} : onRightClick(e, item, column)}>
             <span className={`itemOrder rowIndexOrder`}>
                 {/* <i className={`itemIconType itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>{getTypeIcon(item?.type)}</i> */}
                 <i className={`itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>
@@ -261,7 +272,8 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
                         <span className={`itemDate itemName itemCreated itemUpdated textOverflow extended flex row`}>
                             <i className={`status`}>Upd.</i> 
                             <span className={`itemDateTime`}>
-                                {formatDate(new Date(item.updated))}
+                                {/* {getLatestUpdateDate(item)} */}
+                                {formatDate(new Date(item?.updated))}
                             </span>
                         </span>
                         ) : null}
@@ -278,7 +290,7 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
                 </> : <></>}
             </div>
             {renderProgressChart(item?.subtasks, item)}
-            <div className={`itemButtons customButtons`}>
+            <div className={`itemOptions itemButtons customButtons`}>
                 {/* <button id={`copy_${item.id}`} onClick={(e) => copyItem(e, item)} title={`Copy Item`} className={`iconButton ${ItemActions.Copy} copyButton wordIconButton`}>
                     <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-copy`}></i>
                 </button> */}

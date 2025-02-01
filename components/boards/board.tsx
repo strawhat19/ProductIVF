@@ -132,7 +132,7 @@ export default function Board(props) {
     }
 
     const onDragEnd = (dragEndEvent) => {
-        dev() && console.log(`Board Drag`, dragEndEvent);
+        // dev() && console.log(`Board Drag`, dragEndEvent);
         const { destination, source, draggableId, type } = dragEndEvent;
 
         if (!destination) {
@@ -253,8 +253,8 @@ export default function Board(props) {
     return (
         <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
             <section className={`boardsTitle boards`} style={{paddingBottom: 0}}>
-                <div className={`board boardTitle`}>
-                    <div {...props.provided.dragHandleProps} id={`titleRowOfBoard`} className={`titleRow flex row`}>
+                <div className={`board boardInner boardTitle`}>
+                    <div {...props.provided.dragHandleProps} className={`titleRow flex row`}>
                         <div className={`flex row innerRow`}>
                             <div className={`flex row left`}>
                                 <h3 className={`boardIndexBadge`}>

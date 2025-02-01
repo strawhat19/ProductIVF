@@ -233,7 +233,19 @@ export default function Column(props) {
                                         {props.column.title}    
                                     </div>
                                     <div className={`columnStats flex row end`}>
-                                        <span className={`subscript`} style={{display: `contents`,}}><span className={`slashes`}>{props.items.filter(itm => itemActiveFilters(itm) && itm?.complete).length}</span> ✔ <div className={`slashes`} style={{display: `contents`}}> // </div> <span className={`slashes`}>{props.items.filter(itm => itemActiveFilters(itm)).length}</span> ☰</span><span className={`subscript`} style={{display: `contents`,}}> - <span className={`slashes`}>{[].concat(...props.items.filter(itm => itemActiveFilters(itm)).map(itm => itm?.subtasks)).filter(itm => itm?.complete).length}</span> ✔ <div className={`slashes`} style={{display: `contents`}}> // </div> <span className={`slashes`}>{[].concat(...props.items.filter(itm => itemActiveFilters(itm)).map(itm => itm?.subtasks)).length}</span> ☰</span>
+                                        <span className={`subscript`} style={{display: `contents`,}}>
+                                            <span className={`slashes`}>
+                                                {props.items.filter(itm => itemActiveFilters(itm) && itm?.complete).length}
+                                            </span> ✔ <div className={`slashes`} style={{display: `contents`}}> // </div> <span className={`slashes`}>
+                                                {props.items.filter(itm => itemActiveFilters(itm)).length}
+                                            </span> ☰</span>
+                                            <span className={`subscript`} style={{display: `contents`,}}> <span className={`slashes`}>
+                                                {[].concat(...props.items.filter(itm => itemActiveFilters(itm)).filter(itm => itm?.complete).map(itm => itm?.subtasks)).length 
+                                                + [].concat(...props.items.filter(itm => itemActiveFilters(itm)).filter(itm => !itm?.complete).map(itm => itm?.subtasks)).filter(tsk => tsk?.complete).length}
+                                                {/* {[].concat(...props.items.filter(itm => itemActiveFilters(itm)).map(itm => itm?.subtasks)).filter(tsk => tsk?.complete).length} */}
+                                            </span> ✔ <div className={`slashes`} style={{display: `contents`}}> // </div> <span className={`slashes`}>
+                                                {[].concat(...props.items.filter(itm => itemActiveFilters(itm)).map(itm => itm?.subtasks)).length}
+                                            </span> ☰</span>
                                     </div>
                                 </div>
                             </h3>
@@ -277,7 +289,7 @@ export default function Column(props) {
                                         return (
                                         <Draggable key={item.id} draggableId={item.id} index={itemIndex}>
                                             {provided => (
-                                                <div id={item.id} className={`item boardItem ${hoverItemForm ? `itemHoverToExpand` : ``} completeItem ${item.complete ? `complete` : ``} container ${snapshot.isDragging ? `dragging` : ``} ${itemTypeMenuOpen ? `unfocus` : ``}`} title={item.content} {...provided.draggableProps} ref={provided.innerRef}>
+                                                <div id={item.id} className={`item boardItem ${hoverItemForm ? `itemHoverToExpand` : ``} completeItem ${item.complete ? `complete completeBoardItem` : `activeBoardItem`} container ${snapshot.isDragging ? `dragging` : ``} ${itemTypeMenuOpen ? `unfocus` : ``}`} title={item.content} {...provided.draggableProps} ref={provided.innerRef}>
                                                     <div onClick={(e) => manageItem(e, item, itemIndex, board, boards, setBoards)} {...provided.dragHandleProps} className={`itemRow flex row ${item?.complete ? `completed` : `incomplete`} ${item.subtasks.length > 0 ? `hasTasksRow` : `noTasksRow`}`}>
                                                         <Item 
                                                             item={item} 
@@ -309,7 +321,7 @@ export default function Column(props) {
                                 </div>
                             ))}
                         </div>
-                        <div title={`Change ${props?.column?.itemType} Type`} onClick={(e) => changeItemType(e)} className={`typeIcon`}>
+                        <div title={`Change ${props?.column?.itemType} Type`} onClick={(e) => changeItemType(e)} className={`typeIcon changeItemTypeIcon`}>
                             {getTypeIcon(props?.column?.itemType)}
                         </div>
                         <input autoComplete={`off`} placeholder={`Create Item +`} type="text" name="createItem" required />
