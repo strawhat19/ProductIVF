@@ -7,19 +7,10 @@ import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } 
 import { restrictToFirstScrollableAncestor, restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers';
 import { forceFieldBlurOnPressEnter, nameFields, removeExtraSpacesFromString, setMaxLengthOnField } from '../../shared/constants';
 
-function reorder(list, oldIndex, newIndex) {
-  return arrayMove(list, oldIndex, newIndex);
-}
+const reorder = (list, oldIndex, newIndex) => arrayMove(list, oldIndex, newIndex);
 
-function SortableSubtaskItem({ item, subtask, isLast, column, index, changeLabel, completeSubtask, deleteSubtask }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: subtask.id });
+const SortableSubtaskItem = ({ item, subtask, isLast, column, index, changeLabel, completeSubtask, deleteSubtask }) => {
+  let { listeners, transform, attributes, setNodeRef, transition, isDragging } = useSortable({ id: subtask.id });
 
   const style = {
     transition,
@@ -39,7 +30,6 @@ function SortableSubtaskItem({ item, subtask, isLast, column, index, changeLabel
           </span>
 
           <div className={`subtaskActions flex row taskComponentBG ${(item?.complete || subtask?.complete) ? `complete` : `activeTask`}`}>
-
             <span
               contentEditable
               spellCheck={false}
@@ -75,7 +65,6 @@ function SortableSubtaskItem({ item, subtask, isLast, column, index, changeLabel
                 </span>
               ) : null
             ) : <></>}
-
           </div>
 
           <div className={`taskOptions itemOptions itemButtons customButtons taskComponentBG taskButtons ${subtask?.complete ? `taskComplete` : `taskActive`} ${item?.complete ? `itemComplete` : `itemActive`} ${(item?.complete || subtask?.complete) ? `taskButtonsComplete` : `taskButtonsActive`}`}>
@@ -107,16 +96,14 @@ function SortableSubtaskItem({ item, subtask, isLast, column, index, changeLabel
 }
 
 export default function Tasks(props) {
-  const { item, column, showForm = true } = props;
-  const { boards, setLoading, setSystemStatus } = useContext<any>(StateContext);
+  let { item, column, showForm = true } = props;
+  let { boards, setLoading, setSystemStatus } = useContext<any>(StateContext);
 
-  const [deletedTaskIDs, setDeletedTaskIDs] = useState<string[]>([]);
-  const [subtasks, setSubtasks] = useState(item?.subtasks?.length ? item.subtasks : []);
+  let [deletedTaskIDs, setDeletedTaskIDs] = useState<string[]>([]);
+  let [subtasks, setSubtasks] = useState(item?.subtasks?.length ? item.subtasks : []);
 
-  // We’ll set up dnd-kit sensors. PointerSensor covers basic mouse/touch
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      // optional: tweak activation constraints, e.g. require drag of 8px
       // activationConstraint: { distance: 8 },
     })
   );

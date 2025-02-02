@@ -2,10 +2,11 @@ import { ItemTypes } from './boards';
 import ItemDetail from './itemdetail';
 import CustomImage from '../custom-image';
 import 'react-circular-progressbar/dist/styles.css';
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
 import { showAlert, formatDate, dev, StateContext, capitalizeAllWords } from '../../pages/_app';
 import { forceFieldBlurOnPressEnter, removeExtraSpacesFromString } from '../../shared/constants';
+import ConfirmAction from '../context-menus/confirm-action';
 
 export const getSubTaskPercentage = (subtasks: any[], item, isActive = null) => {
     if (item?.complete) return 100;
@@ -27,7 +28,11 @@ export const getTypeIcon = (type, plain?) => {
             if (plain) {
                 return `✔`
             } else {
-                return <span style={{fontSize: 20, textAlign: `center`}}>✔</span>;
+                return (
+                    <span style={{fontSize: 20, textAlign: `center`}}>
+                        ✔
+                    </span>
+                );
             }
         case ItemTypes.Image:
             return <i style={{display: `contents`}} className={`fas fa-image`} />;
@@ -37,7 +42,7 @@ export const getTypeIcon = (type, plain?) => {
 }
 
 export const manageItem = (e, item, index, board, boards, setBoards) => {
-    if (!e.target.classList.contains(`changeLabel`)) {
+    if (!e.target.classList.contains(`changeLabel`) && !e.target.classList.contains(`confirmActionOption`)) {
         let isButton = e.target.classList.contains(`iconButton`);
         if (isButton) {
             let isManageButton = e.target.classList.contains(`manageButton`);
@@ -53,7 +58,8 @@ export const manageItem = (e, item, index, board, boards, setBoards) => {
 }
 
 export default function Item({ item, count, column, itemIndex, board, setBoard }: any) {
-    const { boards, setBoards, tasksFiltered, setLoading, setSystemStatus, setSelected, menuRef, setMenuPosition, itemTypeMenuOpen, setItemTypeMenuOpen } = useContext<any>(StateContext);
+    let [showConfirm, setShowConfirm] = useState(false);
+    let { boards, setBoards, setLoading, setSystemStatus, setSelected, menuRef, setMenuPosition, itemTypeMenuOpen, setItemTypeMenuOpen } = useContext<any>(StateContext);
 
     // const getLatestDateFromDatesArray = (dates: string[]): string => {
     //     return dates.map(dateStr => new Date(dateStr)).reduce((latest, current) => (current > latest ? current : latest)).toLocaleString();
@@ -185,44 +191,67 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
         }
     }
 
-    const deleteItem = (e, item, columnId, index, itemId) => {
-        let isButton = e.target.classList.contains(`iconButton`);
+    const deleteItemLogic = (columnId, index, itemId) => {
+        const column = board.columns[columnId];
+        const newItemIds = Array.from(column.itemIds);
+        newItemIds.splice(index, 1);
+
+        const items = board.items;
+        const { [itemId]: oldItem, ...newItems } = items;
+
+        setBoard({
+            ...board,
+            updated: formatDate(new Date()),
+            items: {
+                ...newItems
+            },
+            columns: {
+                ...board.columns,
+                [columnId]: {
+                    ...column,
+                    itemIds: newItemIds
+                }
+            }
+        });
+    }
+
+    const finallyDeleteItem = (columnId, index, itemId) => {
+        setLoading(true);
+        setSystemStatus(`Deleting Item.`);
+        
+        deleteItemLogic(columnId, index, itemId);
+
+        setTimeout(() => {
+            setSystemStatus(`Deleted Item ${item.content}.`);
+            setLoading(false);
+        }, 1000);  
+    }
+
+    const deleteItem = (e, item, columnId, index, itemId, initialConfirm = true) => {
+        let isButton = e.target.classList.contains(`iconButton`) || e.target.classList.contains(`confirmActionOption`);
         if (isButton) {
             e.preventDefault();
-            setLoading(true);
-            setSystemStatus(`Deleting Item.`);
-            const column = board.columns[columnId];
-            const newItemIds = Array.from(column.itemIds);
-            newItemIds.splice(index, 1);
-
-            const items = board.items;
-            const { [itemId]: oldItem, ...newItems } = items;
-
-            setBoard({
-                ...board,
-                updated: formatDate(new Date()),
-                items: {
-                    ...newItems
-                },
-                columns: {
-                    ...board.columns,
-                    [columnId]: {
-                        ...column,
-                        itemIds: newItemIds
-                    }
+            if (showConfirm == true) {
+                if (!initialConfirm) {
+                    finallyDeleteItem(columnId, index, itemId);
                 }
-            });
-            setTimeout(() => {
-                setSystemStatus(`Deleted Item ${item.content}.`);
-                setLoading(false);
-            }, 1000);   
+                setShowConfirm(false);
+            } else {
+                if (item?.subtasks?.length > 0) {
+                    setShowConfirm(true);
+                } else {
+                    finallyDeleteItem(columnId, index, itemId);
+                }
+            }
         }
     }
 
     return <>
         <div id={`itemElement_${item.id}`} className={`itemComponent itemInnerRow flex row`} onContextMenu={(e) => dev() ? () => {} : onRightClick(e, item, column)}>
             <span className={`itemOrder rowIndexOrder`}>
-                {/* <i className={`itemIconType itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>{getTypeIcon(item?.type)}</i> */}
+                {/* <i className={`itemIconType itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>
+                    {getTypeIcon(item?.type)}
+                </i> */}
                 <i className={`itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>
                     {(item?.type == ItemTypes.Item || item?.type == ItemTypes.Task) && (
                         <span className={`itemIconType ${item?.type}`}>
@@ -255,7 +284,9 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
                 </span>
                 {/* {devEnv && wordInCategories(item) && <span className="itemCategory itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
                     <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-hashtag"></i> 
-                    <span className={`itemDateTime`}>{wordOfCategory(item)}</span>
+                    <span className={`itemDateTime`}>
+                        {wordOfCategory(item)}
+                    </span>
                 </span>} */}
                 {(item?.image || column?.details && column?.details == true) ? <>
                     <hr className={`itemSep`} style={{height: 1, borderColor: `var(--gameBlue)`}} />
@@ -293,14 +324,21 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
                 {/* <button id={`copy_${item.id}`} onClick={(e) => copyItem(e, item)} title={`Copy Item`} className={`iconButton ${ItemActions.Copy} copyButton wordIconButton`}>
                     <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-copy`}></i>
                 </button> */}
-                <button id={`delete_${item.id}`} onClick={(e) => deleteItem(e, item, column.id, itemIndex, item.id)} title={`Delete Item`} className={`iconButton deleteButton wordIconButton`}>
-                    <i style={{color: `var(--gameBlue)`, fontSize: 13}} className="fas fa-trash"></i>
+                <button id={`delete_${item.id}`} onClick={(e) => deleteItem(e, item, column.id, itemIndex, item.id)} title={`Delete Item`} className={`deleteItemButton iconButton deleteButton wordIconButton`}>
+                    <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-${showConfirm ? `ban` : `trash`}`} />
+                    {showConfirm && (
+                        <ConfirmAction 
+                            clickableStyle={{ height: `100%`, paddingRight: 7 }}
+                            style={{ right: 40, bottom: 0, height: `100%`, justifyContent: `center` }} 
+                            onConfirm={(e) => deleteItem(e, item, column.id, itemIndex, item.id, false)} 
+                        />
+                    )}
                 </button>
                 <button id={`complete_${item.id}`} onClick={(e) => completeItem(e, item.id, itemIndex, item)} title={`Complete Item`} className={`iconButton wordIconButton completeButton`}>
-                    <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas ${item.complete ? `fa-history` : `fa-check-circle`}`}></i>
+                    <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas ${item.complete ? `fa-history` : `fa-check-circle`}`} />
                 </button>
                 <button id={`manage_${item.id}`} onClick={(e) => manageItem(e, item, itemIndex, board, boards, setBoards)} title={`Manage Item`} className={`iconButton wordIconButton manageButton`}>
-                    <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-bars`}></i>
+                    <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-bars`} />
                 </button>
             </div>
         </div>

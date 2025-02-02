@@ -10,10 +10,11 @@ import { formatDate, generateUniqueID, StateContext, capitalizeAllWords, dev } f
 
 export default function Column(props) {
     let count = 0;
-    const { board, column } = props;
-    const [showConfirm, setShowConfirm] = useState(false);
-    let [hoverItemForm, setHoverItemForm] = useState(false);
-    const { boards, setBoards, setLoading, setSystemStatus, completeFiltered, tasksFiltered, IDs, setIDs, itemTypeMenuOpen, setItemTypeMenuOpen, menuPosition } = useContext<any>(StateContext);
+    let [hoverItemForm, ] = useState(false);
+    let { board, column, hideAllTasks } = props;
+    let [showConfirm, setShowConfirm] = useState(false);
+    let [itemTypeMenuOpen, setItemTypeMenuOpen] = useState(false);
+    let { boards, setBoards, setLoading, setSystemStatus, completeFiltered, IDs, setIDs, menuPosition } = useContext<any>(StateContext);
 
     const itemActiveFilters = (itm) => {
         if (completeFiltered) {
@@ -300,8 +301,12 @@ export default function Column(props) {
                                                             setBoard={props.setBoard} 
                                                         />
                                                     </div>
-                                                    {item.subtasks && (
-                                                        <Tasks column={props.column} item={item} showForm={!board?.tasksFiltered} />
+                                                    {!hideAllTasks && item.subtasks && (
+                                                        <Tasks 
+                                                            item={item} 
+                                                            column={props.column} 
+                                                            showForm={!board?.tasksFiltered} 
+                                                        />
                                                     )}
                                                 </div>
                                             )}

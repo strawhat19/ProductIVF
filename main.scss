@@ -1724,24 +1724,18 @@ textarea {
                 grid-gap: 0px;
                 font-size: 0.8em;
                 min-height: 35px;
-                // grid-gap: 14px;
                 position: relative;
                 align-items: center;
                 padding: 0em !important;
                 background: var(--blackGlass);
                 justify-content: space-between;
-                // flex-direction: row !important;
                 border-radius: var(--borderRadius);
                 transition: filter, opacity var(--transition);
-                // transition: height, min-height, max-height 5s var(--delayedTransition);
 
                 &.unfocus {
-                    pointer-events: none;
-                    filter: blur(3px);
-                    &.complete {
-                        filter: invert(1) blur(3px) !important;
-                    }
                     opacity: 0.35;
+                    pointer-events: none;
+                    filter: blur(3px) !important;
                 }
 
                 span {
@@ -2401,11 +2395,6 @@ footer {
 .listTitleButton {
     &:hover {
         filter: invert(0) !important;
-        button {
-            i, .itemLength {
-                filter: invert(1) !important;
-            }
-        }
     }
 }
 
@@ -2703,11 +2692,6 @@ footer {
                             color: var(--gameBlue) !important;
                         }
                     }
-                }
-                .columnStats {
-                    color: black;
-                    font-weight: 700;
-                    filter: invert(1);
                 }
             }
             .listOrder {

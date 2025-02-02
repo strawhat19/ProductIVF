@@ -4,7 +4,7 @@
     --whiteGlassInvert: rgba(191, 230, 244, 1);
 }
 
-.deleteBoardButton, .deleteListButton {
+.deleteBoardButton, .deleteListButton, .deleteItemButton {
     position: relative;
     &.deleteListButton {
         --width: 85px !important;   
@@ -44,11 +44,9 @@
 }
 
 .confirmAction {
-    right: 0;
     padding: 0;
     width: 100%;
     grid-gap: 0;
-    bottom: 40px;
     border-radius: 3px;
     position: absolute;
     background: white;
@@ -147,7 +145,7 @@
     }
     &:has(.itemFooter) {
         .progress {
-            padding: 0.2px 0.2px 0.4px;
+            padding: 0.2px;
         }
     }
     &:not(&:has(.itemFooter)) {

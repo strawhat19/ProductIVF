@@ -21,22 +21,26 @@ export const addBoardScrollBars = () => {
 }
 
 export default function Board(props) {
-    const boardNameRef = useRef();
-    const [updates, setUpdates] = useState(0);
-    const [board, setBoard] = useState(props.board);
-    const [showConfirm, setShowConfirm] = useState(false);
-    const [tasksFiltered, setTasksFiltered] = useState(false);
-    const { boards, setBoards, setLoading, setSystemStatus, completeFiltered, setCompleteFiltered, setPage, IDs, setIDs } = useContext<any>(StateContext);
+    let boardNameRef = useRef();
+    let [updates, setUpdates] = useState(0);
+    let [board, setBoard] = useState(props.board);
+    let [showConfirm, setShowConfirm] = useState(false);
+    let { boards, setBoards, setLoading, setSystemStatus, completeFiltered, setCompleteFiltered, setPage, IDs, setIDs } = useContext<any>(StateContext);
 
     const filterSubtasks = (e?: any) => {
-        // setTasksFiltered(!tasksFiltered);
-        setBoard(prevBoard => {
-            return {
-                ...prevBoard,
-                tasksFiltered: !prevBoard.tasksFiltered
+        if (board.hideAllTasks) {
+            setBoard(prevBoard => ({ ...prevBoard, hideAllTasks: false, tasksFiltered: !prevBoard.tasksFiltered }));
+        } else {
+            if (board.tasksFiltered) {
+                setBoard(prevBoard => ({ ...prevBoard, hideAllTasks: true }));
+            } else {
+                if (!board.hideAllTasks) {
+                    setBoard(prevBoard => ({ ...prevBoard, tasksFiltered: !prevBoard.tasksFiltered }));
+                } else {
+                    setBoard(prevBoard => ({ ...prevBoard, hideAllTasks: false }));
+                }
             }
-        });
-        // localStorage.setItem(`tasksFiltered`, JSON.stringify(!tasksFiltered));
+        }
     }
 
     const deleteBoard = (e, bord, initialConfirm = true) => {
@@ -132,7 +136,6 @@ export default function Board(props) {
     }
 
     const onDragEnd = (dragEndEvent) => {
-        // dev() && console.log(`Board Drag`, dragEndEvent);
         const { destination, source, draggableId, type } = dragEndEvent;
 
         if (!destination) {
@@ -307,8 +310,8 @@ export default function Board(props) {
                                     </span>
                                 </h3>
                                 <div className={`filterFormDiv filterButtons itemButtons`} style={{textAlign: `center`, justifyContent: `space-between`, alignItems: `center`}}>
-                                    <button onClick={(e) =>  filterSubtasks(e)} id={`filter_tasks`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Filter Tasks`} className={`iconButton deleteButton filterButton ${board?.tasksFiltered ? `filterActive` : `filterInactive`}`}>
-                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${board?.tasksFiltered ? `fa-times-circle` : `fa-list-ol`}`}></i>
+                                    <button onClick={(e) =>  filterSubtasks(e)} id={`filter_tasks`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Filter Tasks`} className={`iconButton deleteButton filterButton ${(board.hideAllTasks || board?.tasksFiltered) ? `filterActive` : `filterInactive`}`}>
+                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${(board?.tasksFiltered && !board.hideAllTasks) ? `fa-times-circle` : board.hideAllTasks ? `fa-list-ol` : `fa-bars`}`}></i>
                                         <span className={`iconButtonText textOverflow extended`}>
                                             Tasks
                                         </span>
@@ -366,7 +369,17 @@ export default function Board(props) {
                                 const column = board?.columns[columnId];
                                 const items = column.itemIds.map(itemId => board?.items[itemId]);
                                 if (!column.itemType) column.itemType = ItemTypes.Item;
-                                return <Column key={column?.id} column={column} items={items} index={index} board={board} setBoard={setBoard} />;
+                                return (
+                                    <Column 
+                                        items={items} 
+                                        index={index} 
+                                        board={board} 
+                                        column={column} 
+                                        key={column?.id} 
+                                        setBoard={setBoard} 
+                                        hideAllTasks={board.hideAllTasks} 
+                                    />
+                                );
                             })}
                             {provided.placeholder}
                         </section>
