@@ -2803,21 +2803,19 @@ footer {
                     }
                     .itemName {
                         padding: 0 !important;
-                        // &.itemDate {
-                        //     padding: 5px 0 0 0 !important;
-                        // }
                     }
                     .itemCategory {
-                        max-width: min-content !important;
-                        background: white;
                         color: black;
-                        border-radius: var(--borderRadius);
-                        font-weight: 800 !important;
-                        justify-content: flex-start !important;
-                        grid-gap: 5px !important;
+                        background: white;
                         padding: 5px !important;
+                        grid-gap: 5px !important;
+                        font-weight: 800 !important;
+                        max-width: min-content !important;
+                        border-radius: var(--borderRadius);
+                        justify-content: flex-start !important;
                     }
                     .subtaskIndex {
+                        font-size: 0.65em;
                         max-width: fit-content;
                     }
                 }
