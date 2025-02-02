@@ -138,10 +138,9 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
         }
     }
 
-    const renderProgressChart = (tasks: any[], item) => {
-        tasks = tasks.length > 0 ? tasks : [];
+    const renderProgressChart = (tasks: any[] = [], item) => {
         let allTasksComplete = tasks.every(tsk => tsk.complete);
-        let progress = (!item?.complete && allTasksComplete) ? 99 : getSubTaskPercentage(tasks, item);
+        let progress = (!item?.complete && tasks?.length > 0 && allTasksComplete) ? 99 : getSubTaskPercentage(tasks, item);
         return (
             <div className={`progress`}>
                 <CircularProgressbar 
@@ -158,7 +157,7 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
                         pathColor: progress < 100 ? `rgba(0, 194, 255, ${progress / 100})` : `#00b900`,
                     })} 
                 />
-        </div>
+            </div>
         )
     }
 
@@ -277,8 +276,8 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
                             </span>
                         </span>
                         ) : null}
-                        {!tasksFiltered && item.subtasks && item.subtasks.length > 0 && <>
-                            <span className={`subtaskIndex subscript flex row gap5`}>
+                        {item.subtasks && item.subtasks.length > 0 && <>
+                            <span className={`taskProgressCount subtaskIndex subscript flex row gap5`}>
                                 <span className={`slashes`}>
                                     ✔
                                 </span> {item?.complete ? item.subtasks.length : item.subtasks.filter(subtask => subtask.complete).length} <span className={`slashes`}>

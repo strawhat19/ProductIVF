@@ -23,9 +23,17 @@
             }
             &.boardColumnItems {
                 .boardItem {
+                    // * {
+                    //     transition: 85ms var(--delayedTransition) !important;
+                    // }
+                    &:not(.complete) {
+                        .changeLabel, .itemDate, itemButtons button {
+                            transition: none !important;
+                        }
+                    }
                     .itemRow {
                         &:hover {
-                            .itemName, .changeLabel, .itemDate {
+                            .itemName, .changeLabel, .itemDate, .taskProgressCount {
                                 color: var(--dark) !important;
                             }
                             .progress {
@@ -54,7 +62,7 @@
                         * {
                             transition: 85ms var(--delayedTransition) !important;
                         }
-                        .itemName, .changeLabel, .itemDate {
+                        .itemName, .changeLabel, .itemDate, .taskProgressCount {
                             color: var(--dark) !important;
                         }
                         .itemRow, .subTaskItem {

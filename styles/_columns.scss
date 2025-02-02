@@ -147,7 +147,7 @@
     }
     &:has(.itemFooter) {
         .progress {
-            padding: 0.2px;
+            padding: 0.2px 0.2px 0.4px;
         }
     }
     &:not(&:has(.itemFooter)) {
