@@ -23,9 +23,6 @@
             }
             &.boardColumnItems {
                 .boardItem {
-                    // * {
-                    //     transition: 85ms var(--delayedTransition) !important;
-                    // }
                     &:not(.complete) {
                         .changeLabel, .itemDate, itemButtons button {
                             transition: none !important;

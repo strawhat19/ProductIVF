@@ -1980,23 +1980,27 @@ textarea {
                             grid-gap: 0;
                             background: transparent !important;
                             &.completedTasks {
-                                border-bottom-right-radius: var(--borderRadius);
                                 border-bottom-left-radius: var(--borderRadius);
+                                border-bottom-right-radius: var(--borderRadius);
                             }
                             .subTaskItem {
                                 background: linear-gradient(90deg, var(--whiteGlass) 35px, var(--blackGlass) 35px);
+                                &.complete {
+                                    background: linear-gradient(90deg, var(--blackGlass) 35px, var(--whiteGlass) 35px);
+                                    .taskDate {
+                                        color: var(--dark);
+                                    }
+                                }
                                 &:not(:last-child) {
                                     border-bottom: 1px solid var(--gameBlue);
                                 }
                                 &:first-child {
                                     border-top: 1px solid var(--gameBlue);
                                 }
-                                // border-bottom: 1px solid var(--gameBlue);
                                 .taskChangeLabel {
                                     font-size: 13px;
-                                    padding: 0 10px 0 10px;
-                                    // min-width: fit-content;
                                     max-width: fit-content;
+                                    padding: 0 10px 0 10px;
                                     margin: 5px 15px 5px 0 !important;
                                 }
                                 &:hover {
@@ -2004,7 +2008,7 @@ textarea {
                                     .subtaskActions {
                                         input[type="checkbox"] {
                                             filter: invert(1);
-                                            background: white !important;
+                                            background: var(--darkInverse) !important;
                                             &:checked {
                                                 &::before {
                                                     color: var(--gameBlueSoft) !important;
@@ -2012,8 +2016,10 @@ textarea {
                                             }
                                         }
                                     }
-                                    .changeLabel {
-                                        color: white;
+                                    &:not(.complete) {
+                                        .changeLabel, .taskDate {
+                                            color: var(--dark) !important;
+                                        }
                                     }
                                 }
                                 .item {

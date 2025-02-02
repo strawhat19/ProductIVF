@@ -56,7 +56,7 @@ function SortableSubtaskItem({ item, subtask, isLast, column, index, changeLabel
 
             {column?.details && column?.details == true ? (
               subtask.created && !subtask.updated ? (
-                <span className={`itemDate ${(item?.complete || subtask?.complete) ? `taskCompleteDate` : `taskActiveDate`} itemName itemCreated textOverflow extended flex row`}>
+                <span className={`itemDate ${(item?.complete || subtask?.complete) ? `taskCompleteDate` : `taskActiveDate`} itemName itemCreated textOverflow extended flex row taskDate`}>
                   <i className={`status`}>
                     Cre.
                   </i>
@@ -65,7 +65,7 @@ function SortableSubtaskItem({ item, subtask, isLast, column, index, changeLabel
                   </span>
                 </span>
               ) : subtask.updated ? (
-                <span className={`itemDate ${(item?.complete || subtask?.complete) ? `taskCompleteDate` : `taskActiveDate`} itemName itemCreated itemUpdated textOverflow extended flex row`}>
+                <span className={`itemDate ${(item?.complete || subtask?.complete) ? `taskCompleteDate` : `taskActiveDate`} itemName itemCreated itemUpdated textOverflow extended flex row taskDate`}>
                   <i className={`status`}>
                     Upd.
                   </i>
