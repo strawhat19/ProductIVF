@@ -6,6 +6,7 @@ import ConfirmAction from '../context-menus/confirm-action';
 import React, { useContext, useEffect, useState } from 'react';
 import { showAlert, formatDate, dev, StateContext, capitalizeAllWords } from '../../pages/_app';
 import { forceFieldBlurOnPressEnter, removeExtraSpacesFromString } from '../../shared/constants';
+import ContextMenu from '../context-menus/context-menu';
 
 export const getSubTaskPercentage = (subtasks: any[], item, isActive = null) => {
     if (item?.complete) return 100;
@@ -58,22 +59,16 @@ export const manageItem = (e, item, index, board, boards, setBoards) => {
 
 export default function Item({ item, count, column, itemIndex, board, setBoard }: any) {
     let [showConfirm, setShowConfirm] = useState(false);
-    let { boards, setBoards, setLoading, setSystemStatus, setSelected, menuRef, setMenuPosition, itemTypeMenuOpen, setItemTypeMenuOpen } = useContext<any>(StateContext);
-
-    // const getLatestDateFromDatesArray = (dates: string[]): string => {
-    //     return dates.map(dateStr => new Date(dateStr)).reduce((latest, current) => (current > latest ? current : latest)).toLocaleString();
-    // }
-
-    // const getLatestUpdateDate = (itm) => {
-    //     let taskDates = itm?.subtasks?.length > 0 ? itm?.subtasks.map(tsk => tsk?.updated) : [];
-    //     let latestItemUpdatedDate = formatDate(new Date(itm?.updated));
-    //     let allItemDates = [latestItemUpdatedDate, ...taskDates];
-    //     let latestDate = getLatestDateFromDatesArray(allItemDates);
-
-    //     console.log(itm?.title, allItemDates);
-
-    //     return latestDate;
-    // }
+    let { 
+        boards, 
+        menuRef, 
+        setBoards, 
+        setLoading, 
+        setSelected, 
+        setSystemStatus, 
+        setMenuPosition, 
+        setItemTypeMenuOpen, 
+    } = useContext<any>(StateContext);
 
     const changeLabel = (e, item) => {
         let elemValue = e.target.textContent;
@@ -92,55 +87,6 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
         item.updated = formatDate(new Date());
 
         localStorage.setItem(`boards`, JSON.stringify(boards));
-    }
-
-    const completeItem = (e, itemId, item) => {
-        let button = e.target;
-        let isButton = button.classList.contains(`iconButton`);
-        if (isButton) {
-            let completeButton = button.classList.contains(`completeButton`);
-            if (!completeButton) return;
-        }
-        if (!e.target.classList.contains(`changeLabel`)) {
-            completeActions(item, itemId, isButton);
-        }
-    }
-
-    const onRightClick = (e: React.MouseEvent<HTMLDivElement>, item, column) => {
-        e.preventDefault();
-        setSelected({item, column, board});
-        setItemTypeMenuOpen(!itemTypeMenuOpen);
-        setMenuPosition({ x: e.clientX, y: e.clientY });
-    }
-    
-    const handleClickOutside = (event: MouseEvent) => {
-        if (menuRef?.current && !menuRef?.current?.contains(event?.target as Node)) {
-            setSelected(null);
-            setMenuPosition(null);
-            setItemTypeMenuOpen(false);
-        }
-    };
-
-    useEffect(() => {
-        document.addEventListener(`click`, handleClickOutside);
-        return () => document.removeEventListener(`click`, handleClickOutside);
-    }, []);
-
-    const getTypeIcon = (type, plain?) => {
-        switch (type) {
-            default:
-                return `+`;
-            case ItemTypes.Task:
-                if (plain) {
-                    return `✔`
-                } else {
-                    return <span style={{fontSize: 20, textAlign: `center`}}>✔</span>;
-                }
-            case ItemTypes.Image:
-                return <i style={{display: `contents`}} className={`fas fa-image`} />;
-            case ItemTypes.Video:
-                return <i style={{display: `contents`}} className={`fab fa-youtube`} />;
-        }
     }
 
     const completeActions = (item, itemId, isButton) => {
@@ -164,6 +110,18 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
                 setLoading(false);
             }, 1000);
             if (isButton) count = count + 1;
+        }
+    }
+
+    const completeItem = (e, item) => {
+        let button = e.target;
+        let isButton = button.classList.contains(`iconButton`);
+        if (isButton) {
+            let completeButton = button.classList.contains(`completeButton`);
+            if (!completeButton) return;
+        }
+        if (!e.target.classList.contains(`changeLabel`)) {
+            completeActions(item, item?.id, isButton);
         }
     }
 
@@ -204,7 +162,8 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
     }
 
     const deleteItem = (e, item, columnId, index, itemId, initialConfirm = true) => {
-        let isButton = e.target.classList.contains(`iconButton`) || e.target.classList.contains(`confirmActionOption`);
+        let allowedDeletionSelectors = [`iconButton`, `confirmActionOption`, `customContextMenuOption`];
+        let isButton = allowedDeletionSelectors.some(className => e?.target?.classList.contains(className));
         if (isButton) {
             e.preventDefault();
             if (showConfirm == true) {
@@ -222,8 +181,57 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
         }
     }
 
+    const onDeleteItem = (e) => {
+        deleteItem(e, item, column.id, itemIndex, item.id);
+    }
+    
+    const onCompleteItem = (e) => {
+        completeItem(e, item);
+    }
+
+    const onManageItem = (e) => {
+        manageItem(e, item, itemIndex, board, boards, setBoards);
+    }
+
+    const onRightClick = (e: React.MouseEvent<HTMLDivElement>, item, column) => {
+        e.preventDefault();
+        setItemTypeMenuOpen(true);
+        setMenuPosition({ x: e.clientX, y: e.clientY });
+        setSelected({item, column, board, onManageItem, onCompleteItem, onDeleteItem});
+    }
+    
+    const handleClickOutside = (event: MouseEvent) => {
+        if (menuRef?.current && !menuRef?.current?.contains(event?.target as Node)) {
+            setSelected(null);
+            setMenuPosition(null);
+            setItemTypeMenuOpen(false);
+        }
+    };
+
+    useEffect(() => {
+        document.addEventListener(`click`, handleClickOutside);
+        return () => document.removeEventListener(`click`, handleClickOutside);
+    }, []);
+
+    const getTypeIcon = (type, plain?) => {
+        switch (type) {
+            default:
+                return `+`;
+            case ItemTypes.Task:
+                if (plain) {
+                    return `✔`
+                } else {
+                    return <span style={{fontSize: 20, textAlign: `center`}}>✔</span>;
+                }
+            case ItemTypes.Image:
+                return <i style={{display: `contents`}} className={`fas fa-image`} />;
+            case ItemTypes.Video:
+                return <i style={{display: `contents`}} className={`fab fa-youtube`} />;
+        }
+    }
+
     return <>
-        <div id={`itemElement_${item.id}`} className={`itemComponent itemInnerRow flex row`} onContextMenu={(e) => dev() ? () => {} : onRightClick(e, item, column)}>
+        <div id={`itemElement_${item.id}`} className={`itemComponent itemInnerRow flex row`} onContextMenu={(e) => onRightClick(e, item, column)}>
             <span className={`itemOrder rowIndexOrder`}>
                 {/* <i className={`itemIconType itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>
                     {getTypeIcon(item?.type)}
@@ -300,7 +308,7 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
                 {/* <button id={`copy_${item.id}`} onClick={(e) => copyItem(e, item)} title={`Copy Item`} className={`iconButton ${ItemActions.Copy} copyButton wordIconButton`}>
                     <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-copy`}></i>
                 </button> */}
-                <button id={`delete_${item.id}`} onClick={(e) => deleteItem(e, item, column.id, itemIndex, item.id)} title={`Delete Item`} className={`deleteItemButton iconButton deleteButton wordIconButton`}>
+                <button id={`delete_${item.id}`} onClick={(e) => onDeleteItem(e)} title={`Delete Item`} className={`deleteItemButton iconButton deleteButton wordIconButton`}>
                     <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-${showConfirm ? `ban` : `trash`}`} />
                     {showConfirm && (
                         <ConfirmAction 
@@ -310,10 +318,10 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
                         />
                     )}
                 </button>
-                <button id={`complete_${item.id}`} onClick={(e) => completeItem(e, item.id, item)} title={`Complete Item`} className={`iconButton wordIconButton completeButton`}>
+                <button id={`complete_${item.id}`} onClick={(e) => onCompleteItem(e)} title={`Complete Item`} className={`iconButton wordIconButton completeButton`}>
                     <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas ${item.complete ? `fa-history` : `fa-check-circle`}`} />
                 </button>
-                <button id={`manage_${item.id}`} onClick={(e) => manageItem(e, item, itemIndex, board, boards, setBoards)} title={`Manage Item`} className={`iconButton wordIconButton manageButton`}>
+                <button id={`manage_${item.id}`} onClick={(e) => onManageItem(e)} title={`Manage Item`} className={`iconButton wordIconButton manageButton`}>
                     <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-bars`} />
                 </button>
             </div>

@@ -2,12 +2,12 @@ import { useContext } from 'react';
 import { toast } from 'react-toastify';
 import { StateContext } from '../../pages/_app';
 
-export default function ContextMenu({menuRef, menuPosition}) {
+export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--gameBlue)` }: any) {
     let { selected, setBoards, setMenuPosition, setItemTypeMenuOpen, setSelected } = useContext<any>(StateContext);
     let ids = (selected == null || selected?.column == undefined || selected?.column == null) ? [] : Array.from(selected?.column?.itemIds);
 
-    const onDismiss = () => {
-        setSelected(null);
+    const onDismiss = (setSelect = true) => {
+        if (setSelect) setSelected(null);
         setMenuPosition(null);
         setItemTypeMenuOpen(false);
     }
@@ -16,13 +16,19 @@ export default function ContextMenu({menuRef, menuPosition}) {
         onDismiss();
     }
 
-    const manageItemDetails = () => {
+    const onManageItem = (e) => {
         onDismiss();
-        toast.info(`In Development!`);
+        selected?.onManageItem(e);
     }
 
-    const onRightClick = () => {
+    const onCompleteItem = (e) => {
         onDismiss();
+        selected?.onCompleteItem(e);
+    }
+
+    const onDeleteItem = (e) => {
+        onDismiss();
+        selected?.onDeleteItem(e);
     }
 
     const copyToClipBoard = () => {
@@ -82,27 +88,38 @@ export default function ContextMenu({menuRef, menuPosition}) {
             }}
         >
             <ul className={`customContextMenuOptions`}>
+                <li title={selected?.item?.title} className={`menuTitleRow customContextMenuOption flex gap15 disabledOption`} onClick={() => onClose()}>
+                    <span style={{ maxWidth: 120 }} className={`textOverflow`}>
+                        {selected?.item?.title?.toUpperCase()}
+                    </span>
+                </li>
                 <li className={`customContextMenuOption flex gap15`} onClick={() => onClose()}>
-                    <i className={`fas fa-times`} style={{ color: `var(--gameBlueSoft)` }} /> <span>Close</span>
+                    <i className={`fas fa-times`} style={{ color: iconColor }} /> <span>Close</span>
                 </li>
                 <li className={`customContextMenuOption flex gap15`} onClick={() => copyToClipBoard()}>
-                    <i className={`fas fa-copy`} style={{ color: `var(--gameBlueSoft)` }} /> <span>Copy</span>
+                    <i className={`fas fa-copy`} style={{ color: iconColor }} /> <span>Copy</span>
                 </li>
-                {/* <li className={`customContextMenuOption flex gap15`} onClick={() => manageItemDetails()}>
-                    <i className={`fas fa-bars`} style={{ color: `var(--gameBlueSoft)` }} /> <span>Manage</span>
-                </li> */}
+                <li className={`customContextMenuOption flex gap15`} onClick={onManageItem}>
+                    <i className={`fas fa-bars`} style={{ color: iconColor }} /> <span>Manage</span>
+                </li>
+                <li className={`customContextMenuOption flex gap15`} onClick={onCompleteItem}>
+                    <i className={`fas fa-${selected?.item?.complete ? `history` : `check-circle`}`} style={{ color: iconColor }} /> <span>{selected?.item?.complete ? `Active` : `Complete`}</span>
+                </li>
+                <li className={`customContextMenuOption flex gap15`} onClick={onDeleteItem}>
+                    <i className={`fas fa-trash`} style={{ color: iconColor }} /> <span>Delete</span>
+                </li>
                {ids?.indexOf(selected?.item?.id) > 0 && (
                     <li className={`customContextMenuOption flex gap15`} onClick={() => moveItemToPosition()}>
-                        <i className={`fas fa-sort-amount-up`} style={{ color: `var(--gameBlueSoft)` }} /> <span>To Top</span>
+                        <i className={`fas fa-sort-amount-up`} style={{ color: iconColor }} /> <span>To Top</span>
                     </li>
                 )}
                 {(ids?.indexOf(selected?.item?.id) < ids?.length - 1) && (
                     <li className={`customContextMenuOption flex gap15`} onClick={() => moveItemToPosition(false)}>
-                        <i className={`fas fa-sort-amount-down`} style={{ color: `var(--gameBlueSoft)` }} /> <span>To Bottom</span>
+                        <i className={`fas fa-sort-amount-down`} style={{ color: iconColor }} /> <span>To Bottom</span>
                     </li>
                 )}
                 {/* <li className={`customContextMenuOption flex gap15`} onClick={() => onRightClick()}>
-                    <i className={`fas fa-mouse-pointer`} style={{ color: `var(--gameBlueSoft)` }} /> <span>Right Click</span>
+                    <i className={`fas fa-mouse-pointer`} style={{ color: iconColor }} /> <span>Right Click</span>
                 </li> */}
             </ul>
         </div>

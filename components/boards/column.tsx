@@ -14,7 +14,7 @@ export default function Column(props) {
     let { board, column, hideAllTasks } = props;
     let [showConfirm, setShowConfirm] = useState(false);
     let [itemTypeMenuOpen, setItemTypeMenuOpen] = useState(false);
-    let { boards, setBoards, setLoading, setSystemStatus, completeFiltered, IDs, setIDs, menuPosition } = useContext<any>(StateContext);
+    let { boards, setBoards, setLoading, setSystemStatus, completeFiltered, IDs, setIDs, selected, menuPosition } = useContext<any>(StateContext);
 
     const itemActiveFilters = (itm) => {
         if (completeFiltered) {
@@ -290,7 +290,7 @@ export default function Column(props) {
                                         return (
                                         <Draggable key={item.id} draggableId={item.id} index={itemIndex}>
                                             {provided => (
-                                                <div id={item.id} className={`item boardItem ${hoverItemForm ? `itemHoverToExpand` : ``} completeItem ${item.complete ? `complete completeBoardItem` : `activeBoardItem`} container ${snapshot.isDragging ? `dragging` : ``} ${itemTypeMenuOpen ? `unfocus` : ``}`} title={item.content} {...provided.draggableProps} ref={provided.innerRef}>
+                                                <div id={item.id} className={`item boardItem ${hoverItemForm ? `itemHoverToExpand` : ``} completeItem ${item.complete ? `complete completeBoardItem` : `activeBoardItem`} container ${snapshot.isDragging ? `dragging` : ``} ${(itemTypeMenuOpen || selected != null) ? `unfocus` : ``}`} title={item.content} {...provided.draggableProps} ref={provided.innerRef}>
                                                     <div onClick={(e) => manageItem(e, item, itemIndex, board, boards, setBoards)} {...provided.dragHandleProps} className={`itemRow flex row ${item?.complete ? `completed` : `incomplete`} ${item.subtasks.length > 0 ? `hasTasksRow` : `noTasksRow`}`}>
                                                         <Item 
                                                             item={item} 

@@ -3,7 +3,6 @@
     padding: 0; 
     list-style: none; 
     .customContextMenuOption { 
-        cursor: pointer; 
         font-size: 16px;
         text-align: left;
         font-weight: bold;
@@ -11,7 +10,17 @@
         font-style: italic;
         align-items: center;
         justify-content: flex-start;
-        transition: var(--transition);
+        &:not(.disabledOption) {
+            cursor: pointer; 
+            transition: var(--transition);
+            i, span {
+                pointer-events: none !important;
+            }
+            &:hover {
+                color: black;
+                background: rgba(191, 230, 244, 0.95);
+            }
+        }
         &:first-child {
             border-top-left-radius: 5px;
             border-top-right-radius: 5px;
@@ -21,11 +30,7 @@
             border-bottom-right-radius: 5px;
         }
         &:not(:last-child) {
-            border-bottom: 1px solid var(--gameBlueSoft);
-        }
-        &:hover {
-            color: black;
-            background: rgba(191, 230, 244, 0.95);
+            border-bottom: 1px solid var(--gameBlue);
         }
     }
 }
