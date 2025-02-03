@@ -216,7 +216,7 @@ export default function Column(props) {
         <Draggable draggableId={props.column.id} index={props.index}>
             {(provided, snapshot) => (
                 <div id={props.column.id} className={`container column list columns_${board?.columnOrder && board?.columnOrder?.length} ${(board?.columnOrder && board?.columnOrder?.length > 2 || !dev()) ? `multiCol` : ``} layoutCols_${props?.column?.layoutCols ? props?.column?.layoutCols : ``} ${snapshot.isDragging ? `dragging` : ``}`} {...provided.draggableProps} ref={provided.innerRef}>
-                    <div className={`outerColumn`}>
+                    <div className={`columnItemsContainer outerColumn`}>
                         <div style={{ position: `relative` }} id={`name_of_${props.column.id}`} title={`${props.column.title}`} className={`columnTitle flex row iconButton item listTitleButton`} {...provided.dragHandleProps}>
                             <div className={`itemOrder listOrder`} style={{ maxWidth: `fit-content` }}>
                                 <i style={{ color: `var(--gameBlue)`, fontSize: 15, padding: `0 9px`, maxWidth: `fit-content` }} className={`fas fa-list`}></i>
