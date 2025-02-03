@@ -26,8 +26,8 @@
     --posterW: 165px;
     --steel: #7a7a7a;
     --react: #0fccce;
+    --grass: #00b900;
     --silver: #f2f2f2;
-    --ground: #00b900;
     --borderRadius: 4px;
     --containerWidth: 95%;
     --gameBlue: #00c2ff;
@@ -1426,9 +1426,11 @@ textarea {
     justify-content: flex-start;
     transition: var(--transition);
     box-shadow: 0 0 8px 0px black;
-    // background: var(--blackGlass);
     border-radius: var(--borderRadius);
-    background: rgba(1, 47, 74, 0.75);
+
+    background: var(--detailViewBG);
+    // background: var(--blackGlass);
+    // background: rgba(1, 47, 74, 0.75);
     // background: rgba(0, 194, 255, 0.4);
 
     .alertTitle {

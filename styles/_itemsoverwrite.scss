@@ -4,6 +4,7 @@
     --darkInverse: white !important;
     --lightInverse: black !important;
     --primary: var(--gameBlue) !important;
+    --detailViewBG: rgba(21, 90, 130, 0.85);
     --primarySoft: var(--gameBlueSoft) !important;
     --darkGradient: linear-gradient(90deg, var(--whiteGlass) 35px, var(--blackGlass) 35px) !important;
     --lightGradient: linear-gradient(90deg, var(--blackGlass) 35px, var(--whiteGlass) 35px) !important;
@@ -13,9 +14,6 @@
     .column {
         * {
             --gameBlueInverse: var(--primarySoft);
-        }
-        .changeItemTypeIcon {
-            z-index: 1;
         }
         .items {
             * {

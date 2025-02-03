@@ -1,12 +1,11 @@
+import Progress from '../progress';
 import { ItemTypes } from './boards';
 import ItemDetail from './itemdetail';
 import CustomImage from '../custom-image';
-import 'react-circular-progressbar/dist/styles.css';
+import ConfirmAction from '../context-menus/confirm-action';
 import React, { useContext, useEffect, useState } from 'react';
-import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
 import { showAlert, formatDate, dev, StateContext, capitalizeAllWords } from '../../pages/_app';
 import { forceFieldBlurOnPressEnter, removeExtraSpacesFromString } from '../../shared/constants';
-import ConfirmAction from '../context-menus/confirm-action';
 
 export const getSubTaskPercentage = (subtasks: any[], item, isActive = null) => {
     if (item?.complete) return 100;
@@ -48,11 +47,11 @@ export const manageItem = (e, item, index, board, boards, setBoards) => {
             let isManageButton = e.target.classList.contains(`manageButton`);
             if (isManageButton) {
                 dev() && console.log(`Item ${index + 1}`, item);
-                showAlert(item?.content, <ItemDetail item={item} index={index} board={board} boards={boards} setBoards={setBoards} />, `95%`, `75%`);
+                showAlert(item?.content, <ItemDetail item={item} index={index} board={board} boards={boards} setBoards={setBoards} />, `95%`, `85%`, `30px`);
             };
         } else {
             dev() && console.log(`Item ${index + 1}`, item);
-            showAlert(item?.content, <ItemDetail item={item} index={index} board={board} boards={boards} setBoards={setBoards} />, `95%`, `75%`);
+            showAlert(item?.content, <ItemDetail item={item} index={index} board={board} boards={boards} setBoards={setBoards} />, `95%`, `85%`, `30px`);
         }
     }
 }
@@ -95,7 +94,7 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
         localStorage.setItem(`boards`, JSON.stringify(boards));
     }
 
-    const completeItem = (e, itemId, index, item) => {
+    const completeItem = (e, itemId, item) => {
         let button = e.target;
         let isButton = button.classList.contains(`iconButton`);
         if (isButton) {
@@ -103,7 +102,7 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
             if (!completeButton) return;
         }
         if (!e.target.classList.contains(`changeLabel`)) {
-            completeActions(item, index, itemId, isButton);
+            completeActions(item, itemId, isButton);
         }
     }
 
@@ -144,30 +143,7 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
         }
     }
 
-    const renderProgressChart = (tasks: any[] = [], item) => {
-        let allTasksComplete = tasks.every(tsk => tsk.complete);
-        let progress = (!item?.complete && tasks?.length > 0 && allTasksComplete) ? 99 : getSubTaskPercentage(tasks, item);
-        return (
-            <div className={`progress`}>
-                <CircularProgressbar 
-                    value={progress} 
-                    text={`${progress}%`} 
-                    styles={buildStyles({
-                        rotation: 0.5,
-                        textSize: `24px`,
-                        textColor: `#fff`,
-                        strokeLinecap: `butt`,
-                        backgroundColor: `#3e98c7`,
-                        pathTransitionDuration: 0.5,
-                        trailColor: `rgba(0, 194, 255, 0.2)`,
-                        pathColor: progress < 100 ? `rgba(0, 194, 255, ${progress / 100})` : `#00b900`,
-                    })} 
-                />
-            </div>
-        )
-    }
-
-    const completeActions = (item, index, itemId, isButton) => {
+    const completeActions = (item, itemId, isButton) => {
         if (count == 0) {
             setLoading(true);
             setSystemStatus(`Marking Item as Complete.`);
@@ -319,7 +295,7 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
                     </div>
                 </> : <></>}
             </div>
-            {renderProgressChart(item?.subtasks, item)}
+            <Progress item={item} tasks={item?.subtasks} />
             <div className={`itemOptions itemButtons customButtons`}>
                 {/* <button id={`copy_${item.id}`} onClick={(e) => copyItem(e, item)} title={`Copy Item`} className={`iconButton ${ItemActions.Copy} copyButton wordIconButton`}>
                     <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-copy`}></i>
@@ -334,7 +310,7 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
                         />
                     )}
                 </button>
-                <button id={`complete_${item.id}`} onClick={(e) => completeItem(e, item.id, itemIndex, item)} title={`Complete Item`} className={`iconButton wordIconButton completeButton`}>
+                <button id={`complete_${item.id}`} onClick={(e) => completeItem(e, item.id, item)} title={`Complete Item`} className={`iconButton wordIconButton completeButton`}>
                     <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas ${item.complete ? `fa-history` : `fa-check-circle`}`} />
                 </button>
                 <button id={`manage_${item.id}`} onClick={(e) => manageItem(e, item, itemIndex, board, boards, setBoards)} title={`Manage Item`} className={`iconButton wordIconButton manageButton`}>

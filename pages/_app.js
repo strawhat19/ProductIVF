@@ -589,7 +589,7 @@ export const buggedBoards = [
   }
 ];
 
-export const showAlert = async (title, component, width, height) => {
+export const showAlert = async (title, component, width, height, top = `0px`) => {
   let isAlertOpen = JSON.parse(localStorage.getItem(`alertOpen`)) == true;
   if (isAlertOpen) return;
   let overlay = document.createElement(`div`);
@@ -603,6 +603,8 @@ export const showAlert = async (title, component, width, height) => {
   overlay.style.opacity = 0;
   // overlay.style.transform = `translateY(-50px)`;
   overlay.style.transition = `opacity 0.3s ease-out, transform 0.3s ease-out`;
+
+  alertDialog.style.top = top;
   alertDialog.style.opacity = 0;
   if (width) alertDialog.style.width = `${width}`;
   if (height) alertDialog.style.height = `${height}`;
