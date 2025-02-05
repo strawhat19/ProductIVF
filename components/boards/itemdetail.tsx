@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Progress from '../progress';
 import CustomImage from '../custom-image';
+import { getTaskPercentage } from './item';
 import { capWords, formatDate, generateUniqueID } from '../../pages/_app';
 
 export default function ItemDetail(props) {
@@ -63,7 +64,12 @@ export default function ItemDetail(props) {
                             {item?.type}
                         </strong>
                     </h3>
-                    <Progress item={item} tasks={item?.subtasks} classes={`detailViewProgress`} injectedProgress={active === `complete` ? 100 : null} />
+                    <Progress 
+                        item={item} 
+                        tasks={item?.subtasks} 
+                        classes={`detailViewProgress`} 
+                        injectedProgress={active === `complete` ? 100 : getTaskPercentage(item?.subtasks)} 
+                    />
                 </div>
                 <div className={`toggle-buttons`}>
                     <div 

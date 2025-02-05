@@ -2,6 +2,7 @@ import '../main.scss';
 import 'react-toastify/dist/ReactToastify.css';
 
 import ReactDOM from 'react-dom/client';
+import { dbBoards } from '../shared/database';
 import { ToastContainer } from 'react-toastify';
 import { AnimatePresence, motion } from 'framer-motion';
 import { createContext, useRef, useState, useEffect } from 'react';
@@ -661,143 +662,208 @@ export const showAlert = async (title, component, width, height, top = `0px`) =>
 }
 
 export default function ProductIVF({ Component, pageProps, router }) {
-    let brwser = ``;
-    let menuRef = useRef(null);
-    let loaded = useRef(false);
-    let mobileMenuBreakPoint = 697;
-    let [IDs, setIDs] = useState([]);
-    let [rte, setRte] = useState(``);
-    let [page, setPage] = useState(``);
-    let [qotd, setQotd] = useState(``);
-    let [width, setWidth] = useState(0);
-    let [color, setColor] = useState(``);
-    let [users, setUsers] = useState([]);
-    let [user, setUser] = useState(null);
-    let [lists, setLists] = useState([]);
-    let [items, setItems] = useState([]);
-    let [board, setBoard] = useState({});
-    let [dark, setDark] = useState(false);
-    let [boards, setBoards] = useState([]);
-    let [updates, setUpdates] = useState(0);
-    let [onMac, setOnMac] = useState(false);
-    let [focus, setFocus] = useState(false);
-    let [browser, setBrowser] = useState(``);
-    let [devEnv, setDevEnv] = useState(false);
-    let [mobile, setMobile] = useState(false);
-    let [loading, setLoading] = useState(true);
-    let [highScore, setHighScore] = useState(0);
-    let [platform, setPlatform] = useState(null);
-    let [selected, setSelected] = useState(null);
-    let [anim, setAnimComplete] = useState(false);
-    let [categories, setCategories] = useState([]);
-    let [colorPref, setColorPref] = useState(user);
-    let [alertOpen, setAlertOpen] = useState(false);
-    let [authState, setAuthState] = useState(`Next`);
-    let [mobileMenu, setMobileMenu] = useState(false);
-    let [emailField, setEmailField] = useState(false);
-    let [systemStatus, setSystemStatus] = useState(``);
-    let [rearranging, setRearranging] = useState(false);
-    let [boardLoaded, setBoardLoaded] = useState(false);
-    let [showLeaders, setShowLeaders] = useState(false);
-    let [menuPosition, setMenuPosition] = useState(null);
-    let [content, setContent] = useState(`defaultContent`);
-    let [tasksFiltered, setTasksFiltered] = useState(false);
-    let [boardCategories, setBoardCategories] = useState([]);
-    let [year, setYear] = useState(new Date().getFullYear());
-    let [itemTypeMenuOpen, setItemTypeMenuOpen] = useState(false);
-    let [completeFiltered, setCompleteFiltered] = useState(false);
-    
-    useEffect(() => {
-      setLoading(true);
-      setAnimComplete(false);
-      setSystemStatus(`Page Loading!`);
-      if (loaded.current) return;
-      loaded.current = true;
-      localStorage.setItem(`alertOpen`, false);
+  let brwser = ``;
+  let menuRef = useRef(null);
+  let loaded = useRef(false);
+  let mobileMenuBreakPoint = 697;
 
-      let storedTaskFilterPreference = null;
-      let hasStoredTaskFilterPreference = localStorage.getItem(`tasksFiltered`);
-      if (hasStoredTaskFilterPreference) storedTaskFilterPreference = JSON.parse(hasStoredTaskFilterPreference);
-      if (storedTaskFilterPreference != null) setTasksFiltered(storedTaskFilterPreference);
+  let [IDs, setIDs] = useState([]);
+  let [rte, setRte] = useState(``);
+  let [page, setPage] = useState(``);
+  let [qotd, setQotd] = useState(``);
+  let [width, setWidth] = useState(0);
+  let [color, setColor] = useState(``);
+  let [users, setUsers] = useState([]);
+  let [user, setUser] = useState(null);
+  let [lists, setLists] = useState([]);
+  let [items, setItems] = useState([]);
+  let [board, setBoard] = useState({});
+  let [dark, setDark] = useState(false);
+  let [boards, setBoards] = useState([]);
+  let [updates, setUpdates] = useState(0);
+  let [onMac, setOnMac] = useState(false);
+  let [focus, setFocus] = useState(false);
+  let [browser, setBrowser] = useState(``);
+  let [devEnv, setDevEnv] = useState(false);
+  let [mobile, setMobile] = useState(false);
+  let [loading, setLoading] = useState(true);
+  let [highScore, setHighScore] = useState(0);
+  let [platform, setPlatform] = useState(null);
+  let [selected, setSelected] = useState(null);
+  let [anim, setAnimComplete] = useState(false);
+  let [categories, setCategories] = useState([]);
+  let [colorPref, setColorPref] = useState(user);
+  let [alertOpen, setAlertOpen] = useState(false);
+  let [authState, setAuthState] = useState(`Next`);
+  let [mobileMenu, setMobileMenu] = useState(false);
+  let [emailField, setEmailField] = useState(false);
+  let [useDatabase, setUseDatabase] = useState(true);
+  let [systemStatus, setSystemStatus] = useState(``);
+  let [rearranging, setRearranging] = useState(false);
+  let [boardLoaded, setBoardLoaded] = useState(false);
+  let [showLeaders, setShowLeaders] = useState(false);
+  let [menuPosition, setMenuPosition] = useState(null);
+  let [content, setContent] = useState(`defaultContent`);
+  let [tasksFiltered, setTasksFiltered] = useState(false);
+  let [boardCategories, setBoardCategories] = useState([]);
+  let [year, setYear] = useState(new Date().getFullYear());
+  let [itemTypeMenuOpen, setItemTypeMenuOpen] = useState(false);
+  let [completeFiltered, setCompleteFiltered] = useState(false);
 
-      // let storedUser = JSON.parse(localStorage.getItem(`user`));
-      let cachedBoard = JSON.parse(localStorage.getItem(`board`));
-      let cachedBoards = JSON.parse(localStorage.getItem(`boards`));
-
-      setThemeUI();
-      setDevEnv(dev());
-      setUpdates(updates);
-      setPlatform(navigator?.userAgent);
-      setYear(new Date().getFullYear());
-      setSystemStatus(`System Status Ok.`);
-      setRte(replaceAll(router.route, `/`, `_`));
-      setOnMac(navigator.platform.includes(`Mac`));
-      setPage(window.location.pathname.replace(`/`,``));
-      setLists(JSON.parse(localStorage.getItem(`lists`)) || defaultLists);
-      setMobile((typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1));
-
-      if (cachedBoard) {
-        if (!cachedBoard.created) cachedBoard.created = formatDate(new Date());
-        if (!cachedBoard.updated) cachedBoard.updated = formatDate(new Date());
-        if (!cachedBoard.id) cachedBoard.id = generateUniqueID(false, `board`);
-        if (!cachedBoard.name) cachedBoard.name = `Board`;
-        if (!cachedBoard.columns) cachedBoard.columns = initialBoardData.columns;
-        if (!cachedBoard.columnOrder) cachedBoard.columnOrder = initialBoardData.columnOrder;
-        if (!cachedBoard.items) cachedBoard.items = initialBoardData.items;
-        setBoard(cachedBoard);
-      } else {
-        setBoard(initialBoardData);
-      }
-
-      if (cachedBoards && cachedBoards?.length > 0) {
-        setBoards(cachedBoards);
-      } else {
-        setBoards([{"created":"6:03 PM 5/27/2023","expanded":true,"name":"Try Dragging Me","columnOrder":["column_1_6_03_PM_5_27_2023_vua19vc5d","column_2_6_03_PM_5_27_2023_z6mtlms7c"],"columns":{"column_1_6_03_PM_5_27_2023_vua19vc5d":{"id":"column_1_6_03_PM_5_27_2023_vua19vc5d","title":"active","itemIds":["item_3_6_13_PM_5_27_2023_27vnmb2j2","item_3_6_15_PM_5_27_2023_lvza6sitz"],"itemType":"Item"},"column_2_6_03_PM_5_27_2023_z6mtlms7c":{"id":"column_2_6_03_PM_5_27_2023_z6mtlms7c","title":"complete","itemIds":["item_3_6_13_PM_5_27_2023_942tumtrc","item_1_6_08_PM_5_27_2023_s2egf8yu6","item_1_6_06_PM_5_27_2023_gqfn5z8cr"],"itemType":"Image"}},"id":"board_1_6_03_PM_5_27_2023_q1nmnvrpp","titleWidth":"207.5px","items":{"item_1_6_06_PM_5_27_2023_gqfn5z8cr":{"image":"","video":"","id":"item_1_6_06_PM_5_27_2023_gqfn5z8cr","subtasks":[{"id":"subtask_1_6_06_PM_5_27_2023_20jn2tf20","complete":true,"task":"Netflix","created":"6:06 PM 5/27/2023","updated":"6:08 PM 5/27/2023"},{"id":"subtask_4_6_06_PM_5_27_2023_fslx5f05w","complete":true,"task":"Car","created":"6:06 PM 5/27/2023","updated":"6:08 PM 5/27/2023"},{"id":"subtask_5_6_06_PM_5_27_2023_b7ji8l1se","complete":true,"task":"House","created":"6:06 PM 5/27/2023","updated":"6:08 PM 5/27/2023"}],"complete":true,"type":"Task","created":"6:06 PM 5/27/2023","content":"Pay Bills","updated":"6:08 PM 5/27/2023"},"item_1_6_08_PM_5_27_2023_s2egf8yu6":{"image":"","video":"","id":"item_1_6_08_PM_5_27_2023_s2egf8yu6","subtasks":[],"complete":true,"type":"Item","created":"6:08 PM 5/27/2023","content":"Testing New Board","updated":"6:08 PM 5/27/2023"},"item_3_6_13_PM_5_27_2023_942tumtrc":{"image":"","video":"","id":"item_3_6_13_PM_5_27_2023_942tumtrc","subtasks":[{"id":"subtask_1_6_13_PM_5_27_2023_w3ddkmv48","complete":false,"task":"Sub Task One","created":"6:13 PM 5/27/2023"},{"id":"subtask_2_6_17_PM_5_27_2023_3970zp8nd","complete":true,"task":"Completed Subtask","created":"6:17 PM 5/27/2023","updated":"6:17 PM 5/27/2023"}],"complete":false,"type":"Task","created":"6:13 PM 5/27/2023","content":"Create Subtasks","updated":"6:17 PM 5/27/2023"},"item_3_6_13_PM_5_27_2023_27vnmb2j2":{"image":"","video":"","id":"item_3_6_13_PM_5_27_2023_27vnmb2j2","subtasks":[],"complete":false,"type":"Item","created":"6:13 PM 5/27/2023","content":"Try Dragging Me","updated":"6:17 PM 5/27/2023"},"item_3_6_15_PM_5_27_2023_lvza6sitz":{"image":"https://user-images.githubusercontent.com/2182637/53614150-efbed780-3c2c-11e9-9204-a5d2e746faca.gif","video":"","id":"item_3_6_15_PM_5_27_2023_lvza6sitz","subtasks":[],"complete":false,"type":"Image","created":"6:15 PM 5/27/2023","content":"Or Add An Image","updated":"6:17 PM 5/27/2023"}},"updated":"6:17 PM 5/27/2023"},{"created":"6:09 PM 5/27/2023","expanded":true,"name":"Another Board To Drag","columnOrder":["column_1_6_09_PM_5_27_2023_zpcan4deb","list_3_6_10_PM_5_27_2023_wlcimzlua"],"columns":{"column_1_6_09_PM_5_27_2023_zpcan4deb":{"id":"column_1_6_09_PM_5_27_2023_zpcan4deb","title":"You Can Drag Columns","itemIds":["item_1_6_11_PM_5_27_2023_y2vtop14o","item_2_6_18_PM_5_27_2023_n458lp2jj","item_3_6_19_PM_5_27_2023_58qpoeyi0"],"itemType":"Item","updated":"6:10 PM 5/27/2023"},"list_3_6_10_PM_5_27_2023_wlcimzlua":{"id":"list_3_6_10_PM_5_27_2023_wlcimzlua","title":"And Make New Ones","itemIds":["item_2_6_14_PM_5_27_2023_wie8q2ts3","item_2_6_18_PM_5_27_2023_cl6xfeisp","item_3_6_19_PM_5_27_2023_jx025dtp9"],"itemType":"Item","updated":"6:15 PM 5/27/2023"}},"id":"board_2_6_09_PM_5_27_2023_op1nautzv","titleWidth":"258.5px","items":{"item_1_6_11_PM_5_27_2023_y2vtop14o":{"image":"","video":"","id":"item_1_6_11_PM_5_27_2023_y2vtop14o","subtasks":[],"complete":true,"type":"Item","created":"6:11 PM 5/27/2023","content":"You Can Have Completed Items In Any Column","updated":"6:14 PM 5/27/2023"},"item_2_6_14_PM_5_27_2023_wie8q2ts3":{"image":"","video":"","id":"item_2_6_14_PM_5_27_2023_wie8q2ts3","subtasks":[],"complete":false,"type":"Item","created":"6:14 PM 5/27/2023","content":"Click Me To Manage An Item Or To Rename","updated":"6:14 PM 5/27/2023"},"item_2_6_18_PM_5_27_2023_n458lp2jj":{"image":"","video":"","id":"item_2_6_18_PM_5_27_2023_n458lp2jj","subtasks":[],"complete":false,"type":"Item","created":"6:18 PM 5/27/2023","content":"You Can Manage Tasks Or Create Lists In Any Order You Prefer!"},"item_2_6_18_PM_5_27_2023_cl6xfeisp":{"image":"","video":"","id":"item_2_6_18_PM_5_27_2023_cl6xfeisp","subtasks":[],"complete":false,"type":"Image","created":"6:18 PM 5/27/2023","content":"You Can Click A Board To Expand That Board Or Focus On It"},"item_3_6_19_PM_5_27_2023_jx025dtp9":{"image":"","video":"","id":"item_3_6_19_PM_5_27_2023_jx025dtp9","subtasks":[],"complete":false,"type":"Item","created":"6:19 PM 5/27/2023","content":"Also You Can Click To Collapse A Board Entirely Until You Are Ready To Open It Back Up Again"},"item_3_6_19_PM_5_27_2023_58qpoeyi0":{"image":"","video":"","id":"item_3_6_19_PM_5_27_2023_58qpoeyi0","subtasks":[],"complete":false,"type":"Item","created":"6:19 PM 5/27/2023","content":"Create Rankings And Reorder Them With Dynamic Sorting Indexes"}},"updated":"6:19 PM 5/27/2023"}]);
-      }
-
-      let toc = document.querySelector(`.nextra-toc`);
-      let tocMinimized = JSON.parse(localStorage.getItem(`tocMinimized`));
-      if (toc) {
-        if (tocMinimized) {
-          toc.classList.add(`minimized`);
-        } else {
-          toc.classList.remove(`minimized`);
-        };
-      }
-        
-      if (brwser == `` && (navigator.userAgent.match(/edg/i) || navigator.userAgent.includes(`edg`) || navigator.userAgent.includes(`Edg`))) {
-        brwser = `edge`;
-        setBrowser(`edge`);
-      } if (brwser == `` && navigator.userAgent.match(/chrome|chromium|crios/i)) {
-        brwser = `chrome`;
-        setBrowser(`chrome`);
-      } else if (brwser == `` && navigator.userAgent.match(/firefox|fxios/i)) {
-        brwser = `firefox`;
-        setBrowser(`firefox`);
-      } else if (brwser == `` && navigator.userAgent.match(/safari/i)) {
-        brwser = `safari`;
-        setBrowser(`safari`);
-      } else if (brwser == `` && navigator.userAgent.match(/opr\//i)) {
-        brwser = `opera`;
-        setBrowser(`opera`);
-      }
-
-      setLoading(false);
-      setSystemStatus(`${getPage()} Loaded.`);
-      setTimeout(() => setLoading(false), 1500);
-
-      // if (dev()) {
-      //   console.log(`brwser`, brwser);
-      //   console.log(`App`, router.route);
-      // }
+  useEffect(() => {
+    if (useDatabase == true) {
+      dev() && console.log(`Use Database`);
+    }
+  }, [])
   
-      return () => {
-      //   window.removeEventListener(`resize`, () => windowEvents());
-      //   window.removeEventListener(`scroll`, () => windowEvents());
-      }
-    }, [rte, user, users, authState, dark])
+  useEffect(() => {
+    setLoading(true);
+    setAnimComplete(false);
+    setSystemStatus(`Page Loading!`);
 
-    return <StateContext.Provider value={{ router, rte, setRte, updates, setUpdates, content, setContent, width, setWidth, user, setUser, page, setPage, mobileMenu, setMobileMenu, users, setUsers, authState, setAuthState, emailField, setEmailField, devEnv, setDevEnv, mobileMenuBreakPoint, platform, setPlatform, focus, setFocus, highScore, setHighScore, color, setColor, dark, setDark, colorPref, setColorPref, lists, setLists, showLeaders, setShowLeaders, items, setItems, qotd, setQotd, alertOpen, setAlertOpen, mobile, setMobile, systemStatus, setSystemStatus, loading, setLoading, anim, setAnimComplete, IDs, setIDs, boardLoaded, setBoardLoaded, board, setBoard, completeFiltered, setCompleteFiltered, boardCategories, setBoardCategories, categories, setCategories, boards, setBoards, browser, setBrowser, onMac, rearranging, setRearranging, tasksFiltered, setTasksFiltered, menuPosition, setMenuPosition, menuRef, selected, setSelected, itemTypeMenuOpen, setItemTypeMenuOpen }}>
+    if (loaded.current) return;
+
+    loaded.current = true;
+    localStorage.setItem(`alertOpen`, false);
+
+    let storedTaskFilterPreference = null;
+    let hasStoredTaskFilterPreference = localStorage.getItem(`tasksFiltered`);
+    if (hasStoredTaskFilterPreference) storedTaskFilterPreference = JSON.parse(hasStoredTaskFilterPreference);
+    if (storedTaskFilterPreference != null) setTasksFiltered(storedTaskFilterPreference);
+
+    // let storedUser = JSON.parse(localStorage.getItem(`user`));
+    let cachedBoard = JSON.parse(localStorage.getItem(`board`));
+    let cachedBoards = JSON.parse(localStorage.getItem(`boards`));
+
+    setThemeUI();
+    setDevEnv(dev());
+    setUpdates(updates);
+    setPlatform(navigator?.userAgent);
+    setYear(new Date().getFullYear());
+    setSystemStatus(`System Status Ok.`);
+    setRte(replaceAll(router.route, `/`, `_`));
+    setOnMac(navigator.platform.includes(`Mac`));
+    setPage(window.location.pathname.replace(`/`,``));
+    setLists(JSON.parse(localStorage.getItem(`lists`)) || defaultLists);
+    setMobile((typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1));
+
+    if (cachedBoard) {
+      if (!cachedBoard.created) cachedBoard.created = formatDate(new Date());
+      if (!cachedBoard.updated) cachedBoard.updated = formatDate(new Date());
+      if (!cachedBoard.id) cachedBoard.id = generateUniqueID(false, `board`);
+      if (!cachedBoard.name) cachedBoard.name = `Board`;
+      if (!cachedBoard.columns) cachedBoard.columns = initialBoardData.columns;
+      if (!cachedBoard.columnOrder) cachedBoard.columnOrder = initialBoardData.columnOrder;
+      if (!cachedBoard.items) cachedBoard.items = initialBoardData.items;
+      setBoard(cachedBoard);
+    } else {
+      setBoard(initialBoardData);
+    }
+
+    if (cachedBoards && cachedBoards?.length > 0) {
+      setBoards(cachedBoards);
+    } else {
+      setBoards(dbBoards);
+    }
+
+    let toc = document.querySelector(`.nextra-toc`);
+    let tocMinimized = JSON.parse(localStorage.getItem(`tocMinimized`));
+    if (toc) {
+      if (tocMinimized) {
+        toc.classList.add(`minimized`);
+      } else {
+        toc.classList.remove(`minimized`);
+      };
+    }
+      
+    if (brwser == `` && (navigator.userAgent.match(/edg/i) || navigator.userAgent.includes(`edg`) || navigator.userAgent.includes(`Edg`))) {
+      brwser = `edge`;
+      setBrowser(`edge`);
+    } if (brwser == `` && navigator.userAgent.match(/chrome|chromium|crios/i)) {
+      brwser = `chrome`;
+      setBrowser(`chrome`);
+    } else if (brwser == `` && navigator.userAgent.match(/firefox|fxios/i)) {
+      brwser = `firefox`;
+      setBrowser(`firefox`);
+    } else if (brwser == `` && navigator.userAgent.match(/safari/i)) {
+      brwser = `safari`;
+      setBrowser(`safari`);
+    } else if (brwser == `` && navigator.userAgent.match(/opr\//i)) {
+      brwser = `opera`;
+      setBrowser(`opera`);
+    }
+
+    setLoading(false);
+    setSystemStatus(`${getPage()} Loaded.`);
+    setTimeout(() => setLoading(false), 1500);
+
+    // if (dev()) {
+    //   console.log(`brwser`, brwser);
+    //   console.log(`App`, router.route);
+    // }
+
+    return () => {
+    //   window.removeEventListener(`resize`, () => windowEvents());
+    //   window.removeEventListener(`scroll`, () => windowEvents());
+    }
+  }, [rte, user, users, authState, dark])
+
+  return (
+    <StateContext.Provider value={{ 
+      // Environment
+      onMac, 
+      router,
+      rte, setRte, 
+      page, setPage, 
+      width, setWidth, 
+      mobile, setMobile,
+      devEnv, setDevEnv, 
+      browser, setBrowser, 
+      mobileMenuBreakPoint, 
+      platform, setPlatform, 
+      mobileMenu, setMobileMenu, 
+      useDatabase, setUseDatabase, 
+
+      // Theme
+      dark, setDark, 
+      color, setColor, 
+      colorPref, setColorPref, 
+
+      // Users
+      user, setUser, 
+      users, setUsers, 
+      authState, setAuthState, 
+      emailField, setEmailField, 
+
+      // State
+      IDs, setIDs, 
+      qotd, setQotd, 
+      focus, setFocus, 
+      content, setContent, 
+      updates, setUpdates, 
+      loading, setLoading, 
+      anim, setAnimComplete, 
+      alertOpen, setAlertOpen, 
+      highScore, setHighScore, 
+      rearranging, setRearranging, 
+      showLeaders, setShowLeaders, 
+      systemStatus, setSystemStatus, 
+
+      // Boards
+      menuRef, 
+      lists, setLists, 
+      items, setItems, 
+      board, setBoard, 
+      boards, setBoards, 
+      selected, setSelected, 
+      categories, setCategories, 
+      boardLoaded, setBoardLoaded, 
+      menuPosition, setMenuPosition, 
+      tasksFiltered, setTasksFiltered, 
+      boardCategories, setBoardCategories, 
+      completeFiltered, setCompleteFiltered, 
+      itemTypeMenuOpen, setItemTypeMenuOpen, 
+    }}>
       {(browser != `chrome` || onMac) ? <AnimatePresence mode={`wait`}>
         <motion.div className={`${rte} pageWrapContainer ${page.toUpperCase()}`} key={router.route} initial="pageInitial" animate="pageAnimate" exit="pageExit" transition={{ duration: 0.35 }} variants={{
           pageInitial: {
@@ -833,4 +899,5 @@ export default function ProductIVF({ Component, pageProps, router }) {
       />
       <ContextMenu menuRef={menuRef} menuPosition={menuPosition} />
     </StateContext.Provider>
+  )
 }
