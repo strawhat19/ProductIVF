@@ -1,6 +1,6 @@
-
 import Column from './column';
 import { ItemTypes } from './boards';
+import { toast } from 'react-toastify';
 import ConfirmAction from '../context-menus/confirm-action';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { forceFieldBlurOnPressEnter } from '../../shared/constants';
@@ -24,6 +24,7 @@ export default function Board(props) {
     let boardNameRef = useRef();
     let [updates, setUpdates] = useState(0);
     let [board, setBoard] = useState(props.board);
+    let [showSearch, setShowSearch] = useState(false);
     let [showConfirm, setShowConfirm] = useState(false);
     let { boards, setBoards, setLoading, setSystemStatus, completeFiltered, setCompleteFiltered, setPage, IDs, setIDs } = useContext<any>(StateContext);
 
@@ -69,6 +70,11 @@ export default function Board(props) {
             setLoading(true);
             setSystemStatus(`Rearranging...`);
         }
+    }
+
+    const onShowSearchClick = (e?: any) => {
+        setShowSearch(!showSearch);
+        toast.info(`Board Search in Development`);
     }
 
     const expandCollapseBoard = (e, board) => {
@@ -328,13 +334,25 @@ export default function Board(props) {
                                             Focus
                                         </span>
                                     </button>
-                                    <section className={`addListFormItemSection`} style={{ margin: 0, padding: 0 }}>
-                                        <form onSubmit={addNewColumn} title={`Add Column`} id={`addListForm`} className={`flex addListForm itemButtons addForm`} style={{ width: `100%`, flexDirection: `row` }}>
+                                    <button onClick={(e) =>  onShowSearchClick(e)} id={`search_board`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Search Board`} className={`iconButton searchButton filterButton ${showSearch ? `filterActive` : `filterInactive`}`}>
+                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-search`} />
+                                        <span className={`iconButtonText textOverflow extended`}>
+                                            Search
+                                        </span>
+                                    </button>
+                                    <section className={`addListFormItemSection`} style={{ margin: 0, padding: 0, position: `relative` }}>
+                                        <div title={`Change Column Type`} onClick={(e) => toast.info(`Column Types are In Development`)} className={`typeIcon changeColumnTypeIcon hoverGlowButton`}>
+                                            +
+                                        </div>
+                                        <form onSubmit={addNewColumn} title={`Add Column`} id={`addListForm_${board?.id}`} className={`flex addListForm itemButtons addForm`} style={{ width: `100%`, flexDirection: `row` }}>
                                             <input autoComplete={`off`} maxLength={35} placeholder={`Create List +`} type="text" name="createItem" required />
-                                            <button type={`submit`} title={`Create Column`} className={`submit iconButton createList`}>
+                                            <button type={`submit`} title={`Create Column`} className={`submit iconButton createList createColumnButton`}>
                                                 <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-list"></i>
                                                 <span className={`iconButtonText textOverflow extended`}>
-                                                    <span style={{ fontSize: 12 }}>Create Column</span><span className={`itemLength index`} style={{ fontSize: 14, fontWeight: 700, padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content` }}>
+                                                    <span style={{ fontSize: 12 }}>
+                                                        Create Column
+                                                    </span>
+                                                    <span className={`itemLength index`} style={{ fontSize: 14, fontWeight: 700, padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content` }}>
                                                         {board?.columnOrder && board?.columnOrder.length + 1}
                                                     </span>
                                                 </span>

@@ -5,6 +5,7 @@ import Quote from './components/qotd';
 import Status from './components/status';
 import Footer from './components/footer';
 import { DocsThemeConfig } from 'nextra-theme-docs';
+import AuthState from './components/auth-state';
 
 const setToc = (e) => {
   let toc = document.querySelector(`.nextra-toc`);
@@ -39,11 +40,9 @@ const config: DocsThemeConfig = {
   // },
   navbar: {
     extraContent: <div className={`navFormDiv`} style={{order: -1, display: `flex`, flexDirection: `row`, gridGap: 15, alignItems: `center`, marginRight: 10}}>
-      <span className={`navFormText textOverflow extended`} style={{minWidth: `fit-content`}}>
-        Sign In
-      </span>
-      <section className={`navFormSection`} style={{maxWidth: 300, margin: 0, padding: `0 20px 0 0 !important`, position: `relative`}}>
-        <Form id="navForm" style={{display: `flex`, flexDirection: `row`}} />
+      <AuthState classes={`navFormText`} />
+      <section className={`navFormSection`} style={{margin: 0, padding: `0 20px 0 0 !important`, position: `relative`}}>
+        <Form id={`navForm`} style={{display: `flex`, flexDirection: `row`}} />
       </section>
     </div>,
   },
@@ -82,7 +81,7 @@ const config: DocsThemeConfig = {
   },
   docsRepositoryBase: `https://github.com/strawhat19/ProductIVF/`,
   footer: {
-    component: <Footer style={{margin: `0 5px`}} />
+    component: <Footer style={{ minHeight: `fit-content` }} />
   },
 }
 

@@ -4,7 +4,7 @@ import { db } from '../firebase';
 import { toast } from 'react-toastify';
 import { collection, getDocs } from 'firebase/firestore';
 import { useContext, useEffect, useRef, useState } from 'react';
-import { defaultContent, formatDate, capitalizeAllWords, StateContext, showAlert } from '../pages/_app';
+import { defaultContent, formatDate, StateContext, showAlert, dev } from '../pages/_app';
 
 export const convertHexToRGB = (HexString?:any, returnObject?: any) => {
   let r = parseInt(HexString.slice(1, 3), 16),
@@ -80,13 +80,21 @@ export default function Form(props?: any) {
     let formFields = e.target.children;
     let clicked = e?.nativeEvent?.submitter;
     let email = formFields?.email?.value ?? `email`;
+    let password = formFields?.password?.value ?? `pass`;
 
     switch(clicked?.value) {
       default:
-        console.log(clicked?.value);
+        console.log(`Clicked Value`, clicked?.value);
         break;
       case `Next`:
-        toast.error(`Authentication Not Implemented Yet`);
+        let macthingEmails = users.filter((usr: any) => usr?.email.toLowerCase() == email.toLowerCase());
+        if (macthingEmails?.length > 0) {
+          setAuthState(`Sign In`);
+        } else {
+          setAuthState(`Sign Up`);
+        }
+        setEmailField(true);
+        // toast.error(`Authentication Not Implemented Yet`);
         // getDocs(collection(db, `users`)).then((snapshot) => {
         //   let latestUsers = snapshot.docs.map((doc: any) => doc.data()).sort((a: any, b: any) => b?.highScore - a?.highScore);
         //   let macthingEmails = latestUsers.filter((usr: any) => usr?.email.toLowerCase() == email.toLowerCase());
@@ -131,8 +139,6 @@ export default function Form(props?: any) {
         let emptyFields = [];
         let fieldsToUpdate = [];
 
-        console.log(formFields);
-
         for (let i = 0; i < formFields.length; i++) {
           const input = formFields[i];
           if (input?.classList?.contains(`userData`)) {
@@ -160,7 +166,6 @@ export default function Form(props?: any) {
       case `Sign In`:
         let storedScore = JSON.parse(localStorage.getItem(`score`) as any);
         let existingAccount = JSON.parse(localStorage.getItem(`account`) as any);
-        let password = formFields?.password?.value;
         let listsToSet = existingAccount?.lists || JSON.parse(localStorage.getItem(`lists`) as any) || [];
         let scoreToSet = Math.floor(existingAccount?.highScore > storedScore ? existingAccount?.highScore : storedScore);
 
@@ -183,9 +188,18 @@ export default function Form(props?: any) {
         }
         break;
       case `Sign Up`:
-        let name = capitalizeAllWords(email.split(`@`)[0]);
-        setAuthState(`Signed Up`);
-
+        if (password == ``) {
+          toast.error(`Password Required`);
+        } else {
+          if (password?.length > 6) {
+            setFocus(false);
+            setAuthState(`Signed Up`);
+            dev() && console.log(`Usr`, { email, password });
+            toast.info(`Sign Up is In Development`);
+          } else {
+            toast.error(`Password must be 6 characters or greater`);
+          }
+        }
         // getDocs(collection(db, `users`)).then((snapshot) => {
         //   let latestUsers = snapshot.docs.map((doc: any) => doc.data());
         //   let macthingEmails = latestUsers.filter((usr: any) => usr?.email.toLowerCase() == email.toLowerCase());
@@ -196,12 +210,6 @@ export default function Form(props?: any) {
         //   } else {
         //     setAuthState(`Sign Up`);
         //   }
-
-        //   let password = formFields?.password?.value;
-        //   if (password == ``) {
-        //     showAlert(`Password Required`);
-        //   } else {
-        //     setFocus(false);
         //     let storedHighScore = JSON.parse(localStorage.getItem(`highScore`) as any);
         //     let potentialUser = { 
         //       id: users.length + 1, 
@@ -237,7 +245,7 @@ export default function Form(props?: any) {
   }, [user, users, authState]);
 
   return <>
-  <form id={props.id} onSubmit={authForm} className={`flex authForm customButtons ${props.className}`} style={style}>
+    <form id={props.id} onSubmit={authForm} className={`flex authForm customButtons ${props.className}`} style={style}>
       {!user && <input placeholder="Email" type="email" name="email" autoComplete={`email`} required />}
       {!user && emailField && <input placeholder="Password (Use a password that you dont care about, but its still easy to remember)" type="password" name="password" autoComplete={`current-password`} />}
       {user && window?.location?.href?.includes(`profile`) && <input id="name" className={`name userData`} placeholder="Name" type="text" name="status" />}
@@ -247,7 +255,7 @@ export default function Form(props?: any) {
       {user && window?.location?.href?.includes(`profile`) && <input id="password" className={`editPassword userData`} placeholder="Edit Password" type="password" name="editPassword" autoComplete={`current-password`} />}
       {user && window?.location?.href?.includes(`profile`) && <input type="color" id="color" name="color" placeholder="color" className={dark ? `dark` : `light`} data-color={`Color: ${convertHexToRGB(color)} // Hex: ${color}`} onInput={(e?: any) => changeColor(e)} defaultValue={color} />}
       <input className={(user && window?.location?.href?.includes(`profile`) || (authState == `Sign In` || authState == `Sign Up`)) ? `submit half` : `submit full`} type="submit" name="authFormSubmit" value={user ? `Sign Out` : authState} />
-      {(authState == `Sign In` || authState == `Sign Up`) && <input id={`back`} className={`back`} type="submit" name="authFormBack" value={`Back`} />}
+      {(authState == `Sign In` || authState == `Sign Up`) && <input id={`back`} className={`back authFormBack`} type="submit" name="authFormBack" value={`Back`} />}
       {user && window?.location?.href?.includes(`profile`) && <input id={user?.id} className={`save`} type="submit" name="authFormSave" style={{padding: 0}} value={`Save`} />}
     </form>
   </>

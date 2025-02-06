@@ -304,7 +304,7 @@ export default function Tasks(props) {
             <button
               type={`submit`}
               title={`Add Task`}
-              className={`iconButton createList wordIconButton`}
+              className={`iconButton createList wordIconButton createTaskButton`}
             >
               <i style={{ color: `var(--gameBlue)`, fontSize: 10 }} className={`fas fa-plus`} />
               <span className={`iconButtonText textOverflow extended`}>

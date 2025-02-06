@@ -1,4 +1,5 @@
 import Board from './board';
+import { toast } from 'react-toastify';
 import { useState, useEffect, useContext } from 'react';
 import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
 import { capWords, dev, formatDate, generateUniqueID, replaceAll, StateContext } from '../../pages/_app';
@@ -133,7 +134,10 @@ export default function Boards(props) {
                         <h2 style={{ fontWeight: 600, fontSize: 22, minWidth: `fit-content` }}>
                             Create Board {boards?.boards && boards?.boards?.length + 1}
                         </h2>
-                        <section className={`addBoardFormSection addListFormItemSection`} style={{ margin: 0 }}>
+                        <section className={`addBoardFormSection addListFormItemSection`} style={{ margin: 0, position: `relative`, overflowY: `hidden` }}>
+                            <div title={`Change Board Type`} onClick={(e) => toast.info(`Board Types are In Development`)} className={`typeIcon changeBoardTypeIcon hoverGlowButton`}>
+                                +
+                            </div>
                             <form onSubmit={(e) => addNewBoard(e)} title={`Add Board`} id={`addBoardForm`} className={`addBoardForm flex addListForm itemButtons addForm`} style={{ width: `100%`, flexDirection: `row` }}>
                                 <div className={`inputGroup flex row`}>
                                     <input autoComplete={`off`} maxLength={35} placeholder={`Create Board +`} type="text" name="createBoard" required />
@@ -146,10 +150,13 @@ export default function Boards(props) {
                                         </select>    
                                     </div>} */}
                                 </div>
-                                <button type={`submit`} title={`Create Board`} className={`iconButton createList`}>
+                                <button type={`submit`} title={`Create Board`} className={`iconButton createList createBoardButton`}>
                                     <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-list"></i>
                                     <span className={`iconButtonText textOverflow extended`}>
-                                        <span style={{ fontSize: 12 }}>Create Board</span><span className={`itemLength index`} style={{ fontSize: 14, fontWeight: 700, padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content` }}>
+                                        <span style={{ fontSize: 12 }}>
+                                            Create Board
+                                        </span>
+                                        <span className={`itemLength index`} style={{ fontSize: 14, fontWeight: 700, padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content` }}>
                                             {boards?.boards && boards?.boards?.length + 1}
                                         </span>
                                     </span>

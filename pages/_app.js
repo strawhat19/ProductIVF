@@ -2,9 +2,11 @@ import '../main.scss';
 import 'react-toastify/dist/ReactToastify.css';
 
 import ReactDOM from 'react-dom/client';
+import { db, usersTable } from '../firebase';
 import { dbBoards } from '../shared/database';
 import { ToastContainer } from 'react-toastify';
 import { AnimatePresence, motion } from 'framer-motion';
+import { collection, onSnapshot } from 'firebase/firestore';
 import { createContext, useRef, useState, useEffect } from 'react';
 import ContextMenu from '../components/context-menus/context-menu';
 
@@ -37,30 +39,34 @@ export const setThemeUI = () => {
 export const formatDate = (date, specificPortion) => {
   let hours = date.getHours();
   let minutes = date.getMinutes();
-  let ampm = hours >= 12 ? 'PM' : 'AM';
+  let ampm = hours >= 12 ? `PM` : `AM`;
   hours = hours % 12;
-  hours = hours ? hours : 12; // the hour '0' should be '12'
-  minutes = minutes < 10 ? '0' + minutes : minutes;
-  let strTime = hours + ':' + minutes + ' ' + ampm;
-  let completedDate = strTime + ` ` + (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
+  hours = hours ? hours : 12;
+  minutes = minutes < 10 ? `0` + minutes : minutes;
+  let strTime = hours + `:` + minutes + ` ` + ampm;
+  let completedDate = strTime + ` ` + (date.getMonth() + 1) + `/` + date.getDate() + `/` + date.getFullYear();
   if (specificPortion == `time`) {
     completedDate = strTime;
   } else if (specificPortion == `date`) {
-    completedDate = (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
+    completedDate = (date.getMonth() + 1) + `/` + date.getDate() + `/` + date.getFullYear();
   } else {
-    completedDate = strTime + ` ` + (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
+    completedDate = strTime + ` ` + (date.getMonth() + 1) + `/` + date.getDate() + `/` + date.getFullYear();
   }
   return completedDate;
 };
 
-export const generateUniqueID = (existingIDs, name) => {
+export const generateID = (existingIDs) => {
   let newID = Math.random().toString(36).substr(2, 9);
   if (existingIDs && existingIDs.length > 0) {
     while (existingIDs.includes(newID)) {
       newID = Math.random().toString(36).substr(2, 9);
     }
   }
+  return newID;
+}
 
+export const generateUniqueID = (existingIDs, name) => {
+  let newID = generateID(existingIDs);
   if (name && existingIDs && existingIDs.length > 0) {
     return `${name}_${existingIDs.length + 1}_${formatDate(new Date())}_${newID}`.replace(/\s+/g, `_`).replace(/[:/]/g, `_`);
   } else if (name && !existingIDs) {
@@ -347,7 +353,7 @@ export const dev = (item, source) => {
   }
 }
 
-export const defaultContent = `Hey, I’m Rakib, a Software Engineer @ Mitsubishi Electric Trane HVAC US, or just Mitsubishi Electric for short. Along with my 7 years of experience as a developer, and owner of my own tech and digital media side business, Piratechs. This website is just for me to test out Next.js 13.`;
+export const defaultContent = `Hey, I'm Rakib, a Software Engineer @ Mitsubishi Electric Trane HVAC US, or just Mitsubishi Electric for short. Along with my 7 years of experience as a developer, and owner of my own tech and digital media side business, Piratechs. This website is just for me to test out Next.js 13.`;
 
 export const getNumberFromString = (string) => {
   let result = string.match(/\d+/);
@@ -356,7 +362,7 @@ export const getNumberFromString = (string) => {
 }
 
 export const createXML = (xmlString) => {
-  let div = document.createElement('div');
+  let div = document.createElement(`div`);
   div.innerHTML = xmlString.trim();
   return div.firstChild;
 }
@@ -673,8 +679,6 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let [qotd, setQotd] = useState(``);
   let [width, setWidth] = useState(0);
   let [color, setColor] = useState(``);
-  let [users, setUsers] = useState([]);
-  let [user, setUser] = useState(null);
   let [lists, setLists] = useState([]);
   let [items, setItems] = useState([]);
   let [board, setBoard] = useState({});
@@ -692,7 +696,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let [selected, setSelected] = useState(null);
   let [anim, setAnimComplete] = useState(false);
   let [categories, setCategories] = useState([]);
-  let [colorPref, setColorPref] = useState(user);
+  let [colorPref, setColorPref] = useState(null);
   let [alertOpen, setAlertOpen] = useState(false);
   let [authState, setAuthState] = useState(`Next`);
   let [mobileMenu, setMobileMenu] = useState(false);
@@ -710,9 +714,34 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let [itemTypeMenuOpen, setItemTypeMenuOpen] = useState(false);
   let [completeFiltered, setCompleteFiltered] = useState(false);
 
+  let [users, setUsers] = useState([]);
+  let [user, setUser] = useState(null);
+  let [usersLoading, setUsersLoading] = useState(false);
+
   useEffect(() => {
-    if (useDatabase == true) {
-      dev() && console.log(`Use Database`);
+    let hasStoredUser = localStorage.getItem(`user`);
+    if (hasStoredUser) {
+      let storedUser = JSON.parse(hasStoredUser);
+      dev() && console.log(`Use Stored User`, storedUser);
+      setUser(storedUser);
+    }
+
+    const usersDatabase = collection(db, usersTable);
+    const usersDatabaseRealtimeListener = onSnapshot(usersDatabase, snapshot => {
+      setUsersLoading(true);
+      let usersFromDB = [];
+      snapshot.forEach((doc) => usersFromDB.push({ ...doc.data() }));
+      usersFromDB = usersFromDB.sort((a, b) => a?.rank - b?.rank);
+      setUsers(usersFromDB);
+    }, error => {
+      console.log(`Error on Get Task(s) from Database`, error);
+    }, complete => {
+      setUsersLoading(false);
+      dev() && console.log(`User(s) Loaded`, complete);
+    })
+
+    return () => {
+      usersDatabaseRealtimeListener();
     }
   }, [])
   
@@ -731,7 +760,6 @@ export default function ProductIVF({ Component, pageProps, router }) {
     if (hasStoredTaskFilterPreference) storedTaskFilterPreference = JSON.parse(hasStoredTaskFilterPreference);
     if (storedTaskFilterPreference != null) setTasksFiltered(storedTaskFilterPreference);
 
-    // let storedUser = JSON.parse(localStorage.getItem(`user`));
     let cachedBoard = JSON.parse(localStorage.getItem(`board`));
     let cachedBoards = JSON.parse(localStorage.getItem(`boards`));
 
@@ -834,6 +862,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       users, setUsers, 
       authState, setAuthState, 
       emailField, setEmailField, 
+      usersLoading, setUsersLoading,
 
       // State
       IDs, setIDs, 

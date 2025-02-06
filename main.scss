@@ -19,8 +19,28 @@
 }
 
 :root {
+    // Logos
+    --html: #f16529;
+    --css: #2862e9;
+    --js: #f7df1e;
+    --php: #7377ad;
+    --node: #73ab60;
+    --sass: #f783ac;
+    --sql: #f783ac;
+    --mongo: #00684a;
+    --node: #3eb112;
+    --git: #e94e31;
+    --swift: #f4993a;
+    --discord: #7289DA;
+    --skeleton: #4c4c4c;
+
+    // Theme
     --darkBG: black;
     --lightBG: white;
+    --lightNavAndFooterBG: var(--lightBG);
+    --darkNavAndFooterBG: var(--piratechsBlue);
+    --navAndFooterBG: var(--darkNavAndFooterBG);
+    
     --bg: #010000;
     --posterH: 250px;
     --posterW: 165px;
@@ -39,21 +59,6 @@
     --main: rgb(0, 216, 255);
     --nextraColor: var(--nextra);
     --gameBlueInverse: #ff3d00;
-
-    // Logos
-    --html: #f16529;
-    --css: #2862e9;
-    --js: #f7df1e;
-    --php: #7377ad;
-    --node: #73ab60;
-    --sass: #f783ac;
-    --sql: #f783ac;
-    --mongo: #00684a;
-    --node: #3eb112;
-    --git: #e94e31;
-    --swift: #f4993a;
-    --discord: #7289DA;
-    --skeleton: #4c4c4c;
 
     // Semi Transparent
     --authGlass: rgba(0, 0, 0, 0.05);
@@ -74,24 +79,25 @@
 }
 
 .dark {
+    --navAndFooterBG: var(--darkNavAndFooterBG);
     aside {
         border-right: 1px solid var(--main) !important;
     }
     .nextra-nav-container {
         border-bottom: 1px solid var(--main);
-        background: var(--darkBG) !important;
+        background: var(--navAndFooterBG) !important;
         nav, .nextra-nav-container-blur {
-            background: var(--darkBG) !important;
+            background: transparent !important;
         }
     }
 }
 
 .light {
+    --navAndFooterBG: var(--lightNavAndFooterBG) !important;
     .nextra-nav-container {
-        // border-bottom: 1px solid var(--main);
-        background: var(--lightBG) !important;
+        background: var(--navAndFooterBG) !important;
         nav, .nextra-nav-container-blur {
-            background: var(--lightBG) !important;
+            background: transparent !important;
         }
     }
 }
@@ -115,7 +121,6 @@
 }
 
 .light {
-
     .item {
         color: white !important;
     }
@@ -134,7 +139,6 @@
 }
 
 .dark {
-
     .line {
         &::before {
             color: var(--softWhite) !important;
@@ -186,15 +190,14 @@
     }
     
     html[class~=dark] .dark\:nx-bg-dark {
-        background: black !important;
+        background: var(--darkBG) !important;
     }
 
     footer {
         div {
-            background: black;
+            background: transparent !important;
         }
     }
-
 }
 
 article {
@@ -338,7 +341,7 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
 .dark {
     .authForm {
         input {
-            background: rgba(249,250,251,.1) !important;
+            background: rgba(249, 250, 251, .1) !important;
         }
     }
 }
@@ -393,25 +396,6 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
             outline: none !important;
         }
     }
-    &:not(.subtaskAddForm) {
-        &::before {
-            content: "+";
-            position: absolute;
-            height: 100%;
-            width: 35px;
-            left: 0;
-            top: 0;
-            font-weight: 400;
-            font-size: 30px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: white;
-            color: var(--gameBlue);
-            border-top-left-radius: 4px;
-            border-bottom-left-radius: 4px;
-        }
-    }
     &.addBoardForm {
         input {
             border-top-right-radius: 8px;
@@ -442,41 +426,46 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
             opacity: 0;
         }
     }
-    .typeIcon {
-        top: 0;
-        left: 0;
-        width: 35px;
-        height: 100%;
-        display: flex;
-        font-size: 35px;
-        cursor: pointer;
-        min-height: 33px;
-        max-height: 33px;
-        font-weight: 400;
-        align-items: center;
-        background: white;
-        color: var(--gameBlue);
-        justify-content: center;
-        border-top-left-radius: 4px;
-        transition: var(--transition);
-        border-bottom-left-radius: 4px;
-        &:not(.menuTypeIcon) {
-            position: absolute;
+}
+
+.typeIcon {
+    top: 0;
+    left: 0;
+    z-index: 1;
+    width: 35px;
+    height: 100%;
+    display: flex;
+    font-size: 35px;
+    cursor: pointer;
+    min-height: 33px;
+    max-height: 33px;
+    font-weight: 400;
+    align-items: center;
+    background: white;
+    color: var(--gameBlue);
+    justify-content: center;
+    border-top-left-radius: 4px;
+    transition: var(--transition);
+    border-bottom-left-radius: 4px;
+    &:not(.menuTypeIcon) {
+        position: absolute;
+    }
+    span {
+        pointer-events: none;
+    }
+    i {
+        font-size: 25px;
+        text-align: center;
+        pointer-events: none;
+        &.textual {
+            font-size: 17px;
         }
-        span {
-            pointer-events: none;
-        }
-        i {
-            font-size: 25px;
-            text-align: center;
-            pointer-events: none;
-            &.textual {
-                font-size: 17px;
-            }
-        }
-        &:hover {
-            box-shadow: 0 0 10px white;
-        }
+    }
+    &.changeBoardTypeIcon {
+        top: 1px;
+    }
+    &:hover {
+        box-shadow: 0 0 10px white;
     }
 }
 
@@ -497,8 +486,8 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
 }
 
 input {
-    max-height: 100% !important;
     max-width: 100%;
+    max-height: 100% !important;
 }
 
 .createBoard {
@@ -900,30 +889,30 @@ section {
 }
 
 .customButtons {
-    button,input[type="submit"] {
+    button, input[type="submit"] {
         border: 0;
-        &[type="submit"] {
-            color: white !important;
-            background: rgb(0 188 247 / 75%) !important;
-            padding: 10px 25px !important;
-            font-weight: 600;
-            line-height: 1;
-            /* filter: invert(1); */
-            border: 0 !important;
-            &:hover {
-                color: black !important;
-                background: white !important;
-                filter: invert(0) !important;
-            }
-        }
         padding: 10px;
         outline: none;
         cursor: pointer;
-        border-radius: var(--borderRadius);
         font-family: 'Montserrat';
         color: white !important;
         background: var(--blackGlass);
         transition: var(--transition);
+        border-radius: var(--borderRadius);
+
+        &[type="submit"] {
+            line-height: 1;
+            font-weight: 600;
+            border: 0 !important;
+            color: white !important;
+            max-height: 33px !important;
+            padding: 10.5px 25px !important;
+            background: var(--gameBlueSoft) !important;
+            &:hover {
+                color: black !important;
+                background: white !important;
+            }
+        }
 
         i {
             pointer-events: none;
@@ -935,23 +924,15 @@ section {
 
         &:not([type="button"]) {
             &:hover {
-                filter: invert(1);
                 box-shadow: 0 0 8px 0px black;
             }
         }
 
-        &:focus {
-            // Active or Was Pushed
-            filter: invert(1) brightness(1.5);
-        }
-
         &:active {
-            // On Click
             transform: scale(1.01);
             box-shadow: inset 0 0 8px 0px black;
         }
     }
-
 }
 
 ::-webkit-scrollbar {
@@ -1014,12 +995,12 @@ form {
     }
     input, textarea {
         font-size: 12px;
-        max-height: 35px;
         font-weight: 400;
         padding: 10px 15px;
         outline: none !important;
         color: white !important;
         font-family: "Montserrat";
+        max-height: 33px !important;
         transition: var(--transition);
         border-radius: var(--borderRadius);
         background: var(--blackGlass) !important;
@@ -1027,20 +1008,16 @@ form {
 
         label {
             padding: 50px !important;
-            // top: -5px;
-            // position: relative;
         }
-        
     
         &::placeholder {
-            color: white;
+            color: silver;
         }
 
         &[type="submit"] {
             cursor: pointer;
             &:hover {
                 border: 0 !important;
-                filter: invert(1);
             }
         }
     
@@ -1620,10 +1597,10 @@ textarea {
     form {
         input {
             &.submit {
+                max-width: fit-content;
+                max-width: fit-content;
                 color: black !important;
                 background: white !important;
-                max-width: fit-content;
-                max-width: fit-content;
             }
         }
     }
@@ -1927,14 +1904,7 @@ textarea {
                     &.taskButtons {
                         padding: 6px 8px 6px 6px !important;
                     }
-                    // min-height: 100% !important;
-                    // max-height: 100% !important;
-                    // height: 100% !important;
-                    // align-self: stretch;
                     button {
-                        // min-height: 100% !important;
-                        // max-height: 100% !important;
-                        // height: 100% !important;
                         align-self: stretch;
                     }
                 }
@@ -1944,20 +1914,13 @@ textarea {
                     bottom: -19px;
                     &:not(:has(input:focus-visible)) {
                         .noTasks {
-                            // opacity: 0;
-                            // height: 0px;
-                            // pointer-events: none;
                             transition: var(--transition);
                         }
                     }
                     .subTaskElement {
-                        // width: 93%;
-                        // margin: 0 0 0 auto;
                         grid-gap: 0;
                         margin: 0 0 0 35px;
                         width: calc(100% - 35px);
-                        // background: var(--blackGlass);
-                        /* Neumorphic Inner shadow */
                         background: transparent !important;
                         box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.2);
 
@@ -2073,7 +2036,6 @@ textarea {
                             border-top-left-radius: 0;
                             border-top-right-radius: 0;
                             background: var(--blackGlass);
-                            // background: transparent !important;
                             border-top: 1px solid var(--gameBlue);
                             border-bottom-left-radius: var(--borderRadius);
                             border-bottom-right-radius: var(--borderRadius);
@@ -2107,8 +2069,8 @@ textarea {
                             font-size: 10px;
                             padding: 3px 15px;
                             background: transparent !important;
-                            border-bottom-right-radius: var(--borderRadius);
                             border-bottom-left-radius: var(--borderRadius);
+                            border-bottom-right-radius: var(--borderRadius);
                             &[type="text"] {
                                 &:focus-visible {
                                     outline: none !important;
@@ -2256,13 +2218,16 @@ textarea {
         &.editButton {
             padding: 0 0 0 3px !important;
         }
+        &.createBoardButton, &.createItemButton {
+            padding: 0 0 0 10px !important;
+        }
+        grid-gap: 8px;
         max-width: 100%;
+        min-height: 33px;
+        width: min-content;
         position: relative;
         background: white;
         color: black !important;
-        width: min-content;
-        min-height: 33px;
-        grid-gap: 8px;
 
         i {
             max-width: fit-content;
@@ -2271,19 +2236,15 @@ textarea {
 
         &:hover {
             box-shadow: none !important;
-            i {
-                filter: invert(1);
-                // color: var(--gameBlue);
-            }
         }
     }
 }
 
 .iconButton {
+    padding: 0;
     width: 100%;
     display: flex;
     min-height: 35px;
-    padding: 0px 0px;
     font-size: 0.75em;
     align-items: center;
     font-weight: 700 !important;
@@ -2304,18 +2265,13 @@ textarea {
         align-items: center;
         flex-direction: row;
     }
-    &:focus {
-        i {
-            filter: invert(1);
-        }
-    }
     &:hover {
-        filter: invert(1);
-        .itemLength {
-            filter: invert(1) !important;
+        background: var(--darkBG);
+        &:not(.listTitleButton) {
+            .iconButtonText {
+                color: var(--lightBG);
+            }
         }
-        // background: white !important;
-        // color: black !important;
     }
 }
 
@@ -2326,6 +2282,7 @@ footer {
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
+    background: var(--navAndFooterBG);
 
     .hoverLink {
         &::before {
@@ -2683,9 +2640,6 @@ footer {
                     color: var(--gameBlue);
                 }
                 button {
-                    &:not(.activeLayout) {
-                        background: white;
-                    }
                     i {
                         color: var(--gameBlueInverse) !important;
                     }
@@ -2705,14 +2659,14 @@ footer {
                 max-height: 33px !important;
             }
             .itemButtons {
+                padding-right: 0;
                 min-height: 33px !important;
                 max-height: 33px !important;
-                padding-right: 0;
                 button {
                     border-top-left-radius: 0px;
-                    border-bottom-left-radius: 0px;
                     min-height: 33px !important;
                     max-height: 33px !important;
+                    border-bottom-left-radius: 0px;
                 }
             }
         }
@@ -2862,19 +2816,6 @@ footer {
         }
     }
 }
-
-// .subTaskItem {
-//     .customButtons {
-//         display: flex;
-//         flex-direction: row;
-//         max-width: fit-content;
-//         button, input {
-//             width: 20px;
-//             max-width: 20px;
-//             min-width: 20px;
-//         }
-//     }
-// }
 
 .projectLinks {
     display: flex;

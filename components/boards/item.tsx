@@ -219,29 +219,9 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
         return () => document.removeEventListener(`click`, handleClickOutside);
     }, []);
 
-    const getTypeIcon = (type, plain?) => {
-        switch (type) {
-            default:
-                return `+`;
-            case ItemTypes.Task:
-                if (plain) {
-                    return `✔`
-                } else {
-                    return <span style={{fontSize: 20, textAlign: `center`}}>✔</span>;
-                }
-            case ItemTypes.Image:
-                return <i style={{display: `contents`}} className={`fas fa-image`} />;
-            case ItemTypes.Video:
-                return <i style={{display: `contents`}} className={`fab fa-youtube`} />;
-        }
-    }
-
     return <>
         <div id={`itemElement_${item.id}`} className={`itemComponent itemInnerRow flex row`} onContextMenu={(e) => onRightClick(e, item, column)}>
             <span className={`itemOrder rowIndexOrder`}>
-                {/* <i className={`itemIconType itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>
-                    {getTypeIcon(item?.type)}
-                </i> */}
                 <i className={`itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>
                     {(item?.type == ItemTypes.Item || item?.type == ItemTypes.Task) && (
                         <span className={`itemIconType ${item?.type}`}>

@@ -251,7 +251,7 @@ export default function Column(props) {
                                 </div>
                             </h3>
                             <div className={`itemButtons customButtons`}>
-                                <button id={`details_Columns_${props.column.id}`} style={{ pointerEvents: `all` }} onClick={(e) => adjustColumnsDetails(props.column)} title={`Details`} className={`iconButton detailsButton`}>
+                                <button id={`details_Columns_${props.column.id}`} style={{ pointerEvents: `all` }} onClick={(e) => adjustColumnsDetails(props.column)} title={`Details`} className={`columnIconButton iconButton detailsButton`}>
                                     <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-bars`}></i>
                                     <span className={`iconButtonText textOverflow extended`}>
                                         Details
@@ -271,7 +271,7 @@ export default function Column(props) {
                                         </span>
                                     </button>
                                 </> : <></>} */}
-                                <button id={`delete_${props.column.id}`} style={{ pointerEvents: `all` }} onClick={(e) => deleteColumn(props.column.id, props.index)} title={`Delete List`} className={`iconButton deleteButton deleteListButton ${showConfirm ? `cancelBtnList` : ``}`}>
+                                <button id={`delete_${props.column.id}`} style={{ pointerEvents: `all` }} onClick={(e) => deleteColumn(props.column.id, props.index)} title={`Delete List`} className={`columnIconButton iconButton deleteButton deleteListButton ${showConfirm ? `cancelBtnList` : ``}`}>
                                     <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`mainIcon fas fa-${showConfirm ? `ban` : `trash`}`}></i>
                                     <span className={`iconButtonText textOverflow extended`}>
                                         {showConfirm ? `Cancel` : `Delete`}
@@ -321,7 +321,7 @@ export default function Column(props) {
                     <form title={`Add Item`} id={`add_item_form_${props.column.id}`} className={`flex addItemForm itemButtons unset addForm`} style={{ width: `100%`, flexDirection: `row` }} onSubmit={(e) => addNewItem(e)}>
                         <div className={`itemTypesMenu ${(itemTypeMenuOpen && menuPosition == null) ? `show` : ``}`}>
                             {Object.values(ItemTypes).filter(type => type !== props?.column?.itemType).map((type, typeIndex) => (
-                                <div key={typeIndex} title={type} onClick={(e) => changeItemType(e, type, props.column)} className={`typeIcon menuTypeIcon`}>
+                                <div key={typeIndex} title={type} onClick={(e) => changeItemType(e, type, props.column)} className={`typeIcon menuTypeIcon hoverGlowButton`}>
                                     {getTypeIcon(type)}
                                 </div>
                             ))}
@@ -337,10 +337,12 @@ export default function Column(props) {
                             <input autoComplete={`off`} style={{padding: `10px 0px 10px 15px`, minWidth: `100px`, maxWidth: `75px`}} placeholder={`Youtube Url`} type="text" name="itemVideo" />
                         )}
                         <input autoComplete={`off`} name={`rank`} placeholder={props.items.filter(itm => itemActiveFilters(itm)).length + 1} defaultValue={props.items.filter(itm => itemActiveFilters(itm)).length + 1} type={`number`} min={1} />
-                        <button type={`submit`} title={`Add Item`} className={`iconButton createList wordIconButton`}>
+                        <button type={`submit`} title={`Add Item`} className={`iconButton createList wordIconButton createItemButton`}>
                             <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-plus"></i>
                             <span className={`iconButtonText textOverflow extended`}>
-                                <span style={{ fontSize: 12 }}>Add</span>
+                                <span style={{ fontSize: 12 }}>
+                                    Add
+                                </span>
                                 <span className={`itemLength index`} style={{ fontSize: 14, fontWeight: 700, padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content` }}>
                                     {/* {list.items.length + 1} */}
                                 </span>
