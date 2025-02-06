@@ -61,7 +61,11 @@ export default function Board(props) {
 
     const finallyDeleteBoard = (bord) => {
         setBoards(prevBoards => {
-            return prevBoards.filter(brd => brd.id != bord.id);
+            let boardsWithoutDeleted = prevBoards.filter(brd => brd.id != bord.id);
+            if (boardsWithoutDeleted.length == 1) {
+                boardsWithoutDeleted[0].expanded = true; // Expand if Only Board
+            }
+            return boardsWithoutDeleted;
         })
     }
 
@@ -263,15 +267,15 @@ export default function Board(props) {
         <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
             <section className={`boardsTitle boards`} style={{paddingBottom: 0}}>
                 <div className={`board boardInner boardTitle`}>
-                    <div {...props.provided.dragHandleProps} className={`titleRow flex row`}>
-                        <div className={`flex row innerRow`}>
-                            <div className={`flex row left`}>
+                    <div {...props.provided.dragHandleProps} className={`boardDetailsRowContainer titleRow flex row`}>
+                        <div className={`boardDetailsRow flex row innerRow`}>
+                            <div className={`boardIndexAndTitle flex row left ${board?.expanded ? `` : `stretch`}`}>
                                 <h3 className={`boardIndexBadge`}>
                                     <span className={`subscript itemOrder slashes`}>
                                         {props.index + 1}
                                     </span>
                                 </h3>
-                                <h2 className={`boardTitleField`}>
+                                <h2 className={`boardTitleField ${board?.expanded ? `` : `stretch`}`}>
                                     <input 
                                         type={`text`} 
                                         ref={boardNameRef} 
@@ -281,84 +285,111 @@ export default function Board(props) {
                                         defaultValue={board?.name ?? `Board`} 
                                         onBlur={(e) => changeLabel(e, board, setBoard)} 
                                         onKeyDown={(e) => forceFieldBlurOnPressEnter(e)}
-                                        className={`boardNameField changeLabel textOverflow`} 
                                         style={{ width: board.titleWidth ? board.titleWidth : `75px` }} 
+                                        className={`boardNameField changeLabel textOverflow ${board?.expanded ? `` : `stretch`}`} 
                                     />
                                 </h2>
-                                <h3 className={`boardDate`}>
-                                    <span className={`subscript rowDate itemDate itemName itemCreated itemUpdated textOverflow extended flex row`}>
-                                        <i> - </i>
-                                        <i className={`status`}>
-                                            {board && board?.created && !board?.updated ? `Cre.` : `Upd.` }
-                                        </i> 
-                                        <i>
-                                            <span className={`itemDateTime`}>
-                                                {board?.updated ?? board?.created}
-                                            </span>
-                                        </i>
-                                    </span>
-                                </h3>
-                            </div>
-                            <h3 className={`divSep`}>
-                                <span className={`subscript`} style={{color: `var(--gameBlue)`}}>|</span>
-                            </h3>
-                            <div className={`flex row middle`}>
-                                <h3>{board?.columnOrder && board?.columnOrder?.length} <span className={`subscript`}>Column(s)</span></h3>
-                                <h3>{board?.items && Object.entries(board?.items).length} <span className={`subscript`}>Items(s)</span></h3>
-                            </div>
-                            <h3 className={`divSep`}>
-                                <span className={`subscript`} style={{color: `var(--gameBlue)`}}>|</span>
-                            </h3>
-                            <div className={`flex row right`}>
-                                <h3 className={`filtersSubscript`}>
-                                    <span className={`subscript`}>
-                                        Filters   
-                                    </span>
-                                </h3>
-                                <div className={`filterFormDiv filterButtons itemButtons`} style={{textAlign: `center`, justifyContent: `space-between`, alignItems: `center`}}>
-                                    <button onClick={(e) =>  filterSubtasks(e)} id={`filter_tasks`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Filter Tasks`} className={`iconButton deleteButton filterButton ${(board.hideAllTasks || board?.tasksFiltered) ? `filterActive` : `filterInactive`}`}>
-                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${(board?.tasksFiltered && !board.hideAllTasks) ? `fa-times-circle` : board.hideAllTasks ? `fa-list-ol` : `fa-bars`}`}></i>
-                                        <span className={`iconButtonText textOverflow extended`}>
-                                            Tasks
-                                        </span>
-                                    </button>
-                                    <button onClick={(e) =>  setCompleteFiltered(!completeFiltered)} id={`filter_completed`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Filter Completed`} className={`iconButton deleteButton filterButton ${completeFiltered ? `filterActive` : `filterInactive`}`}>
-                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${completeFiltered ? `fa-times-circle` : `fa-check-circle`}`}></i>
-                                        <span className={`iconButtonText textOverflow extended`}>
-                                            Completed
-                                        </span>
-                                    </button>
-                                    <button onClick={(e) =>  setBoard({...board, focused: !board?.focused})} id={`focus_board`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Focus Board`} className={`iconButton deleteButton filterButton ${board?.focused ? `filterActive` : `filterInactive`}`}>
-                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${board?.focused ? `fas fa-compress-arrows-alt` : `fa-expand-arrows-alt`}`}></i>
-                                        <span className={`iconButtonText textOverflow extended`}>
-                                            Focus
-                                        </span>
-                                    </button>
-                                    <button onClick={(e) =>  onShowSearchClick(e)} id={`search_board`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Search Board`} className={`iconButton searchButton filterButton ${showSearch ? `filterActive` : `filterInactive`}`}>
-                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-search`} />
-                                        <span className={`iconButtonText textOverflow extended`}>
-                                            Search
-                                        </span>
-                                    </button>
-                                    <section className={`addListFormItemSection`} style={{ margin: 0, padding: 0, position: `relative` }}>
-                                        <div title={`Change Column Type`} onClick={(e) => toast.info(`Column Types are In Development`)} className={`typeIcon changeColumnTypeIcon hoverGlowButton`}>
-                                            +
-                                        </div>
-                                        <form onSubmit={addNewColumn} title={`Add Column`} id={`addListForm_${board?.id}`} className={`flex addListForm itemButtons addForm`} style={{ width: `100%`, flexDirection: `row` }}>
-                                            <input autoComplete={`off`} maxLength={35} placeholder={`Create List +`} type="text" name="createItem" required />
-                                            <button type={`submit`} title={`Create Column`} className={`submit iconButton createList createColumnButton`}>
-                                                <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-list"></i>
-                                                <span className={`iconButtonText textOverflow extended`}>
-                                                    <span style={{ fontSize: 12 }}>
-                                                        Create Column
-                                                    </span>
-                                                    <span className={`itemLength index`} style={{ fontSize: 14, fontWeight: 700, padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content` }}>
-                                                        {board?.columnOrder && board?.columnOrder.length + 1}
-                                                    </span>
+                                {board?.expanded && <>
+                                    <h3 className={`boardDate`}>
+                                        <span className={`subscript rowDate itemDate itemName itemCreated itemUpdated textOverflow extended flex row`}>
+                                            <i> - </i>
+                                            <i className={`status`}>
+                                                {board && board?.created && !board?.updated ? `Cre.` : `Upd.` }
+                                            </i> 
+                                            <i>
+                                                <span className={`itemDateTime`}>
+                                                    {board?.updated ?? board?.created}
                                                 </span>
-                                            </button>
-                                        </form>
-                                    </section>
+                                            </i>
+                                        </span>
+                                    </h3>
+                                </>}
+                            </div>
+                            <h3 className={`divSep`}>
+                                <span className={`subscript`} style={{color: `var(--gameBlue)`}}>
+                                    |
+                                </span>
+                            </h3>
+                            <div className={`boardMetaData flex row middle`}>
+                                <h3>
+                                    {board?.columnOrder && board?.columnOrder?.length} {(
+                                        <span className={`subscript`}>
+                                            Column(s)
+                                        </span>
+                                    )}
+                                </h3>
+                                <h3>
+                                    {board?.items && Object.values(board?.items).length} {(
+                                        <span className={`subscript`}>
+                                            Items(s)
+                                        </span>
+                                    )}
+                                </h3>
+                            </div>
+                            <h3 className={`divSep`}>
+                                <span className={`subscript`} style={{color: `var(--gameBlue)`}}>
+                                    |
+                                </span>
+                            </h3>
+                            <div className={`boardOptionsRow flex row right ${board?.expanded ? `expandedBoardOptionsRow` : `collapsedBoardOptionsRow`}`}>
+                                {board?.expanded && <>
+                                    <h3 className={`filtersSubscript`}>
+                                        <span className={`subscript`}>
+                                            Filters   
+                                        </span>
+                                    </h3>
+                                </>}
+                                <div className={`filterFormDiv filterButtons itemButtons`} style={{textAlign: `center`, justifyContent: `space-between`, alignItems: `center`}}>
+                                    {board?.expanded && <>
+                                        <button onClick={(e) =>  filterSubtasks(e)} id={`filter_tasks`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Filter Tasks`} className={`iconButton deleteButton filterButton ${(board.hideAllTasks || board?.tasksFiltered) ? `filterActive` : `filterInactive`}`}>
+                                            <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${(board?.tasksFiltered && !board.hideAllTasks) ? `fa-times-circle` : board.hideAllTasks ? `fa-list-ol` : `fa-bars`}`}></i>
+                                            <span className={`iconButtonText textOverflow extended`}>
+                                                Tasks
+                                            </span>
+                                        </button>
+                                        <button onClick={(e) =>  setCompleteFiltered(!completeFiltered)} id={`filter_completed`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Filter Completed`} className={`iconButton deleteButton filterButton ${completeFiltered ? `filterActive` : `filterInactive`}`}>
+                                            <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${completeFiltered ? `fa-times-circle` : `fa-check-circle`}`}></i>
+                                            <span className={`iconButtonText textOverflow extended`}>
+                                                Completed
+                                            </span>
+                                        </button>
+                                        <button onClick={(e) =>  setBoard({...board, focused: !board?.focused})} id={`focus_board`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Focus Board`} className={`iconButton deleteButton filterButton ${board?.focused ? `filterActive` : `filterInactive`}`}>
+                                            <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${board?.focused ? `fas fa-compress-arrows-alt` : `fa-expand-arrows-alt`}`}></i>
+                                            <span className={`iconButtonText textOverflow extended`}>
+                                                Focus
+                                            </span>
+                                        </button>
+                                        <button onClick={(e) =>  onShowSearchClick(e)} id={`search_board`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Search Board`} className={`iconButton searchButton filterButton ${showSearch ? `filterActive` : `filterInactive`}`}>
+                                            <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-search`} />
+                                            <span className={`iconButtonText textOverflow extended`}>
+                                                Search
+                                            </span>
+                                        </button>
+                                        <section className={`addListFormItemSection`} style={{ margin: 0, padding: 0, position: `relative` }}>
+                                            <div title={`Change Column Type`} onClick={(e) => toast.info(`Column Types are In Development`)} className={`typeIcon changeColumnTypeIcon hoverGlowButton ${showSearch ? `disabledIconBtn` : ``}`}>
+                                                {showSearch ? <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-search`} /> : `+`}
+                                            </div>
+                                            <form onSubmit={addNewColumn} title={`Add Column`} id={`addListForm_${board?.id}`} className={`flex addListForm itemButtons addForm`} style={{ width: `100%`, flexDirection: `row` }}>
+                                                {showSearch && (
+                                                    <input autoComplete={`off`} placeholder={`Search Board...`} type={`search`} name={`searchBoard`} />
+                                                )}
+                                                {!showSearch && (
+                                                    <input autoComplete={`off`} maxLength={35} placeholder={`Create List +, Press "Enter" to Create New List`} type={`text`} name={`createItem`} required />
+                                                )}
+                                                <button type={`submit`} title={`Create Column`} className={`submit iconButton createList createColumnButton`}>
+                                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-list"></i>
+                                                    <span className={`iconButtonText textOverflow extended`}>
+                                                        <span style={{ fontSize: 12 }}>
+                                                            Create Column
+                                                        </span>
+                                                        <span className={`itemLength index`} style={{ fontSize: 14, fontWeight: 700, padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content` }}>
+                                                            {board?.columnOrder && board?.columnOrder.length + 1}
+                                                        </span>
+                                                    </span>
+                                                </button>
+                                            </form>
+                                        </section>
+                                    </>}
                                     <div className={`itemButtons customButtons`}>
                                         <button id={`delete_${board?.id}`} onClick={(e) => deleteBoard(e, board)} title={`Delete Board`} className={`iconButton deleteButton deleteBoardButton ${showConfirm ? `cancelBtn` : ``}`}>
                                             <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`mainIcon fas fa-${showConfirm ? `ban` : `trash`}`} />
@@ -369,9 +400,11 @@ export default function Board(props) {
                                                 <ConfirmAction onConfirm={(e) => deleteBoard(e, board, false)} />
                                             )}
                                         </button>
-                                        <button onClick={(e) => expandCollapseBoard(e, board)} className={`iconButton`}>
-                                            {board?.expanded ? <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-chevron-up"></i> : <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-chevron-down"></i>}
-                                        </button>
+                                        {boards?.length > 1 && (
+                                            <button onClick={(e) => expandCollapseBoard(e, board)} className={`iconButton`}>
+                                                {board?.expanded ? <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-chevron-up"></i> : <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-chevron-down"></i>}
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             </div>

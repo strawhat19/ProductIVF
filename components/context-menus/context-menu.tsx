@@ -31,6 +31,11 @@ export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--
         selected?.onDeleteItem(e);
     }
 
+    const itemTitle = (item?) => {
+        let title = item?.title || item?.content;
+        return title;
+    }
+
     const copyToClipBoard = () => {
         if (navigator.clipboard) {
             navigator.clipboard.writeText(selected?.item?.title);
@@ -88,9 +93,9 @@ export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--
             }}
         >
             <ul className={`customContextMenuOptions`}>
-                <li title={selected?.item?.title} className={`menuTitleRow customContextMenuOption flex gap15 disabledOption`} onClick={() => onClose()}>
+                <li title={itemTitle(selected?.item)} className={`menuTitleRow customContextMenuOption flex gap15 disabledOption`} onClick={() => onClose()}>
                     <span style={{ maxWidth: 120 }} className={`textOverflow`}>
-                        {selected?.item?.title?.toUpperCase()}
+                        {itemTitle(selected?.item)?.toUpperCase()}
                     </span>
                 </li>
                 <li className={`customContextMenuOption flex gap15`} onClick={() => onClose()}>

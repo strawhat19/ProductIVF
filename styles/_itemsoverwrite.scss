@@ -22,6 +22,17 @@
     max-width: 100px;
 }
 
+.disabledIconBtn {
+    pointer-events: none;
+}
+
+.boardOptionsRow {
+    transition: var(--transition);
+    &.collapsedBoardOptionsRow {
+        max-width: fit-content !important;
+    }
+}
+
 .itemTypesMenu {
     .itemTypeIconRow {
         grid-gap: 5px;

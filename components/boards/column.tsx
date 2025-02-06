@@ -1,6 +1,5 @@
 import Tasks from './tasks';
 import { ItemTypes } from './boards';
-import 'react-circular-progressbar/dist/styles.css';
 import React, { useContext, useState } from 'react';
 import Item, { getTypeIcon, manageItem } from './item';
 import { Droppable, Draggable } from 'react-beautiful-dnd';

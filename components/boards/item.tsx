@@ -30,16 +30,16 @@ export const getTypeIcon = (type, plain?) => {
     switch (type) {
         default:
             return `+`;
-        case ItemTypes.Task:
-            if (plain) {
-                return `✔`
-            } else {
-                return (
-                    <span style={{fontSize: 20, textAlign: `center`}}>
-                        ✔
-                    </span>
-                );
-            }
+        // case ItemTypes.Task:
+        //     if (plain) {
+        //         return `✔`
+        //     } else {
+        //         return (
+        //             <span style={{fontSize: 20, textAlign: `center`}}>
+        //                 ✔
+        //             </span>
+        //         );
+        //     }
         case ItemTypes.Image:
             return <i style={{display: `contents`}} className={`fas fa-image`} />;
         // case ItemTypes.Video:
@@ -223,7 +223,7 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
         <div id={`itemElement_${item.id}`} className={`itemComponent itemInnerRow flex row`} onContextMenu={(e) => onRightClick(e, item, column)}>
             <span className={`itemOrder rowIndexOrder`}>
                 <i className={`itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>
-                    {(item?.type == ItemTypes.Item || item?.type == ItemTypes.Task) && (
+                    {(item?.type == ItemTypes.Item) && (
                         <span className={`itemIconType ${item?.type}`}>
                             {getTypeIcon(item?.type, true)}
                         </span>

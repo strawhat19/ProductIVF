@@ -5,9 +5,9 @@ import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
 import { capWords, dev, formatDate, generateUniqueID, replaceAll, StateContext } from '../../pages/_app';
 
 export enum ItemTypes {
-    Task = `Task`,
     Item = `Item`,
     Image = `Image`,
+    // Task = `Task`,
     // Video = `Video`,
 }
 
