@@ -193,7 +193,7 @@ export default function Form(props?: any) {
         } else {
           if (password?.length > 6) {
             setFocus(false);
-            setAuthState(`Signed Up`);
+            // setAuthState(`Signed Up`);
             dev() && console.log(`Usr`, { email, password });
             toast.info(`Sign Up is In Development`);
           } else {

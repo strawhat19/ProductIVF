@@ -22,6 +22,26 @@
     max-width: 100px;
 }
 
+.itemTypesMenu {
+    .itemTypeIconRow {
+        grid-gap: 5px;
+        min-width: 90px;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        .typeIconIcon {
+            width: 65px;
+            text-align: center;
+            pointer-events: none;
+        }
+        .typeIconText {
+            font-size: 12px;
+            font-weight: 600;
+            pointer-events: none;
+        }
+    }
+}
+
 .board {
     .column {
         * {

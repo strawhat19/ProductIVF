@@ -408,22 +408,20 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
         }
     }
     .itemTypesMenu {
-        transition: var(--transition);
-        margin-bottom: 108px;
-        position: absolute;
+        left: 0;
+        bottom: 72px;
+        height: 100%;
         display: flex;
         grid-gap: 3px;
-        bottom: 0px;
-        height: 100%;
-        width: 35px;
-        left: 0;
+        position: absolute;
+        transition: var(--transition);
         .typeIcon {
             border-radius: var(--borderRadius);
         }
         &:not(.show) {
-            pointer-events: none;
-            margin-bottom: 75px;
             opacity: 0;
+            margin-bottom: 75px;
+            pointer-events: none;
         }
     }
 }
@@ -1357,6 +1355,7 @@ textarea {
     top: 0;
     right: 0;
     width: 100%;
+    z-index: 10;
     height: 100%;
     display: flex;
     position: fixed;
@@ -2379,92 +2378,16 @@ footer {
     }
 }
 
-// @keyframes fadeIn {
-//     0% {
-//         opacity: 0;
-//         pointer-events: none;
-//     }
-
-//     100% {
-//         opacity: 1;
-//         pointer-events: all;
-//     }
-// }
-
-// .fadeInOut {
-//     animation: fadeInOut 3500ms ease-in-out infinite;
-// }
-
-// @keyframes fadeInOut {
-//     0% {
-//         transform: scale(1, 0);
-//         opacity: 0;
-//     }
-
-//     20% {
-//         opacity: 0;
-//         transform: scale(1, 0.4);
-//     }
-
-//     30% {
-//         transform: scale(1, 1);
-//         opacity: 1;
-//     }
-
-//     50% {
-//         transform: scale(1, 1);
-//         opacity: 1;
-//     }
-
-//     80% {
-//         transform: scale(1, 1);
-//         opacity: 1;
-//     }
-
-//     100% {
-//         transform: scale(1, 0);
-//         opacity: 0;
-//     }
-// }
-
-// .attention {
-//     position: relative;
-//     border: solid var(--dangerColor) 3px;
-//     box-shadow: 0px 0px 4px 1px var(--dangerColor);
-//     animation: shake 1s ease-in-out infinite alternate-reverse;
-// }
-
-// @keyframes shake {
-//     0% {
-//         left: 0px;
-//         top: 0px;
-//     }
-
-//     33% {
-//         left: -1px;
-//         top: -1px;
-//     }
-
-//     66% {
-//         left: 1px;
-//         top: 1px;
-//     }
-
-//     100% {
-//         left: 0px;
-//         top: 0px;
-//     }
-// }
-
 .filterButtons {
     padding-top: 15px;
     button {
         width: 100%;
+        transition: var(--transition);
         span {
             max-width: max-content !important;
         }
         &.filterActive {
-            box-shadow: inset 0 0 9px 2px rgba(0, 0, 0, 0.39);
+            background: black;
         }
     }
 }

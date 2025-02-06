@@ -42,8 +42,8 @@ export const getTypeIcon = (type, plain?) => {
             }
         case ItemTypes.Image:
             return <i style={{display: `contents`}} className={`fas fa-image`} />;
-        case ItemTypes.Video:
-            return <i style={{display: `contents`}} className={`fab fa-youtube`} />;
+        // case ItemTypes.Video:
+        //     return <i style={{display: `contents`}} className={`fab fa-youtube`} />;
     }
 }
 
@@ -307,9 +307,9 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
                 <button id={`complete_${item.id}`} onClick={(e) => onCompleteItem(e)} title={`Complete Item`} className={`iconButton wordIconButton completeButton`}>
                     <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas ${item.complete ? `fa-history` : `fa-check-circle`}`} />
                 </button>
-                <button id={`manage_${item.id}`} onClick={(e) => onManageItem(e)} title={`Manage Item`} className={`iconButton wordIconButton manageButton`}>
+                {/* <button id={`manage_${item.id}`} onClick={(e) => onManageItem(e)} title={`Manage Item`} className={`iconButton wordIconButton manageButton`}>
                     <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-bars`} />
-                </button>
+                </button> */}
             </div>
         </div>
     </>

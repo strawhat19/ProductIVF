@@ -8,7 +8,7 @@ export enum ItemTypes {
     Task = `Task`,
     Item = `Item`,
     Image = `Image`,
-    Video = `Video`,
+    // Video = `Video`,
 }
 
 export enum BoardTypes {

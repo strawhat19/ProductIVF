@@ -1,6 +1,7 @@
 import { dev } from './pages/_app';
 import { User } from './shared/models/User';
 import { initializeApp } from 'firebase/app';
+import { GoogleAuthProvider, getAuth } from 'firebase/auth';
 import { doc, getFirestore, setDoc } from 'firebase/firestore';
 
 export enum Environments {
@@ -25,6 +26,10 @@ export enum Tables {
   notifications = `notifications`,
 }
 
+const provider = new GoogleAuthProvider();
+provider.setCustomParameters({ prompt: `select_account` });
+export const googleProvider = provider;
+
 const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_appId,
   apiKey: process.env.NEXT_PUBLIC_apiKey,
@@ -36,6 +41,7 @@ const firebaseConfig = {
 
 const firebaseApp = initializeApp(firebaseConfig);
 export const db = getFirestore(firebaseApp);
+export const auth = getAuth(firebaseApp);
 
 export const isProduction = process.env.NODE_ENV == `production`;
 export const environment = isProduction ? Environments.alpha : Environments.beta;

@@ -321,21 +321,26 @@ export default function Column(props) {
                     <form title={`Add Item`} id={`add_item_form_${props.column.id}`} className={`flex addItemForm itemButtons unset addForm`} style={{ width: `100%`, flexDirection: `row` }} onSubmit={(e) => addNewItem(e)}>
                         <div className={`itemTypesMenu ${(itemTypeMenuOpen && menuPosition == null) ? `show` : ``}`}>
                             {Object.values(ItemTypes).filter(type => type !== props?.column?.itemType).map((type, typeIndex) => (
-                                <div key={typeIndex} title={type} onClick={(e) => changeItemType(e, type, props.column)} className={`typeIcon menuTypeIcon hoverGlowButton`}>
-                                    {getTypeIcon(type)}
+                                <div key={typeIndex} title={type} onClick={(e) => changeItemType(e, type, props.column)} className={`typeIcon itemTypeIconRow menuTypeIcon hoverGlowButton`}>
+                                    <div className={`typeIconIcon`}>
+                                        {getTypeIcon(type)}
+                                    </div>
+                                    <div className={`typeIconText`}>
+                                        {type}
+                                    </div>
                                 </div>
                             ))}
                         </div>
-                        <div title={`Change ${props?.column?.itemType} Type`} onClick={(e) => changeItemType(e)} className={`typeIcon changeItemTypeIcon`}>
+                        <div title={`Change ${props?.column?.itemType} Type`} onClick={(e) => changeItemType(e)} className={`typeIcon changeItemTypeIcon hoverGlowButton`}>
                             {getTypeIcon(props?.column?.itemType)}
                         </div>
                         <input autoComplete={`off`} placeholder={`Create Item +`} type="text" name="createItem" required />
                         {props?.column?.itemType == ItemTypes.Image && (
                             <input autoComplete={`off`} style={{padding: `10px 0px 10px 15px`, minWidth: `75px`, maxWidth: `75px`}} placeholder={`Img Url`} type="text" name="itemImage" />
                         )}
-                        {props?.column?.itemType == ItemTypes.Video && (
+                        {/* {props?.column?.itemType == ItemTypes.Video && (
                             <input autoComplete={`off`} style={{padding: `10px 0px 10px 15px`, minWidth: `100px`, maxWidth: `75px`}} placeholder={`Youtube Url`} type="text" name="itemVideo" />
-                        )}
+                        )} */}
                         <input autoComplete={`off`} name={`rank`} placeholder={props.items.filter(itm => itemActiveFilters(itm)).length + 1} defaultValue={props.items.filter(itm => itemActiveFilters(itm)).length + 1} type={`number`} min={1} />
                         <button type={`submit`} title={`Add Item`} className={`iconButton createList wordIconButton createItemButton`}>
                             <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-plus"></i>
