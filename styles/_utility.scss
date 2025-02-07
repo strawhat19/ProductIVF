@@ -7,3 +7,19 @@
         --fullWidth: 83% !important;
     }
 }
+
+article {
+    &:has(main.nx-w-full) {
+        padding-top: 2px;
+        padding-left: max(env(safe-area-inset-left), 1.5rem);
+        padding-right: max(env(safe-area-inset-right), 1.5rem);
+        main {
+            padding: 0;
+            div {
+                &.nx-mt-16, &.nx-mb-8 {
+                    display: none;
+                }
+            }
+        }
+    }
+}

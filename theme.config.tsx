@@ -42,7 +42,7 @@ const config: DocsThemeConfig = {
     extraContent: <div className={`navFormDiv`} style={{order: -1, display: `flex`, flexDirection: `row`, gridGap: 15, alignItems: `center`, marginRight: 10}}>
       <AuthState classes={`navFormText`} />
       <section className={`navFormSection`} style={{margin: 0, padding: `0 20px 0 0 !important`, position: `relative`}}>
-        <Form id={`navForm`} style={{display: `flex`, flexDirection: `row`}} />
+        <Form id={`navForm`} navForm={true} style={{display: `flex`, flexDirection: `row`}} />
       </section>
     </div>,
   },

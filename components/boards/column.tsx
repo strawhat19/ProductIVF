@@ -13,7 +13,7 @@ export default function Column(props) {
     let { board, column, hideAllTasks } = props;
     let [showConfirm, setShowConfirm] = useState(false);
     let [itemTypeMenuOpen, setItemTypeMenuOpen] = useState(false);
-    let { boards, setBoards, setLoading, setSystemStatus, completeFiltered, IDs, setIDs, selected, menuPosition } = useContext<any>(StateContext);
+    let { user, boards, setBoards, setLoading, setSystemStatus, completeFiltered, IDs, setIDs, selected, menuPosition } = useContext<any>(StateContext);
 
     const itemActiveFilters = (itm) => {
         if (completeFiltered) {
@@ -75,27 +75,6 @@ export default function Column(props) {
 
         localStorage.setItem(`boards`, JSON.stringify(boards));
     }
-
-    // const adjustColumnsLayout = (column, columnsNum: number) => {
-    //     if (columnsNum >= 0 && columnsNum <= 3 && column.layoutCols != columnsNum) {
-    //         column.layoutCols = columnsNum;
-    //     } else {
-    //         column.layoutCols = 1;
-    //     }
-        
-    //     props.setBoard(prevBoard => {
-    //         return {
-    //             ...prevBoard,
-    //             updated: formatDate(new Date()),
-    //             columns: {
-    //                 ...prevBoard?.columns,
-    //                 [column?.id]: column,
-    //             },
-    //         }
-    //     });
-
-    //     localStorage.setItem(`boards`, JSON.stringify(boards));
-    // }
 
     const deleteColumn = (columnId, index, initialConfirm = true) => {
         if (showConfirm == true) {
@@ -170,9 +149,20 @@ export default function Column(props) {
             subtasks: [],
             complete: false,
             description: ``,
+            boardID: props?.board?.id,
+            listID: props?.column?.id,
             type: props?.column?.itemType,
             created: formatDate(new Date()),
+            updated: formatDate(new Date()),
             content: capitalizeAllWords(content),
+            ...(user != null && {
+                creator: {
+                    id: user?.id,
+                    uid: user?.uid,
+                    name: user?.name,
+                    email: user?.email,
+                }
+            }),
         }
 
         props.setBoard({
@@ -303,6 +293,7 @@ export default function Column(props) {
                                                     {!hideAllTasks && item.subtasks && (
                                                         <Tasks 
                                                             item={item} 
+                                                            board={board}
                                                             column={props.column} 
                                                             showForm={!board?.tasksFiltered} 
                                                         />

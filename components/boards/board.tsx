@@ -26,7 +26,7 @@ export default function Board(props) {
     let [board, setBoard] = useState(props.board);
     let [showSearch, setShowSearch] = useState(false);
     let [showConfirm, setShowConfirm] = useState(false);
-    let { boards, setBoards, setLoading, setSystemStatus, completeFiltered, setCompleteFiltered, setPage, IDs, setIDs } = useContext<any>(StateContext);
+    let { user, boards, setBoards, setLoading, setSystemStatus, completeFiltered, setCompleteFiltered, setPage, IDs, setIDs } = useContext<any>(StateContext);
 
     const filterSubtasks = (e?: any) => {
         if (board.hideAllTasks) {
@@ -118,8 +118,19 @@ export default function Board(props) {
         const newColumn = {
             itemIds: [],
             id: columnID,
+            boardID: board?.id,
             itemType: ItemTypes.Item,
             title: formFields[0].value,
+            created: formatDate(new Date()),
+            updated: formatDate(new Date()),
+            ...(user != null && {
+                creator: {
+                    id: user?.id,
+                    uid: user?.uid,
+                    name: user?.name,
+                    email: user?.email,
+                }
+            }),
         };
 
         setBoard({
@@ -132,7 +143,7 @@ export default function Board(props) {
             }
         });
 
-        setIDs([...IDs, columnID])
+        setIDs([...IDs, columnID]);
 
         e.target.reset();
         setTimeout(() => {

@@ -1,5 +1,7 @@
 import Board from './board';
 import { toast } from 'react-toastify';
+import { isValid } from '../../shared/constants';
+import { updateUserFields } from '../../firebase';
 import { useState, useEffect, useContext } from 'react';
 import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
 import { capWords, dev, formatDate, generateUniqueID, replaceAll, StateContext } from '../../pages/_app';
@@ -7,8 +9,6 @@ import { capWords, dev, formatDate, generateUniqueID, replaceAll, StateContext }
 export enum ItemTypes {
     Item = `Item`,
     Image = `Image`,
-    // Task = `Task`,
-    // Video = `Video`,
 }
 
 export enum BoardTypes {
@@ -22,7 +22,7 @@ export enum BoardTypes {
 
 export default function Boards(props) {
     let [updates, setUpdates] = useState(0);
-    const { rte, boards, setBoards, router, setLoading, setSystemStatus, IDs, setIDs, setRte } = useContext<any>(StateContext);
+    const { user, rte, boards, setBoards, router, setLoading, setSystemStatus, IDs, setIDs, setRte } = useContext<any>(StateContext);
 
     const addNewBoard = (e) => {
         e.preventDefault();
@@ -39,44 +39,43 @@ export default function Boards(props) {
         let newColumn2ID = `column_2_${generateUniqueID(IDs)}`;
 
         let newBoard = {
-            // rows: [].concat(...getBoardColumnsFromType(boardType).map(col => col.rows)),
-            // type: (boardType == BoardTypes.SelectBoardType ? BoardTypes.KanbanBoard : boardType) ?? BoardTypes.KanbanBoard,
-            created: formatDate(new Date()),
+            items: [],
+            titleWidth,
             expanded: true,
+            id: newBoardID,
             name: boardName,
+            ...(user != null && {
+                creator: {
+                    id: user?.id,
+                    uid: user?.uid,
+                    name: user?.name,
+                    email: user?.email,
+                }
+            }),
+            created: formatDate(new Date()),
+            updated: formatDate(new Date()),
             columnOrder: [
                 newColumn1ID,
                 newColumn2ID,
             ],
             columns: {
                 [newColumn1ID]: {
+                    itemIds: [],
+                    title: `Active`,
                     id: newColumn1ID,
-                    title: `active`,
-                    itemIds: []
                 },
                 [newColumn2ID]: {
+                    itemIds: [],
+                    title: `Complete`,
                     id: newColumn2ID,
-                    title: `complete`,
-                    itemIds: []
                 }
             },
-            id: newBoardID,
-            titleWidth,
-            items: [],
         }
-
-        // if (dev()) {
-            // console.log(`addNewBoard`, newBoard);
-            // console.log(`boards`, boards);
-        // }
 
         setBoards([newBoard, ...boards]);
         setIDs([...IDs, newBoard.id, newColumn1ID, newColumn2ID]);
 
         e.target.reset();
-        // window.requestAnimationFrame(() => {
-        //     return boardsSection.scrollTop = boardsSection.scrollHeight;
-        // });
         setTimeout(() => {
             setLoading(false);
             setSystemStatus(`Created Board ${newBoard.name}.`);
@@ -86,11 +85,6 @@ export default function Boards(props) {
     const onDragEnd = (dragEndEvent) => {
         dev() && console.log(`Boards Drag`, dragEndEvent);
         const { destination, source, draggableId, type } = dragEndEvent;
-
-        // if (dev()) {
-        //     console.log(`dragEndEvent`, dragEndEvent);
-        //     console.log(`dragEndEvent Inner`, {source, destination, draggableId, type});
-        // }
 
         if (!destination) {
             return;
@@ -110,14 +104,30 @@ export default function Boards(props) {
         setRte(replaceAll(router.route, `/`, `_`));
 
         if (updates > 0) {
-            localStorage.setItem(`boards`, JSON.stringify(boards));
-            dev() && console.log(`Updated Boards`, boards);
-        }
+            let updatedBoards = boards;
+            let boardsHaveCreator = boards.every(brd => isValid(brd?.creator));
 
-        // if (dev()) {
-        //     console.log(`Updates`, updates);
-        //     console.log(`Boards`, boards);
-        // }
+            if (user != null) {
+                if (!boardsHaveCreator) {
+                    updatedBoards = boards.map(brd => ({ 
+                        ...brd, 
+                        creator: {
+                            id: user?.id,
+                            uid: user?.uid,
+                            name: user?.name,
+                            email: user?.email,
+                        },
+                    }))
+                }
+                updateUserFields(user?.id, { boards: updatedBoards });
+                localStorage.setItem(`user`, JSON.stringify({ ...user, boards: updatedBoards }));
+            } else {
+                localStorage.setItem(`local_boards`, JSON.stringify(updatedBoards));
+            }
+
+            localStorage.setItem(`boards`, JSON.stringify(updatedBoards));
+            dev() && console.log(`Updated Boards`, updatedBoards);
+        }
         
         setUpdates(updates + 1);
         return () => {

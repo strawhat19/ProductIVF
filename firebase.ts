@@ -1,8 +1,8 @@
-import { dev } from './pages/_app';
+import { dev, formatDate } from './pages/_app';
 import { User } from './shared/models/User';
 import { initializeApp } from 'firebase/app';
 import { GoogleAuthProvider, getAuth } from 'firebase/auth';
-import { doc, getFirestore, setDoc } from 'firebase/firestore';
+import { doc, getFirestore, setDoc, updateDoc } from 'firebase/firestore';
 
 export enum Environments {
   beta = `beta_`,
@@ -62,9 +62,30 @@ export const addUserToDatabase = async (usr: User) => {
   try {
     const userReference = await doc(db, usersTable, usr?.id).withConverter(userConverter);
     await setDoc(userReference, usr as User);
-    dev() && console.log(`Added User "${usr?.name}" to Database`);
   } catch (error) {
     dev() && console.log(`Error Adding User to Database ${usersTable}`, error);
+  }
+}
+
+export const updateUserFields = async (userID: string, updates: Partial<User>, logResult = true) => {
+  try {
+    const userRef = await doc(db, usersTable, userID).withConverter(userConverter);
+    await updateDoc(userRef, updates);
+    if (logResult) console.log(`User Fields Updated in Database`, updates);
+  } catch (error) {
+    console.log(`Error Updating User ${userID} Fields`, { error, updates });
+  }
+}
+
+export const updateUserFieldsInDatabase = async (userID: string, updates: Partial<User>, logResult = true) => {
+  const now = formatDate(new Date());
+  const fields = { ...updates, meta: { updated: now } };
+  try {
+    const userRef = await doc(db, usersTable, userID).withConverter(userConverter);
+    await updateDoc(userRef, fields);
+    if (logResult) console.log(`User Fields Updated in Database`, fields);
+  } catch (error) {
+    console.log(`Error Updating User ${userID} Fields`, { error, fields });
   }
 }
 

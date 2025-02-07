@@ -36,8 +36,9 @@ export const getIDParts = () => {
   return { uuid, date };
 }
 
-export const genID = (type: Types = Types.Data, position = 1, name): ID => {
+export const genID = (type: Types = Types.Data, position = 1, name, injectedUID?): ID => {
   let { uuid, date } = getIDParts();
+  uuid = injectedUID ? injectedUID : uuid;
   let title = `${type} ${position} ${name}`;
   let idString = `${title} ${stringNoSpaces(date)} ${uuid}`;
   let id = stringNoSpaces(idString);

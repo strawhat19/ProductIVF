@@ -1,10 +1,12 @@
 'use client';
 
-import { db } from '../firebase';
 import { toast } from 'react-toastify';
-import { collection, getDocs } from 'firebase/firestore';
+import { User } from '../shared/models/User';
+import { addUserToDatabase, auth, db } from '../firebase';
 import { useContext, useEffect, useRef, useState } from 'react';
-import { defaultContent, formatDate, StateContext, showAlert, dev } from '../pages/_app';
+import { formatDate, StateContext, showAlert } from '../pages/_app';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { findHighestNumberInArrayByKey, isValid, removeNullAndUndefinedProperties } from '../shared/constants';
 
 export const convertHexToRGB = (HexString?:any, returnObject?: any) => {
   let r = parseInt(HexString.slice(1, 3), 16),
@@ -25,62 +27,165 @@ export const isShadeOfBlack = (HexString?:any) => {
   return (rgb?.r < darkColorBias) && (rgb?.g < darkColorBias) && (rgb?.b < darkColorBias);
 }
 
+export const renderErrorMessage = (erMsg: string) => {
+  let erMsgQuery = erMsg?.toLowerCase();
+  if (erMsgQuery.includes(`invalid-email`)) {
+    return `Please use a valid email.`;
+  } else if (erMsgQuery?.includes(`email-already-in-use`)) {
+    return `Email is already in use.`;
+  } else if (erMsgQuery?.includes(`weak-password`)) {
+    return `Password should be at least 6 characters`;
+  } else if (erMsgQuery?.includes(`wrong-password`) || erMsgQuery?.includes(`invalid-login-credentials`)) {
+    return `Incorrect Password`;
+  } else if (erMsgQuery?.includes(`user-not-found`)) {
+    return `User Not Found`;
+  } else {
+    return erMsg;
+  }
+}
+
 export default function Form(props?: any) {
-  const { style } = props;
+  const { navForm, style } = props;
   const loadedRef = useRef(false);
   const [loaded, setLoaded] = useState(false);
-  const [alertOpen, setAlertOpen] = useState(false); 
-  const { user, setUser, updates, setUpdates, setUsers, setContent, authState, setAuthState, emailField, setEmailField, users, setFocus, setHighScore, color, setColor, dark, setDark, setLists } = useContext<any>(StateContext);
+  const { user, setUser, setBoards, updates, setUpdates, setContent, authState, setAuthState, emailField, setEmailField, users, setColor, setDark, useDatabase } = useContext<any>(StateContext);
 
-  const genUUID = (latestUsers?:any, potentialUser?:any) => {
-    return `${latestUsers.length + 1} ${potentialUser?.name} ${potentialUser?.registered.split(` `)[0] + ` ` + potentialUser?.registered.split(` `)[1] + ` ` + potentialUser?.registered.split(` `)[2]}`;
-  }
+  // const changeColor = (colorRangePickerEvent?: any) => {
+  //   let currentColor: any = colorRangePickerEvent.target.value;
+  //   localStorage.setItem(`color`, JSON.stringify(currentColor));
+  //   setColor(currentColor);
 
-  // const setPageViews = (id?:any, user?: any) => {
-  //   setDoc(doc(db, `pageViews`, id), { ...user, id }).then(newSub => {
-  //     localStorage.setItem(`user`, JSON.stringify({ ...user, id }));
-  //     setUser({ ...user, id });
-  //     setUpdates(updates + 1);
-  //     return newSub;
-  //   }).catch(error => console.log(error));
-  // }
+  //   let r = parseInt(currentColor.slice(1, 3), 16),
+  //   g = parseInt(currentColor.slice(3, 5), 16),
+  //   b = parseInt(currentColor.slice(5, 7), 16);
 
-  const changeColor = (colorRangePickerEvent?: any) => {
-    // Set Current Color to Hex String. (Example: `#0b4366`);
-    let currentColor: any = colorRangePickerEvent.target.value;
-    localStorage.setItem(`color`, JSON.stringify(currentColor));
-    setColor(currentColor);
-
-    // Conver Hex to RGB for Color Check and Comparison.
-    let r = parseInt(currentColor.slice(1, 3), 16),
-    g = parseInt(currentColor.slice(3, 5), 16),
-    b = parseInt(currentColor.slice(5, 7), 16);
-
-    let luminance = (0.2126 * r) + (0.7152 * g) + (0.0722 * b);
-    if (luminance > 128) {
-      // Background is light, set text color to black
-      setDark(false);
-    } else {
-      // Background is dark, set text color to white
-      setDark(true);
-    }    
-  }
-
-  // const addOrUpdateUser = async (id: any, user: User) => {
-  //   setDoc(doc(db, `users`, id), { ...user, id }).then(newSub => {
-  //     localStorage.setItem(`user`, JSON.stringify({ ...user, id }));
-  //     setUser({ ...user, id });
-  //     setUpdates(updates + 1);
-  //     return newSub;
-  //   }).catch(error => console.log(error));
+  //   let luminance = (0.2126 * r) + (0.7152 * g) + (0.0722 * b);
+  //   if (luminance > 128) {
+  //     setDark(false);
+  //   } else {
+  //     setDark(true);
+  //   }    
   // }
 
   const authForm = (e?: any) => {
     e.preventDefault();
-    let formFields = e.target.children;
+    
+    let form = e?.target;
+    let formFields = form?.children;
     let clicked = e?.nativeEvent?.submitter;
     let email = formFields?.email?.value ?? `email`;
     let password = formFields?.password?.value ?? `pass`;
+
+    const signInUser = (usr: User) => {
+      localStorage.setItem(`user`, JSON.stringify(usr));
+      setAuthState(`Sign Out`);
+      setUser(usr);
+      if (isValid(usr?.boards)) {
+        setBoards(usr?.boards);
+      }
+    }
+
+    const onSignOut = () => {
+      setUser(null);
+      setAuthState(`Next`);
+      setEmailField(false);
+      setUpdates(updates + 1);
+      localStorage.removeItem(`user`);
+      let hasLocalBoards = localStorage.getItem(`local_boards`);
+      if (hasLocalBoards) {
+        let localBoards = JSON.parse(hasLocalBoards);
+        setBoards(localBoards);
+      } else {
+        setBoards([]);
+      }
+    }
+
+    const onSignIn = (email, password) => {
+      if (useDatabase == true) {
+        signInWithEmailAndPassword(auth, email, password).then((userCredential: any) => {
+          if (userCredential != null) {
+            let existingUser = users.find(usr => usr?.email?.toLowerCase() == email?.toLowerCase());
+            if (existingUser != null) {
+              signInUser(existingUser);
+              toast.success(`Successfully Signed In`);
+            } else {
+              setEmailField(true);
+              setAuthState(`Sign Up`);
+            }
+          }
+        }).catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          if (errorMessage) {
+            toast.error(renderErrorMessage(errorMessage));
+            console.log(`Error Signing In`, {
+              error,
+              errorCode,
+              errorMessage
+            });
+          }
+          return;
+        });
+      } else {
+        toast.error(`Database not connected or not being used`);
+      }
+    }
+
+    const onSignUp = (email, password) => {
+      if (useDatabase == true) {
+        createUserWithEmailAndPassword(auth, email, password).then(async (userCredential: any) => {
+          if (userCredential != null) {
+            let { 
+              uid, 
+              photoURL: avatar, 
+              displayName: name, 
+              accessToken: token, 
+              phoneNumber: phone, 
+              isAnonymous: anonymous, 
+              emailVerified: verified, 
+            } = userCredential?.user;
+
+            let highestRank = await findHighestNumberInArrayByKey(users, `rank`);
+            let userData = {
+              uid,
+              name,
+              email,
+              phone,
+              avatar,
+              rank: highestRank + 1,
+              auth: {
+                token,
+                verified,
+                anonymous,
+              }
+            }
+
+            let cleanedUser = removeNullAndUndefinedProperties(userData);
+            let newUser = new User(cleanedUser);
+
+            await addUserToDatabase(newUser).then(() => {
+              toast.success(`Signed Up & In as: ${newUser?.name}`);
+              console.log(`New User`, newUser);
+              signInUser(newUser);
+              form.reset();
+            });
+          } else {
+            toast.error(`Error on Sign Up`);
+          }
+        }).catch((error) => {
+          console.log(`Error Signing Up`, error);
+          const errorMessage = error.message;
+          if (errorMessage) {
+            toast.error(renderErrorMessage(errorMessage));             
+          } else {
+            toast.error(`Error Signing Up`);
+          }
+          return;
+        });
+      } else {
+        toast.error(`Database not connected or not being used`);
+      }
+    }
 
     switch(clicked?.value) {
       default:
@@ -94,46 +199,14 @@ export default function Form(props?: any) {
           setAuthState(`Sign Up`);
         }
         setEmailField(true);
-        // toast.error(`Authentication Not Implemented Yet`);
-        // getDocs(collection(db, `users`)).then((snapshot) => {
-        //   let latestUsers = snapshot.docs.map((doc: any) => doc.data()).sort((a: any, b: any) => b?.highScore - a?.highScore);
-        //   let macthingEmails = latestUsers.filter((usr: any) => usr?.email.toLowerCase() == email.toLowerCase());
-        //   setUsers(latestUsers);
-        // let arr = [];
-        // setEmailField(true);
-        // if (arr.length > 0) {
-        //   // localStorage.setItem(`account`, JSON.stringify(macthingEmails[0]));
-        //   setAuthState(`Sign In`);
-        // } else {
-        //   setAuthState(`Sign Up`);
-        // }
-        // });
-        // showAlert(`Whoah There!`, <div className={`formWarning`}>
-        //   <h2 style={{fontSize: `1.5em`}}>
-        //     Ok so, I haven't quite put user authentication in yet, I will soon! For now, this is not supported yet, apologies!
-        //   </h2>
-        // </div>, `420px`, `auto`);
         break;
       case `Back`:
-        setUpdates(updates+1);
+        setUpdates(updates + 1);
         setAuthState(`Next`);
         setEmailField(false);
         break;
       case `Sign Out`:
-        setLists([]);
-        setUser(null);
-        setHighScore(0);
-        setAuthState(`Next`);
-        setEmailField(false);
-        setUpdates(updates+1);
-        setContent(defaultContent);
-        // localStorage.removeItem(`user`);
-        // localStorage.removeItem(`users`);
-        // localStorage.removeItem(`lists`);
-        // localStorage.removeItem(`score`);
-        // localStorage.removeItem(`health`);
-        // localStorage.removeItem(`account`);
-        // localStorage.removeItem(`highScore`);
+        onSignOut();
         break;
       case `Save`:
         let emptyFields = [];
@@ -160,30 +233,16 @@ export default function Form(props?: any) {
               return {[input.id]: input.value}
             }
           })));
-          // addOrUpdateUser(user?.id, updatedUser);
         }
         break;
       case `Sign In`:
-        let storedScore = JSON.parse(localStorage.getItem(`score`) as any);
-        let existingAccount = JSON.parse(localStorage.getItem(`account`) as any);
-        let listsToSet = existingAccount?.lists || JSON.parse(localStorage.getItem(`lists`) as any) || [];
-        let scoreToSet = Math.floor(existingAccount?.highScore > storedScore ? existingAccount?.highScore : storedScore);
-
         if (password == ``) {
-          showAlert(`Password Required`);
-        } else { // Successful Sign In
-          if (password == existingAccount?.password) {
-            setFocus(false);
-            setLists(listsToSet);
-            setAuthState(`Sign Out`);
-            setUser(existingAccount);
-            setHighScore(scoreToSet);
-            setContent(existingAccount?.bio);
-            setColor((existingAccount?.color || `#000000`));
-            // addOrUpdateUser(existingAccount?.id, {...existingAccount, highScore: scoreToSet, lastSignin: formatDate(new Date())});
-            getDocs(collection(db, `users`)).then((snapshot) => setUsers(snapshot.docs.map((doc: any) => doc.data()).sort((a: any, b: any) => b?.highScore - a?.highScore)));
+          toast.error(`Password Required`);
+        } else {
+          if (password?.length >= 6) {
+            onSignIn(email, password);
           } else {
-            showAlert(`Invalid Password`);
+            toast.error(`Password must be 6 characters or greater`);
           }
         }
         break;
@@ -191,49 +250,12 @@ export default function Form(props?: any) {
         if (password == ``) {
           toast.error(`Password Required`);
         } else {
-          if (password?.length > 6) {
-            setFocus(false);
-            // setAuthState(`Signed Up`);
-            dev() && console.log(`Usr`, { email, password });
-            toast.info(`Sign Up is In Development`);
+          if (password?.length >= 6) {
+            onSignUp(email, password);
           } else {
             toast.error(`Password must be 6 characters or greater`);
           }
         }
-        // getDocs(collection(db, `users`)).then((snapshot) => {
-        //   let latestUsers = snapshot.docs.map((doc: any) => doc.data());
-        //   let macthingEmails = latestUsers.filter((usr: any) => usr?.email.toLowerCase() == email.toLowerCase());
-        //   setUsers(latestUsers);
-        //   if (macthingEmails.length > 0) {
-        //     localStorage.setItem(`account`, JSON.stringify(macthingEmails[0]));
-        //     setAuthState(`Sign In`);
-        //   } else {
-        //     setAuthState(`Sign Up`);
-        //   }
-        //     let storedHighScore = JSON.parse(localStorage.getItem(`highScore`) as any);
-        //     let potentialUser = { 
-        //       id: users.length + 1, 
-        //       bio: ``,
-        //       color: ``, 
-        //       number: 0,
-        //       status: ``,
-        //       name: name, 
-        //       email: email,
-        //       roles: [`user`],
-        //       password: password, 
-        //       lists: defaultLists,
-        //       updated: formatDate(new Date()), 
-        //       lastSignin: formatDate(new Date()), 
-        //       registered: formatDate(new Date()), 
-        //       highScore: Math.floor(storedHighScore) || 0,
-        //     };
-  
-        //     let uuid = genUUID(latestUsers, potentialUser);
-        //     // addOrUpdateUser(uuid, potentialUser);
-        //     getDocs(collection(db, `users`)).then((snapshot) => setUsers(snapshot.docs.map((doc: any) => doc.data()).sort((a: any, b: any) => b?.highScore - a?.highScore)));
-        //     setAuthState(`Sign Out`);
-        //   }
-        // });
         break;
     };
   }
@@ -246,17 +268,26 @@ export default function Form(props?: any) {
 
   return <>
     <form id={props.id} onSubmit={authForm} className={`flex authForm customButtons ${props.className}`} style={style}>
+
       {!user && <input placeholder="Email" type="email" name="email" autoComplete={`email`} required />}
-      {!user && emailField && <input placeholder="Password (Use a password that you dont care about, but its still easy to remember)" type="password" name="password" autoComplete={`current-password`} />}
-      {user && window?.location?.href?.includes(`profile`) && <input id="name" className={`name userData`} placeholder="Name" type="text" name="status" />}
-      {user && window?.location?.href?.includes(`profile`) && <input id="status" className={`status userData`} placeholder="Status" type="text" name="status" />}
-      {user && window?.location?.href?.includes(`profile`) && <input id="bio" className={`bio userData`} placeholder="About You" type="text" name="bio" />}
-      {user && window?.location?.href?.includes(`profile`) && <input id="number" className={`number userData`} placeholder="Favorite Number" type="number" name="number" />}
-      {user && window?.location?.href?.includes(`profile`) && <input id="password" className={`editPassword userData`} placeholder="Edit Password" type="password" name="editPassword" autoComplete={`current-password`} />}
-      {user && window?.location?.href?.includes(`profile`) && <input type="color" id="color" name="color" placeholder="color" className={dark ? `dark` : `light`} data-color={`Color: ${convertHexToRGB(color)} // Hex: ${color}`} onInput={(e?: any) => changeColor(e)} defaultValue={color} />}
+      {!user && emailField && <input placeholder="Password" type="password" minLength={6} name="password" autoComplete={`current-password`} />}
+
+      {(!navForm && user != null) ? <>
+        {window?.location?.href?.includes(`profile`) ? <>
+          <input id="name" className={`name userData`} placeholder="Name" type="text" name="status" />
+          <input id="status" className={`status userData`} placeholder="Status" type="text" name="status" />
+          <input id="bio" className={`bio userData`} placeholder="About You" type="text" name="bio" />
+          <input id="number" className={`number userData`} placeholder="Favorite Number" type="number" name="number" />
+          <input id="password" className={`editPassword userData`} placeholder="Edit Password" type="password" name="editPassword" autoComplete={`current-password`} />
+          {/* <input type="color" id="color" name="color" placeholder="color" className={dark ? `dark` : `light`} data-color={`Color: ${convertHexToRGB(color)} // Hex: ${color}`} onInput={(e?: any) => changeColor(e)} defaultValue={color} /> */}
+          <input id={`save_${user?.id}`} className={`save`} type="submit" name="authFormSave" style={{padding: 0}} value={`Save`} />
+        </> : <></>}
+      </> : <></>}
+
       <input className={(user && window?.location?.href?.includes(`profile`) || (authState == `Sign In` || authState == `Sign Up`)) ? `submit half` : `submit full`} type="submit" name="authFormSubmit" value={user ? `Sign Out` : authState} />
+
       {(authState == `Sign In` || authState == `Sign Up`) && <input id={`back`} className={`back authFormBack`} type="submit" name="authFormBack" value={`Back`} />}
-      {user && window?.location?.href?.includes(`profile`) && <input id={user?.id} className={`save`} type="submit" name="authFormSave" style={{padding: 0}} value={`Save`} />}
+      
     </form>
   </>
 }

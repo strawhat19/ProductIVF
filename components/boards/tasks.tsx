@@ -96,8 +96,8 @@ const SortableSubtaskItem = ({ item, subtask, isLast, column, index, changeLabel
 }
 
 export default function Tasks(props) {
-  let { item, column, showForm = true } = props;
-  let { boards, setLoading, setSystemStatus } = useContext<any>(StateContext);
+  let { item, column, board, showForm = true } = props;
+  let { user, boards, setLoading, setSystemStatus } = useContext<any>(StateContext);
 
   let [deletedTaskIDs, setDeletedTaskIDs] = useState<string[]>([]);
   let [subtasks, setSubtasks] = useState(item?.subtasks?.length ? item.subtasks : []);
@@ -127,15 +127,15 @@ export default function Tasks(props) {
   // Toggle complete
   const completeSubtask = (e, subtask) => {
     setLoading(true);
-    setSystemStatus(`Marking Task as ${subtask?.complete ? 'Reopened' : 'Complete'}.`);
+    setSystemStatus(`Marking Task as ${subtask?.complete ? `Reopened` : `Complete`}.`);
 
     subtask.complete = !subtask?.complete;
     subtask.updated = formatDate(new Date());
     item.updated = formatDate(new Date());
 
-    localStorage.setItem('boards', JSON.stringify(boards));
+    localStorage.setItem(`boards`, JSON.stringify(boards));
     setTimeout(() => {
-      setSystemStatus(`Marked Task as ${subtask?.complete ? 'Complete' : 'Reopened'}.`);
+      setSystemStatus(`Marked Task as ${subtask?.complete ? `Complete` : `Reopened`}.`);
       setLoading(false);
     }, 1000);
   };
@@ -144,7 +144,7 @@ export default function Tasks(props) {
   const addSubtask = (e) => {
     e.preventDefault();
     setLoading(true);
-    setSystemStatus('Creating Task.');
+    setSystemStatus(`Creating Task.`);
 
     const formFields = e.target.children;
     const newTaskText = formFields[0].value.trim();
@@ -158,8 +158,20 @@ export default function Tasks(props) {
     const newSubtask = {
       id: subtaskID,
       complete: false,
-      task: capitalizeAllWords(newTaskText),
+      itemID: item?.id,
+      listID: column?.id,
+      boardID: board?.id,
       created: formatDate(new Date()),
+      updated: formatDate(new Date()),
+      task: capitalizeAllWords(newTaskText),
+      ...(user != null && {
+        creator: {
+          id: user?.id,
+          uid: user?.uid,
+          name: user?.name,
+          email: user?.email,
+        }
+      }),
     };
 
     const updatedTasks = [
@@ -198,7 +210,7 @@ export default function Tasks(props) {
   // Delete subtask
   const deleteSubtask = (e, subtask) => {
     setLoading(true);
-    setSystemStatus('Deleting Task.');
+    setSystemStatus(`Deleting Task.`);
 
     const subtaskIDToDelete = subtask.id;
     setDeletedTaskIDs((prev) => [...prev, subtaskIDToDelete]);

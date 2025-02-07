@@ -157,8 +157,8 @@
     }
 
     aside {
+        background: var(--darkBG) !important;
         border-right: solid 1px var(--bg);
-        background: black !important;
     }
 
     body {
@@ -564,17 +564,11 @@ input {
 }
 
 @media (min-width: 768px) {
-    aside {
+    aside, .nextra-toc {
         width: auto !important;
         display: none !important;
     }
 }
-
-// @media (min-width: 850px) {
-//     aside {
-//         display: none !important;
-//     }
-// }
 
 @media (max-width: 850px) {
     nav {

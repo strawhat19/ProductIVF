@@ -2,8 +2,10 @@ import '../main.scss';
 import 'react-toastify/dist/ReactToastify.css';
 
 import ReactDOM from 'react-dom/client';
+import { User } from '../shared/models/User';
 import { db, usersTable } from '../firebase';
 import { dbBoards } from '../shared/database';
+import { isValid } from '../shared/constants';
 import { ToastContainer } from 'react-toastify';
 import { AnimatePresence, motion } from 'framer-motion';
 import { collection, onSnapshot } from 'firebase/firestore';
@@ -722,17 +724,29 @@ export default function ProductIVF({ Component, pageProps, router }) {
     let hasStoredUser = localStorage.getItem(`user`);
     if (hasStoredUser) {
       let storedUser = JSON.parse(hasStoredUser);
-      dev() && console.log(`Use Stored User`, storedUser);
-      setUser(storedUser);
+      let thisUser = new User(storedUser);
+      dev() && console.log(`User Still Signed In`, thisUser);
+      setAuthState(`Sign Out`);
+      setUser(thisUser);
+      if (isValid(thisUser?.boards)) {
+        setBoards(thisUser?.boards);
+      }
     }
 
     const usersDatabase = collection(db, usersTable);
     const usersDatabaseRealtimeListener = onSnapshot(usersDatabase, snapshot => {
       setUsersLoading(true);
       let usersFromDB = [];
-      snapshot.forEach((doc) => usersFromDB.push({ ...doc.data() }));
+      snapshot.forEach((doc) => usersFromDB.push(new User({ ...doc.data() })));
       usersFromDB = usersFromDB.sort((a, b) => a?.rank - b?.rank);
       setUsers(usersFromDB);
+      if (user != null) {
+        let thisUser = usersFromDB.find(usr => usr?.id == user?.id);
+        if (thisUser) {
+          setUser(thisUser);
+        }
+      }
+      dev() && console.log(`Users Update from Database`, usersFromDB);
     }, error => {
       console.log(`Error on Get Task(s) from Database`, error);
     }, complete => {
@@ -791,7 +805,13 @@ export default function ProductIVF({ Component, pageProps, router }) {
     if (cachedBoards && cachedBoards?.length > 0) {
       setBoards(cachedBoards);
     } else {
-      setBoards(dbBoards);
+      let hasLocalBoards = localStorage.getItem(`local_boards`);
+      if (hasLocalBoards) {
+        let localBoards = JSON.parse(hasLocalBoards);
+        setBoards(localBoards);
+      } else {
+        setBoards([]);
+      }
     }
 
     let toc = document.querySelector(`.nextra-toc`);

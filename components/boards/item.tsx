@@ -26,24 +26,12 @@ export const getSubTaskPercentage = (subtasks: any[], item, isActive = null) => 
     return subtasksProgress;
 }
 
-export const getTypeIcon = (type, plain?) => {
+export const getTypeIcon = (type) => {
     switch (type) {
         default:
             return `+`;
-        // case ItemTypes.Task:
-        //     if (plain) {
-        //         return `✔`
-        //     } else {
-        //         return (
-        //             <span style={{fontSize: 20, textAlign: `center`}}>
-        //                 ✔
-        //             </span>
-        //         );
-        //     }
         case ItemTypes.Image:
             return <i style={{display: `contents`}} className={`fas fa-image`} />;
-        // case ItemTypes.Video:
-        //     return <i style={{display: `contents`}} className={`fab fa-youtube`} />;
     }
 }
 
@@ -225,7 +213,7 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
                 <i className={`itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>
                     {(item?.type == ItemTypes.Item) && (
                         <span className={`itemIconType ${item?.type}`}>
-                            {getTypeIcon(item?.type, true)}
+                            {getTypeIcon(item?.type)}
                         </span>
                     )} {itemIndex + 1}
                 </i>

@@ -1,4 +1,5 @@
 export const removeExtraSpacesFromString = (string: string) => string.trim().replace(/\s+/g, ` `);
+export const stringMatch = (string: string, check: string): boolean => string?.toLowerCase()?.includes(check?.toLowerCase());
 export const stringNoSpaces = (string: string) => string?.replaceAll(/[\s,:/]/g, `_`)?.replaceAll(/[\s,:/]/g, `-`).replaceAll(/-/g, `_`);
 
 export const nameFields = {
@@ -12,6 +13,39 @@ export const forceFieldBlurOnPressEnter = (e: any) => {
   if (e.key === `Enter`) {
     e.preventDefault();
     (e.target as any).blur();
+  }
+}
+
+export const removeNullAndUndefinedProperties = (object) => {
+  return Object.entries(object).reduce((accumulator, [key, value]) => {
+    if (value !== null && value !== undefined) {
+      accumulator[key] = value;
+    }
+    return accumulator;
+  }, {});
+}
+
+export const combineArraysByKey = <T>(data: T[], key: keyof T): any[] => {
+  return data.reduce((combined, item) => {
+    const arrayToCombine = item[key];
+    if (Array.isArray(arrayToCombine)) {
+      return combined.concat(arrayToCombine);
+    }
+    return combined;
+  }, [] as any[]);
+}
+
+export const findHighestNumberInArrayByKey = async ( arrayOfObjects: any[], key: string ): Promise<number | null> => {
+  try {
+    const filteredNumbers = arrayOfObjects
+      .map(obj => obj[key])
+      .filter(value => typeof value === `number`);
+    if (filteredNumbers.length === 0) return 0;
+    const highestNumber = Math.max(...filteredNumbers);
+    return highestNumber;
+  } catch (error) {
+    console.log(`Error while finding the highest number for key "${key}"`, error);
+    return 0;
   }
 }
 
@@ -56,4 +90,20 @@ export const formatDateNoSpaces = (date: any = new Date()) => {
   let completedDate = strTime + ` ` + (date.getMonth() + 1) + `/` + date.getDate() + `/` + date.getFullYear();
   completedDate = strTimeNoSpaces + `_` + (date.getMonth() + 1) + `-` + date.getDate() + `-` + date.getFullYear();
   return completedDate;
+}
+
+export const countPropertiesInObject = (obj) => {
+  let count = 0;
+  if (typeof obj === `object` && obj !== null) {
+    for (const key in obj) {
+      count++;
+      count += countPropertiesInObject(obj[key]);
+    }
+    if (Array.isArray(obj)) {
+      obj.forEach(item => {
+        count += countPropertiesInObject(item);
+      });
+    }
+  }
+  return count;
 }

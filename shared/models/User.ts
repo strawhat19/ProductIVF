@@ -1,7 +1,7 @@
 import { genID } from '../ID';
-import { isValid } from '../constants';
 import { Types } from '../types/types';
 import { capWords } from '../../pages/_app';
+import { countPropertiesInObject, isValid } from '../constants';
 
 export enum Providers { 
   Google = `Google` ,
@@ -57,12 +57,17 @@ export class User {
   title?: string;
   password?: string;
 
+  phone: any;
+  avatar: any;
   name!: string;
   rank: number = 1;
   email: string = ``;
+  properties: number;
 
   type: Types = Types.User;
   role = ROLES.Subscriber.name;
+
+  boards?: any[];
 
   data = {
     taskIDs: [],
@@ -80,16 +85,23 @@ export class User {
     provider: Providers.Firebase,
   }
 
+  auth = {
+    token: undefined,
+    verified: undefined,
+    anonymous: undefined,
+  }
+
   constructor(data: Partial<User>) {
     Object.assign(this, data);
     if (isValid(this.email) && !isValid(this.name)) this.name = capWords(this.email.split(`@`)[0]);
     this.A = this.name;
-    let ID = genID(Types.User, undefined, this.name);
+    let ID = genID(Types.User, undefined, this.name, this.uid);
     let { id, date, title, uuid } = ID;
     if (!isValid(this.id)) this.id = id;
     if (!isValid(this.uuid)) this.uuid = uuid;
     if (!isValid(this.title)) this.title = title;
     if (!isValid(this.meta.created)) this.meta.created = date;
     if (!isValid(this.meta.updated)) this.meta.updated = date;
+    if (!isValid(this.properties)) this.properties = countPropertiesInObject(this) + 1;
   }
 }
