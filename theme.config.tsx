@@ -4,8 +4,8 @@ import Form from './components/form';
 import Quote from './components/qotd';
 import Status from './components/status';
 import Footer from './components/footer';
-import { DocsThemeConfig } from 'nextra-theme-docs';
 import AuthState from './components/auth-state';
+import { DocsThemeConfig } from 'nextra-theme-docs';
 
 const setToc = (e) => {
   let toc = document.querySelector(`.nextra-toc`);
@@ -13,6 +13,17 @@ const setToc = (e) => {
     toc.classList.toggle(`minimized`);
     toc.classList.contains(`minimized`) ? localStorage.setItem(`tocMinimized`, JSON.stringify(true)) : localStorage.setItem(`tocMinimized`, JSON.stringify(false));
   }
+}
+
+const navForm = (headerForm = false) => {
+  return (
+    <div className={`navFormDiv ${headerForm ? `headerForm` : ``}`} style={{order: -1, display: `flex`, flexDirection: `row`, gridGap: 15, alignItems: `center`, marginRight: 10}}>
+      <AuthState classes={`navFormText`} />
+      <section className={`navFormSection`} style={{margin: 0, padding: `0 20px 0 0 !important`, position: `relative`}}>
+        <Form id={`navForm`} navForm={true} style={{display: `flex`, flexDirection: `row`}} />
+      </section>
+    </div>
+  )
 }
 
 const config: DocsThemeConfig = {
@@ -39,12 +50,7 @@ const config: DocsThemeConfig = {
   //   titleComponent: <Form />
   // },
   navbar: {
-    extraContent: <div className={`navFormDiv`} style={{order: -1, display: `flex`, flexDirection: `row`, gridGap: 15, alignItems: `center`, marginRight: 10}}>
-      <AuthState classes={`navFormText`} />
-      <section className={`navFormSection`} style={{margin: 0, padding: `0 20px 0 0 !important`, position: `relative`}}>
-        <Form id={`navForm`} navForm={true} style={{display: `flex`, flexDirection: `row`}} />
-      </section>
-    </div>,
+    // extraContent: navForm(),
   },
   toc: {
     // float: true,
@@ -71,7 +77,8 @@ const config: DocsThemeConfig = {
   </>,
   logo: <Logo title={`ProductIVF`} color={`hsl(var(--nextra-primary-hue)100% 50%/1)`} />,
   search: {
-    placeholder: `Search...`
+    component: navForm(),
+    // placeholder: `Search...`,
   },
   project: {
     link: `https://github.com/strawhat19/`,

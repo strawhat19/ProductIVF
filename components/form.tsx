@@ -45,7 +45,7 @@ export const renderErrorMessage = (erMsg: string) => {
 }
 
 export default function Form(props?: any) {
-  const { navForm, style } = props;
+  const { id, navForm, className, style } = props;
   const loadedRef = useRef(false);
   const [loaded, setLoaded] = useState(false);
   const { user, setUser, setBoards, updates, setUpdates, setContent, authState, setAuthState, emailField, setEmailField, users, setColor, setDark, useDatabase } = useContext<any>(StateContext);
@@ -267,7 +267,7 @@ export default function Form(props?: any) {
   }, [user, users, authState]);
 
   return <>
-    <form id={props.id} onSubmit={authForm} className={`flex authForm customButtons ${props.className}`} style={style}>
+    <form id={id} onSubmit={authForm} className={`flex authForm customButtons ${className}`} style={style}>
 
       {!user && <input placeholder="Email" type="email" name="email" autoComplete={`email`} required />}
       {!user && emailField && <input placeholder="Password" type="password" minLength={6} name="password" autoComplete={`current-password`} />}

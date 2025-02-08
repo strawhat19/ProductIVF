@@ -1,12 +1,12 @@
 import Tasks from './tasks';
 import { ItemTypes } from './boards';
+import { updateUserFields } from '../../firebase';
 import React, { useContext, useState } from 'react';
 import Item, { getTypeIcon, manageItem } from './item';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import ConfirmAction from '../context-menus/confirm-action';
 import { forceFieldBlurOnPressEnter, removeExtraSpacesFromString } from '../../shared/constants';
 import { formatDate, generateUniqueID, StateContext, capitalizeAllWords, dev } from '../../pages/_app';
-import { updateUserFields } from '../../firebase';
 
 export default function Column(props) {
     let count = 0;

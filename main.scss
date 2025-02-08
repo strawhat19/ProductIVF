@@ -621,6 +621,14 @@ input {
     }
 }
 
+@media (max-width: 985px) {
+    .nextra-nav-container {
+        .navFormDiv {
+            display: none !important;
+        }
+    }
+}
+
 @media (max-width: 992px) {
     .board {
         &.lists {
@@ -662,11 +670,12 @@ input {
     }
 }
 
-@media (max-width: 1215px) {
-    .navFormDiv {
-        display: none !important;
-    }
-}
+// W/ Nextra Search
+// @media (max-width: 1215px) {
+//     .navFormDiv {
+//         display: none !important;
+//     }
+// }
 
 // @media (min-width: 1600px) {
 // @media (min-width: 1420px) {
