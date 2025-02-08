@@ -60,6 +60,7 @@
     --main: rgb(0, 216, 255);
     --nextraColor: var(--nextra);
     --gameBlueInverse: #ff3d00;
+    --toastify-color-info: var(--gameBlue) !important;
 
     // Semi Transparent
     --authGlass: rgba(0, 0, 0, 0.05);
@@ -345,6 +346,19 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
             background: rgba(249, 250, 251, .1) !important;
         }
     }
+}
+
+.boardsZeroState {
+    width: 100%;
+    padding: 35px;
+    display: flex;
+    font-size: 16px;
+    color: silver;
+    font-weight: 500;
+    text-align: center;
+    font-style: italic;
+    align-items: center;
+    justify-content: center;
 }
 
 .addForm {

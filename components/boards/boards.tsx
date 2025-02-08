@@ -20,7 +20,7 @@ export enum BoardTypes {
     SelectBoardType = `Select Board Type`,
 }
 
-export default function Boards(props) {
+export default function Boards({  }) {
     let [updates, setUpdates] = useState(0);
     const { user, rte, boards, setBoards, router, setLoading, setSystemStatus, IDs, setIDs, setRte } = useContext<any>(StateContext);
 
@@ -126,7 +126,7 @@ export default function Boards(props) {
             }
 
             localStorage.setItem(`boards`, JSON.stringify(updatedBoards));
-            dev() && console.log(`Updated Boards`, updatedBoards);
+            dev() && updatedBoards?.length > 0 && console.log(`Updated Boards`, updatedBoards);
         }
         
         setUpdates(updates + 1);
@@ -136,7 +136,6 @@ export default function Boards(props) {
     }, [boards, rte]);
 
     return <>
-        {/* {devEnv && <button onClick={(e) => showAlert(`All Boards`, <div>All Boards</div>, `69%`, `69%`)} className="iconButton alertTest" style={{justifyContent: `center`}}>Alert</button>} */}
         <div className={`createBoard lists extended`}>
             <div className={`list items addListDiv`}>
                 <div className={`formItems items`}>
@@ -180,25 +179,31 @@ export default function Boards(props) {
         <DragDropContext onDragEnd={onDragEnd}>
             <div id={`allBoards`} className={`boards`}>
                 <div className={`flex ${boards && boards?.length > 0 ? `hasBoards` : `noBoards`} ${boards && boards?.length == 1 ? `oneBoard` : ``}`}>
-                    {boards && boards?.length > 0 && <Droppable droppableId={`all_boards`}>
-                        {(provided, snapshot) => (
-                            <div className={`all_boards_div ${snapshot.isDraggingOver ? `isDraggingOver` : ``}`} ref={provided.innerRef} {...provided.droppableProps}>
-                                {boards && boards?.length > 0 && boards?.map((bord, bordIndex) => {
-                                    if (bord.expanded == null || bord.expanded == undefined) bord.expanded = true;
-                                    return (
-                                        <Draggable key={`${bordIndex + 1}_${bord.id}_bord_key`} draggableId={`${bordIndex + 1}_${bord.id}_draggable_bord`} index={bordIndex}>
-                                            {(provided, snapshot) => (
-                                                <div id={`bord_${bord?.id}`} key={bordIndex} className={`draggableDroppableBoard bord ${bord?.focused ? `focusBoard` : `unfocusedBoard`} ${bordIndex == 0 ? `firstBoard` : ``}`} {...provided.draggableProps} ref={provided.innerRef}>
-                                                    <Board board={bord} provided={provided} index={bordIndex} drag={onDragEnd} />
-                                                </div>
-                                            )}
-                                        </Draggable>
-                                    )
-                                })}
-                                {provided.placeholder}
-                            </div>
-                        )}
-                    </Droppable>}
+                    {boards && boards?.length > 0 ? (
+                        <Droppable droppableId={`all_boards`}>
+                            {(provided, snapshot) => (
+                                <div className={`all_boards_div ${snapshot.isDraggingOver ? `isDraggingOver` : ``}`} ref={provided.innerRef} {...provided.droppableProps}>
+                                    {boards && boards?.length > 0 && boards?.map((bord, bordIndex) => {
+                                        if (bord.expanded == null || bord.expanded == undefined) bord.expanded = true;
+                                        return (
+                                            <Draggable key={`${bordIndex + 1}_${bord.id}_bord_key`} draggableId={`${bordIndex + 1}_${bord.id}_draggable_bord`} index={bordIndex}>
+                                                {(provided, snapshot) => (
+                                                    <div id={`bord_${bord?.id}`} key={bordIndex} className={`draggableDroppableBoard bord ${bord?.focused ? `focusBoard` : `unfocusedBoard`} ${bordIndex == 0 ? `firstBoard` : ``}`} {...provided.draggableProps} ref={provided.innerRef}>
+                                                        <Board board={bord} provided={provided} index={bordIndex} drag={onDragEnd} />
+                                                    </div>
+                                                )}
+                                            </Draggable>
+                                        )
+                                    })}
+                                    {provided.placeholder}
+                                </div>
+                            )}
+                        </Droppable>
+                    ) : <>
+                        <div className={`boardsZeroState`}>
+                            No Boards Yet
+                        </div>
+                    </>}
                 </div>
             </div>
         </DragDropContext>

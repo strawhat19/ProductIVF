@@ -4,7 +4,9 @@
     .Toastify__toast {
         width: 100%;
         display: flex;
+        font-weight: 600;
         flex-direction: row;
+        font-family: "Montserrat";
         .Toastify__close-button {
             display: none;
         }
