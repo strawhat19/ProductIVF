@@ -95,7 +95,7 @@ export class User {
     Object.assign(this, data);
     if (isValid(this.email) && !isValid(this.name)) this.name = capWords(this.email.split(`@`)[0]);
     this.A = this.name;
-    let ID = genID(Types.User, undefined, this.name, this.uid);
+    let ID = genID(Types.User, this.rank, this.name, this.uid);
     let { id, date, title, uuid } = ID;
     if (!isValid(this.id)) this.id = id;
     if (!isValid(this.uuid)) this.uuid = uuid;
