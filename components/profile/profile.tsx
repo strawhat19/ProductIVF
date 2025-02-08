@@ -18,15 +18,15 @@ export default function Profile({ }) {
     const profileDataComponent = (profile: User) => {
         return <>
             <h2> - Rank: {profile?.rank}</h2>
-            <h2> - Friends: {profile?.data?.friendIDs?.length}</h2>
+            {/* <h2> - Friends: {profile?.data?.friendIDs?.length}</h2> */}
             <h2> - Role: {profile?.role}</h2>
             <h2> - Created: {profile?.meta?.created}</h2>
             <h2> - Email: {profile?.email}</h2>
             <br />
-            <h2> - Boards: {profile?.data?.boardIDs?.length}</h2>
-            <h2> - Lists: {profile?.data?.listIDs?.length}</h2>
-            <h2> - Items: {profile?.data?.itemIDs?.length}</h2>
-            <h2> - Tasks: {profile?.data?.taskIDs?.length}</h2>
+            <h2> - Boards: {profile?.boards?.length}</h2>
+            {/* <h2> - Lists: {profile?.boards?.length}</h2>
+            <h2> - Items: {profile?.boards?.length}</h2>
+            <h2> - Tasks: {profile?.boards?.length}</h2> */}
         </>
     }
 

@@ -1,5 +1,6 @@
 import { CSS } from '@dnd-kit/utilities';
 import { addBoardScrollBars } from './board';
+import { updateUserFields } from '../../firebase';
 import React, { useState, useContext } from 'react';
 import { capWords, dev, formatDate, generateUniqueID, StateContext } from '../../pages/_app';
 import { DndContext, PointerSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core';
@@ -111,6 +112,15 @@ export default function Tasks(props) {
   // Capitalize words
   const capitalizeAllWords = capWords;
 
+  const updateBoards = (user, dynamicScrollbars = false) => {
+    localStorage.setItem(`boards`, JSON.stringify(boards));
+    if (dynamicScrollbars) addBoardScrollBars();
+    if (user != null) {
+      updateUserFields(user?.id, { boards });
+      localStorage.setItem(`user`, JSON.stringify({ ...user, boards }));
+    }
+  }
+
   // Called when user edits label
   const changeLabel = (e, taskItem) => {
     let elemValue = e.target.textContent || ``;
@@ -121,7 +131,7 @@ export default function Tasks(props) {
     taskItem.task = cleanedValue;
     taskItem.updated = formatDate(new Date());
 
-    localStorage.setItem(`boards`, JSON.stringify(boards));
+    updateBoards(user);
   };
 
   // Toggle complete
@@ -133,7 +143,8 @@ export default function Tasks(props) {
     subtask.updated = formatDate(new Date());
     item.updated = formatDate(new Date());
 
-    localStorage.setItem(`boards`, JSON.stringify(boards));
+    updateBoards(user);
+
     setTimeout(() => {
       setSystemStatus(`Marked Task as ${subtask?.complete ? `Complete` : `Reopened`}.`);
       setLoading(false);
@@ -184,8 +195,7 @@ export default function Tasks(props) {
     item.subtasks = updatedTasks;
     item.updated = formatDate(new Date());
 
-    localStorage.setItem('boards', JSON.stringify(boards));
-    addBoardScrollBars();
+    updateBoards(user, true);
 
     // Reset form
     e.target.reset();
@@ -223,8 +233,7 @@ export default function Tasks(props) {
     item.subtasks = updatedTasks;
     item.updated = formatDate(new Date());
 
-    localStorage.setItem('boards', JSON.stringify(boards));
-    addBoardScrollBars();
+    updateBoards(user, true);
 
     setTimeout(() => {
       setSystemStatus('Deleted Task.');
@@ -249,10 +258,9 @@ export default function Tasks(props) {
     item.updated = now;
     item.subtasks = updated;
 
-    localStorage.setItem(`boards`, JSON.stringify(boards));
+    updateBoards(user, true);
 
     dev() && console.log(`Dragged and Reordered`, updated);
-    addBoardScrollBars();
   };
 
   return (

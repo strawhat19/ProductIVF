@@ -6,6 +6,7 @@ import { Droppable, Draggable } from 'react-beautiful-dnd';
 import ConfirmAction from '../context-menus/confirm-action';
 import { forceFieldBlurOnPressEnter, removeExtraSpacesFromString } from '../../shared/constants';
 import { formatDate, generateUniqueID, StateContext, capitalizeAllWords, dev } from '../../pages/_app';
+import { updateUserFields } from '../../firebase';
 
 export default function Column(props) {
     let count = 0;
@@ -14,6 +15,14 @@ export default function Column(props) {
     let [showConfirm, setShowConfirm] = useState(false);
     let [itemTypeMenuOpen, setItemTypeMenuOpen] = useState(false);
     let { user, boards, setBoards, setLoading, setSystemStatus, completeFiltered, IDs, setIDs, selected, menuPosition } = useContext<any>(StateContext);
+
+    const updateBoards = (user) => {
+        localStorage.setItem(`boards`, JSON.stringify(boards));
+        if (user != null) {
+            updateUserFields(user?.id, { boards });
+            localStorage.setItem(`user`, JSON.stringify({ ...user, boards }));
+        }
+    }
 
     const itemActiveFilters = (itm) => {
         if (completeFiltered) {
@@ -33,7 +42,7 @@ export default function Column(props) {
         } else {
             if (type && type != column?.itemType) {
                 column.itemType = type;
-                localStorage.setItem(`boards`, JSON.stringify(boards));
+                updateBoards(user);
                 setItemTypeMenuOpen(!itemTypeMenuOpen);
             }
         }
@@ -55,7 +64,7 @@ export default function Column(props) {
         item.content = elemValue;
         item.updated = formatDate(new Date());
         
-        localStorage.setItem(`boards`, JSON.stringify(boards));
+        updateBoards(user);
     }
 
     const adjustColumnsDetails = (column) => {

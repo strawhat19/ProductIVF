@@ -6,6 +6,7 @@ import ConfirmAction from '../context-menus/confirm-action';
 import React, { useContext, useEffect, useState } from 'react';
 import { showAlert, formatDate, dev, StateContext, capitalizeAllWords } from '../../pages/_app';
 import { forceFieldBlurOnPressEnter, removeExtraSpacesFromString } from '../../shared/constants';
+import { updateUserFields } from '../../firebase';
 
 export const getTaskPercentage = (tasks: any[]) => {
     let tasksProgress = 0;
@@ -54,6 +55,7 @@ export const manageItem = (e, item, index, board, boards, setBoards) => {
 export default function Item({ item, count, column, itemIndex, board, setBoard }: any) {
     let [showConfirm, setShowConfirm] = useState(false);
     let { 
+        user,
         boards, 
         menuRef, 
         setBoards, 
@@ -63,6 +65,14 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
         setMenuPosition, 
         setItemTypeMenuOpen, 
     } = useContext<any>(StateContext);
+
+    const updateBoards = (user) => {
+        localStorage.setItem(`boards`, JSON.stringify(boards));
+        if (user != null) {
+          updateUserFields(user?.id, { boards });
+          localStorage.setItem(`user`, JSON.stringify({ ...user, boards }));
+        }
+    }
 
     const changeLabel = (e, item) => {
         let elemValue = e.target.textContent;
@@ -80,7 +90,7 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
         item.content = elemValue;
         item.updated = formatDate(new Date());
 
-        localStorage.setItem(`boards`, JSON.stringify(boards));
+        updateBoards(user);
     }
 
     const completeActions = (item, itemId, isButton) => {

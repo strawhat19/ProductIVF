@@ -1,10 +1,11 @@
-import { useState } from 'react';
 import Progress from '../progress';
 import CustomImage from '../custom-image';
 import { getTaskPercentage } from './item';
-import { capWords, formatDate, generateUniqueID } from '../../pages/_app';
+import { useContext, useState } from 'react';
+import { capWords, formatDate, generateUniqueID, StateContext } from '../../pages/_app';
 
 export default function ItemDetail(props) {
+    let { user } = useContext<any>(StateContext);
     let [disabled, setDisabled] = useState(false);
     let { item, index, boards, setBoards, IDs } = props;
     let [image, setImage] = useState(props.item.image ?? undefined);
@@ -32,10 +33,18 @@ export default function ItemDetail(props) {
         item.image = imageLink;
         if (itemSubtask != ``) {
             item.subtasks.push({
-                id: `${item?.subtasks?.length + 1}_subtask_${generateUniqueID(IDs)}`,
-                created: formatDate(new Date()),
-                task: capWords(itemSubtask),
                 complete: false,
+                task: capWords(itemSubtask),
+                created: formatDate(new Date()),
+                id: `${item?.subtasks?.length + 1}_subtask_${generateUniqueID(IDs)}`,
+                ...(user != null && {
+                    creator: {
+                      id: user?.id,
+                      uid: user?.uid,
+                      name: user?.name,
+                      email: user?.email,
+                    }
+                }),
             });
         }
         localStorage.setItem(`boards`, JSON.stringify(boards));
