@@ -8,7 +8,7 @@ export default function Footer(props) {
                 </a>
             </div>
             <div className={`right`}>
-                 Piratechs <i className={`fas fa-copyright`} />2023
+                Piratechs <i className={`fas fa-copyright`} />{new Date()?.getFullYear()}
             </div>
         </footer>
     )

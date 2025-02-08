@@ -104,29 +104,35 @@ export default function Boards({  }) {
         setRte(replaceAll(router.route, `/`, `_`));
 
         if (updates > 0) {
-            let updatedBoards = boards;
-            let boardsHaveCreator = boards.every(brd => isValid(brd?.creator));
-
-            if (user != null) {
-                if (!boardsHaveCreator) {
-                    updatedBoards = boards.map(brd => ({ 
-                        ...brd, 
-                        creator: {
-                            id: user?.id,
-                            uid: user?.uid,
-                            name: user?.name,
-                            email: user?.email,
-                        },
-                    }))
+            // let singleUpdate = updates % 2 !== 0;
+            // if (singleUpdate) {
+                let updatedBoards = boards;
+                
+                if (user != null) {
+                    let boardsHaveCreator = boards.every(brd => isValid(brd?.creator));
+                    if (!boardsHaveCreator) {
+                        updatedBoards = boards.map(brd => ({ 
+                            ...brd, 
+                            creator: {
+                                id: user?.id,
+                                uid: user?.uid,
+                                name: user?.name,
+                                email: user?.email,
+                            },
+                        }))
+                    }
+                    updateUserFields(user?.id, { boards: updatedBoards });
+                    localStorage.setItem(`user`, JSON.stringify({ ...user, boards: updatedBoards }));
+                } else {
+                    localStorage.setItem(`local_boards`, JSON.stringify(updatedBoards));
                 }
-                updateUserFields(user?.id, { boards: updatedBoards });
-                localStorage.setItem(`user`, JSON.stringify({ ...user, boards: updatedBoards }));
-            } else {
-                localStorage.setItem(`local_boards`, JSON.stringify(updatedBoards));
-            }
-
-            localStorage.setItem(`boards`, JSON.stringify(updatedBoards));
-            dev() && updatedBoards?.length > 0 && console.log(`Updated Boards`, updatedBoards);
+    
+                localStorage.setItem(`boards`, JSON.stringify(updatedBoards));
+                // dev() && updatedBoards?.length > 0 && console.log(`Updated Boards`, {
+                //     updates,
+                //     updatedBoards,
+                // });
+            // }
         }
         
         setUpdates(updates + 1);

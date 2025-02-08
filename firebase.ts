@@ -44,7 +44,7 @@ export const db = getFirestore(firebaseApp);
 export const auth = getAuth(firebaseApp);
 
 export const isProduction = process.env.NODE_ENV == `production`;
-export const environment = isProduction ? Environments.alpha : Environments.beta;
+export const environment = isProduction ? Environments.alpha : Environments.alpha;
 
 export const usersTable = environment + Tables.users;
 

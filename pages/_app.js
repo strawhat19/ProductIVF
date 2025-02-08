@@ -398,7 +398,6 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let [authState, setAuthState] = useState(`Next`);
   let [mobileMenu, setMobileMenu] = useState(false);
   let [emailField, setEmailField] = useState(false);
-  let [useDatabase, setUseDatabase] = useState(true);
   let [systemStatus, setSystemStatus] = useState(``);
   let [rearranging, setRearranging] = useState(false);
   let [boardLoaded, setBoardLoaded] = useState(false);
@@ -416,31 +415,31 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let [usersLoading, setUsersLoading] = useState(false);
 
   useEffect(() => {
-    let hasStoredUser = localStorage.getItem(`user`);
-    if (hasStoredUser) {
-      let storedUser = JSON.parse(hasStoredUser);
-      let thisUser = new User(storedUser);
-      dev() && console.log(`User Still Signed In`, thisUser);
-      setAuthState(`Sign Out`);
-      setUser(thisUser);
-      if (isValid(thisUser?.boards)) {
-        setBoards(thisUser?.boards);
-      }
-    }
-
     const usersDatabase = collection(db, usersTable);
     const usersDatabaseRealtimeListener = onSnapshot(usersDatabase, snapshot => {
       setUsersLoading(true);
+
       let usersFromDB = [];
       snapshot.forEach((doc) => usersFromDB.push(new User({ ...doc.data() })));
       usersFromDB = usersFromDB.sort((a, b) => a?.rank - b?.rank);
       setUsers(usersFromDB);
-      if (user != null) {
-        let thisUser = usersFromDB.find(usr => usr?.id == user?.id);
-        if (thisUser) {
-          setUser(thisUser);
+
+      let hasStoredUser = localStorage.getItem(`user`);
+      if (hasStoredUser) {
+        let storedUser = JSON.parse(hasStoredUser);
+        if (storedUser != null) {
+          let thisUser = usersFromDB.find(usr => usr?.id == storedUser?.id);
+          if (thisUser) {
+            setUser(thisUser);
+            setAuthState(`Sign Out`);
+            // dev() && console.log(`User Still Signed In`, {thisUser, updates});
+            if (isValid(thisUser?.boards)) {
+              setBoards(thisUser?.boards);
+            }
+          }
         }
       }
+
       dev() && console.log(`Users Update from Database`, usersFromDB);
     }, error => {
       console.log(`Error on Get Task(s) from Database`, error);
@@ -448,6 +447,8 @@ export default function ProductIVF({ Component, pageProps, router }) {
       setUsersLoading(false);
       dev() && console.log(`User(s) Loaded`, complete);
     })
+
+    // setUpdates(prevUpdates => prevUpdates + 1);
 
     return () => {
       usersDatabaseRealtimeListener();
@@ -565,7 +566,6 @@ export default function ProductIVF({ Component, pageProps, router }) {
       mobileMenuBreakPoint, 
       platform, setPlatform, 
       mobileMenu, setMobileMenu, 
-      useDatabase, setUseDatabase, 
 
       // Theme
       dark, setDark, 

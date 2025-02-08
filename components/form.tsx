@@ -2,7 +2,7 @@
 
 import { toast } from 'react-toastify';
 import { User } from '../shared/models/User';
-import { addUserToDatabase, auth, db } from '../firebase';
+import { addUserToDatabase, auth } from '../firebase';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { formatDate, StateContext, showAlert } from '../pages/_app';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
@@ -45,10 +45,10 @@ export const renderErrorMessage = (erMsg: string) => {
 }
 
 export default function Form(props?: any) {
-  const { id, navForm, className, style } = props;
   const loadedRef = useRef(false);
   const [loaded, setLoaded] = useState(false);
-  const { user, setUser, setBoards, updates, setUpdates, setContent, authState, setAuthState, emailField, setEmailField, users, setColor, setDark, useDatabase } = useContext<any>(StateContext);
+  const { id, navForm, className, style } = props;
+  const { user, setUser, setBoards, updates, setUpdates, setContent, authState, setAuthState, emailField, setEmailField, users } = useContext<any>(StateContext);
 
   // const changeColor = (colorRangePickerEvent?: any) => {
   //   let currentColor: any = colorRangePickerEvent.target.value;
@@ -101,90 +101,82 @@ export default function Form(props?: any) {
     }
 
     const onSignIn = (email, password) => {
-      if (useDatabase == true) {
-        signInWithEmailAndPassword(auth, email, password).then((userCredential: any) => {
-          if (userCredential != null) {
-            let existingUser = users.find(usr => usr?.email?.toLowerCase() == email?.toLowerCase());
-            if (existingUser != null) {
-              signInUser(existingUser);
-              toast.success(`Successfully Signed In`);
-            } else {
-              setEmailField(true);
-              setAuthState(`Sign Up`);
-            }
+      signInWithEmailAndPassword(auth, email, password).then((userCredential: any) => {
+        if (userCredential != null) {
+          let existingUser = users.find(usr => usr?.email?.toLowerCase() == email?.toLowerCase());
+          if (existingUser != null) {
+            signInUser(existingUser);
+            toast.success(`Successfully Signed In`);
+          } else {
+            setEmailField(true);
+            setAuthState(`Sign Up`);
           }
-        }).catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          if (errorMessage) {
-            toast.error(renderErrorMessage(errorMessage));
-            console.log(`Error Signing In`, {
-              error,
-              errorCode,
-              errorMessage
-            });
-          }
-          return;
-        });
-      } else {
-        toast.error(`Database not connected or not being used`);
-      }
+        }
+      }).catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        if (errorMessage) {
+          toast.error(renderErrorMessage(errorMessage));
+          console.log(`Error Signing In`, {
+            error,
+            errorCode,
+            errorMessage
+          });
+        }
+        return;
+      });
     }
 
     const onSignUp = (email, password) => {
-      if (useDatabase == true) {
-        createUserWithEmailAndPassword(auth, email, password).then(async (userCredential: any) => {
-          if (userCredential != null) {
-            let { 
-              uid, 
-              photoURL: avatar, 
-              displayName: name, 
-              accessToken: token, 
-              phoneNumber: phone, 
-              isAnonymous: anonymous, 
-              emailVerified: verified, 
-            } = userCredential?.user;
+      createUserWithEmailAndPassword(auth, email, password).then(async (userCredential: any) => {
+        if (userCredential != null) {
+          let { 
+            uid, 
+            photoURL: avatar, 
+            displayName: name, 
+            accessToken: token, 
+            phoneNumber: phone, 
+            isAnonymous: anonymous, 
+            emailVerified: verified, 
+          } = userCredential?.user;
 
-            let highestRank = await findHighestNumberInArrayByKey(users, `rank`);
-            let userData = {
-              uid,
-              name,
-              email,
-              phone,
-              avatar,
-              rank: highestRank + 1,
-              auth: {
-                token,
-                verified,
-                anonymous,
-              }
+          let highestRank = await findHighestNumberInArrayByKey(users, `rank`);
+          let userData = {
+            uid,
+            name,
+            email,
+            phone,
+            avatar,
+            rank: highestRank + 1,
+            auth: {
+              token,
+              verified,
+              anonymous,
             }
-
-            let cleanedUser = removeNullAndUndefinedProperties(userData);
-            let newUser = new User(cleanedUser);
-
-            await addUserToDatabase(newUser).then(() => {
-              toast.success(`Signed Up & In as: ${newUser?.name}`);
-              console.log(`New User`, newUser);
-              signInUser(newUser);
-              form.reset();
-            });
-          } else {
-            toast.error(`Error on Sign Up`);
           }
-        }).catch((error) => {
-          console.log(`Error Signing Up`, error);
-          const errorMessage = error.message;
-          if (errorMessage) {
-            toast.error(renderErrorMessage(errorMessage));             
-          } else {
-            toast.error(`Error Signing Up`);
-          }
-          return;
-        });
-      } else {
-        toast.error(`Database not connected or not being used`);
-      }
+
+          let cleanedUser = removeNullAndUndefinedProperties(userData);
+          let newUser = new User(cleanedUser);
+
+          await addUserToDatabase(newUser).then(() => {
+            toast.success(`Signed Up & In as: ${newUser?.name}`);
+            console.log(`New User`, newUser);
+            signInUser(newUser);
+            form.reset();
+          });
+        } else {
+          toast.error(`Error on Sign Up`);
+        }
+      }).catch((error) => {
+        console.log(`Error Signing Up`, error);
+        const errorMessage = error.message;
+        if (errorMessage) {
+          toast.error(renderErrorMessage(errorMessage));             
+        } else {
+          toast.error(`Error Signing Up`);
+        }
+        return;
+      });
     }
 
     switch(clicked?.value) {
@@ -267,7 +259,7 @@ export default function Form(props?: any) {
   }, [user, users, authState]);
 
   return <>
-    <form id={id} onSubmit={authForm} className={`flex authForm customButtons ${className}`} style={style}>
+    <form {...id && { id }} onSubmit={authForm} className={`flex authForm customButtons ${className}`} style={style}>
 
       {!user && <input placeholder="Email" type="email" name="email" autoComplete={`email`} required />}
       {!user && emailField && <input placeholder="Password" type="password" minLength={6} name="password" autoComplete={`current-password`} />}
@@ -286,7 +278,7 @@ export default function Form(props?: any) {
 
       <input className={(user && window?.location?.href?.includes(`profile`) || (authState == `Sign In` || authState == `Sign Up`)) ? `submit half` : `submit full`} type="submit" name="authFormSubmit" value={user ? `Sign Out` : authState} />
 
-      {(authState == `Sign In` || authState == `Sign Up`) && <input id={`back`} className={`back authFormBack`} type="submit" name="authFormBack" value={`Back`} />}
+      {(authState == `Sign In` || authState == `Sign Up`) && <input className={`back authFormBack`} type="submit" name="authFormBack" value={`Back`} />}
       
     </form>
   </>

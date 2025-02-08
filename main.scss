@@ -11,9 +11,7 @@
 /* Caveat */
 @import url("https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&display=swap");
 
-*,
-*::before,
-*::after {
+*, *::before, *::after {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -78,6 +76,10 @@
     --softSkyBlue: rgba(132, 169, 177, 1) !important;
     --delayedTransition: cubic-bezier(0.77, 0.2, 0.05, 1);
     --transition: 0.24s cubic-bezier(0.77, 0.2, 0.05, 1) !important;
+}
+
+::selection {
+    background: var(--darkCheckBox);
 }
 
 .dark {
@@ -424,7 +426,7 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
     }
     .itemTypesMenu {
         left: 0;
-        bottom: 72px;
+        bottom: 45px;
         height: 100%;
         display: flex;
         grid-gap: 3px;
@@ -670,13 +672,6 @@ input {
     }
 }
 
-// W/ Nextra Search
-// @media (max-width: 1215px) {
-//     .navFormDiv {
-//         display: none !important;
-//     }
-// }
-
 // @media (min-width: 1600px) {
 // @media (min-width: 1420px) {
 @media (min-width: 1367px) {
@@ -853,11 +848,6 @@ body {
     }
 
     &:has(._projects_boards) {
-        // &:not(:has(.focusBoard)) {
-        //     &:has(.oneBoard) {
-        //         overflow-y: hidden;
-        //     }
-        // }
         article {
             overflow: hidden;
             padding-top: max(env(safe-area-inset-top), 1.5rem);
@@ -1214,13 +1204,9 @@ textarea {
 }
 
 .item {
+    font-size: 1em !important;
     font-weight: 600 !important;
-    font-size: 1.002em !important;
     &:hover {
-        @media (min-width: 1120px) {
-            font-size: 1em !important;
-        }
-        font-weight: 600 !important;
         .subTaskItem {
             &:hover {
                 .subtaskActions {
@@ -1771,7 +1757,6 @@ textarea {
                             filter: invert(0);
                             &.complete {
                                 color: black;
-                                font-weight: 700 !important;
                             }
                         }
                         .itemButtons {
@@ -1784,7 +1769,6 @@ textarea {
                         filter: invert(1);
                     }
                     .itemOrder {
-                        color: var(--gameBlueSoft);
                         .itemIndex {
                             filter: invert(1);
                         }

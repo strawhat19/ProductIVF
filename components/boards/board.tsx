@@ -232,12 +232,12 @@ export default function Board(props) {
         });
     }
 
-    useEffect(() => {
-        let thisBoard = boards.find(brd => brd.id == board.id);
-        if (thisBoard) {
-            setBoard(thisBoard);
-        }
-    }, [boards])
+    // useEffect(() => {
+    //     let thisBoard = boards.find(brd => brd.id == board.id);
+    //     if (thisBoard) {
+    //         setBoard(thisBoard);
+    //     }
+    // }, [boards])
 
     useEffect(() => {
         if (updates > 0) {

@@ -98,7 +98,7 @@ const SortableSubtaskItem = ({ item, subtask, isLast, column, index, changeLabel
 
 export default function Tasks(props) {
   let { item, column, board, showForm = true } = props;
-  let { user, boards, setLoading, setSystemStatus } = useContext<any>(StateContext);
+  let { user, boards, setBoards, setLoading, setSystemStatus } = useContext<any>(StateContext);
 
   let [deletedTaskIDs, setDeletedTaskIDs] = useState<string[]>([]);
   let [subtasks, setSubtasks] = useState(item?.subtasks?.length ? item.subtasks : []);
@@ -112,12 +112,13 @@ export default function Tasks(props) {
   // Capitalize words
   const capitalizeAllWords = capWords;
 
-  const updateBoards = (user, dynamicScrollbars = false) => {
-    localStorage.setItem(`boards`, JSON.stringify(boards));
+  const updateBoards = (user, dynamicScrollbars = false, bords = boards) => {
+    localStorage.setItem(`boards`, JSON.stringify(bords));
     if (dynamicScrollbars) addBoardScrollBars();
     if (user != null) {
-      updateUserFields(user?.id, { boards });
-      localStorage.setItem(`user`, JSON.stringify({ ...user, boards }));
+      // setBoards(bords);
+      updateUserFields(user?.id, { boards: bords });
+      localStorage.setItem(`user`, JSON.stringify({ ...user, boards: bords }));
     }
   }
 
@@ -194,8 +195,10 @@ export default function Tasks(props) {
     setSubtasks(updatedTasks);
     item.subtasks = updatedTasks;
     item.updated = formatDate(new Date());
+    board.items[item?.id] = item;
+    let updatedBoards = boards.map(brd => brd.id == board?.id ? board : brd);
 
-    updateBoards(user, true);
+    updateBoards(user, true, updatedBoards);
 
     // Reset form
     e.target.reset();
@@ -260,7 +263,7 @@ export default function Tasks(props) {
 
     updateBoards(user, true);
 
-    dev() && console.log(`Dragged and Reordered`, updated);
+    // dev() && console.log(`Dragged & Reordered`, updated);
   };
 
   return (

@@ -221,11 +221,10 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
         <div id={`itemElement_${item.id}`} className={`itemComponent itemInnerRow flex row`} onContextMenu={(e) => onRightClick(e, item, column)}>
             <span className={`itemOrder rowIndexOrder`}>
                 <i className={`itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>
-                    {(item?.type == ItemTypes.Item) && (
-                        <span className={`itemIconType ${item?.type}`}>
-                            {getTypeIcon(item?.type)}
-                        </span>
-                    )} {itemIndex + 1}
+                    <span className={`itemIconType ${item?.type}`}>
+                        +
+                    </span> 
+                    {itemIndex + 1}
                 </i>
             </span>
             {item?.image && (

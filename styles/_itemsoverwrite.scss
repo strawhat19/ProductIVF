@@ -56,7 +56,7 @@
 .board {
     .column {
         * {
-            --gameBlueInverse: var(--primarySoft);
+            --gameBlueInverse: var(--primary);
         }
         .items {
             * {
