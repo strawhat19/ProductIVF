@@ -85,11 +85,12 @@ export default function Board(props) {
 
     const changeLabel = (e, item, setItem) => {
         let value = e.target.value == `` ? capitalizeAllWords(item.name) : capitalizeAllWords(e.target.value);
+        if (value?.toLowerCase() == item?.name?.toLowerCase()) return;
         if (!e.target.value || e.target.value == ``) {
             e.target.value = capitalizeAllWords(item.name);
             return;
         };
-        let titleWidth = `${(value.length * 8.5) + 69}px`;
+        let titleWidth = `${(value.length * 6.5) + (69 + value?.length)}px`;
         e.target.value = capitalizeAllWords(value);
         e.target.style.width = titleWidth;
         if (item.id.includes(`board`)) {

@@ -172,6 +172,7 @@ export default function Boards({  }) {
                         />
                     ) : grids?.length > 1 && (
                         <MultiSelector 
+                            options={grids} 
                             id={`select_grid_type`}
                             single={useSingleSelect}
                             defaultValue={selectedGrids} 
@@ -180,7 +181,6 @@ export default function Boards({  }) {
                             placeholder={`Search Grids to View`}
                             hostClass={`gridsMultiSelectorContainer`}
                             onChange={(val) => updateSelectedGrids(val)} 
-                            options={grids.map(gr => ({ ...gr, id: gr?.ID, value: gr?.ID, label: gr?.name }))} 
                         />
                     )}
                 </div>
@@ -237,7 +237,5 @@ export default function Boards({  }) {
                 </div>
             </div>
         </DragDropContext>
-
-        {/* {boardsLoading ? <></> : createBoardComponent()} */}
     </>
 }

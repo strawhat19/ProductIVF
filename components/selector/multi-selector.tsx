@@ -39,13 +39,15 @@ const getGridIconOption = (option) => {
       let userIcon = `fas fa-user-alt`;
       let shareIcon = `fas fa-share-alt`;
       // let historyIcon = `fas fa-history`;
+      let briefcaseIcon = `fas fa-briefcase`;
       let globeIcon = `fas fa-globe-americas`;
       let folderOpenIcon = `fas fa-folder-open`;
       // let hourglassicon = `fas fa-hourglass-half`;
       if (option?.gridType == GridTypes.Personal) gridTypeIcon = userIcon;
+      if (option?.gridType == GridTypes.Work) gridTypeIcon = briefcaseIcon;
+      if (option?.gridType == GridTypes.Shared) gridTypeIcon = shareIcon;
       if (option?.gridType == GridTypes.Public) gridTypeIcon = globeIcon;
       if (option?.gridType == GridTypes.Private) gridTypeIcon = lockIcon;
-      if (option?.gridType == GridTypes.Shared) gridTypeIcon = shareIcon;
       if (option?.gridType == GridTypes.Archived) gridTypeIcon = folderOpenIcon;
     }
   }
@@ -150,13 +152,13 @@ export default function MultiSelector(props) {
     groupedOptions,
     getListboxProps,
   } = useAutocomplete({
-    options,
     multiple: true,
     value: activeOptions,
     id: `${id}_multiselector`,
     getOptionLabel: (option) => option?.label,
     onChange: (e, val: any) => onChangeValue(val),
     isOptionEqualToValue: (option: any, value: any) => option?.id === value.id,
+    options: options.map(gr => ({ ...gr, id: gr?.ID, value: gr?.ID, label: gr?.name })),
   });
 
   const getActiveOptions = (opts, arrayOfOptions) => {

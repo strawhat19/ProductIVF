@@ -5,14 +5,15 @@ import { countPropertiesInObject, isValid } from '../constants';
 
 export class Grid extends Data {
     ID: any;
+    
     owner: string;
-    creator: string;
-    ownerid: string;
     ownerID: string;
     ownerUID: string;
-    creatorid: string;
+    
+    creator: string;
     creatorID: string;
     creatorUID: string;
+    
     type: Types = Types.Grid;
     gridType: GridTypes = GridTypes.Personal;
 

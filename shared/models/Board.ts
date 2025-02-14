@@ -6,16 +6,17 @@ import { countPropertiesInObject, isValid } from '../constants';
 
 export class Board extends Data {
     ID: any;
-    owner: string;
     gridID: string;
     titleWidth: any;
-    creator: string;
-    ownerid: string;
+
+    owner: string;
     ownerID: string;
     ownerUID: string;
-    creatorid: string;
+    
+    creator: string;
     creatorID: string;
     creatorUID: string;
+
     type: Types = Types.Board;
     boardType: BoardTypes = BoardTypes.Kanban;
     

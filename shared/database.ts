@@ -7,24 +7,68 @@ import { BoardTypes } from '../components/boards/boards';
 import { isValid, removeNullAndUndefinedProperties, stringNoSpaces } from './constants';
 
 export const seedUserData = (user: User | any) => {
-    let board1 = createBoard(1, `Daily Tasks`, user, `140px`);
-    let board2 = createBoard(2, `Work`, user, `140px`);
-    let board3 = createBoard(3, `Shared`, user, `140px`);
-    let board4 = createBoard(4, `Archived`, user, `140px`);
+    let board1 = createBoard(1, `Daily Tasks`, user, `135px`);
+    let board2 = createBoard(2, `Goals`, user, `85px`);
 
-    let grid1 = createGrid(1, GridTypes.Personal, user, GridTypes.Personal, [board1?.ID, board2?.ID] );
-    let grid2 = createGrid(2, GridTypes.Shared, user, GridTypes.Shared, [board3?.ID] );
-    let grid3 = createGrid(3, GridTypes.Archived, user, GridTypes.Archived, [board4?.ID] );
-    let grid4 = createGrid(4, GridTypes.Private, user, GridTypes.Private, [] );
-    let grid5 = createGrid(5, GridTypes.Public, user, GridTypes.Public, [] );
+    let board3 = createBoard(3, GridTypes.Work, user, `80px`);
+
+    let board4 = createBoard(4, GridTypes.Shared, user, `95px`);
+
+    let board5 = createBoard(5, `Global`, user, `95px`);
+    let board6 = createBoard(6, GridTypes.Public, user, `95px`);
+
+    let board7 = createBoard(7, `Bills`, user, `80px`);
+    let board8 = createBoard(8, `Passwords`, user, `132.5px`);
+
+    let board9 = createBoard(9, GridTypes.Archived, user, `115px`);
+    let board10 = createBoard(10, `Deprecated`, user, `144px`);
+
+    let grid1 = createGrid(1, GridTypes.Personal, user, GridTypes.Personal, [
+        board1?.ID, 
+        board2?.ID,
+    ]);
+
+    let grid2 = createGrid(2, GridTypes.Work, user, GridTypes.Work, [
+        board3?.ID,
+    ]);
+
+    let grid3 = createGrid(3, GridTypes.Shared, user, GridTypes.Shared, [
+        board4?.ID,
+    ]);
+
+    let grid4 = createGrid(4, GridTypes.Public, user, GridTypes.Public, [
+        board5?.ID, 
+        board6?.ID,
+    ]);
+
+    let grid5 = createGrid(5, GridTypes.Private, user, GridTypes.Private, [
+        board7?.ID, 
+        board8?.ID,
+    ]);
+
+    let grid6 = createGrid(6, GridTypes.Archived, user, GridTypes.Archived, [
+        board9?.ID,
+        board10?.ID,
+    ]);
 
     board1 = new Board({ ...board1, gridID: grid1?.ID });
     board2 = new Board({ ...board2, gridID: grid1?.ID });
+
     board3 = new Board({ ...board3, gridID: grid2?.ID });
+
     board4 = new Board({ ...board4, gridID: grid3?.ID });
 
-    let grids = [grid1, grid2, grid3, grid4, grid5];
-    let boards = [board1, board2, board3, board4];
+    board5 = new Board({ ...board5, gridID: grid4?.ID });
+    board6 = new Board({ ...board6, gridID: grid4?.ID });
+    
+    board7 = new Board({ ...board7, gridID: grid5?.ID });
+    board8 = new Board({ ...board8, gridID: grid5?.ID });
+
+    board9 = new Board({ ...board9, gridID: grid6?.ID });
+    board10 = new Board({ ...board10, gridID: grid6?.ID });
+
+    let grids = [grid1, grid2, grid3, grid4, grid5, grid6];
+    let boards = [board1, board2, board3, board4, board5, board6, board7, board8, board9, board10];
 
     let seedUserData = {
         grids,
@@ -34,7 +78,6 @@ export const seedUserData = (user: User | any) => {
             data: {
                 ...user.data,
                 gridIDs: grids.map(gr => gr?.ID),
-                boardIDs: boards.map(br => br?.ID),
             }
         },
     }
@@ -100,10 +143,8 @@ export const createGrid = (
         ...(user != null && {
             owner: user?.email,
             creator: user?.email,
-            ownerid: user?.id,
             ownerID: user?.ID,
             ownerUID: user?.uid,
-            creatorid: user?.id,
             creatorID: user?.ID,
             creatorUID: user?.uid,
         }),
@@ -148,10 +189,8 @@ export const createBoard = (
         ...(user != null && {
             owner: user?.email,
             creator: user?.email,
-            ownerid: user?.id,
             ownerID: user?.ID,
             ownerUID: user?.uid,
-            creatorid: user?.id,
             creatorID: user?.ID,
             creatorUID: user?.uid,
         }),

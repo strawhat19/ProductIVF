@@ -458,7 +458,6 @@ export default function ProductIVF({ Component, pageProps, router }) {
     setUpdates(updates + 1);
     localStorage.removeItem(`user`);
     signOutReset();
-    
   }
 
   const getGridsBoards = (activeGrds, brds) => {
@@ -470,11 +469,6 @@ export default function ProductIVF({ Component, pageProps, router }) {
         if (gBoard) gridsBoards.push(gBoard);
       })
     }
-    // console.log(`Get Grid Boards`, {
-    //   brds,
-    //   activeGrds,
-    //   gridsBoards,
-    // });
     return gridsBoards;
   }
 

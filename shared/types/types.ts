@@ -14,6 +14,7 @@ export enum Types {
 
 export enum GridTypes {
     Personal = `Personal`,
+    Work = `Work`,
     Shared = `Shared`,
     Public = `Public`,
     Private = `Private`,
