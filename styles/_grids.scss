@@ -1,0 +1,150 @@
+:root {
+    --authFormButtonFontColor: white;
+    --authFormIconColor: var(--gameBlue);
+    --authFormButtonBG: var(--blackGlass);
+}
+
+.gridsMultiSelectorContainer {
+    min-width: 215px;
+}
+
+.gridsBoardsFieldsContainer {
+    display: flex;
+    grid-gap: 1px;
+    align-items: center;
+}
+
+.formButtonsField {
+    display: flex;
+    line-height: 1;
+    grid-gap: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    flex-direction: row;
+    border: 0 !important;
+    max-width: fit-content;
+    max-height: 35px !important;
+    transition: var(--transition);
+    padding: 10.5px 15px !important;
+    border-radius: var(--borderRadius);
+    background: var(--authFormButtonBG) !important;
+    color: var(--authFormButtonFontColor) !important;
+    &.Next_AuthState, &.Sign_Up_AuthState, &.Sign_In_AuthState {
+        i {
+            order: 1;
+        }
+    }
+    &.Back_AuthState, &.Sign_Out_AuthState {
+        i {
+            transform: rotateY(180deg);
+        }
+    }
+    i {
+        max-width: fit-content;
+        transition: var(--transition);
+        color: var(--authFormIconColor) !important;
+        font-size: calc(var(--authFormFontSize) + 2px);
+    }
+    input {
+        &[type=submit][type=submit][type=submit] {
+            padding: 0px 0 15px !important;
+            transition: var(--transition);
+            background: transparent !important;
+            &:hover {
+                color: white !important;
+                box-shadow: none !important;
+                background: transparent !important;
+            }
+        }
+    }
+    &:hover {
+        background: white !important;
+        box-shadow: 0 0 8px 0px black;
+        input {
+            &[type=submit][type=submit][type=submit] {
+                color: black !important;
+            }
+        }
+    }
+}
+
+.gridRow {
+    gap: 10px;
+    width: 100%;
+    display: grid;
+    align-items: center;
+    grid-template-columns: auto 1fr;
+    .selectedOptionsContainer {
+        display: flex;
+    }
+    &.hasGridSelector {
+        grid-template-columns: auto auto 1fr;
+        &.withSingleSelect {
+            &:not(.gridsAreLoading) {
+                grid-template-columns: auto 1fr auto;
+            }
+            .multiSelectOptionInput {
+                cursor: pointer;
+                margin-right: 0 !important;
+            }
+            .selectedOptionsContainer {
+                .multiSelectedOption {
+                    margin-right: 0 !important;
+                    border-top-right-radius: var(--borderRadius) !important;
+                    border-bottom-right-radius: var(--borderRadius) !important;
+                }
+            }
+        }
+    }
+    .middle {
+        text-align: center;
+        align-items: center;
+        grid-gap: 0 !important;
+        width: 100% !important;
+        max-width: unset !important;
+        justify-content: center !important;
+        h2 {
+            width: 100% !important;
+            max-width: unset !important;
+        }
+    }
+    .right {
+        text-align: center;
+        align-items: center;
+        width: 100% !important;
+        max-width: unset !important;
+        justify-content: flex-end !important;
+        h3 {
+            text-align: right;
+            width: 100% !important;
+            max-width: unset !important;
+        }
+    }
+}
+
+.gridInputField {
+    width: 100%; 
+    font-size: 14px; 
+    min-height: var(--buttonSize); 
+    padding-left: 15px; 
+    max-width: unset !important; 
+    background: var(--blackGlass);
+    border-radius: var(--borderRadius);
+    border-top-left-radius: 0px !important;
+    border-bottom-left-radius: 0px !important; 
+    &::placeholder {
+        opacity: 0.65;
+    }
+}
+
+.collapsedBoardDetailsRow {
+    .left {
+        max-width: unset !important;
+        .boardTitleField {
+            max-width: unset !important;
+            .collapsedBoardChangeLabel {
+                max-width: unset !important;
+            }
+        }
+    }
+}

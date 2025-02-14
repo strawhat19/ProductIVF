@@ -17,8 +17,8 @@ const setToc = (e) => {
 
 const navForm = (headerForm = false) => {
   return (
-    <div className={`navFormDiv ${headerForm ? `headerForm` : ``}`} style={{order: -1, display: `flex`, flexDirection: `row`, gridGap: 15, alignItems: `center`, marginRight: 10}}>
-      <AuthState classes={`navFormText`} />
+    <div className={`navFormDiv ${headerForm ? `headerForm` : `nav_Form`}`} style={{order: -1, display: `flex`, flexDirection: `row`, gridGap: 15, alignItems: `center`, marginRight: 10}}>
+      <AuthState classes={`navFormText`} nextOverride={`Register`} hideOnUsersLoading={true} />
       <section className={`navFormSection`} style={{margin: 0, padding: `0 20px 0 0 !important`, position: `relative`}}>
         <Form navForm={true} style={{display: `flex`, flexDirection: `row`}} />
       </section>

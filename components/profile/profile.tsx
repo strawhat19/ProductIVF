@@ -5,6 +5,7 @@ import { User } from '../../shared/models/User';
 import { dev, StateContext } from '../../pages/_app';
 import { stringMatch } from '../../shared/constants';
 import { useContext, useEffect, useState } from 'react';
+import KanbanBoard from '../boards/kanban/kanban';
 
 export default function Profile({ }) {
     let router = useRouter();
@@ -82,6 +83,7 @@ export default function Profile({ }) {
                         <AuthState />
                     </> : <>
                         <h1>Sign In to View your Profile</h1>
+                        {/* <KanbanBoard /> */}
                     </>}
                 </>}
             </div>

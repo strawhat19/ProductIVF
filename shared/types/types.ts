@@ -11,3 +11,11 @@ export enum Types {
     Feature = `Feature`,
     Notification = `Notification`,
 }
+
+export enum GridTypes {
+    Personal = `Personal`,
+    Shared = `Shared`,
+    Public = `Public`,
+    Private = `Private`,
+    Archived = `Archived`,
+}

@@ -4,12 +4,14 @@ import 'react-toastify/dist/ReactToastify.css';
 import ReactDOM from 'react-dom/client';
 import { User } from '../shared/models/User';
 import { db, usersTable } from '../firebase';
-import { isValid } from '../shared/constants';
 import { ToastContainer } from 'react-toastify';
+import { seedUserData as generateSeedUserData } from '../shared/database';
+import { GridTypes } from '../shared/types/types';
 import { AnimatePresence, motion } from 'framer-motion';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { createContext, useRef, useState, useEffect } from 'react';
 import ContextMenu from '../components/context-menus/context-menu';
+import { combineArraysByKey, isValid } from '../shared/constants';
 
 export const StateContext = createContext({});
 
@@ -376,11 +378,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let [qotd, setQotd] = useState(``);
   let [width, setWidth] = useState(0);
   let [color, setColor] = useState(``);
-  let [lists, setLists] = useState([]);
-  let [items, setItems] = useState([]);
-  let [board, setBoard] = useState({});
   let [dark, setDark] = useState(false);
-  let [boards, setBoards] = useState([]);
   let [updates, setUpdates] = useState(0);
   let [onMac, setOnMac] = useState(false);
   let [focus, setFocus] = useState(false);
@@ -390,29 +388,115 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let [loading, setLoading] = useState(true);
   let [highScore, setHighScore] = useState(0);
   let [platform, setPlatform] = useState(null);
-  let [selected, setSelected] = useState(null);
   let [anim, setAnimComplete] = useState(false);
   let [categories, setCategories] = useState([]);
   let [colorPref, setColorPref] = useState(null);
-  let [alertOpen, setAlertOpen] = useState(false);
   let [authState, setAuthState] = useState(`Next`);
   let [mobileMenu, setMobileMenu] = useState(false);
   let [emailField, setEmailField] = useState(false);
   let [systemStatus, setSystemStatus] = useState(``);
+  let [showLeaders, setShowLeaders] = useState(false);
+  let [content, setContent] = useState(`defaultContent`);
+  let [year, setYear] = useState(new Date().getFullYear());
+
+  let [user, setUser] = useState(null);
+  let [users, setUsers] = useState([]);
+  let [grids, setGrids] = useState([]);
+  let [lists, setLists] = useState([]);
+  let [items, setItems] = useState([]);
+  let [board, setBoard] = useState({});
+  let [boards, setBoards] = useState([]);
+  let [selected, setSelected] = useState(null);
+  let [userBoards, setUserBoards] = useState([]);
+  let [alertOpen, setAlertOpen] = useState(false);
   let [rearranging, setRearranging] = useState(false);
   let [boardLoaded, setBoardLoaded] = useState(false);
-  let [showLeaders, setShowLeaders] = useState(false);
+  let [selectedGrids, setSelectedGrids] = useState([]);
   let [menuPosition, setMenuPosition] = useState(null);
-  let [content, setContent] = useState(`defaultContent`);
+  let [gridsLoading, setGridsLoading] = useState(true);
+  let [usersLoading, setUsersLoading] = useState(true);
+  let [boardsLoading, setBoardsLoading] = useState(true);
   let [tasksFiltered, setTasksFiltered] = useState(false);
   let [boardCategories, setBoardCategories] = useState([]);
-  let [year, setYear] = useState(new Date().getFullYear());
   let [itemTypeMenuOpen, setItemTypeMenuOpen] = useState(false);
   let [completeFiltered, setCompleteFiltered] = useState(false);
 
-  let [users, setUsers] = useState([]);
-  let [user, setUser] = useState(null);
-  let [usersLoading, setUsersLoading] = useState(false);
+  const onSetUser = (usr) => {
+    seedUserData(usr);
+  }
+
+  const getPageContainerClasses = () => {
+    let route = rte == `_` ? `root` : rte;
+    let pageName = isValid(page.toUpperCase()) ? page.toUpperCase() : `home_Page`;
+    let userClasses = `${user != null ? `signed_in` : `signed_out`} ${usersLoading ? `users_loading` : `users_loaded`}`;
+    let classes = `pageWrapContainer ${route} ${pageName} ${userClasses}`;
+    return classes;
+  }
+
+  const resetGridsBoards = () => {
+    setBoards([]);
+    // setGrids([]);
+    setGridsLoading(true);
+    setBoardsLoading(true);
+    // setSelectedGrids([]);
+  }
+
+  const signOutReset = (useLocal = false) => {
+    let hasLocalBoards = localStorage.getItem(`local_boards`);
+    if (useLocal && hasLocalBoards) {
+      let localBoards = JSON.parse(hasLocalBoards);
+      setBoards(localBoards);
+    } else {
+      resetGridsBoards();
+    }
+  }
+
+  const onSignOut = () => {
+    setUser(null);
+    setAuthState(`Next`);
+    setEmailField(false);
+    setUpdates(updates + 1);
+    localStorage.removeItem(`user`);
+    signOutReset();
+    
+  }
+
+  const getGridsBoards = (activeGrds, brds) => {
+    let gridsBoards = [];
+    let gridsBoardsIDs = activeGrds?.length > 0 ? activeGrds.map(grd => grd?.data?.boardIDs).flat() : [];
+    if (gridsBoardsIDs.length > 0) {
+      gridsBoardsIDs.forEach(gbID => {
+        let gBoard = brds.find(br => br?.ID == gbID);
+        if (gBoard) gridsBoards.push(gBoard);
+      })
+    }
+    // console.log(`Get Grid Boards`, {
+    //   brds,
+    //   activeGrds,
+    //   gridsBoards,
+    // });
+    return gridsBoards;
+  }
+
+  const seedUserData = (usr) => {
+    let { grids: grds, boards: brds } = generateSeedUserData(usr);
+    
+    setGrids(grds);
+    setUserBoards(brds);
+
+    let privatePersonalGrid = grds.find(gr => gr.type == GridTypes.Personal);
+    let defaultSeletedGrid = privatePersonalGrid ? privatePersonalGrid : grds[0];
+    defaultSeletedGrid = { ...defaultSeletedGrid, id: defaultSeletedGrid?.ID, value: defaultSeletedGrid?.ID, label: defaultSeletedGrid?.name };
+    
+    let defaultSeletedGrids = [defaultSeletedGrid];
+    let gridBoards = getGridsBoards(defaultSeletedGrids, brds);
+
+    setSelectedGrids(defaultSeletedGrids);
+    setGridsLoading(false);
+
+    setBoards(gridBoards);
+    setBoardsLoading(false);
+  }
 
   useEffect(() => {
     const usersDatabase = collection(db, usersTable);
@@ -432,23 +516,16 @@ export default function ProductIVF({ Component, pageProps, router }) {
           if (thisUser) {
             setUser(thisUser);
             setAuthState(`Sign Out`);
-            // dev() && console.log(`User Still Signed In`, {thisUser, updates});
-            if (isValid(thisUser?.boards)) {
-              setBoards(thisUser?.boards);
-            }
+            onSetUser(thisUser);
           }
         }
       }
 
+      setUsersLoading(false);
       dev() && console.log(`Users Update from Database`, usersFromDB);
     }, error => {
       console.log(`Error on Get Task(s) from Database`, error);
-    }, complete => {
-      setUsersLoading(false);
-      dev() && console.log(`User(s) Loaded`, complete);
     })
-
-    // setUpdates(prevUpdates => prevUpdates + 1);
 
     return () => {
       usersDatabaseRealtimeListener();
@@ -501,13 +578,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
     if (cachedBoards && cachedBoards?.length > 0) {
       setBoards(cachedBoards);
     } else {
-      let hasLocalBoards = localStorage.getItem(`local_boards`);
-      if (hasLocalBoards) {
-        let localBoards = JSON.parse(hasLocalBoards);
-        setBoards(localBoards);
-      } else {
-        setBoards([]);
-      }
+      signOutReset();
     }
 
     let toc = document.querySelector(`.nextra-toc`);
@@ -558,6 +629,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       onMac, 
       router,
       rte, setRte, 
+      year, setYear,
       page, setPage, 
       width, setWidth, 
       mobile, setMobile,
@@ -583,9 +655,9 @@ export default function ProductIVF({ Component, pageProps, router }) {
       IDs, setIDs, 
       qotd, setQotd, 
       focus, setFocus, 
+      loading, setLoading, 
       content, setContent, 
       updates, setUpdates, 
-      loading, setLoading, 
       anim, setAnimComplete, 
       alertOpen, setAlertOpen, 
       highScore, setHighScore, 
@@ -593,41 +665,55 @@ export default function ProductIVF({ Component, pageProps, router }) {
       showLeaders, setShowLeaders, 
       systemStatus, setSystemStatus, 
 
-      // Boards
+      // Functions
+      onSignOut,
+      onSetUser,
+      getGridsBoards,
+
+      // Grids & Boards
       menuRef, 
+      grids, setGrids,
       lists, setLists, 
       items, setItems, 
       board, setBoard, 
       boards, setBoards, 
       selected, setSelected, 
+      userBoards, setUserBoards,
       categories, setCategories, 
       boardLoaded, setBoardLoaded, 
+      gridsLoading, setGridsLoading,
       menuPosition, setMenuPosition, 
+      boardsLoading, setBoardsLoading,
+      selectedGrids, setSelectedGrids,
       tasksFiltered, setTasksFiltered, 
       boardCategories, setBoardCategories, 
       completeFiltered, setCompleteFiltered, 
       itemTypeMenuOpen, setItemTypeMenuOpen, 
     }}>
-      {(browser != `chrome` || onMac) ? <AnimatePresence mode={`wait`}>
-        <motion.div className={`${rte} pageWrapContainer ${page.toUpperCase()}`} key={router.route} initial="pageInitial" animate="pageAnimate" exit="pageExit" transition={{ duration: 0.35 }} variants={{
-          pageInitial: {
-            opacity: 0,
-            clipPath: `polygon(0 0, 100% 0, 100% 100%, 0% 100%)`,
-          },
-          pageAnimate: {
-            opacity: 1,
-            clipPath: `polygon(0 0, 100% 0, 100% 100%, 0% 100%)`,
-          },
-          pageExit: {
-            opacity: 0,
-            clipPath: `polygon(50% 0, 50% 0, 50% 100%, 50% 100%)`,
-          },
-        }}>
+      {(browser != `chrome` || onMac) ? (
+        <AnimatePresence mode={`wait`}>
+          <motion.div className={getPageContainerClasses()} key={router.route} initial="pageInitial" animate="pageAnimate" exit="pageExit" transition={{ duration: 0.35 }} variants={{
+            pageInitial: {
+              opacity: 0,
+              clipPath: `polygon(0 0, 100% 0, 100% 100%, 0% 100%)`,
+            },
+            pageAnimate: {
+              opacity: 1,
+              clipPath: `polygon(0 0, 100% 0, 100% 100%, 0% 100%)`,
+            },
+            pageExit: {
+              opacity: 0,
+              clipPath: `polygon(50% 0, 50% 0, 50% 100%, 50% 100%)`,
+            },
+          }}>
+            <Component {...pageProps} />
+          </motion.div>
+        </AnimatePresence>
+      ) : (
+        <div className={getPageContainerClasses()}>
           <Component {...pageProps} />
-        </motion.div>
-      </AnimatePresence> : <div className={`pageWrapContainer ${page.toUpperCase()}`}>
-        <Component {...pageProps} />
-      </div>}
+        </div>
+      )}
       <ToastContainer
         draggable
         rtl={false}

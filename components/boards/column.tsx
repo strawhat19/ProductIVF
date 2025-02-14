@@ -213,7 +213,7 @@ export default function Column(props) {
     return (
         <Draggable draggableId={props.column.id} index={props.index}>
             {(provided, snapshot) => (
-                <div id={props.column.id} className={`container column list columns_${board?.columnOrder && board?.columnOrder?.length} ${(board?.columnOrder && board?.columnOrder?.length > 2 || !dev()) ? `multiCol` : ``} layoutCols_${props?.column?.layoutCols ? props?.column?.layoutCols : ``} ${snapshot.isDragging ? `dragging` : ``}`} {...provided.draggableProps} ref={provided.innerRef}>
+                <div id={props.column.id} className={`container column list columns_${board?.columnOrder && board?.columnOrder?.length} ${(board?.columnOrder && board?.columnOrder?.length > 2 || !dev()) ? `multiCol` : ``} ${board?.columnOrder && board?.columnOrder?.length >= 4 ? `multiColExtended` : ``} layoutCols_${props?.column?.layoutCols ? props?.column?.layoutCols : ``} ${snapshot.isDragging ? `dragging` : ``}`} {...provided.draggableProps} ref={provided.innerRef}>
                     <div className={`columnItemsContainer outerColumn`}>
                         <div style={{ position: `relative` }} id={`name_of_${props.column.id}`} title={`${props.column.title}`} className={`columnTitle flex row iconButton item listTitleButton`} {...provided.dragHandleProps}>
                             <div className={`itemOrder listOrder`} style={{ maxWidth: `fit-content` }}>
@@ -286,30 +286,30 @@ export default function Column(props) {
                                     {props.items.filter(itm => itemActiveFilters(itm)).map((item, itemIndex) => {
                                         if (!item.subtasks) item.subtasks = [];
                                         return (
-                                        <Draggable key={item.id} draggableId={item.id} index={itemIndex}>
-                                            {provided => (
-                                                <div id={item.id} className={`item boardItem ${hoverItemForm ? `itemHoverToExpand` : ``} completeItem ${item.complete ? `complete completeBoardItem` : `activeBoardItem`} container ${snapshot.isDragging ? `dragging` : ``} ${(itemTypeMenuOpen || selected != null) ? `unfocus` : ``}`} title={item.content} {...provided.draggableProps} ref={provided.innerRef}>
-                                                    <div onClick={(e) => manageItem(e, item, itemIndex, board, boards, setBoards)} {...provided.dragHandleProps} className={`itemRow flex row ${item?.complete ? `completed` : `incomplete`} ${item.subtasks.length > 0 ? `hasTasksRow` : `noTasksRow`}`}>
-                                                        <Item 
-                                                            item={item} 
-                                                            count={count} 
-                                                            board={board} 
-                                                            column={props.column} 
-                                                            itemIndex={itemIndex} 
-                                                            setBoard={props.setBoard} 
-                                                        />
+                                            <Draggable key={item.id} draggableId={item.id} index={itemIndex}>
+                                                {provided => (
+                                                    <div id={item.id} className={`item boardItem ${hoverItemForm ? `itemHoverToExpand` : ``} completeItem ${item.complete ? `complete completeBoardItem` : `activeBoardItem`} container ${snapshot.isDragging ? `dragging` : ``} ${(itemTypeMenuOpen || selected != null) ? `unfocus` : ``}`} title={item.content} {...provided.draggableProps} ref={provided.innerRef}>
+                                                        <div onClick={(e) => manageItem(e, item, itemIndex, board, boards, setBoards)} {...provided.dragHandleProps} className={`itemRow flex row ${item?.complete ? `completed` : `incomplete`} ${item.subtasks.length > 0 ? `hasTasksRow` : `noTasksRow`}`}>
+                                                            <Item 
+                                                                item={item} 
+                                                                count={count} 
+                                                                board={board} 
+                                                                column={props.column} 
+                                                                itemIndex={itemIndex} 
+                                                                setBoard={props.setBoard} 
+                                                            />
+                                                        </div>
+                                                        {!hideAllTasks && item.subtasks && (
+                                                            <Tasks 
+                                                                item={item} 
+                                                                board={board}
+                                                                column={props.column} 
+                                                                showForm={!board?.tasksFiltered} 
+                                                            />
+                                                        )}
                                                     </div>
-                                                    {!hideAllTasks && item.subtasks && (
-                                                        <Tasks 
-                                                            item={item} 
-                                                            board={board}
-                                                            column={props.column} 
-                                                            showForm={!board?.tasksFiltered} 
-                                                        />
-                                                    )}
-                                                </div>
-                                            )}
-                                        </Draggable>
+                                                )}
+                                            </Draggable>
                                         )}
                                     )}
                                     {provided.placeholder}
@@ -320,7 +320,7 @@ export default function Column(props) {
                     <form title={`Add Item`} id={`add_item_form_${props.column.id}`} className={`flex addItemForm itemButtons unset addForm`} style={{ width: `100%`, flexDirection: `row` }} onSubmit={(e) => addNewItem(e)}>
                         <div className={`itemTypesMenu ${(itemTypeMenuOpen && menuPosition == null) ? `show` : ``}`}>
                             {Object.values(ItemTypes).filter(type => type !== props?.column?.itemType).map((type, typeIndex) => (
-                                <div key={typeIndex} title={type} onClick={(e) => changeItemType(e, type, props.column)} className={`typeIcon itemTypeIconRow menuTypeIcon hoverGlowButton`}>
+                                <div key={typeIndex} title={type} onClick={(e) => changeItemType(e, type, props.column)} className={`typeIcon itemTypeIconRow menuTypeIcon`}>
                                     <div className={`typeIconIcon`}>
                                         {getTypeIcon(type)}
                                     </div>
@@ -330,7 +330,7 @@ export default function Column(props) {
                                 </div>
                             ))}
                         </div>
-                        <div title={`Change ${props?.column?.itemType} Type`} onClick={(e) => changeItemType(e)} className={`typeIcon changeItemTypeIcon hoverGlowButton`}>
+                        <div title={`Change ${props?.column?.itemType} Type`} onClick={(e) => changeItemType(e)} className={`typeIcon changeItemTypeIcon`}>
                             {getTypeIcon(props?.column?.itemType)}
                         </div>
                         <input autoComplete={`off`} placeholder={`Create Item +`} type="text" name="createItem" required />
@@ -340,7 +340,7 @@ export default function Column(props) {
                         {/* {props?.column?.itemType == ItemTypes.Video && (
                             <input autoComplete={`off`} style={{padding: `10px 0px 10px 15px`, minWidth: `100px`, maxWidth: `75px`}} placeholder={`Youtube Url`} type="text" name="itemVideo" />
                         )} */}
-                        <input autoComplete={`off`} name={`rank`} placeholder={props.items.filter(itm => itemActiveFilters(itm)).length + 1} defaultValue={props.items.filter(itm => itemActiveFilters(itm)).length + 1} type={`number`} min={1} />
+                        <input className={`rankField itemRankField`} autoComplete={`off`} name={`rank`} placeholder={props.items.filter(itm => itemActiveFilters(itm)).length + 1} defaultValue={props.items.filter(itm => itemActiveFilters(itm)).length + 1} type={`number`} min={1} />
                         <button type={`submit`} title={`Add Item`} className={`iconButton createList wordIconButton createItemButton`}>
                             <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-plus"></i>
                             <span className={`iconButtonText textOverflow extended`}>

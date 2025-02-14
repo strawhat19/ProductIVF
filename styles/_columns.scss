@@ -124,7 +124,7 @@
                     .boardTask {
                         &.complete {
                             color: black;
-                            background: linear-gradient(90deg, var(--blackGlass) 35px, var(--whiteGlassInvert) 35px) !important;
+                            background: linear-gradient(90deg, var(--blackGlass) var(--buttonSize), var(--whiteGlassInvert) var(--buttonSize)) !important;
                             .itemButtons {
                                 input {
                                     &.task_check_box {
@@ -219,6 +219,14 @@
         }
         background: black;
         color: white !important;
+    }
+}
+
+.board {
+    .column {
+        &.columns_1 { --columnWidth: 100% !important; }
+        &.columns_2 { --columnWidth: calc(98.5% / 2) !important; }
+        &.columns_3 { --columnWidth: calc(97% / 3) !important; }
     }
 }
 

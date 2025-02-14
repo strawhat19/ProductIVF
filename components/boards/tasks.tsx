@@ -322,6 +322,7 @@ export default function Tasks(props) {
               type={`number`}
               autoComplete={`off`}
               defaultValue={subtasks.length + 1}
+              className={`rankField taskRankField`}
               id={`${item.id}_createSubtask_rank`}
             />
             <button

@@ -13,6 +13,7 @@ export enum Environments {
 export enum Tables {
   users = `users`,
   items = `items`,
+  lists = `lists`,
   tasks = `tasks`,
   grids = `grids`,
   counts = `counts`,
@@ -43,10 +44,16 @@ const firebaseApp = initializeApp(firebaseConfig);
 export const db = getFirestore(firebaseApp);
 export const auth = getAuth(firebaseApp);
 
+export const environment = Environments.production;
 export const isProduction = process.env.NODE_ENV == `production`;
-export const environment = isProduction ? Environments.alpha : Environments.alpha;
+// export const environment = isProduction ? Environments.alpha : Environments.beta;
 
 export const usersTable = environment + Tables.users;
+export const gridsTable = environment + Tables.grids;
+export const boardsTable = environment + Tables.boards;
+export const listsTable = environment + Tables.lists;
+export const itemsTable = environment + Tables.items;
+export const tasksTable = environment + Tables.tasks;
 
 export const userConverter = {
   toFirestore: (usr: User) => {

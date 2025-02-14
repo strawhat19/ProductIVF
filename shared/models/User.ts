@@ -1,4 +1,5 @@
 import { genID } from '../ID';
+import { Data } from './Data';
 import { Types } from '../types/types';
 import { capWords } from '../../pages/_app';
 import { countPropertiesInObject, isValid } from '../constants';
@@ -47,59 +48,46 @@ export const ROLES = {
   Owner: new Role(7, Roles.Owner),
 }
 
-export class User {
-  A?: any;
-
-  id!: string;
-  uuid?: string;
-  uid: string = ``;
-
-  title?: string;
-  password?: string;
+export class User extends Data {
+  ID: any;
+  boards?: any[];
 
   phone: any;
   avatar: any;
-  name!: string;
-  rank: number = 1;
+  password?: string;
+  token: string = ``;
   email: string = ``;
-  properties: number;
+  provider: Providers.Firebase;
 
   type: Types = Types.User;
   role = ROLES.Subscriber.name;
 
-  boards?: any[];
+  options = {
+    active: true,
+    verified: false,
+    anonymous: false,
+  }
 
-  data = {
-    taskIDs: [],
-    itemIDs: [],
-    listIDs: [],
-    boardIDs: [],
+  data?: { [key: string]: string[] } = {
     gridIDs: [],
     friendIDs: [],
-    sharedIDs: [],
-  }
-
-  meta = {
-    created: undefined,
-    updated: undefined,
-    provider: Providers.Firebase,
-  }
-
-  auth = {
-    token: undefined,
-    verified: undefined,
-    anonymous: undefined,
+    selectedGridIDs: [],
   }
 
   constructor(data: Partial<User>) {
+    super(data);
     Object.assign(this, data);
+
     if (isValid(this.email) && !isValid(this.name)) this.name = capWords(this.email.split(`@`)[0]);
+
     this.A = this.name;
-    let ID = genID(Types.User, this.rank, this.name, this.uid);
-    let { id, date, title, uuid } = ID;
+
+    let ID = genID(this.type, this.rank, this.name, this.uid);
+    let { id, date, title, id_Title } = ID;
+
     if (!isValid(this.id)) this.id = id;
-    if (!isValid(this.uuid)) this.uuid = uuid;
     if (!isValid(this.title)) this.title = title;
+    if (!isValid(this.uuid)) this.uuid = id_Title;
     if (!isValid(this.meta.created)) this.meta.created = date;
     if (!isValid(this.meta.updated)) this.meta.updated = date;
     if (!isValid(this.properties)) this.properties = countPropertiesInObject(this) + 1;

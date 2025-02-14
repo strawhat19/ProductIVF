@@ -69,13 +69,6 @@ export default function Board(props) {
         })
     }
 
-    const onDragStart = (dragStartEvent) => {
-        if (dev()) {
-            setLoading(true);
-            setSystemStatus(`Rearranging...`);
-        }
-    }
-
     const onShowSearchClick = (e?: any) => {
         setShowSearch(!showSearch);
         toast.info(`Board Search in Development`);
@@ -85,7 +78,7 @@ export default function Board(props) {
         setBoard(prevBoard => {
             return {
                 ...prevBoard,
-                expanded: !prevBoard.expanded
+                expanded: !prevBoard.expanded,
             }
         });
     }
@@ -159,13 +152,8 @@ export default function Board(props) {
     const onDragEnd = (dragEndEvent) => {
         const { destination, source, draggableId, type } = dragEndEvent;
 
-        if (!destination) {
-            return;
-        }
-
-        if (destination.droppableId === source.droppableId && destination.index === source.index) {
-            return;
-        }
+        if (!destination) return;
+        if (destination.droppableId === source.droppableId && destination.index === source.index) return;
 
        if (dev()) {
            setLoading(false);
@@ -275,11 +263,11 @@ export default function Board(props) {
     },  [board])
 
     return (
-        <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
+        <DragDropContext onDragEnd={onDragEnd}>
             <section className={`boardsTitle boards`} style={{paddingBottom: 0}}>
                 <div className={`board boardInner boardTitle`}>
                     <div {...props.provided.dragHandleProps} className={`boardDetailsRowContainer titleRow flex row`}>
-                        <div className={`boardDetailsRow flex row innerRow`}>
+                        <div className={`boardDetailsRow flex row innerRow ${board?.expanded ? `expandedBoardDetailsRow` : `collapsedBoardDetailsRow`}`}>
                             <div className={`boardIndexAndTitle flex row left ${board?.expanded ? `` : `stretch`}`}>
                                 <h3 className={`boardIndexBadge`}>
                                     <span className={`subscript itemOrder slashes`}>
@@ -296,8 +284,8 @@ export default function Board(props) {
                                         defaultValue={board?.name ?? `Board`} 
                                         onBlur={(e) => changeLabel(e, board, setBoard)} 
                                         onKeyDown={(e) => forceFieldBlurOnPressEnter(e)}
-                                        style={{ width: board.titleWidth ? board.titleWidth : `75px` }} 
-                                        className={`boardNameField changeLabel textOverflow ${board?.expanded ? `` : `stretch`}`} 
+                                        style={{ width: board?.expanded ? (board.titleWidth ? board.titleWidth : `75px`) : `100%` }} 
+                                        className={`boardNameField changeLabel textOverflow ${board?.expanded ? `expandedBoardChangeLabel` : `stretch collapsedBoardChangeLabel`}`} 
                                     />
                                 </h2>
                                 {board?.expanded && <>
@@ -322,16 +310,16 @@ export default function Board(props) {
                                 </span>
                             </h3>
                             <div className={`boardMetaData flex row middle`}>
-                                <h3>
-                                    {board?.columnOrder && board?.columnOrder?.length} {(
-                                        <span className={`subscript`}>
+                                <h3 className={`boardCount boardColumnCount`}>
+                                    {board?.data?.columnIDs && board?.data?.columnIDs?.length} {(
+                                        <span className={`boardCountLabel boardColumnCountLabel subscript`}>
                                             Column(s)
                                         </span>
                                     )}
                                 </h3>
-                                <h3>
-                                    {board?.items && Object.values(board?.items).length} {(
-                                        <span className={`subscript`}>
+                                <h3 className={`boardCount boardItemCount`}>
+                                    {board?.data?.itemIDs && board?.data?.itemIDs?.length} {(
+                                        <span className={`boardCountLabel boardItemCountLabel subscript`}>
                                             Items(s)
                                         </span>
                                     )}
@@ -344,9 +332,9 @@ export default function Board(props) {
                             </h3>
                             <div className={`boardOptionsRow flex row right ${board?.expanded ? `expandedBoardOptionsRow` : `collapsedBoardOptionsRow`}`}>
                                 {board?.expanded && <>
-                                    <h3 className={`filtersSubscript`}>
-                                        <span className={`subscript`}>
-                                            Filters   
+                                    <h3 className={`boardOptions filtersSubscript`}>
+                                        <span className={`boardOptionsLabel subscript`}>
+                                            Options   
                                         </span>
                                     </h3>
                                 </>}
@@ -377,7 +365,7 @@ export default function Board(props) {
                                             </span>
                                         </button>
                                         <section className={`addListFormItemSection`} style={{ margin: 0, padding: 0, position: `relative` }}>
-                                            <div title={`Change Column Type`} onClick={(e) => toast.info(`Column Types are In Development`)} className={`typeIcon changeColumnTypeIcon hoverGlowButton ${showSearch ? `disabledIconBtn` : ``}`}>
+                                            <div title={`Change Column Type`} onClick={(e) => toast.info(`Column Types are In Development`)} className={`typeIcon changeColumnTypeIcon ${showSearch ? `disabledIconBtn` : ``}`}>
                                                 {showSearch ? <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-search`} /> : `+`}
                                             </div>
                                             <form onSubmit={addNewColumn} title={`Add Column`} id={`addListForm_${board?.id}`} className={`flex addListForm itemButtons addForm`} style={{ width: `100%`, flexDirection: `row` }}>

@@ -1,8 +1,16 @@
+.hidden { display: none; }
+.flexThis { display: flex; }
+.rowThis { flex-direction: row; }
+
+@mixin setWidth($width) {
+    height: $width !important;
+    min-height: $width !important;
+    max-height: $width !important;
+}
+
 .stretch {
     --fullWidth: 100% !important;
-    width: var(--fullWidth) !important;
-    min-width: var(--fullWidth) !important;
-    max-width: var(--fullWidth) !important;
+    @include setWidth(var(--fullWidth));
     &.boardIndexAndTitle {
         --fullWidth: 74% !important;
     }

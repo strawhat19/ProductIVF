@@ -1,0 +1,151 @@
+:root {
+    --skeletonColor: var(--blackGlass);
+    --skeletonSweepBlue: rgba(55, 134, 172, 0.65);
+    --skeletonSweepDarkBlue: rgba(8, 33, 45, 0.65);
+    --skeletonSweepColor: var(--skeletonSweepDarkBlue);
+}
+
+.IVF_skeleton {
+    width: 100%;
+    height: 100%;
+    border-radius: var(--borderRadius);
+    .IVF_skeleton_content {
+        z-index: 5;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        position: relative;
+        visibility: visible;
+        align-items: center;
+        justify-content: center;
+        .IVF_skeleton_label_container {
+            display: grid;
+            margin: 0 auto;
+            align-items: center;
+            grid-template-columns: auto auto 1fr;
+            .IVF_skeleton_label {
+                font-weight: 500;
+            }
+        }
+    }
+}
+
+.MuiSkeleton-root {
+    transform: none !important;
+    background: var(--skeletonColor);
+    &::after {
+        content: "";
+        background: linear-gradient(321deg, transparent, var(--skeletonSweepColor), transparent);
+    }
+}
+
+.MuiBox-root {
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.Mui-disabled {
+    color: rgba(255, 255, 255, 0.25) !important;
+}
+
+.MuiStepConnector-line {
+    padding-left: 1em;
+    font-size: 0.45em;
+}
+
+.MuiOutlinedInput-notchedOutline {
+    border-color: transparent !important;
+}
+
+.MuiInput-root {
+    &::after {
+        border-bottom: 1px solid var(--gameBlueSoft) !important;
+    }
+    &:hover {
+        &:not(.Mui-disabled, .Mui-error) {
+            &::before {
+                border-bottom: 1px solid white !important;
+            }
+        }
+    }
+}
+
+.MuiStepLabel-label {
+    color: white !important;
+    font-size: 0.65em !important;
+    font-family: 'Montserrat' !important;
+}
+
+.MuiStepLabel-root {
+    flex-direction: row;
+    span {
+        width: max-content;
+    }
+}
+
+.MuiPaper-root {
+    background: transparent !important;
+}
+
+.MuiTypography-root {
+    color: white;
+    margin-bottom: 10px;
+    font-family: 'Montserrat' !important;
+}
+
+.MuiButton-containedPrimary {
+    color: white !important;
+    background: var(--gameBlueSoft) !important;
+}
+
+.MuiStepper-root {
+    .Mui-completed, .Mui-active {
+        :not(.MuiStepLabel-label):not(.MuiStepConnector-line) {
+            color: var(--gameBlueSoft) !important;
+        }
+        svg {
+            border-radius: 100% !important;
+            background: radial-gradient(white 0%, transparent 100%) !important;
+        }
+    }
+    .MuiButton-textPrimary {
+        font-weight: 600;
+        color: var(--gameBlueSoft) !important;
+    }
+    .MuiTextField-root {
+        label {
+            display: flex;
+            flex-direction: row;
+            color: white !important;
+            padding-left: 1em !important;
+            &:not(.Mui-focused) {
+                color: rgba(255,255,255,0.65) !important;
+            }
+            span {
+                width: max-content;
+            }
+        }
+    }
+}
+
+.MuiFormLabel-asterisk {
+    color: var(--gameBlueSoft);
+}
+
+.dark {
+    .MuiStepConnector-line {
+        color: #cfcfcf !important;
+    }
+}
+
+.light {
+    .MuiStepConnector-line {
+        color: #8d8d8d !important;
+    }
+    .MuiTypography-root {
+        color: rgba(17, 24, 39, 1);
+    }
+    .MuiStepLabel-label, .MuiStepper-root .MuiTextField-root label, .MuiStepper-root .MuiTextField-root label:not(.Mui-focused) {
+        color: rgba(17, 24, 39, 1) !important;
+    }
+}

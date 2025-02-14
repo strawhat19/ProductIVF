@@ -66,12 +66,13 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
         setItemTypeMenuOpen, 
     } = useContext<any>(StateContext);
 
-    const updateBoards = (user) => {
-        localStorage.setItem(`boards`, JSON.stringify(boards));
-        if (user != null) {
-          updateUserFields(user?.id, { boards });
-          localStorage.setItem(`user`, JSON.stringify({ ...user, boards }));
-        }
+    const updateBoards = (updatedBoards) => {
+        setBoards(updatedBoards);
+        // localStorage.setItem(`boards`, JSON.stringify(updatedBoards));
+        // if (user != null) {
+        //   updateUserFields(user?.id, { boards: updatedBoards });
+        //   localStorage.setItem(`user`, JSON.stringify({ ...user, boards: updatedBoards }));
+        // }
     }
 
     const changeLabel = (e, item) => {
@@ -90,7 +91,33 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
         item.content = elemValue;
         item.updated = formatDate(new Date());
 
-        updateBoards(user);
+        let updatedBoards = boards.map(brd => brd?.id == board?.id ? ({
+            ...board,
+            items: {
+                ...board?.items,
+                [board?.items[item?.id]]: {
+                    ...board?.items[item?.id],
+                    title: elemValue,
+                    content: elemValue,
+                    updated: formatDate(new Date()),
+                }
+            }
+        }) : brd);
+
+        updateBoards(updatedBoards);
+
+        // setBoards(prevBoards => prevBoards.map(brd => brd?.id == board?.id ? ({
+        //     ...board,
+        //     items: {
+        //         ...board?.items,
+        //         [board?.items[item?.id]]: {
+        //             ...board?.items[item?.id],
+        //             title: elemValue,
+        //             content: elemValue,
+        //             updated: formatDate(new Date()),
+        //         }
+        //     }
+        // }) : brd));
     }
 
     const completeActions = (item, itemId, isButton) => {
@@ -101,13 +128,17 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
             board.items[itemId].updated = formatDate(new Date());
             board.items[itemId].complete = !board.items[itemId].complete;
 
-            setBoard({
+            let updatedBoard = {
                 ...board,
                 updated: formatDate(new Date()),
                 items: {
                     ...board.items
                 },
-            });
+            };
+
+            setBoard(updatedBoard);
+
+            // setBoards(prevBoards => prevBoards.map(brd => brd?.id == board?.id ? updatedBoard : brd));
 
             setTimeout(() => {
                 setSystemStatus(item.complete ? `Marked Item as Complete.` : `Reopened Item.`);

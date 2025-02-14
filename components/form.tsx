@@ -2,11 +2,13 @@
 
 import { toast } from 'react-toastify';
 import { User } from '../shared/models/User';
+import { createUser, seedUserData } from '../shared/database';
 import { addUserToDatabase, auth } from '../firebase';
 import { useContext, useEffect, useRef, useState } from 'react';
-import { formatDate, StateContext, showAlert } from '../pages/_app';
+import { findHighestNumberInArrayByKey, stringNoSpaces } from '../shared/constants';
+import { formatDate, StateContext, showAlert, dev } from '../pages/_app';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
-import { findHighestNumberInArrayByKey, isValid, removeNullAndUndefinedProperties } from '../shared/constants';
+import IVFSkeleton from './loaders/skeleton/ivf_skeleton';
 
 export const convertHexToRGB = (HexString?:any, returnObject?: any) => {
   let r = parseInt(HexString.slice(1, 3), 16),
@@ -27,12 +29,12 @@ export const isShadeOfBlack = (HexString?:any) => {
   return (rgb?.r < darkColorBias) && (rgb?.g < darkColorBias) && (rgb?.b < darkColorBias);
 }
 
-export const renderErrorMessage = (erMsg: string) => {
+export const renderFirebaseAuthErrorMessage = (erMsg: string) => {
   let erMsgQuery = erMsg?.toLowerCase();
   if (erMsgQuery.includes(`invalid-email`)) {
     return `Please use a valid email.`;
   } else if (erMsgQuery?.includes(`email-already-in-use`)) {
-    return `Email is already in use.`;
+    return `Existing Email, Switching to Sign In`;
   } else if (erMsgQuery?.includes(`weak-password`)) {
     return `Password should be at least 6 characters`;
   } else if (erMsgQuery?.includes(`wrong-password`) || erMsgQuery?.includes(`invalid-login-credentials`)) {
@@ -45,10 +47,39 @@ export const renderErrorMessage = (erMsg: string) => {
 }
 
 export default function Form(props?: any) {
+  const formRef = useRef(null);
   const loadedRef = useRef(false);
+  const passwordRef = useRef<HTMLInputElement | null>(null);
+
   const [loaded, setLoaded] = useState(false);
+  
   const { id, navForm, className, style } = props;
-  const { user, setUser, setBoards, updates, setUpdates, setContent, authState, setAuthState, emailField, setEmailField, users } = useContext<any>(StateContext);
+
+  const { 
+    onSignOut, 
+    setContent, 
+    updates, setUpdates, 
+    authState, setAuthState, 
+    emailField, setEmailField,  
+    user, setUser, usersLoading, users, onSetUser,
+  } = useContext<any>(StateContext);
+
+  const getAuthStateIcon = (authState) => {
+    let signoutIcon = `fas fa-sign-out-alt`;
+    let icon = signoutIcon;
+    // if (authState == `Next`) {
+    //   icon = 
+    // }
+    return icon;
+  }
+
+  const submitFormProgrammatically = (e?: any, auth_state?) => {
+    e?.preventDefault();
+    let form = formRef?.current;
+    if (form != null) {
+      authForm(e, form, auth_state);
+    }
+  }
 
   // const changeColor = (colorRangePickerEvent?: any) => {
   //   let currentColor: any = colorRangePickerEvent.target.value;
@@ -67,37 +98,39 @@ export default function Form(props?: any) {
   //   }    
   // }
 
-  const authForm = (e?: any) => {
+  const formButtonField = (label, className, auth_state, input) => <>
+    {usersLoading ? (
+      <IVFSkeleton 
+        label={label} 
+        labelSize={14}
+        showLoading={true}
+        className={className} 
+        skeletonContainerGap={15}
+        skeletonContainerWidth={`100%`}
+        skeletonContainerPadding={`5px 12px`}
+      />
+    ) : (
+      <div className={`formButtonsField ${stringNoSpaces(auth_state)}_AuthState`} onClick={(e) => formRef != null ? submitFormProgrammatically(e, auth_state) : undefined}>
+        <i style={{ color: `var(--gameBlue)` }} className={`formButtonsFieldIcon ${getAuthStateIcon(auth_state)}`} />
+        {input}
+      </div>
+    )}
+  </>
+
+  const authForm = (e?: any, frm?, value?) => {
     e.preventDefault();
     
-    let form = e?.target;
+    let form = frm ? frm : e?.target;
     let formFields = form?.children;
     let clicked = e?.nativeEvent?.submitter;
     let email = formFields?.email?.value ?? `email`;
+    let clickedValue = value ? value : clicked?.value;
     let password = formFields?.password?.value ?? `pass`;
 
     const signInUser = (usr: User) => {
       localStorage.setItem(`user`, JSON.stringify(usr));
       setAuthState(`Sign Out`);
       setUser(usr);
-      if (isValid(usr?.boards)) {
-        setBoards(usr?.boards);
-      }
-    }
-
-    const onSignOut = () => {
-      setUser(null);
-      setAuthState(`Next`);
-      setEmailField(false);
-      setUpdates(updates + 1);
-      localStorage.removeItem(`user`);
-      let hasLocalBoards = localStorage.getItem(`local_boards`);
-      if (hasLocalBoards) {
-        let localBoards = JSON.parse(hasLocalBoards);
-        setBoards(localBoards);
-      } else {
-        setBoards([]);
-      }
     }
 
     const onSignIn = (email, password) => {
@@ -107,6 +140,7 @@ export default function Form(props?: any) {
           if (existingUser != null) {
             signInUser(existingUser);
             toast.success(`Successfully Signed In`);
+            onSetUser(existingUser);
           } else {
             setEmailField(true);
             setAuthState(`Sign Up`);
@@ -116,7 +150,7 @@ export default function Form(props?: any) {
         const errorCode = error.code;
         const errorMessage = error.message;
         if (errorMessage) {
-          toast.error(renderErrorMessage(errorMessage));
+          toast.error(renderFirebaseAuthErrorMessage(errorMessage));
           console.log(`Error Signing In`, {
             error,
             errorCode,
@@ -141,26 +175,13 @@ export default function Form(props?: any) {
           } = userCredential?.user;
 
           let highestRank = await findHighestNumberInArrayByKey(users, `rank`);
-          let userData = {
-            uid,
-            name,
-            email,
-            phone,
-            avatar,
-            rank: highestRank + 1,
-            auth: {
-              token,
-              verified,
-              anonymous,
-            }
-          }
-
-          let cleanedUser = removeNullAndUndefinedProperties(userData);
-          let newUser = new User(cleanedUser);
+          let rank = highestRank + 1;
+        
+          let newUser = createUser(uid, rank, email, name, phone, avatar, token, verified, anonymous);
 
           await addUserToDatabase(newUser).then(() => {
             toast.success(`Signed Up & In as: ${newUser?.name}`);
-            console.log(`New User`, newUser);
+            dev() && console.log(`New User`, newUser);
             signInUser(newUser);
             form.reset();
           });
@@ -171,7 +192,10 @@ export default function Form(props?: any) {
         console.log(`Error Signing Up`, error);
         const errorMessage = error.message;
         if (errorMessage) {
-          toast.error(renderErrorMessage(errorMessage));             
+          toast.error(renderFirebaseAuthErrorMessage(errorMessage));  
+          if (errorMessage?.includes(`email-already-in-use`)) {
+            setAuthState(`Sign In`);
+          }         
         } else {
           toast.error(`Error Signing Up`);
         }
@@ -179,9 +203,9 @@ export default function Form(props?: any) {
       });
     }
 
-    switch(clicked?.value) {
+    switch(clickedValue) {
       default:
-        console.log(`Clicked Value`, clicked?.value);
+        console.log(`Clicked Value`, clickedValue);
         break;
       case `Next`:
         let macthingEmails = users.filter((usr: any) => usr?.email.toLowerCase() == email.toLowerCase());
@@ -258,11 +282,19 @@ export default function Form(props?: any) {
     setLoaded(true);
   }, [user, users, authState]);
 
-  return <>
-    <form {...id && { id }} onSubmit={authForm} className={`flex authForm customButtons ${className}`} style={style}>
+  useEffect(() => {
+    if (emailField && passwordRef.current) {
+      passwordRef.current.focus();
+    }
+  }, [emailField]);
 
-      {!user && <input placeholder="Email" type="email" name="email" autoComplete={`email`} required />}
-      {!user && emailField && <input placeholder="Password" type="password" minLength={6} name="password" autoComplete={`current-password`} />}
+  return <>
+    <form ref={formRef} {...id && { id }} onSubmit={authForm} className={`flex authForm customButtons ${className}`} style={style}>
+
+      {usersLoading ? <></> : <>
+        {!user && <input placeholder="Email" type="email" name="email" autoComplete={`email`} required />}
+        {!user && emailField && <input ref={passwordRef} placeholder="Password" type="password" minLength={6} name="password" autoComplete={`current-password`} />}
+      </>}
 
       {(!navForm && user != null) ? <>
         {window?.location?.href?.includes(`profile`) ? <>
@@ -276,9 +308,21 @@ export default function Form(props?: any) {
         </> : <></>}
       </> : <></>}
 
-      <input className={(user && window?.location?.href?.includes(`profile`) || (authState == `Sign In` || authState == `Sign Up`)) ? `submit half` : `submit full`} type="submit" name="authFormSubmit" value={user ? `Sign Out` : authState} />
+      {formButtonField(
+        `Users Loading`, 
+        `usersSkeleton`, 
+        user ? `Sign Out` : authState,
+        <input className={(user && window?.location?.href?.includes(`profile`) || (authState == `Sign In` || authState == `Sign Up`)) ? `submit half` : `submit full`} type="submit" name="authFormSubmit" value={user ? `Sign Out` : authState} />,
+      )}
 
-      {(authState == `Sign In` || authState == `Sign Up`) && <input className={`back authFormBack`} type="submit" name="authFormBack" value={`Back`} />}
+      {(authState == `Sign In` || authState == `Sign Up`) && (
+        formButtonField(
+          `Users Loading`, 
+          `usersSkeleton`, 
+          `Back`,
+          <input className={`back authFormBack`} type="submit" name="authFormBack" value={`Back`} />
+        )
+      )}
       
     </form>
   </>
