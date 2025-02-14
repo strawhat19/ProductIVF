@@ -289,7 +289,7 @@ export default function Form(props?: any) {
   }, [emailField]);
 
   return <>
-    <form ref={formRef} {...id && { id }} onSubmit={authForm} className={`flex authForm customButtons ${className}`} style={style}>
+    <form ref={formRef} {...id && { id }} onSubmit={authForm} className={`flex authForm customButtons ${className} ${stringNoSpaces(authState)}_formButton`} style={style}>
 
       {usersLoading ? <></> : <>
         {!user && <input placeholder="Email" type="email" name="email" autoComplete={`email`} required />}

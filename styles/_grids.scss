@@ -14,6 +14,27 @@
     align-items: center;
 }
 
+.Sign_Out_formButton {
+    .formButtonsField  {
+        background: var(--authFormButtonFontColor) !important;
+        input {
+            &[type="submit"][type="submit"][name="authFormSubmit"] {
+                font-weight: 600;
+                color: black !important;
+            }
+        }
+        &:hover {
+            background: var(--authFormButtonBG) !important;
+            input {
+                &[type="submit"][type="submit"][name="authFormSubmit"] {
+                    font-weight: 600;
+                    color: white !important;
+                }
+            }
+        }
+    }
+}
+
 .formButtonsField {
     display: flex;
     line-height: 1;

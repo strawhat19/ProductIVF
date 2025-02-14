@@ -38,11 +38,9 @@ const getGridIconOption = (option) => {
       let lockIcon = `fas fa-lock`;
       let userIcon = `fas fa-user-alt`;
       let shareIcon = `fas fa-share-alt`;
-      // let historyIcon = `fas fa-history`;
       let briefcaseIcon = `fas fa-briefcase`;
       let globeIcon = `fas fa-globe-americas`;
       let folderOpenIcon = `fas fa-folder-open`;
-      // let hourglassicon = `fas fa-hourglass-half`;
       if (option?.gridType == GridTypes.Personal) gridTypeIcon = userIcon;
       if (option?.gridType == GridTypes.Work) gridTypeIcon = briefcaseIcon;
       if (option?.gridType == GridTypes.Shared) gridTypeIcon = shareIcon;

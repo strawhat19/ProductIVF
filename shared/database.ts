@@ -10,18 +10,14 @@ export const seedUserData = (user: User | any) => {
     let board1 = createBoard(1, `Daily Tasks`, user, `135px`);
     let board2 = createBoard(2, `Goals`, user, `85px`);
 
-    let board3 = createBoard(3, GridTypes.Work, user, `80px`);
+    let board3 = createBoard(3, `Reminders`, user, `145px`);
+    let board4 = createBoard(4, GridTypes.Work, user, `80px`);
 
-    let board4 = createBoard(4, GridTypes.Shared, user, `95px`);
+    let board5 = createBoard(5, `Bills`, user, `80px`);
+    let board6 = createBoard(6, `Passwords`, user, `132.5px`);
 
-    let board5 = createBoard(5, `Global`, user, `95px`);
-    let board6 = createBoard(6, GridTypes.Public, user, `95px`);
-
-    let board7 = createBoard(7, `Bills`, user, `80px`);
-    let board8 = createBoard(8, `Passwords`, user, `132.5px`);
-
-    let board9 = createBoard(9, GridTypes.Archived, user, `115px`);
-    let board10 = createBoard(10, `Deprecated`, user, `144px`);
+    let board7 = createBoard(7, GridTypes.Archived, user, `115px`);
+    let board8 = createBoard(8, `Deprecated`, user, `144px`);
 
     let grid1 = createGrid(1, GridTypes.Personal, user, GridTypes.Personal, [
         board1?.ID, 
@@ -30,45 +26,33 @@ export const seedUserData = (user: User | any) => {
 
     let grid2 = createGrid(2, GridTypes.Work, user, GridTypes.Work, [
         board3?.ID,
-    ]);
-
-    let grid3 = createGrid(3, GridTypes.Shared, user, GridTypes.Shared, [
         board4?.ID,
     ]);
 
-    let grid4 = createGrid(4, GridTypes.Public, user, GridTypes.Public, [
+    let grid3 = createGrid(3, GridTypes.Private, user, GridTypes.Private, [
         board5?.ID, 
         board6?.ID,
     ]);
 
-    let grid5 = createGrid(5, GridTypes.Private, user, GridTypes.Private, [
-        board7?.ID, 
+    let grid4 = createGrid(4, GridTypes.Archived, user, GridTypes.Archived, [
+        board7?.ID,
         board8?.ID,
-    ]);
-
-    let grid6 = createGrid(6, GridTypes.Archived, user, GridTypes.Archived, [
-        board9?.ID,
-        board10?.ID,
     ]);
 
     board1 = new Board({ ...board1, gridID: grid1?.ID });
     board2 = new Board({ ...board2, gridID: grid1?.ID });
 
     board3 = new Board({ ...board3, gridID: grid2?.ID });
-
-    board4 = new Board({ ...board4, gridID: grid3?.ID });
-
-    board5 = new Board({ ...board5, gridID: grid4?.ID });
-    board6 = new Board({ ...board6, gridID: grid4?.ID });
+    board4 = new Board({ ...board4, gridID: grid2?.ID });
     
-    board7 = new Board({ ...board7, gridID: grid5?.ID });
-    board8 = new Board({ ...board8, gridID: grid5?.ID });
+    board5 = new Board({ ...board5, gridID: grid3?.ID });
+    board6 = new Board({ ...board6, gridID: grid3?.ID });
 
-    board9 = new Board({ ...board9, gridID: grid6?.ID });
-    board10 = new Board({ ...board10, gridID: grid6?.ID });
+    board7 = new Board({ ...board7, gridID: grid4?.ID });
+    board8 = new Board({ ...board8, gridID: grid4?.ID });
 
-    let grids = [grid1, grid2, grid3, grid4, grid5, grid6];
-    let boards = [board1, board2, board3, board4, board5, board6, board7, board8, board9, board10];
+    let grids = [grid1, grid2, grid3, grid4];
+    let boards = [board1, board2, board3, board4, board5, board6, board7, board8];
 
     let seedUserData = {
         grids,
@@ -151,9 +135,12 @@ export const createGrid = (
     }) as Grid;
 
     if (user != null) {
-        let idTitle = user?.email + `_` + stringNoSpaces(grid?.title);
-        grid.ID = idTitle + `_` + grid?.uuid;
-        grid.id = idTitle + `_` + stringNoSpaces(grid?.meta?.created) + `_` + grid?.uuid;
+        let title = stringNoSpaces(grid?.title);
+        let idTitle = user?.email + `_` + title;
+        let extensionIDs = `_` + grid?.uuid + `_` + user?.uid;
+        grid.ID = idTitle + extensionIDs;
+        grid.uid = title + `_` + grid?.uuid + `_` + user?.email;
+        grid.id = idTitle + `_` + stringNoSpaces(grid?.meta?.created) + extensionIDs;
     }
 
     grid.data = {
@@ -197,9 +184,12 @@ export const createBoard = (
     }) as Board;
 
     if (user != null) {
-        let idTitle = user?.email + `_` + stringNoSpaces(board?.title);
-        board.ID = idTitle + `_` + board?.uuid;
-        board.id = idTitle + `_` + stringNoSpaces(board?.meta?.created) + `_` + board?.uuid;
+        let title = stringNoSpaces(board?.title);
+        let idTitle = user?.email + `_` + title;
+        let extensionIDs = `_` + board?.uuid + `_` + user?.uid;
+        board.ID = idTitle + extensionIDs;
+        board.uid = title + `_` + board?.uuid + `_` + user?.email;
+        board.id = idTitle + `_` + stringNoSpaces(board?.meta?.created) + extensionIDs;
     }
 
     board.data = {

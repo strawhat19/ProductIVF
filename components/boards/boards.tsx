@@ -1,13 +1,12 @@
 import Board from './board';
 import { toast } from 'react-toastify';
-import { Skeleton } from '@mui/material';
 import { createBoard } from '../../shared/database';
 import MultiSelector from '../selector/multi-selector';
 import { useState, useEffect, useContext } from 'react';
-import { findHighestNumberInArrayByKey, generateArray } from '../../shared/constants';
+import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
 import { capWords, dev, replaceAll, StateContext } from '../../pages/_app';
 import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
-import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
+import { findHighestNumberInArrayByKey, generateArray } from '../../shared/constants';
 
 export enum ItemTypes {
     Item = `Item`,
@@ -22,13 +21,15 @@ export enum BoardTypes {
     Spreadsheet = `Spreadsheet`,
 }
 
-export default function Boards({  }) {
-    let [updates, setUpdates] = useState(0);
-    let [searchingGrid, setSearchingGrid] = useState(false);
-    let [useSingleSelect, setUseSingleSelect] = useState(true);
+export const getBoardTitleWidth = (wordOrArrayOfLetters: string | string[]) => {
+    let titleWidth = `${(wordOrArrayOfLetters.length * 6.5) + (69 + wordOrArrayOfLetters?.length)}px`;
+    return titleWidth;
+}
 
+export default function Boards({  }) {
     let { 
         user, 
+        devEnv,
         authState,
         setLoading, 
         IDs, setIDs, 
@@ -39,6 +40,70 @@ export default function Boards({  }) {
         grids, gridsLoading, selectedGrids, setSelectedGrids, 
     } = useContext<any>(StateContext);
 
+    let [updates, setUpdates] = useState(0);
+    let [searchingGrid, setSearchingGrid] = useState(true);
+    let [useSingleSelect, setUseSingleSelect] = useState(true);
+    let [useGridSearchCreate, setUseGridSearchCreate] = useState(false);
+
+    const getLoadingLabel = (lbl: string) => {
+        let nonFormAuthStates = [`Next`, `Back`, `Save`];
+        return user != null ? `${lbl} Loading` : `${!nonFormAuthStates.includes(authState) ? authState : `Register`} to View ${lbl}`;
+    }
+
+    const updateSelectedGrids = (updatedSelectedGrids) => {
+        setSelectedGrids(updatedSelectedGrids);
+        let gridBoards = getGridsBoards(updatedSelectedGrids, userBoards);
+        setBoards(gridBoards);
+    }
+
+    const onDragEnd = (dragEndEvent) => {
+        const { destination, source } = dragEndEvent;
+
+        if (!destination) return;
+        if (destination.droppableId === source.droppableId && destination.index === source.index) return;
+
+        const updatedBoards = [...boards];
+        const [reorderedBoard] = updatedBoards.splice(source.index, 1);
+        updatedBoards.splice(destination.index, 0, reorderedBoard);
+
+        let updatedBoardsPositions = updatedBoards.map((brd, brdIndex) => ({ ...brd, position: brdIndex + 1 }));
+        setBoards(updatedBoardsPositions);
+
+        // dev() && console.log(`Boards Drag`, updatedBoardsPositions);
+    }
+
+    const addNewBoard = async (e) => {
+        e.preventDefault();
+        
+        setLoading(true);
+        let formFields = e.target.children[0].children;
+        let boardName = capWords(formFields.createBoard.value);
+        let titleWidth = getBoardTitleWidth(boardName);
+
+        let boardLn = boards?.length;
+        let boardRank = await findHighestNumberInArrayByKey(userBoards, `rank`);
+        let boardIDX = boardRank > boardLn ? boardRank : boardLn;
+        let rank = boardIDX + 1;
+        
+        setSystemStatus(`Creating Board ${boardName}.`);
+
+        let newBoard = createBoard(rank, boardName, user, titleWidth, selectedGrids[0]?.ID);
+
+        dev() && console.log(`New Board`, newBoard);
+
+        // Add to Firestore Boards Here Later
+
+        setBoards([newBoard, ...boards]);
+        setIDs([...IDs, newBoard.id]);
+
+        e.target.reset();
+        setTimeout(() => {
+            setLoading(false);
+            setSystemStatus(`Created Board ${newBoard.name}.`);
+        }, 1000);
+    }
+
+    
     const createBoardComponent = () => (
         <div className={`createBoard lists extended`}>
             <div className={`list items addListDiv`}>
@@ -74,59 +139,6 @@ export default function Boards({  }) {
         </div>
     )
 
-    const updateSelectedGrids = (updatedSelectedGrids) => {
-        setSelectedGrids(updatedSelectedGrids);
-        let gridBoards = getGridsBoards(updatedSelectedGrids, userBoards);
-        setBoards(gridBoards);
-    }
-
-    const addNewBoard = async (e) => {
-        e.preventDefault();
-        
-        setLoading(true);
-        let formFields = e.target.children[0].children;
-        let boardName = capWords(formFields.createBoard.value);
-        let titleWidth = `${(boardName.length * 8.5) + 80}px`;
-
-        let boardLn = boards?.length;
-        let boardRank = await findHighestNumberInArrayByKey(boards, `rank`);
-        let boardIDX = boardRank > boardLn ? boardRank : boardLn;
-        let rank = boardIDX + 1;
-        
-        setSystemStatus(`Creating Board ${boardName}.`);
-
-        let newBoard = createBoard(rank, boardName, user, titleWidth);
-
-        dev() && console.log(`New Board`, newBoard);
-
-        // Add to Firestore Boards Here Later
-
-        setBoards([newBoard, ...boards]);
-        setIDs([...IDs, newBoard.id]);
-
-        e.target.reset();
-        setTimeout(() => {
-            setLoading(false);
-            setSystemStatus(`Created Board ${newBoard.name}.`);
-        }, 1000);
-    }
-
-    const onDragEnd = (dragEndEvent) => {
-        const { destination, source } = dragEndEvent;
-
-        if (!destination) return;
-        if (destination.droppableId === source.droppableId && destination.index === source.index) return;
-
-        const updatedBoards = [...boards];
-        const [reorderedBoard] = updatedBoards.splice(source.index, 1);
-        updatedBoards.splice(destination.index, 0, reorderedBoard);
-
-        let updatedBoardsPositions = updatedBoards.map((brd, brdIndex) => ({ ...brd, position: brdIndex + 1 }));
-        setBoards(updatedBoardsPositions);
-
-        // dev() && console.log(`Boards Drag`, updatedBoardsPositions);
-    };
-
     useEffect(() => {
         setRte(replaceAll(router.route, `/`, `_`));
         
@@ -136,21 +148,16 @@ export default function Boards({  }) {
         }
     }, [rte]);
 
-    const getLoadingLabel = (lbl: string) => {
-        let nonFormAuthStates = [`Next`, `Back`, `Save`];
-        return user != null ? `${lbl} Loading` : `${!nonFormAuthStates.includes(authState) ? authState : `Register`} to View ${lbl}`;
-    }
-
     return <>
         <div className={`boardsTitleRow flex row _projects_boards`}>
             <div className={`row gridRow ${gridsLoading ? `gridsAreLoading` : ``} ${(gridsLoading || grids?.length > 1) ? `hasGridSelector ${useSingleSelect ? `withSingleSelect` : ``}` : ``}`} style={{ padding: 0, paddingBottom: 7 }}>
                 <div className={`flex row left`} style={{ height: `var(--buttonSize)` }}>
                     <h1 className={`nx-mt-2 nx-text-4xl nx-font-bold nx-tracking-tight nx-text-slate-900 dark:nx-text-slate-100`} style={{ maxWidth: `unset` }}>
-                        {user != null ? user?.name + `s ` : ``}{selectedGrids.length == 1 ? selectedGrids[0]?.name : `Grids`}
+                        {user != null ? user?.name + `s ` : ``}{selectedGrids.length == 1 ? selectedGrids[0]?.name + (!useGridSearchCreate ? ` Grid` : ``) : `Grids`}
                     </h1>
                 </div>
                 <div className={`flex row middle`} style={{ textAlign: `center`, height: `var(--buttonSize)` }}>
-                    {gridsLoading ? <></> : <>
+                    {(gridsLoading || !useGridSearchCreate) ? <></> : <>
                         <button style={{ background: `white`, pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33, justifyContent: `center`, borderTopRightRadius: 0, borderBottomRightRadius: 0 }} title={`${searchingGrid ? `Search` : `Create`} Grid`} className={`gridTypeIconButton iconButton filterButton hoverGlow ${searchingGrid ? `filerActive searchButton` : `filterInactive createGridButton`}`} onClick={() => setSearchingGrid(!searchingGrid)}>
                             {searchingGrid ? <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-search`} /> : `+`}
                         </button>

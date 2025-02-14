@@ -1,5 +1,5 @@
 import Column from './column';
-import { ItemTypes } from './boards';
+import { getBoardTitleWidth, ItemTypes } from './boards';
 import { toast } from 'react-toastify';
 import ConfirmAction from '../context-menus/confirm-action';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
@@ -90,7 +90,7 @@ export default function Board(props) {
             e.target.value = capitalizeAllWords(item.name);
             return;
         };
-        let titleWidth = `${(value.length * 6.5) + (69 + value?.length)}px`;
+        let titleWidth = getBoardTitleWidth(value);
         e.target.value = capitalizeAllWords(value);
         e.target.style.width = titleWidth;
         if (item.id.includes(`board`)) {
