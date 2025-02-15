@@ -1,7 +1,7 @@
 import { User } from './models/User';
 import { Grid } from './models/Grid';
 import { Board } from './models/Board';
-import { capWords, dev } from '../pages/_app';
+import { capWords } from '../pages/_app';
 import { GridTypes, Types } from './types/types';
 import { BoardTypes } from '../components/boards/boards';
 import { isValid, removeNullAndUndefinedProperties, stringNoSpaces } from './constants';
@@ -83,7 +83,7 @@ export const createUser = (
     verified = false, 
     anonymous = false, 
     active = true, 
-    type = Types.User
+    type = Types.User,
 ) => {
 
     let user: User = new User({
