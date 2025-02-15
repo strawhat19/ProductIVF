@@ -469,15 +469,6 @@ export default function ProductIVF({ Component, pageProps, router }) {
     return gridsBoards;
   }
 
-  const setUserGridsBoards = (activeGrid, gridsBoards, usrGrids, usrBoards) => {
-    setGrids(usrGrids);
-    setUserBoards(usrBoards);
-    setSelectedGrids([activeGrid]);
-    setGridsLoading(false);
-    setBoards(gridsBoards);
-    setBoardsLoading(false);
-  }
-
   const setUserData = (activeGridID, grds, brds) => {
     setGrids(grds);
     setUserBoards(brds);
@@ -705,7 +696,6 @@ export default function ProductIVF({ Component, pageProps, router }) {
       setUserData,
       seedUserData,
       getGridsBoards,
-      setUserGridsBoards,
 
       // Grids & Boards
       menuRef, 

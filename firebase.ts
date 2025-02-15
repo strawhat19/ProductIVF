@@ -96,6 +96,19 @@ export const addUserToDatabase = async (usr: User) => {
   }
 }
 
+export const getBoardsFromBoardIDs = async (boardIDs) => {
+  let boardsFromBoardIDs = [];
+  const boardsDatabase = await collection(db, boardsTable)?.withConverter(boardConverter);
+  const boardsQuery = await query(boardsDatabase, where(`ID`, `in`, boardIDs));
+  const boardsToGet = await getDocs(boardsQuery);
+  if (boardsToGet) {
+    boardsToGet.forEach(doc => {
+      boardsFromBoardIDs.push(new Board({ ...doc.data() }));
+    });
+  }
+  return boardsFromBoardIDs;
+}
+
 export const getBoardsFromGridID = async (gridID) => {
   let boardsForGrid = [];
   const boardsDatabase = await collection(db, boardsTable)?.withConverter(boardConverter);

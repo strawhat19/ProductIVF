@@ -1,13 +1,13 @@
 import Board from './board';
 import { toast } from 'react-toastify';
 import { createBoard } from '../../shared/database';
+import { getBoardsFromBoardIDs, getBoardsFromGridID } from '../../firebase';
 import MultiSelector from '../selector/multi-selector';
 import { useState, useEffect, useContext } from 'react';
 import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
 import { capWords, dev, replaceAll, StateContext } from '../../pages/_app';
 import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
 import { findHighestNumberInArrayByKey, generateArray } from '../../shared/constants';
-import { getBoardsFromGridID } from '../../firebase';
 
 export enum ItemTypes {
     Item = `Item`,
@@ -30,11 +30,9 @@ export const getBoardTitleWidth = (wordOrArrayOfLetters: string | string[]) => {
 export default function Boards({  }) {
     let { 
         user, 
-        devEnv,
         authState,
         setLoading, 
         IDs, setIDs, 
-        getGridsBoards,
         setSystemStatus, 
         rte, router, setRte, 
         grids, gridsLoading, selectedGrids, setSelectedGrids, 
@@ -42,26 +40,26 @@ export default function Boards({  }) {
     } = useContext<any>(StateContext);
 
     let [updates, setUpdates] = useState(0);
+    let [useSingleSelect, ] = useState(true);
+    let [useGridSearchCreate, ] = useState(false);
     let [searchingGrid, setSearchingGrid] = useState(true);
-    let [useSingleSelect, setUseSingleSelect] = useState(true);
-    let [useGridSearchCreate, setUseGridSearchCreate] = useState(false);
 
     const getLoadingLabel = (lbl: string) => {
         let nonFormAuthStates = [`Next`, `Back`, `Save`];
         return user != null ? `${lbl} Loading` : `${!nonFormAuthStates.includes(authState) ? authState : `Register`} to View ${lbl}`;
     }
-
-    const setBoardsForGridID = async (gridID) => {
+  
+    const setBoardsFromGrid = async (activeGrid) => {
         setBoardsLoading(true);
-        let boardsForGrid = await getBoardsFromGridID(gridID);
+        let boardsForGrid = await getBoardsFromBoardIDs(activeGrid?.data?.boardIDs);
         setBoards(boardsForGrid);
         setBoardsLoading(false);
     }
 
     const updateSelectedGrids = async (updatedSelectedGrids) => {
         setSelectedGrids(updatedSelectedGrids);
-        let activeGridID = updatedSelectedGrids[0]?.ID;
-        setBoardsForGridID(activeGridID);
+        let activeGrid = updatedSelectedGrids[0];
+        if (activeGrid) setBoardsFromGrid(activeGrid);
     }
 
     const onDragEnd = (dragEndEvent) => {
