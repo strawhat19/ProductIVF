@@ -22,13 +22,13 @@ export default function Grids(props: any) {
                 gridsFromDB = gridsFromDB.sort((a, b) => a?.rank - b?.rank);
                 dev() && console.log(`Grids Update from Database`, gridsFromDB);
 
-                let boardsFromDB = [];
                 const boardsDatabase = collection(db, boardsTable)?.withConverter(boardConverter);
                 const boardsQuery = query(boardsDatabase, where(`gridID`, `==`, lastSelectedGridID));
                 boardsDatabaseRealtimeListener = onSnapshot(boardsQuery, boardsSnapshot => {
+                    let boardsFromDB = [];
                     boardsSnapshot.forEach((doc) => boardsFromDB.push(new Board({ ...doc.data() })));
                     boardsFromDB = boardsFromDB.sort((a, b) => a?.rank - b?.rank);
-                    dev() && console.log(`Boards Update from Database`, boardsFromDB);
+                    dev() && console.log(`Boards Update from Database`, {boardsFromDB, lastSelectedGridID});
                     setUserData(lastSelectedGridID, gridsFromDB, boardsFromDB);
                 }, error => {
                     console.log(`Error on Get Boards from Database`, error);
