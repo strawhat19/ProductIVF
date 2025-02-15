@@ -5,13 +5,13 @@ import ReactDOM from 'react-dom/client';
 import { User } from '../shared/models/User';
 import { db, usersTable } from '../firebase';
 import { ToastContainer } from 'react-toastify';
-import { seedUserData as generateSeedUserData } from '../shared/database';
 import { GridTypes } from '../shared/types/types';
 import { AnimatePresence, motion } from 'framer-motion';
 import { collection, onSnapshot } from 'firebase/firestore';
-import { createContext, useRef, useState, useEffect } from 'react';
-import ContextMenu from '../components/context-menus/context-menu';
 import { combineArraysByKey, isValid } from '../shared/constants';
+import ContextMenu from '../components/context-menus/context-menu';
+import { createContext, useRef, useState, useEffect } from 'react';
+import { seedUserData as generateSeedUserData } from '../shared/database';
 
 export const StateContext = createContext({});
 
@@ -473,7 +473,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
   }
 
   const seedUserData = (usr) => {
-    let { grids: grds, boards: brds } = generateSeedUserData(usr);
+    let { grids: grds, boards: brds, user: updatedUser } = generateSeedUserData(usr);
     
     setGrids(grds);
     setUserBoards(brds);
@@ -490,7 +490,14 @@ export default function ProductIVF({ Component, pageProps, router }) {
 
     setBoards(gridBoards);
     setBoardsLoading(false);
+
+    setUser(updatedUser);
   }
+
+  useEffect(() => {
+    let selectedGridIDs = selectedGrids?.length > 0 ? selectedGrids?.map(gr => gr?.ID) : [];
+    setUser(prevUser => ({ ...prevUser, data: { ...prevUser?.data, selectedGridIDs } }));
+  }, [selectedGrids])
 
   useEffect(() => {
     const usersDatabase = collection(db, usersTable);

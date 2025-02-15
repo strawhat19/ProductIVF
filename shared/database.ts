@@ -54,16 +54,19 @@ export const seedUserData = (user: User | any) => {
     let grids = [grid1, grid2, grid3, grid4];
     let boards = [board1, board2, board3, board4, board5, board6, board7, board8];
 
+    let updatedUser = {
+        ...user,
+        data: {
+            ...user.data,
+            selectedGridIDs: [grid1?.ID],
+            gridIDs: grids.map(gr => gr?.ID),
+        }
+    }
+
     let seedUserData = {
         grids,
         boards,
-        user: {
-            ...user,
-            data: {
-                ...user.data,
-                gridIDs: grids.map(gr => gr?.ID),
-            }
-        },
+        user: updatedUser,
     }
 
     dev() && console.log(`Seed User Data`, seedUserData);
