@@ -96,34 +96,6 @@ export const addUserToDatabase = async (usr: User) => {
   }
 }
 
-export const getBoardsFromBoardIDs = async (boardIDs) => {
-  let boardsFromBoardIDs = [];
-  const boardsDatabase = await collection(db, boardsTable)?.withConverter(boardConverter);
-  const boardsQuery = await query(boardsDatabase, where(`ID`, `in`, boardIDs));
-  const boardsToGet = await getDocs(boardsQuery);
-  if (boardsToGet) {
-    boardsToGet.forEach(doc => {
-      boardsFromBoardIDs.push(new Board({ ...doc.data() }));
-    });
-  }
-  return boardsFromBoardIDs;
-}
-
-export const getBoardsFromGridID = async (gridID) => {
-  let boardsForGrid = [];
-  const boardsDatabase = await collection(db, boardsTable)?.withConverter(boardConverter);
-  const boardsQuery = await query(boardsDatabase, where(`gridID`, `==`, gridID));
-  // const boardsQuery = await query(boardsDatabase, where(`gridID`, `==`, gridID), orderBy(`rank`, `asc`));
-  const boardsToGet = await getDocs(boardsQuery);
-  if (boardsToGet) {
-    boardsToGet.forEach(doc => {
-      boardsForGrid.push(new Board({ ...doc.data() }));
-    });
-  }
-  boardsForGrid = boardsForGrid.sort((a, b) => a?.rank - b?.rank);
-  return boardsForGrid;
-}
-
 export const updateUserFields = async (userID: string, updates: Partial<User>, logResult = true) => {
   try {
     const userRef = await doc(db, usersTable, userID).withConverter(userConverter);
@@ -144,6 +116,19 @@ export const updateUserFieldsInDatabase = async (userID: string, updates: Partia
   } catch (error) {
     console.log(`Error Updating User ${userID} Fields`, { error, fields });
   }
+}
+
+export const getBoardsFromBoardIDs = async (boardIDs) => {
+  let boardsFromBoardIDs = [];
+  const boardsDatabase = await collection(db, boardsTable)?.withConverter(boardConverter);
+  const boardsQuery = await query(boardsDatabase, where(`ID`, `in`, boardIDs));
+  const boardsToGet = await getDocs(boardsQuery);
+  if (boardsToGet) {
+    boardsToGet.forEach(doc => {
+      boardsFromBoardIDs.push(new Board({ ...doc.data() }));
+    });
+  }
+  return boardsFromBoardIDs;
 }
 
 export default firebaseApp;

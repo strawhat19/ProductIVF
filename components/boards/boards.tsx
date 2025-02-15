@@ -1,7 +1,7 @@
 import Board from './board';
 import { toast } from 'react-toastify';
 import { createBoard } from '../../shared/database';
-import { getBoardsFromBoardIDs, getBoardsFromGridID } from '../../firebase';
+import { getBoardsFromBoardIDs } from '../../firebase';
 import MultiSelector from '../selector/multi-selector';
 import { useState, useEffect, useContext } from 'react';
 import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
