@@ -4,7 +4,7 @@ import { initializeApp } from 'firebase/app';
 import { Board } from './shared/models/Board';
 import { dev, formatDate } from './pages/_app';
 import { GoogleAuthProvider, getAuth } from 'firebase/auth';
-import { doc, getFirestore, setDoc, updateDoc } from 'firebase/firestore';
+import { collection, doc, getDocs, getFirestore, orderBy, query, setDoc, updateDoc, where } from 'firebase/firestore';
 
 export enum Environments {
   beta = `beta_`,
@@ -94,6 +94,21 @@ export const addUserToDatabase = async (usr: User) => {
   } catch (error) {
     dev() && console.log(`Error Adding User to Database ${usersTable}`, error);
   }
+}
+
+export const getBoardsFromGridID = async (gridID) => {
+  let boardsForGrid = [];
+  const boardsDatabase = await collection(db, boardsTable)?.withConverter(boardConverter);
+  const boardsQuery = await query(boardsDatabase, where(`gridID`, `==`, gridID));
+  // const boardsQuery = await query(boardsDatabase, where(`gridID`, `==`, gridID), orderBy(`rank`, `asc`));
+  const boardsToGet = await getDocs(boardsQuery);
+  if (boardsToGet) {
+    boardsToGet.forEach(doc => {
+      boardsForGrid.push(new Board({ ...doc.data() }));
+    });
+  }
+  boardsForGrid = boardsForGrid.sort((a, b) => a?.rank - b?.rank);
+  return boardsForGrid;
 }
 
 export const updateUserFields = async (userID: string, updates: Partial<User>, logResult = true) => {

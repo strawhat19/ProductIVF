@@ -7,6 +7,7 @@ import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
 import { capWords, dev, replaceAll, StateContext } from '../../pages/_app';
 import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
 import { findHighestNumberInArrayByKey, generateArray } from '../../shared/constants';
+import { getBoardsFromGridID } from '../../firebase';
 
 export enum ItemTypes {
     Item = `Item`,
@@ -36,8 +37,8 @@ export default function Boards({  }) {
         getGridsBoards,
         setSystemStatus, 
         rte, router, setRte, 
-        boards, userBoards, setBoards, boardsLoading,
         grids, gridsLoading, selectedGrids, setSelectedGrids, 
+        boards, userBoards, setBoards, boardsLoading, setBoardsLoading,
     } = useContext<any>(StateContext);
 
     let [updates, setUpdates] = useState(0);
@@ -50,10 +51,17 @@ export default function Boards({  }) {
         return user != null ? `${lbl} Loading` : `${!nonFormAuthStates.includes(authState) ? authState : `Register`} to View ${lbl}`;
     }
 
-    const updateSelectedGrids = (updatedSelectedGrids) => {
+    const setBoardsForGridID = async (gridID) => {
+        setBoardsLoading(true);
+        let boardsForGrid = await getBoardsFromGridID(gridID);
+        setBoards(boardsForGrid);
+        setBoardsLoading(false);
+    }
+
+    const updateSelectedGrids = async (updatedSelectedGrids) => {
         setSelectedGrids(updatedSelectedGrids);
-        let gridBoards = getGridsBoards(updatedSelectedGrids, userBoards);
-        setBoards(gridBoards);
+        let activeGridID = updatedSelectedGrids[0]?.ID;
+        setBoardsForGridID(activeGridID);
     }
 
     const onDragEnd = (dragEndEvent) => {

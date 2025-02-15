@@ -3,7 +3,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import ReactDOM from 'react-dom/client';
 import { User } from '../shared/models/User';
-import { db, usersTable } from '../firebase';
+import { db, userConverter, usersTable } from '../firebase';
 import { ToastContainer } from 'react-toastify';
 import { GridTypes } from '../shared/types/types';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -469,6 +469,32 @@ export default function ProductIVF({ Component, pageProps, router }) {
     return gridsBoards;
   }
 
+  const setUserGridsBoards = (activeGrid, gridsBoards, usrGrids, usrBoards) => {
+    setGrids(usrGrids);
+    setUserBoards(usrBoards);
+    setSelectedGrids([activeGrid]);
+    setGridsLoading(false);
+    setBoards(gridsBoards);
+    setBoardsLoading(false);
+  }
+
+  const setUserData = (activeGridID, grds, brds) => {
+    setGrids(grds);
+    setUserBoards(brds);
+
+    let lastSelectedGrid = grds.find(gr => gr?.ID == activeGridID);
+    let defaultSeletedGrid = lastSelectedGrid ? lastSelectedGrid : grds[0];
+    
+    let defaultSeletedGrids = [defaultSeletedGrid]?.map(gr => ({ ...gr, label: gr?.name, value: gr?.ID }));
+    let gridBoards = getGridsBoards(defaultSeletedGrids, brds);
+
+    setSelectedGrids(defaultSeletedGrids);
+    setGridsLoading(false);
+ 
+    setBoards(gridBoards);
+    setBoardsLoading(false);
+  }
+  
   const seedUserData = (usr, useDB = false) => {
     let { grids: grds, boards: brds, user: updatedUser } = generateSeedUserData(usr);
     
@@ -508,7 +534,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
   // }, [selectedGrids])
 
   useEffect(() => {
-    const usersDatabase = collection(db, usersTable);
+    const usersDatabase = collection(db, usersTable)?.withConverter(userConverter);
     // const usersQuery = query(usersDatabase).select(`ID`, `id`, `uid`, `name`, `rank`, `email`);
     const usersDatabaseRealtimeListener = onSnapshot(usersDatabase, snapshot => {
       setUsersLoading(true);
@@ -520,11 +546,11 @@ export default function ProductIVF({ Component, pageProps, router }) {
 
       let hasStoredUser = localStorage.getItem(localStorageKeys.lastSignedInEmail);
       if (hasStoredUser) {
-        let storedUser = JSON.parse(hasStoredUser);
-        if (storedUser != null) {
-          let thisUser = usersFromDB.find(usr => usr?.email?.toLowerCase() == storedUser?.toLowerCase());
-          if (thisUser) {
-            setUser(thisUser);
+        // let storedUser = JSON.parse(hasStoredUser);
+        if (hasStoredUser != null) {
+          let thisUserFromDB = usersFromDB.find(usr => usr?.email?.toLowerCase() == hasStoredUser?.toLowerCase());
+          if (thisUserFromDB) {
+            setUser(thisUserFromDB);
             setAuthState(`Sign Out`);
           }
         }
@@ -676,8 +702,10 @@ export default function ProductIVF({ Component, pageProps, router }) {
 
       // Functions
       onSignOut,
+      setUserData,
       seedUserData,
       getGridsBoards,
+      setUserGridsBoards,
 
       // Grids & Boards
       menuRef, 
