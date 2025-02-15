@@ -7,8 +7,8 @@ import { db, usersTable } from '../firebase';
 import { ToastContainer } from 'react-toastify';
 import { GridTypes } from '../shared/types/types';
 import { AnimatePresence, motion } from 'framer-motion';
-import { collection, onSnapshot } from 'firebase/firestore';
-import { combineArraysByKey, isValid } from '../shared/constants';
+import { collection, onSnapshot, query } from 'firebase/firestore';
+import { combineArraysByKey, isValid, localStorageKeys } from '../shared/constants';
 import ContextMenu from '../components/context-menus/context-menu';
 import { createContext, useRef, useState, useEffect } from 'react';
 import { seedUserData as generateSeedUserData } from '../shared/database';
@@ -406,6 +406,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let [items, setItems] = useState([]);
   let [board, setBoard] = useState({});
   let [boards, setBoards] = useState([]);
+  let [userGrids, setUserGrids] = useState([]);
   let [selected, setSelected] = useState(null);
   let [userBoards, setUserBoards] = useState([]);
   let [alertOpen, setAlertOpen] = useState(false);
@@ -452,8 +453,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
     setAuthState(`Next`);
     setEmailField(false);
     setUpdates(updates + 1);
-    localStorage.removeItem(`user`);
-    localStorage.removeItem(`last_signed_in_user_email`);
+    localStorage.removeItem(localStorageKeys.lastSignedInEmail);
     signOutReset();
   }
 
@@ -509,6 +509,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
 
   useEffect(() => {
     const usersDatabase = collection(db, usersTable);
+    // const usersQuery = query(usersDatabase).select(`ID`, `id`, `uid`, `name`, `rank`, `email`);
     const usersDatabaseRealtimeListener = onSnapshot(usersDatabase, snapshot => {
       setUsersLoading(true);
 
@@ -517,11 +518,11 @@ export default function ProductIVF({ Component, pageProps, router }) {
       usersFromDB = usersFromDB.sort((a, b) => a?.rank - b?.rank);
       setUsers(usersFromDB);
 
-      let hasStoredUser = localStorage.getItem(`user`);
+      let hasStoredUser = localStorage.getItem(localStorageKeys.lastSignedInEmail);
       if (hasStoredUser) {
         let storedUser = JSON.parse(hasStoredUser);
         if (storedUser != null) {
-          let thisUser = usersFromDB.find(usr => usr?.id == storedUser?.id);
+          let thisUser = usersFromDB.find(usr => usr?.email?.toLowerCase() == storedUser?.toLowerCase());
           if (thisUser) {
             setUser(thisUser);
             setAuthState(`Sign Out`);
@@ -532,7 +533,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       setUsersLoading(false);
       dev() && console.log(`Users Update from Database`, usersFromDB);
     }, error => {
-      console.log(`Error on Get Task(s) from Database`, error);
+      console.log(`Error on Get Users from Database`, error);
     })
 
     return () => {
@@ -686,6 +687,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       board, setBoard, 
       boards, setBoards, 
       selected, setSelected, 
+      userGrids, setUserGrids,
       userBoards, setUserBoards,
       categories, setCategories, 
       boardLoaded, setBoardLoaded, 

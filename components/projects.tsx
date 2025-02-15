@@ -35,13 +35,6 @@ export default function Projects() {
       setProjects(gitUser?.projects);
       console.log(`Updated Projects`, gitUser?.projects);
       localStorage.setItem(`projects`, JSON.stringify(gitUser?.projects));
-    //   if (overrideUser) {
-        // getDefaultUser().then((usr: any) => {
-        //   setUser({...usr, ...user, ...gitUser, projects: gitUser?.projects});
-        //   console.log(`Updated User`, {...usr, ...user, ...gitUser, projects: gitUser?.projects});
-        //   localStorage.setItem(`user`, JSON.stringify({...usr, ...user, ...gitUser, projects: gitUser?.projects}));
-        // });
-    //   }
     };
   }
 
@@ -74,15 +67,10 @@ export default function Projects() {
 
   useEffect(() => {
     let firstLoad = !initialLoad.current;
-    let updated = initialLoad.current;
-    let cachedUser = JSON.parse(localStorage.getItem(`user`) as any);
     let cachedProjects = JSON.parse(localStorage.getItem(`projects`) as any) || [];
 
     if (firstLoad) {
       setLoaded(true);
-    //   setPage(`Projects`);
-    //   setUpdates(updates+1);
-
       if (cachedProjects.length > 0) {
         console.log(`Cached Projects`, cachedProjects);
         setProjects(cachedProjects);

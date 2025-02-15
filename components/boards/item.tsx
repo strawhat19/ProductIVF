@@ -68,11 +68,6 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
 
     const updateBoards = (updatedBoards) => {
         setBoards(updatedBoards);
-        // localStorage.setItem(`boards`, JSON.stringify(updatedBoards));
-        // if (user != null) {
-        //   updateUserFields(user?.id, { boards: updatedBoards });
-        //   localStorage.setItem(`user`, JSON.stringify({ ...user, boards: updatedBoards }));
-        // }
     }
 
     const changeLabel = (e, item) => {

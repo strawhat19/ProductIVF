@@ -7,7 +7,7 @@ import { addUserToDatabase, auth, boardConverter, boardsTable, db, gridConverter
 import IVFSkeleton from './loaders/skeleton/ivf_skeleton';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { formatDate, StateContext, showAlert, dev } from '../pages/_app';
-import { findHighestNumberInArrayByKey, stringNoSpaces } from '../shared/constants';
+import { findHighestNumberInArrayByKey, localStorageKeys, stringNoSpaces } from '../shared/constants';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, writeBatch } from 'firebase/firestore';
 
@@ -126,8 +126,7 @@ export default function Form(props?: any) {
     let password = formFields?.password?.value ?? `pass`;
 
     const signInUser = (usr: User) => {
-      localStorage.setItem(`last_signed_in_user_email`, usr?.email);
-      localStorage.setItem(`user`, JSON.stringify(usr));
+      localStorage.setItem(localStorageKeys?.lastSignedInEmail, usr?.email);
       setAuthState(`Sign Out`);
       setUser(usr);
     }
@@ -193,17 +192,17 @@ export default function Form(props?: any) {
               const boardRef = await doc(db, boardsTable, brd?.id)?.withConverter(boardConverter);
               batchFirestore_InitialUserData.set(boardRef, brd);
             }
-            await batchFirestore_InitialUserData.commit();
-            await toast.success(`Set Default Grids & Boards for: ${seeded_User?.name}`);
-            return await seeded_User;
+            return await {seeded_User, batchFirestore_InitialUserData};
           }
 
-          let seeded_User = await setUserStartingData(newUser);
+          let { seeded_User, batchFirestore_InitialUserData } = await setUserStartingData(newUser);
           
           await addUserToDatabase(seeded_User).then(async () => {
             toast.success(`Signed Up & In as: ${seeded_User?.name}`);
             signInUser(seeded_User);
             form.reset();
+            await batchFirestore_InitialUserData.commit();
+            await toast.success(`Set Default Grids & Boards for: ${seeded_User?.name}`);
           }).catch(signUpAndSeedError => {
             let errorMessage = `Error on Sign Up & Set Default Data`;
             console.log(errorMessage, signUpAndSeedError);

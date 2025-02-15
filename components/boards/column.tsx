@@ -17,10 +17,8 @@ export default function Column(props) {
     let { user, boards, setBoards, setLoading, setSystemStatus, completeFiltered, IDs, setIDs, selected, menuPosition } = useContext<any>(StateContext);
 
     const updateBoards = (user) => {
-        localStorage.setItem(`boards`, JSON.stringify(boards));
         if (user != null) {
             updateUserFields(user?.id, { boards });
-            localStorage.setItem(`user`, JSON.stringify({ ...user, boards }));
         }
     }
 

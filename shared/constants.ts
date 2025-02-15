@@ -1,3 +1,7 @@
+export const localStorageKeys = {
+  lastSignedInEmail: `last_signed_in_user_email`,
+}
+
 export const removeExtraSpacesFromString = (string: string) => string.trim().replace(/\s+/g, ` `);
 export const generateArray = (length: number, itemData: any) => Array.from({ length }, () => itemData);
 export const stringMatch = (string: string, check: string): boolean => string?.toLowerCase()?.includes(check?.toLowerCase());
