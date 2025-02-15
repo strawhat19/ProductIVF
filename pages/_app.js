@@ -472,32 +472,43 @@ export default function ProductIVF({ Component, pageProps, router }) {
     return gridsBoards;
   }
 
-  const seedUserData = (usr) => {
+  const seedUserData = (usr, useDB = false) => {
     let { grids: grds, boards: brds, user: updatedUser } = generateSeedUserData(usr);
     
-    setGrids(grds);
-    setUserBoards(brds);
+    if (useDB == false) {
+      setGrids(grds);
+      setUserBoards(brds);
+    }
 
     let privatePersonalGrid = grds.find(gr => gr.type == GridTypes.Personal);
     let defaultSeletedGrid = privatePersonalGrid ? privatePersonalGrid : grds[0];
-    defaultSeletedGrid = { ...defaultSeletedGrid, id: defaultSeletedGrid?.ID, value: defaultSeletedGrid?.ID, label: defaultSeletedGrid?.name };
     
     let defaultSeletedGrids = [defaultSeletedGrid];
     let gridBoards = getGridsBoards(defaultSeletedGrids, brds);
 
-    setSelectedGrids(defaultSeletedGrids);
-    setGridsLoading(false);
-
-    setBoards(gridBoards);
-    setBoardsLoading(false);
-
-    setUser(updatedUser);
+    if (useDB == false) {
+      setSelectedGrids(defaultSeletedGrids);
+      setGridsLoading(false);
+   
+      setBoards(gridBoards);
+      setBoardsLoading(false);
+   
+      if (user != null && updatedUser != null) {
+        setUser(updatedUser);
+      }
+    } else {
+      return {
+        seeded_Grids: grds,
+        seeded_Boards: brds,
+        seeded_User: updatedUser,
+      }
+    }
   }
 
-  useEffect(() => {
-    let selectedGridIDs = selectedGrids?.length > 0 ? selectedGrids?.map(gr => gr?.ID) : [];
-    setUser(prevUser => ({ ...prevUser, data: { ...prevUser?.data, selectedGridIDs } }));
-  }, [selectedGrids])
+  // useEffect(() => {
+  //   let selectedGridIDs = selectedGrids?.length > 0 ? selectedGrids?.map(gr => gr?.ID) : [];
+  //   setUser(prevUser => ({ ...prevUser, data: { ...prevUser?.data, selectedGridIDs } }));
+  // }, [selectedGrids])
 
   useEffect(() => {
     const usersDatabase = collection(db, usersTable);
@@ -517,7 +528,6 @@ export default function ProductIVF({ Component, pageProps, router }) {
           if (thisUser) {
             setUser(thisUser);
             setAuthState(`Sign Out`);
-            onSetUser(thisUser);
           }
         }
       }
@@ -669,6 +679,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       // Functions
       onSignOut,
       onSetUser,
+      seedUserData,
       getGridsBoards,
 
       // Grids & Boards

@@ -68,8 +68,6 @@ export const seedUserData = (user: User | any) => {
         boards,
         user: updatedUser,
     }
-
-    dev() && console.log(`Seed User Data`, seedUserData);
     
     return seedUserData;
 }

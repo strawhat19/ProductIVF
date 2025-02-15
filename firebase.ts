@@ -3,6 +3,8 @@ import { User } from './shared/models/User';
 import { initializeApp } from 'firebase/app';
 import { GoogleAuthProvider, getAuth } from 'firebase/auth';
 import { doc, getFirestore, setDoc, updateDoc } from 'firebase/firestore';
+import { Grid } from './shared/models/Grid';
+import { Board } from './shared/models/Board';
 
 export enum Environments {
   beta = `beta_`,
@@ -62,6 +64,26 @@ export const userConverter = {
   fromFirestore: (snapshot: any, options: any) => {
     const data = snapshot.data(options);
     return new User(data);
+  }
+}
+
+export const gridConverter = {
+  toFirestore: (grd: Grid) => {
+    return JSON.parse(JSON.stringify(grd));
+  },
+  fromFirestore: (snapshot: any, options: any) => {
+    const data = snapshot.data(options);
+    return new Grid(data);
+  }
+}
+
+export const boardConverter = {
+  toFirestore: (brd: Board) => {
+    return JSON.parse(JSON.stringify(brd));
+  },
+  fromFirestore: (snapshot: any, options: any) => {
+    const data = snapshot.data(options);
+    return new Board(data);
   }
 }
 

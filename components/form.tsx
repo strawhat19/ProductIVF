@@ -2,13 +2,14 @@
 
 import { toast } from 'react-toastify';
 import { User } from '../shared/models/User';
-import { createUser, seedUserData } from '../shared/database';
-import { addUserToDatabase, auth } from '../firebase';
-import { useContext, useEffect, useRef, useState } from 'react';
-import { findHighestNumberInArrayByKey, stringNoSpaces } from '../shared/constants';
-import { formatDate, StateContext, showAlert, dev } from '../pages/_app';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { createUser } from '../shared/database';
+import { addUserToDatabase, auth, boardConverter, boardsTable, db, gridConverter, gridsTable, usersTable } from '../firebase';
 import IVFSkeleton from './loaders/skeleton/ivf_skeleton';
+import { useContext, useEffect, useRef, useState } from 'react';
+import { formatDate, StateContext, showAlert, dev } from '../pages/_app';
+import { findHighestNumberInArrayByKey, stringNoSpaces } from '../shared/constants';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { doc, writeBatch } from 'firebase/firestore';
 
 export const convertHexToRGB = (HexString?:any, returnObject?: any) => {
   let r = parseInt(HexString.slice(1, 3), 16),
@@ -61,15 +62,12 @@ export default function Form(props?: any) {
     updates, setUpdates, 
     authState, setAuthState, 
     emailField, setEmailField,  
-    user, setUser, usersLoading, users, onSetUser,
+    user, setUser, usersLoading, users, seedUserData,
   } = useContext<any>(StateContext);
 
   const getAuthStateIcon = (authState) => {
     let signoutIcon = `fas fa-sign-out-alt`;
     let icon = signoutIcon;
-    // if (authState == `Next`) {
-    //   icon = 
-    // }
     return icon;
   }
 
@@ -128,6 +126,7 @@ export default function Form(props?: any) {
     let password = formFields?.password?.value ?? `pass`;
 
     const signInUser = (usr: User) => {
+      localStorage.setItem(`last_signed_in_user_email`, usr?.email);
       localStorage.setItem(`user`, JSON.stringify(usr));
       setAuthState(`Sign Out`);
       setUser(usr);
@@ -140,7 +139,6 @@ export default function Form(props?: any) {
           if (existingUser != null) {
             signInUser(existingUser);
             toast.success(`Successfully Signed In`);
-            onSetUser(existingUser);
           } else {
             setEmailField(true);
             setAuthState(`Sign Up`);
@@ -161,7 +159,28 @@ export default function Form(props?: any) {
       });
     }
 
-    const onSignUp = (email, password) => {
+    const getInitialUserData = async (uniqueID: string, email: string, name: string, phone, avatar, token, verified, anonymous) => {
+      let highestRank = await findHighestNumberInArrayByKey(users, `rank`);
+      let rank = highestRank + 1;
+    
+      let newUser = await createUser(uniqueID, rank, email, name, phone, avatar, token, verified, anonymous);
+
+      let {
+        seeded_User,
+        seeded_Grids,
+        seeded_Boards,
+      } = await seedUserData(newUser, true);
+
+      let initialUserData = await {
+        seeded_User,
+        seeded_Grids,
+        seeded_Boards,
+      };
+
+      return initialUserData;
+    }
+
+    const onSignUp = async (email, password) => {
       createUserWithEmailAndPassword(auth, email, password).then(async (userCredential: any) => {
         if (userCredential != null) {
           let { 
@@ -174,19 +193,47 @@ export default function Form(props?: any) {
             emailVerified: verified, 
           } = userCredential?.user;
 
-          let highestRank = await findHighestNumberInArrayByKey(users, `rank`);
-          let rank = highestRank + 1;
-        
-          let newUser = createUser(uid, rank, email, name, phone, avatar, token, verified, anonymous);
+          let {
+            seeded_User,
+            seeded_Grids,
+            seeded_Boards,
+          } = await getInitialUserData(uid, email, name, phone, avatar, token, verified, anonymous);
 
-          await addUserToDatabase(newUser).then(() => {
-            toast.success(`Signed Up & In as: ${newUser?.name}`);
-            dev() && console.log(`New User`, newUser);
-            signInUser(newUser);
+          // dev() && console.log(`Initial User Data`, {
+          //   seeded_User,
+          //   seeded_Grids,
+          //   seeded_Boards,
+          // });
+          
+          await addUserToDatabase(seeded_User).then(async () => {
+            toast.success(`Signed Up & In as: ${seeded_User?.name}`);
+            signInUser(seeded_User);
             form.reset();
+
+            const batchFirestore_InitialUserData = writeBatch(db);
+
+            seeded_Grids.forEach(async grd => {
+              const gridRef = await doc(db, gridsTable, grd?.id)?.withConverter(gridConverter);
+              batchFirestore_InitialUserData.set(gridRef, grd);
+            });
+            
+            seeded_Boards.forEach(async bord => {
+              const boardRef = await doc(db, boardsTable, bord?.id)?.withConverter(boardConverter);
+              batchFirestore_InitialUserData.set(boardRef, bord);
+            });
+
+            await batchFirestore_InitialUserData.commit();
+
+            toast.success(`Set Default Grids & Boards for: ${seeded_User?.name}`);
+          }).catch(signUpAndSeedError => {
+            let errorMessage = `Error on Sign Up & Set Default Data`;
+            console.log(errorMessage, signUpAndSeedError);
+            toast.error(errorMessage);
+            return;
           });
         } else {
           toast.error(`Error on Sign Up`);
+          return;
         }
       }).catch((error) => {
         console.log(`Error Signing Up`, error);
