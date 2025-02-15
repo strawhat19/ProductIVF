@@ -30,6 +30,11 @@
     }
 }
 
+.MuiLinearProgress-root {
+    height: 1px;
+    background: var(--gameBlue);
+}
+
 .MuiSkeleton-root {
     transform: none !important;
     background: var(--skeletonColor);

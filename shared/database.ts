@@ -103,9 +103,9 @@ export const createUser = (
     }) as User;
 
     let cleanedUser: any = removeNullAndUndefinedProperties(user);
-
-    cleanedUser.ID = cleanedUser?.uuid;
-    user = new User({ ...cleanedUser, uuid: `${stringNoSpaces(cleanedUser?.title)}_${uid}` });
+    let cleanedID = `${stringNoSpaces(cleanedUser?.title)}_${uid}`;
+    cleanedUser.ID = cleanedID;
+    user = new User({ ...cleanedUser, uuid: cleanedID });
 
     return user;
 }

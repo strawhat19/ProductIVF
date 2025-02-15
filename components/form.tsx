@@ -159,27 +159,6 @@ export default function Form(props?: any) {
       });
     }
 
-    const getInitialUserData = async (uniqueID: string, email: string, name: string, phone, avatar, token, verified, anonymous) => {
-      let highestRank = await findHighestNumberInArrayByKey(users, `rank`);
-      let rank = highestRank + 1;
-    
-      let newUser = await createUser(uniqueID, rank, email, name, phone, avatar, token, verified, anonymous);
-
-      let {
-        seeded_User,
-        seeded_Grids,
-        seeded_Boards,
-      } = await seedUserData(newUser, true);
-
-      let initialUserData = await {
-        seeded_User,
-        seeded_Grids,
-        seeded_Boards,
-      };
-
-      return initialUserData;
-    }
-
     const onSignUp = async (email, password) => {
       createUserWithEmailAndPassword(auth, email, password).then(async (userCredential: any) => {
         if (userCredential != null) {
@@ -193,44 +172,45 @@ export default function Form(props?: any) {
             emailVerified: verified, 
           } = userCredential?.user;
 
-          let {
-            seeded_User,
-            seeded_Grids,
-            seeded_Boards,
-          } = await getInitialUserData(uid, email, name, phone, avatar, token, verified, anonymous);
+          let highestRank = await findHighestNumberInArrayByKey(users, `rank`);
+          let rank = highestRank + 1;
+        
+          let newUser = await createUser(uid, rank, email, name, phone, avatar, token, verified, anonymous);
 
-          // dev() && console.log(`Initial User Data`, {
-          //   seeded_User,
-          //   seeded_Grids,
-          //   seeded_Boards,
-          // });
+          const setUserStartingData = async (userToSeed) => {
+            let {
+              seeded_User,
+              seeded_Grids,
+              seeded_Boards,
+            } = await seedUserData(userToSeed, true);
+
+            const batchFirestore_InitialUserData = writeBatch(db);
+            for (const grd of seeded_Grids) {
+              const gridRef = await doc(db, gridsTable, grd?.id)?.withConverter(gridConverter);
+              batchFirestore_InitialUserData.set(gridRef, grd);
+            }
+            for (const brd of seeded_Boards) {
+              const boardRef = await doc(db, boardsTable, brd?.id)?.withConverter(boardConverter);
+              batchFirestore_InitialUserData.set(boardRef, brd);
+            }
+            await batchFirestore_InitialUserData.commit();
+            await toast.success(`Set Default Grids & Boards for: ${seeded_User?.name}`);
+            return await seeded_User;
+          }
+
+          let seeded_User = await setUserStartingData(newUser);
           
           await addUserToDatabase(seeded_User).then(async () => {
             toast.success(`Signed Up & In as: ${seeded_User?.name}`);
             signInUser(seeded_User);
             form.reset();
-
-            const batchFirestore_InitialUserData = writeBatch(db);
-
-            seeded_Grids.forEach(async grd => {
-              const gridRef = await doc(db, gridsTable, grd?.id)?.withConverter(gridConverter);
-              batchFirestore_InitialUserData.set(gridRef, grd);
-            });
-            
-            seeded_Boards.forEach(async bord => {
-              const boardRef = await doc(db, boardsTable, bord?.id)?.withConverter(boardConverter);
-              batchFirestore_InitialUserData.set(boardRef, bord);
-            });
-
-            await batchFirestore_InitialUserData.commit();
-
-            toast.success(`Set Default Grids & Boards for: ${seeded_User?.name}`);
           }).catch(signUpAndSeedError => {
             let errorMessage = `Error on Sign Up & Set Default Data`;
             console.log(errorMessage, signUpAndSeedError);
             toast.error(errorMessage);
             return;
           });
+
         } else {
           toast.error(`Error on Sign Up`);
           return;

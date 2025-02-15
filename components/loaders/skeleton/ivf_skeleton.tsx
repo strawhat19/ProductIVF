@@ -33,7 +33,7 @@ export default function IVFSkeleton(props: any) {
                             </i>
                         </span>
                         {showLoading ? <>
-                            <LinearProgress style={{ width: `100%`, height: 1, background: `var(--gameBlue)` }} color={`info`} />
+                            <LinearProgress style={{ width: `100%` }} color={`info`} />
                         </> : <></>}
                     </div>
                 ) : children}

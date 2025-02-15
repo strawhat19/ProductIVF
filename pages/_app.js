@@ -421,10 +421,6 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let [itemTypeMenuOpen, setItemTypeMenuOpen] = useState(false);
   let [completeFiltered, setCompleteFiltered] = useState(false);
 
-  const onSetUser = (usr) => {
-    seedUserData(usr);
-  }
-
   const getPageContainerClasses = () => {
     let route = rte == `_` ? `root` : rte;
     let pageName = isValid(page.toUpperCase()) ? page.toUpperCase() : `home_Page`;
@@ -457,6 +453,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
     setEmailField(false);
     setUpdates(updates + 1);
     localStorage.removeItem(`user`);
+    localStorage.removeItem(`last_signed_in_user_email`);
     signOutReset();
   }
 
@@ -678,7 +675,6 @@ export default function ProductIVF({ Component, pageProps, router }) {
 
       // Functions
       onSignOut,
-      onSetUser,
       seedUserData,
       getGridsBoards,
 

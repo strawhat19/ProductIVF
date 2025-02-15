@@ -1,10 +1,10 @@
-import { dev, formatDate } from './pages/_app';
 import { User } from './shared/models/User';
+import { Grid } from './shared/models/Grid';
 import { initializeApp } from 'firebase/app';
+import { Board } from './shared/models/Board';
+import { dev, formatDate } from './pages/_app';
 import { GoogleAuthProvider, getAuth } from 'firebase/auth';
 import { doc, getFirestore, setDoc, updateDoc } from 'firebase/firestore';
-import { Grid } from './shared/models/Grid';
-import { Board } from './shared/models/Board';
 
 export enum Environments {
   beta = `beta_`,
