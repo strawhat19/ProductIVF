@@ -3,35 +3,35 @@ import { Types } from '../types/types';
 import { countPropertiesInObject, isValid } from '../constants';
 
 export class Data {
-    A?: any;
-  
-    id!: string;
-    uid: string;
-    rank: number;
-    uuid?: string;
-    name!: string;
-    title?: string;
-    properties: number;
-    type: Types = Types.Data;
-  
-    meta = {
-      created: undefined,
-      updated: undefined,
-    }
+  A?: any;
 
-    constructor(data: Partial<Data>) {
-      Object.assign(this, data);
+  id!: string;
+  uid: string;
+  rank: number;
+  uuid?: string;
+  name!: string;
+  title?: string;
+  properties: number;
+  type: Types = Types.Data;
 
-      this.A = this.name;
-      
-      let ID = genID(this.type, this.rank, this.name, this.uid);
-      let { id, date, title, uuid } = ID;
+  meta = {
+    created: undefined,
+    updated: undefined,
+  }
 
-      if (!isValid(this.id)) this.id = id;
-      if (!isValid(this.uuid)) this.uuid = uuid;
-      if (!isValid(this.title)) this.title = title;
-      if (!isValid(this.meta.created)) this.meta.created = date;
-      if (!isValid(this.meta.updated)) this.meta.updated = date;
-      if (!isValid(this.properties)) this.properties = countPropertiesInObject(this) + 1;
-    }
+  constructor(data: Partial<Data>) {
+    Object.assign(this, data);
+
+    this.A = this.name;
+    
+    let ID = genID(this.type, this.rank, this.name, this.uid);
+    let { id, date, title, uuid } = ID;
+
+    if (!isValid(this.id)) this.id = id;
+    if (!isValid(this.uuid)) this.uuid = uuid;
+    if (!isValid(this.title)) this.title = title;
+    if (!isValid(this.meta.created)) this.meta.created = date;
+    if (!isValid(this.meta.updated)) this.meta.updated = date;
+    if (!isValid(this.properties)) this.properties = countPropertiesInObject(this) + 1;
+  }
 }

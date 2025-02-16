@@ -50,17 +50,20 @@ export const ROLES = {
 
 export class User extends Data {
   ID: any;
-  boards?: any[];
 
   phone: any;
   avatar: any;
+  token: string;
   password?: string;
-  token: string = ``;
   email: string = ``;
   provider: Providers.Firebase;
 
   type: Types = Types.User;
   role = ROLES.Subscriber.name;
+
+  color = `Default`;
+  description = ``;
+  image = ``;
 
   options = {
     active: true,

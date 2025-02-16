@@ -1,6 +1,6 @@
 import { Data } from './Data';
 import { genID } from '../ID';
-import { Types } from '../types/types';
+import { TasksFilterStates, Types } from '../types/types';
 import { BoardTypes } from '../../components/boards/boards';
 import { countPropertiesInObject, isValid } from '../constants';
 
@@ -9,29 +9,33 @@ export class Board extends Data {
     gridID: string;
     titleWidth: any;
 
+    creator: string;
+
     owner: string;
     ownerID: string;
     ownerUID: string;
-    
-    creator: string;
-    creatorID: string;
-    creatorUID: string;
 
     type: Types = Types.Board;
     boardType: BoardTypes = BoardTypes.Kanban;
+
+    image = ``;
+    description = ``;
+    color = `Default`;
     
     options = {
         private: true,
         expanded: true,
         focused: false,
-        filterActive: false,
+        archived: false,
+        hideCompleted: false,
+        hideCoverImages: false,
+        tasksFilterState: TasksFilterStates.All_On,
     }
 
     data?: { [key: string]: string[] } = {
         users: [],
         itemIDs: [],
-        taskIDs: [],
-        columnIDs: [],
+        listIDs: [],
     }
 
     constructor(data: Partial<Board>) {

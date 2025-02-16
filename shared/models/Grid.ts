@@ -6,20 +6,22 @@ import { countPropertiesInObject, isValid } from '../constants';
 export class Grid extends Data {
     ID: any;
     
+    creator: string;
+
     owner: string;
     ownerID: string;
     ownerUID: string;
     
-    creator: string;
-    creatorID: string;
-    creatorUID: string;
-    
     type: Types = Types.Grid;
     gridType: GridTypes = GridTypes.Personal;
 
+    image = ``;
+    description = ``;
+    color = `Default`;
+
     options = {
-        active: false,
         private: true,
+        archived: false,
     }
 
     data?: { [key: string]: string[] } = {
