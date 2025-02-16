@@ -51,9 +51,10 @@ export const ROLES = {
 export class User extends Data {
   ID: any;
 
-  phone: any;
-  avatar: any;
+  grids: any;
   token: string;
+  phone: any = ``;
+  avatar: any = ``;
   password?: string;
   email: string = ``;
   provider: Providers.Firebase;
@@ -73,6 +74,7 @@ export class User extends Data {
   }
 
   data?: { [key: string]: string[] } = {
+    users: [],
     gridIDs: [],
     friendIDs: [],
     selectedGridIDs: [],
@@ -87,11 +89,11 @@ export class User extends Data {
     this.A = this.name;
 
     let ID = genID(this.type, this.rank, this.name, this.uid);
-    let { id, date, title, id_Title } = ID;
+    let { id, date, title, id_Title, generatedUUID } = ID;
 
     if (!isValid(this.id)) this.id = id;
     if (!isValid(this.title)) this.title = title;
-    if (!isValid(this.uuid)) this.uuid = id_Title;
+    if (!isValid(this.uuid)) this.uuid = generatedUUID;
     if (!isValid(this.meta.created)) this.meta.created = date;
     if (!isValid(this.meta.updated)) this.meta.updated = date;
     if (!isValid(this.properties)) this.properties = countPropertiesInObject(this) + 1;

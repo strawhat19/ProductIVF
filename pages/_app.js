@@ -2,16 +2,18 @@ import '../main.scss';
 import 'react-toastify/dist/ReactToastify.css';
 
 import ReactDOM from 'react-dom/client';
+import { signOut } from 'firebase/auth';
 import { User } from '../shared/models/User';
-import { db, userConverter, usersTable } from '../firebase';
+import { Email } from '../shared/models/Email';
 import { ToastContainer } from 'react-toastify';
-import { GridTypes } from '../shared/types/types';
+import { AuthStates, GridTypes } from '../shared/types/types';
 import { AnimatePresence, motion } from 'framer-motion';
-import { collection, onSnapshot, query } from 'firebase/firestore';
-import { combineArraysByKey, isValid, localStorageKeys } from '../shared/constants';
-import ContextMenu from '../components/context-menus/context-menu';
+import { collection, onSnapshot  } from 'firebase/firestore';
 import { createContext, useRef, useState, useEffect } from 'react';
+import ContextMenu from '../components/context-menus/context-menu';
+import { isValid, localStorageKeys, logToast } from '../shared/constants';
 import { seedUserData as generateSeedUserData } from '../shared/database';
+import { auth, db, emailConverter, emailsTable, getUsersFromDatabase } from '../firebase';
 
 export const StateContext = createContext({});
 
@@ -448,13 +450,18 @@ export default function ProductIVF({ Component, pageProps, router }) {
     }
   }
 
-  const onSignOut = () => {
-    setUser(null);
-    setAuthState(`Next`);
-    setEmailField(false);
-    setUpdates(updates + 1);
-    localStorage.removeItem(localStorageKeys.lastSignedInEmail);
-    signOutReset();
+  const onSignOut = async () => {
+    try {
+      await signOut(auth);
+      await setUser(null);
+      await setAuthState(`Next`);
+      await setEmailField(false);
+      await setUpdates(updates + 1);
+      await localStorage.removeItem(localStorageKeys.lastSignedInEmail);
+      await signOutReset();
+    } catch (signOutError) {
+      await logToast(`Error on Sign Out`, signOutError, true);
+    }
   }
 
   const getGridsBoards = (activeGrds, brds) => {
@@ -525,36 +532,39 @@ export default function ProductIVF({ Component, pageProps, router }) {
   // }, [selectedGrids])
 
   useEffect(() => {
-    const usersDatabase = collection(db, usersTable)?.withConverter(userConverter);
-    // const usersQuery = query(usersDatabase).select(`ID`, `id`, `uid`, `name`, `rank`, `email`);
-    const usersDatabaseRealtimeListener = onSnapshot(usersDatabase, snapshot => {
+    const emailsDatabase = collection(db, emailsTable)?.withConverter(emailConverter);
+    const emailsDatabaseRealtimeListener = onSnapshot(emailsDatabase, async snapshot => {
       setUsersLoading(true);
-
-      let usersFromDB = [];
-      snapshot.forEach((doc) => usersFromDB.push(new User({ ...doc.data() })));
-      usersFromDB = usersFromDB.sort((a, b) => a?.rank - b?.rank);
-      setUsers(usersFromDB);
+      let emailsFromDB = [];
+      snapshot.forEach((doc) => emailsFromDB.push(new Email({ ...doc.data() })));
+      emailsFromDB = emailsFromDB.sort((a, b) => a?.rank - b?.rank);
+      setUsers(emailsFromDB);
 
       let hasStoredUser = localStorage.getItem(localStorageKeys.lastSignedInEmail);
       if (hasStoredUser) {
-        // let storedUser = JSON.parse(hasStoredUser);
         if (hasStoredUser != null) {
-          let thisUserFromDB = usersFromDB.find(usr => usr?.email?.toLowerCase() == hasStoredUser?.toLowerCase());
-          if (thisUserFromDB) {
-            setUser(thisUserFromDB);
-            setAuthState(`Sign Out`);
+          let thisEmailFromDB = emailsFromDB.find(eml => eml?.email?.toLowerCase() == hasStoredUser?.toLowerCase());
+          if (thisEmailFromDB) {
+            let theseUsers = await getUsersFromDatabase(thisEmailFromDB?.id);
+            if (theseUsers) {
+              if (theseUsers?.length > 0) {
+                let thisUser = new User(theseUsers[0]);
+                setUser(thisUser);
+                setAuthState(AuthStates.Sign_Out);
+              }
+            }
           }
         }
       }
 
       setUsersLoading(false);
-      dev() && console.log(`Users Update from Database`, usersFromDB);
+      dev() && console.log(`Registered Email(s)`, emailsFromDB);
     }, error => {
-      console.log(`Error on Get Users from Database`, error);
+      logToast(`Error on Get Registered Email(s) from Database`, error, true);
     })
 
     return () => {
-      usersDatabaseRealtimeListener();
+      emailsDatabaseRealtimeListener();
     }
   }, [])
   

@@ -84,6 +84,7 @@ export const createTask = (
         ...(user != null && {
             ownerID: user?.ID,
             owner: user?.email,
+            email: user?.email,
             ownerUID: user?.uid,
             creator: user?.email,
         }),

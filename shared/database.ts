@@ -11,8 +11,8 @@ export const createUser = (
     rank: number, 
     email: string, 
     name: string, 
-    phone = undefined, 
-    avatar = undefined, 
+    phone = ``, 
+    avatar = ``, 
     token = ``, 
     verified = false, 
     anonymous = false, 
@@ -38,6 +38,10 @@ export const createUser = (
         color,
         description,
 
+        data: {
+            users: [email],
+        },
+
         name: isValid(name) ? name : capWords(email.split(`@`)[0]),
         options: {
             active,
@@ -48,8 +52,7 @@ export const createUser = (
 
     let cleanedUser: any = removeNullAndUndefinedProperties(user);
     let cleanedID = `${stringNoSpaces(cleanedUser?.title)}_${uid}`;
-    cleanedUser.ID = cleanedID;
-    user = new User({ ...cleanedUser, uuid: cleanedID });
+    user = new User({ ...cleanedUser, ID: cleanedID });
 
     return user;
 }
@@ -78,6 +81,7 @@ export const createGrid = (
 
         ...(user != null && {
             ownerID: user?.ID,
+            email: user?.email,
             owner: user?.email,
             ownerUID: user?.uid,
             creator: user?.email,
@@ -131,6 +135,7 @@ export const createBoard = (
 
         ...(user != null && {
             ownerID: user?.ID,
+            email: user?.email,
             owner: user?.email,
             ownerUID: user?.uid,
             creator: user?.email,

@@ -1,10 +1,15 @@
 import { User } from './shared/models/User';
 import { Grid } from './shared/models/Grid';
-import { initializeApp } from 'firebase/app';
 import { Board } from './shared/models/Board';
+import { List } from './shared/models/List';
+import { Item } from './shared/models/Item';
+import { Task } from './shared/models/Task';
+import { initializeApp } from 'firebase/app';
 import { dev, formatDate } from './pages/_app';
 import { GoogleAuthProvider, getAuth } from 'firebase/auth';
-import { collection, doc, getDocs, getFirestore, onSnapshot, query, setDoc, updateDoc, where } from 'firebase/firestore';
+import { collection, doc, getDocs, getFirestore, onSnapshot, orderBy, query, setDoc, updateDoc, where, writeBatch } from 'firebase/firestore';
+import { logToast, userQueryFields } from './shared/constants';
+import { Email } from './shared/models/Email';
 
 export enum Environments {
   beta = `beta_`,
@@ -18,6 +23,7 @@ export enum Tables {
   lists = `lists`,
   tasks = `tasks`,
   grids = `grids`,
+  emails = `emails`,
   counts = `counts`,
   boards = `boards`,
   events = `events`,
@@ -52,6 +58,7 @@ export const isProduction = process.env.NODE_ENV == `production`;
 // export const environment = isProduction ? Environments.alpha : Environments.beta;
 
 export const usersTable = environment + Tables.users;
+export const emailsTable = environment + Tables.emails;
 export const gridsTable = environment + Tables.grids;
 export const boardsTable = environment + Tables.boards;
 export const listsTable = environment + Tables.lists;
@@ -65,6 +72,16 @@ export const userConverter = {
   fromFirestore: (snapshot: any, options: any) => {
     const data = snapshot.data(options);
     return new User(data);
+  }
+}
+
+export const emailConverter = {
+  toFirestore: (eml: Email) => {
+    return JSON.parse(JSON.stringify(eml));
+  },
+  fromFirestore: (snapshot: any, options: any) => {
+    const data = snapshot.data(options);
+    return new Email(data);
   }
 }
 
@@ -88,12 +105,67 @@ export const boardConverter = {
   }
 }
 
+export const listConverter = {
+  toFirestore: (lst: List) => {
+    return JSON.parse(JSON.stringify(lst));
+  },
+  fromFirestore: (snapshot: any, options: any) => {
+    const data = snapshot.data(options);
+    return new List(data);
+  }
+}
+
+export const itemConverter = {
+  toFirestore: (itm: Item) => {
+    return JSON.parse(JSON.stringify(itm));
+  },
+  fromFirestore: (snapshot: any, options: any) => {
+    const data = snapshot.data(options);
+    return new Item(data);
+  }
+}
+
+export const taskConverter = {
+  toFirestore: (tsk: Task) => {
+    return JSON.parse(JSON.stringify(tsk));
+  },
+  fromFirestore: (snapshot: any, options: any) => {
+    const data = snapshot.data(options);
+    return new Task(data);
+  }
+}
+
+export const getUsersFromDatabase = async (search: string | number) => {
+  try {
+    let foundUsers = [];
+    const usersRef = collection(db, usersTable)?.withConverter(userConverter);
+    const searchTerm = String(search).toLowerCase();
+    const snapshot = await getDocs(query(usersRef, orderBy(`rank`))); 
+    snapshot.forEach((doc) => {
+      const userData = doc.data();
+      const matches = userQueryFields.some(field => 
+        userData[field] && String(userData[field]).toLowerCase() === searchTerm
+      );
+      if (matches) {
+        foundUsers.push(new User({ ...userData }));
+      }
+    })
+    return foundUsers.sort((a, b) => a.rank - b.rank);
+  } catch (getUserError) {
+    logToast(`Error Getting User from Database ${usersTable}`, getUserError, true);
+  }
+}
+
 export const addUserToDatabase = async (usr: User) => {
   try {
-    const userReference = await doc(db, usersTable, usr?.id).withConverter(userConverter);
-    await setDoc(userReference, usr as User);
-  } catch (error) {
-    dev() && console.log(`Error Adding User to Database ${usersTable}`, error);
+    const batchUserAddOperation = writeBatch(db);
+    const userReference = await doc(db, usersTable, usr?.ID)?.withConverter(userConverter);
+    const emailReference = await doc(db, emailsTable, usr?.id)?.withConverter(emailConverter);
+    await batchUserAddOperation.set(userReference, usr as User);
+    await batchUserAddOperation.set(emailReference, new Email(usr) as Email);
+    await batchUserAddOperation.commit();
+  } catch (addUserError) {
+    logToast(`Error Adding User to Database ${usersTable}`, addUserError, true);
   }
 }
 
@@ -102,8 +174,8 @@ export const updateUserFields = async (userID: string, updates: Partial<User>, l
     const userRef = await doc(db, usersTable, userID).withConverter(userConverter);
     await updateDoc(userRef, updates);
     if (logResult) console.log(`User Fields Updated in Database`, updates);
-  } catch (error) {
-    console.log(`Error Updating User ${userID} Fields`, { error, updates });
+  } catch (updateUserError) {
+    console.log(`Error Updating User ${userID} Fields`, { updateUserError, updates });
   }
 }
 
@@ -114,49 +186,44 @@ export const updateUserFieldsInDatabase = async (userID: string, updates: Partia
     const userRef = await doc(db, usersTable, userID).withConverter(userConverter);
     await updateDoc(userRef, fields);
     if (logResult) console.log(`User Fields Updated in Database`, fields);
-  } catch (error) {
-    console.log(`Error Updating User ${userID} Fields`, { error, fields });
+  } catch (updateUserFieldsError) {
+    console.log(`Error Updating User ${userID} Fields`, { updateUserFieldsError, fields });
   }
+}
+
+export const listenToCollections = (arrayOfIDs, tableName, converter, Class, callback) => {
+  if (!arrayOfIDs || arrayOfIDs.length === 0) return;
+  const collectionQuery = query(collection(db, tableName), where(`ID`, `in`, arrayOfIDs))?.withConverter(converter);
+  return onSnapshot(collectionQuery, (snapshot) => {
+    const documents = snapshot.docs.map(doc => new Class({ ...doc.data() }));
+    console.log(`${tableName} Updated`, documents);
+    callback(documents);
+  });
 }
 
 export const listenToGrid = (gridID, callback) => {
   if (!gridID) return;
-  const gridQuery = query(collection(db, gridsTable), where(`ID`, `==`, gridID))?.withConverter(gridConverter);
-  return onSnapshot(gridQuery, gridDocs => {
-    const grids = gridDocs.docs.map(doc => new Grid({ ...doc.data() }));
-    console.log(`Grid Updated`, grids);
-    callback(grids);
-  });
+  return listenToCollections([gridID], gridsTable, gridConverter, Grid, callback);
 }
 
 export const listenToBoards = (boardIDs, callback) => {
   if (!boardIDs || boardIDs.length === 0) return;
-  const gridBoardsQuery = query(collection(db, boardsTable), where(`ID`, `in`, boardIDs))?.withConverter(boardConverter);
-  return onSnapshot(gridBoardsQuery, (snapshot) => {
-    const boards = snapshot.docs.map(doc => new Board({ ...doc.data() }));
-    console.log(`Boards Updated`, boards);
-    callback(boards);
-  });
+  return listenToCollections(boardIDs, boardsTable, boardConverter, Board, callback);
+}
+
+export const listenToLists = (listIDs, callback) => {
+  if (!listIDs || listIDs.length === 0) return;
+  return listenToCollections(listIDs, listsTable, listConverter, List, callback);
 }
 
 export const listenToItems = (itemIDs, callback) => {
   if (!itemIDs || itemIDs.length === 0) return;
-  const boardItemsQuery = query(collection(db, itemsTable), where(`ID`, `in`, itemIDs));
-  return onSnapshot(boardItemsQuery, (snapshot) => {
-    const items = snapshot.docs.map(doc => ({ ...doc.data() }));
-    console.log(`Items Updated`, items);
-    callback(items);
-  });
+  return listenToCollections(itemIDs, itemsTable, itemConverter, Item, callback);
 }
 
 export const listenToTasks = (taskIDs, callback) => {
   if (!taskIDs || taskIDs.length === 0) return;
-  const itemTasksQuery = query(collection(db, tasksTable), where(`ID`, `in`, taskIDs));
-  return onSnapshot(itemTasksQuery, (snapshot) => {
-    const tasks = snapshot.docs.map(doc => ({ ...doc.data() }));
-    console.log(`Tasks Updated`, tasks);
-    callback(tasks);
-  });
+  return listenToCollections(taskIDs, tasksTable, taskConverter, Task, callback);
 }
 
 export const getBoardsFromBoardIDs = async (boardIDs) => {

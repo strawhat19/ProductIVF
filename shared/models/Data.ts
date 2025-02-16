@@ -5,11 +5,13 @@ import { countPropertiesInObject, isValid } from '../constants';
 export class Data {
   A?: any;
 
+  ID: any;
   id!: string;
   uid: string;
   rank: number;
-  uuid?: string;
+  uuid: string;
   name!: string;
+  email: string;
   title?: string;
   properties: number;
   type: Types = Types.Data;

@@ -9,6 +9,7 @@ export enum Types {
     Item = `Item`,
     Task = `Task`,
 
+    Email = `Email`,
     Feature = `Feature`,
     Preference = `Preference`,
     Notification = `Notification`,

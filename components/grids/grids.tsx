@@ -1,49 +1,63 @@
 import Grid from './grid';
-import { useContext } from 'react';
-import { StateContext } from '../../pages/_app';
-// import { Grid as GridModel } from '../../shared/models/Grid';
-// import { Board as BoardModel } from '../../shared/models/Board';
-// import { collection, onSnapshot, query, where } from 'firebase/firestore';
-// import { boardConverter, boardsTable, db, gridConverter, gridsTable } from '../../firebase';
+import { useContext, useEffect } from 'react';
+import { logToast } from '../../shared/constants';
+import { dev, StateContext } from '../../pages/_app';
+import { Grid as GridModel } from '../../shared/models/Grid';
+import { Board as BoardModel } from '../../shared/models/Board';
+import { collection, onSnapshot, query, where } from 'firebase/firestore';
+import { boardConverter, boardsTable, db, gridConverter, gridsTable } from '../../firebase';
 
 export default function Grids(props: any) {
     let { className = `gridsComponent` } = props;
-    let { user, selectedGrids } = useContext<any>(StateContext);
+    let { user, setUserData, selectedGrids } = useContext<any>(StateContext);
 
-    // useEffect(() => {
-    //     if (user != null) {
-    //         let boardsDatabaseRealtimeListener = null;
-    //         let lastSelectedGridID = user?.data?.selectedGridIDs[0];
-    //         const gridsDatabase = collection(db, gridsTable)?.withConverter(gridConverter);
-    //         const gridsQuery = query(gridsDatabase, where(`ownerID`, `==`, user?.ID));
-    //         const gridsDatabaseRealtimeListener = onSnapshot(gridsQuery, gridsSnapshot => {
-    //             let gridsFromDB = [];
-    //             gridsSnapshot.forEach((doc) => gridsFromDB.push(new GridModel({ ...doc.data() })));
-    //             gridsFromDB = gridsFromDB.sort((a, b) => a?.rank - b?.rank);
-    //             dev() && console.log(`Grids Update from Database`, gridsFromDB);
+    
+    useEffect(() => {
+        let gridsDatabaseRealtimeListener = null;
+        let boardsDatabaseRealtimeListener = null;
 
-    //             const boardsDatabase = collection(db, boardsTable)?.withConverter(boardConverter);
-    //             const boardsQuery = query(boardsDatabase, where(`gridID`, `==`, lastSelectedGridID));
-    //             boardsDatabaseRealtimeListener = onSnapshot(boardsQuery, boardsSnapshot => {
-    //                 let boardsFromDB = [];
-    //                 boardsSnapshot.forEach((doc) => boardsFromDB.push(new BoardModel({ ...doc.data() })));
-    //                 boardsFromDB = boardsFromDB.sort((a, b) => a?.rank - b?.rank);
-    //                 dev() && console.log(`Boards Update from Database`, boardsFromDB);
-    //                 setUserData(lastSelectedGridID, gridsFromDB, boardsFromDB);
-    //             }, error => {
-    //                 console.log(`Error on Get Boards from Database`, error);
-    //             })
+        let ID = ``;
+        let lastSelectedGridID = ``;
 
-    //         }, error => {
-    //             console.log(`Error on Get Grids from Database`, error);
-    //         })
-        
-    //         return () => {
-    //             gridsDatabaseRealtimeListener();
-    //             if (boardsDatabaseRealtimeListener != null) boardsDatabaseRealtimeListener();
-    //         }
-    //     }
-    // }, [user])
+        // ID = `User_1_Test_UWD8cQIapTMMm4PwxjrE8tYiv4K2`;
+        // lastSelectedGridID = `test@test.com_Grid_1_Personal_qmjuBaJI5_UWD8cQIapTMMm4PwxjrE8tYiv4K2`;
+
+        if (user != null) {
+            ID = user?.ID;
+            lastSelectedGridID = user?.data?.selectedGridIDs[0];
+        }
+
+        if (ID != `` && lastSelectedGridID != ``) {
+            const gridsDatabase = collection(db, gridsTable)?.withConverter(gridConverter);
+            const gridsQuery = query(gridsDatabase, where(`ownerID`, `==`, ID));
+            gridsDatabaseRealtimeListener = onSnapshot(gridsQuery, gridsSnapshot => {
+                let gridsFromDB = [];
+                gridsSnapshot.forEach((doc) => gridsFromDB.push(new GridModel({ ...doc.data() })));
+                gridsFromDB = gridsFromDB.sort((a, b) => a?.rank - b?.rank);
+                dev() && console.log(`Grids Update from Database`, gridsFromDB);
+    
+                const boardsDatabase = collection(db, boardsTable)?.withConverter(boardConverter);
+                const boardsQuery = query(boardsDatabase, where(`gridID`, `==`, lastSelectedGridID));
+                boardsDatabaseRealtimeListener = onSnapshot(boardsQuery, boardsSnapshot => {
+                    let boardsFromDB = [];
+                    boardsSnapshot.forEach((doc) => boardsFromDB.push(new BoardModel({ ...doc.data() })));
+                    boardsFromDB = boardsFromDB.sort((a, b) => a?.rank - b?.rank);
+                    dev() && console.log(`Boards Update from Database`, boardsFromDB);
+                    setUserData(lastSelectedGridID, gridsFromDB, boardsFromDB);
+                }, error => {
+                    logToast(`Error on Get Boards from Database`, error, true);
+                })
+            }, error => {
+                logToast(`Error on Get Grids from Database`, error, true);
+            })
+        }
+    
+        return () => {
+            if (gridsDatabaseRealtimeListener != null) gridsDatabaseRealtimeListener();
+            if (boardsDatabaseRealtimeListener != null) boardsDatabaseRealtimeListener();
+        }
+
+    }, [user])
 
     return (
         <div className={`grids userGrids ${className}`}>

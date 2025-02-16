@@ -1,5 +1,19 @@
+import { toast } from 'react-toastify';
+
 export const localStorageKeys = {
   lastSignedInEmail: `last_signed_in_user_email`,
+}
+
+export const userQueryFields = [`id`, `ID`, `uid`, `uuid`, `rank`, `name`, `role`, `email`, `image`, `avatar`, `phone`, `token`];
+
+export const logToast = (message: string, content: any, error = false) => {
+  let sendMsg = typeof content == `string` ? content : ``;
+  console.log(message, content);
+  if (error == false) {
+    toast.success(message + ` ` + sendMsg);
+  } else {
+    toast.error(message + ` ` + sendMsg);
+  }
 }
 
 export const removeExtraSpacesFromString = (string: string) => string.trim().replace(/\s+/g, ` `);

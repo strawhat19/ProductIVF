@@ -91,6 +91,7 @@ export const createItem = (
 
         ...(user != null && {
             ownerID: user?.ID,
+            email: user?.email,
             owner: user?.email,
             ownerUID: user?.uid,
             creator: user?.email,

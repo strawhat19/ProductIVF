@@ -27,6 +27,11 @@ export const getBoardTitleWidth = (wordOrArrayOfLetters: string | string[]) => {
     return titleWidth;
 }
 
+export const getLoadingLabel = (lbl: string, authState, user) => {
+    let nonFormAuthStates = [`Next`, `Back`, `Save`];
+    return user != null ? `${lbl} Loading` : `${!nonFormAuthStates.includes(authState) ? authState : `Register`} to View ${lbl}`;
+}
+
 export default function Boards(props: any) {
     let { 
         user, 
@@ -45,11 +50,6 @@ export default function Boards(props: any) {
     let [useSingleSelect, ] = useState(true);
     let [useGridSearchCreate, ] = useState(false);
     let [searchingGrid, setSearchingGrid] = useState(true);
-
-    const getLoadingLabel = (lbl: string) => {
-        let nonFormAuthStates = [`Next`, `Back`, `Save`];
-        return user != null ? `${lbl} Loading` : `${!nonFormAuthStates.includes(authState) ? authState : `Register`} to View ${lbl}`;
-    }
   
     const setBoardsFromGrid = async (activeGrid) => {
         setBoardsLoading(true);
@@ -149,7 +149,6 @@ export default function Boards(props: any) {
 
     useEffect(() => {
         setRte(replaceAll(router.route, `/`, `_`));
-        
         setUpdates(updates + 1);
         return () => {
             setRte(replaceAll(router.route, `/`, `_`));
@@ -181,9 +180,9 @@ export default function Boards(props: any) {
                         <IVFSkeleton 
                             labelSize={14}
                             showLoading={true}
-                            style={{ minWidth: 300 }} 
-                            label={getLoadingLabel(`Grids`)} 
                             className={`gridsItemsSkeleton`} 
+                            label={getLoadingLabel(`Grids`, authState, user)} 
+                            style={{ minWidth: 300, '--animation-delay': `${0.15}s` }} 
                         />
                     ) : grids?.length > 1 && (
                         <MultiSelector 
@@ -211,14 +210,14 @@ export default function Boards(props: any) {
                 <div className={`flex ${dbBoards && dbBoards?.length > 0 ? `hasBoards` : `noBoards`} ${dbBoards && dbBoards?.length == 1 ? `oneBoard` : ``}`}>
                     {boardsLoading ? <>
                         <div className={`flex isColumn`} style={{ paddingTop: 5 }}>
-                            {generateArray(10, getLoadingLabel(`Boards`)).map((lbl, lblIndex) => (
+                            {generateArray(10, getLoadingLabel(`Boards`, authState, user)).map((lbl, lblIndex) => (
                                 <IVFSkeleton 
                                     height={65} 
                                     label={lbl} 
                                     key={lblIndex}
                                     showLoading={true}
                                     className={`boardsSkeleton`} 
-                                    style={{ margin: `5px 0`, '--animation-delay': `${lblIndex * 0.15}s` }}
+                                    style={{ margin: `5px 0`, '--animation-delay': `${(lblIndex + 1) * 0.15}s` }}
                                 />
                             ))}
                         </div>
