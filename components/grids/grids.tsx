@@ -4,8 +4,7 @@ import { Grid as GridModel } from '../../shared/models/Grid';
 import { Board as BoardModel } from '../../shared/models/Board';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { boardConverter, boardsTable, db, gridConverter, gridsTable } from '../../firebase';
-import Board from '../boards/board';
-import Boards from '../boards/boards';
+import Grid from './grid';
 
 export default function Grids(props: any) {
     let { className = `gridsComponent` } = props;
@@ -48,7 +47,6 @@ export default function Grids(props: any) {
 
     return (
         <div className={`grids userGrids ${className}`}>
-            {/* <Grid /> */}
             {selectedGrids?.map((sgr, sgrIndex) => (
                 <div key={sgrIndex} id={`selected_grid_${sgr?.ID}`} className={`selectedGrid`}>
                     {sgr?.name} Grid
@@ -58,7 +56,8 @@ export default function Grids(props: any) {
                                 let thisGridBoard = userBoards?.find(bord => bord?.ID == brdID);
                                 if (thisGridBoard) {
                                     return (
-                                        <Boards key={brdIDIndex} dbBoards={[thisGridBoard]} />
+                                        <Grid key={brdIDIndex} />
+                                        // <Boards key={brdIDIndex} dbBoards={[thisGridBoard]} />
                                         // <div key={brdIDIndex} className={`gridBoard`}>
                                         //     {thisGridBoard?.name}
                                         // </div>

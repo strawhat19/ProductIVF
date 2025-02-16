@@ -4,7 +4,7 @@ import { initializeApp } from 'firebase/app';
 import { Board } from './shared/models/Board';
 import { dev, formatDate } from './pages/_app';
 import { GoogleAuthProvider, getAuth } from 'firebase/auth';
-import { collection, doc, getDocs, getFirestore, orderBy, query, setDoc, updateDoc, where } from 'firebase/firestore';
+import { collection, doc, getDocs, getFirestore, onSnapshot, orderBy, query, setDoc, updateDoc, where } from 'firebase/firestore';
 
 export enum Environments {
   beta = `beta_`,
@@ -116,6 +116,27 @@ export const updateUserFieldsInDatabase = async (userID: string, updates: Partia
   } catch (error) {
     console.log(`Error Updating User ${userID} Fields`, { error, fields });
   }
+}
+
+export const listenToGrid = (gridID, callback) => {
+  if (!gridID) return;
+  const gridQuery = query(collection(db, gridsTable), where(`ID`, `==`, gridID));
+  return onSnapshot(gridQuery, gridDocs => {
+    const grids = gridDocs.docs.map(doc => ({ ...doc.data() }));
+    console.log(`Grid Updated`, grids);
+    callback(grids);
+  });
+}
+
+export const listenToBoards = (boardIDs, callback) => {
+  if (!boardIDs || boardIDs.length === 0) return;
+
+  const q = query(collection(db, boardsTable), where("ID", "in", boardIDs));
+  return onSnapshot(q, (snapshot) => {
+    const boards = snapshot.docs.map(doc => ({ ...doc.data() }));
+    console.log(`Boards Updated`, boards);
+    callback(boards);
+  });
 }
 
 export const getBoardsFromBoardIDs = async (boardIDs) => {
