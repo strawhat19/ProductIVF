@@ -8,7 +8,7 @@ import { StateContext } from '../../pages/_app';
 
 export default function Grids(props: any) {
     let { className = `gridsComponent` } = props;
-    let { userBoards, selectedGrids } = useContext<any>(StateContext);
+    let { user, selectedGrids } = useContext<any>(StateContext);
 
     // useEffect(() => {
     //     if (user != null) {
@@ -47,7 +47,8 @@ export default function Grids(props: any) {
 
     return (
         <div className={`grids userGrids ${className}`}>
-            {selectedGrids?.map((sgr, sgrIndex) => (
+            <Grid gridID={user != null ? user?.lastSelectedGridID : selectedGrids?.length > 0 ? selectedGrids[0]?.ID : ``} />
+            {/* {selectedGrids?.map((sgr, sgrIndex) => (
                 <div key={sgrIndex} id={`selected_grid_${sgr?.ID}`} className={`selectedGrid`}>
                     {sgr?.name} Grid
                     <div className={`gridsBoardsContainer`}>
@@ -58,7 +59,7 @@ export default function Grids(props: any) {
                                     return (
                                         <div key={brdIDIndex}>
                                             Grid
-                                            <Grid />
+                                            
                                         </div>
                                         // <Boards key={brdIDIndex} dbBoards={[thisGridBoard]} />
                                         // <div key={brdIDIndex} className={`gridBoard`}>
@@ -70,7 +71,7 @@ export default function Grids(props: any) {
                         ) : <></>}
                     </div>
                 </div>
-            ))}
+            ))} */}
         </div>
     )
 }

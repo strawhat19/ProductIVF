@@ -57,6 +57,7 @@ export class User extends Data {
   password?: string;
   email: string = ``;
   provider: Providers.Firebase;
+  lastSelectedGridID: string = ``;
 
   type: Types = Types.User;
   role = ROLES.Subscriber.name;

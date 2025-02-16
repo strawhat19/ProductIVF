@@ -30,18 +30,19 @@
     }
 }
 
-.MuiLinearProgress-root {
-    height: 1px;
-    background: var(--gameBlue);
-}
-
 .MuiSkeleton-root {
     transform: none !important;
     background: var(--skeletonColor);
     &::after {
         content: "";
+        animation-delay: var(--animation-delay, 0s);
         background: linear-gradient(321deg, transparent, var(--skeletonSweepColor), transparent);
     }
+}
+
+.MuiLinearProgress-root {
+    height: 1px;
+    background: var(--gameBlue);
 }
 
 .MuiBox-root {

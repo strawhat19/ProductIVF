@@ -218,7 +218,7 @@ export default function Boards(props: any) {
                                     key={lblIndex}
                                     showLoading={true}
                                     className={`boardsSkeleton`} 
-                                    style={{ margin: `5px 0`, }}
+                                    style={{ margin: `5px 0`, '--animation-delay': `${lblIndex * 0.15}s` }}
                                 />
                             ))}
                         </div>

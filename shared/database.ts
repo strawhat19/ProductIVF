@@ -160,8 +160,8 @@ export const seedUserData = (user: User | any) => {
     let board1 = createBoard(1, `Daily Tasks`, user, `135px`);
     let board2 = createBoard(2, `Goals`, user, `85px`);
 
-    let board3 = createBoard(3, `Reminders`, user, `145px`);
-    let board4 = createBoard(4, GridTypes.Work, user, `80px`);
+    let board3 = createBoard(3, GridTypes.Work, user, `80px`);
+    let board4 = createBoard(4, `Reminders`, user, `145px`);
 
     let board5 = createBoard(5, `Bills`, user, `80px`);
     let board6 = createBoard(6, `Passwords`, user, `132.5px`);
@@ -206,6 +206,7 @@ export const seedUserData = (user: User | any) => {
 
     let updatedUser = {
         ...user,
+        lastSelectedGridID: grid1?.ID,
         data: {
             ...user.data,
             selectedGridIDs: [grid1?.ID],
