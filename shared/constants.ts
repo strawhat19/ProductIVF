@@ -6,9 +6,9 @@ export const localStorageKeys = {
 
 export const userQueryFields = [`id`, `ID`, `uid`, `uuid`, `rank`, `name`, `role`, `email`, `image`, `avatar`, `phone`, `token`];
 
-export const logToast = (message: string, content: any, error = false) => {
+export const logToast = (message: string, content: any, error = false, data = null) => {
   let sendMsg = typeof content == `string` ? content : ``;
-  console.log(message, content);
+  console.log(message, content, data);
   if (error == false) {
     toast.success(message + ` ` + sendMsg);
   } else {

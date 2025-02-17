@@ -36,10 +36,11 @@ export enum AuthStates {
     Save = `Save`,
     Edit = `Edit`,
     Cancel = `Cancel`,
-    Register = `Register`,
+    Delete = `Delete`,
     Sign_In = `Sign In`,
     Sign_Up = `Sign Up`,
     Sign_Out = `Sign Out`,
+    Register = `Register`,
     Forgot_Password = `Forgot Password`,
     Reset_Password = `Reset Password`,
 }

@@ -1,15 +1,15 @@
+import { formatDate } from './pages/_app';
 import { User } from './shared/models/User';
 import { Grid } from './shared/models/Grid';
-import { Board } from './shared/models/Board';
 import { List } from './shared/models/List';
 import { Item } from './shared/models/Item';
 import { Task } from './shared/models/Task';
 import { initializeApp } from 'firebase/app';
-import { dev, formatDate } from './pages/_app';
-import { GoogleAuthProvider, getAuth } from 'firebase/auth';
-import { collection, doc, getDocs, getFirestore, onSnapshot, orderBy, query, setDoc, updateDoc, where, writeBatch } from 'firebase/firestore';
-import { logToast, userQueryFields } from './shared/constants';
+import { Board } from './shared/models/Board';
 import { Email } from './shared/models/Email';
+import { GoogleAuthProvider, deleteUser, getAuth, signOut } from 'firebase/auth';
+import { logToast, userQueryFields } from './shared/constants';
+import { collection, deleteDoc, doc, getDocs, getFirestore, onSnapshot, orderBy, query, updateDoc, where, writeBatch } from 'firebase/firestore';
 
 export enum Environments {
   beta = `beta_`,
@@ -64,6 +64,18 @@ export const boardsTable = environment + Tables.boards;
 export const listsTable = environment + Tables.lists;
 export const itemsTable = environment + Tables.items;
 export const tasksTable = environment + Tables.tasks;
+
+export const dbCollections = {
+  users: usersTable,
+  email: emailsTable,
+  grids: gridsTable,
+  board: boardsTable,
+  lists: listsTable,
+  items: itemsTable,
+  tasks: tasksTable,
+}
+
+export const collectionNames = Object.values(dbCollections);
 
 export const userConverter = {
   toFirestore: (usr: User) => {
@@ -159,7 +171,7 @@ export const getUsersFromDatabase = async (search: string | number) => {
 export const addUserToDatabase = async (usr: User) => {
   try {
     const batchUserAddOperation = writeBatch(db);
-    const userReference = await doc(db, usersTable, usr?.ID)?.withConverter(userConverter);
+    const userReference = await doc(db, usersTable, usr?.id)?.withConverter(userConverter);
     const emailReference = await doc(db, emailsTable, usr?.id)?.withConverter(emailConverter);
     await batchUserAddOperation.set(userReference, usr as User);
     await batchUserAddOperation.set(emailReference, new Email(usr) as Email);
@@ -169,31 +181,31 @@ export const addUserToDatabase = async (usr: User) => {
   }
 }
 
-export const updateUserFields = async (userID: string, updates: Partial<User>, logResult = true) => {
+export const updateUserFields = async (user_id: string, updates: Partial<User>, logResult = true) => {
   try {
-    const userRef = await doc(db, usersTable, userID).withConverter(userConverter);
+    const userRef = await doc(db, usersTable, user_id).withConverter(userConverter);
     await updateDoc(userRef, updates);
     if (logResult) console.log(`User Fields Updated in Database`, updates);
   } catch (updateUserError) {
-    console.log(`Error Updating User ${userID} Fields`, { updateUserError, updates });
+    logToast(`Error Updating User ${user_id} Fields`, updateUserError, true, updates);
   }
 }
 
-export const updateUserFieldsInDatabase = async (userID: string, updates: Partial<User>, logResult = true) => {
+export const updateUserFieldsWTimeStamp = async (user_id: string, updates: Partial<User>, logResult = true) => {
   const now = formatDate(new Date());
   const fields = { ...updates, meta: { updated: now } };
   try {
-    const userRef = await doc(db, usersTable, userID).withConverter(userConverter);
+    const userRef = await doc(db, usersTable, user_id).withConverter(userConverter);
     await updateDoc(userRef, fields);
     if (logResult) console.log(`User Fields Updated in Database`, fields);
   } catch (updateUserFieldsError) {
-    console.log(`Error Updating User ${userID} Fields`, { updateUserFieldsError, fields });
+    logToast(`Error Updating User ${user_id} Fields w/ Timestamp`, updateUserFieldsError, true, fields);
   }
 }
 
-export const listenToCollections = (arrayOfIDs, tableName, converter, Class, callback) => {
-  if (!arrayOfIDs || arrayOfIDs.length === 0) return;
-  const collectionQuery = query(collection(db, tableName), where(`ID`, `in`, arrayOfIDs))?.withConverter(converter);
+export const listenToCollections = (arrayOfIds, tableName, converter, Class, callback) => {
+  if (!arrayOfIds || arrayOfIds.length === 0) return;
+  const collectionQuery = query(collection(db, tableName), where(`id`, `in`, arrayOfIds))?.withConverter(converter);
   return onSnapshot(collectionQuery, (snapshot) => {
     const documents = snapshot.docs.map(doc => new Class({ ...doc.data() }));
     console.log(`${tableName} Updated`, documents);
@@ -201,42 +213,72 @@ export const listenToCollections = (arrayOfIDs, tableName, converter, Class, cal
   });
 }
 
-export const listenToGrid = (gridID, callback) => {
-  if (!gridID) return;
-  return listenToCollections([gridID], gridsTable, gridConverter, Grid, callback);
+export const listenToGrid = (grid_id, callback) => {
+  if (!grid_id) return;
+  return listenToCollections([grid_id], gridsTable, gridConverter, Grid, callback);
 }
 
-export const listenToBoards = (boardIDs, callback) => {
-  if (!boardIDs || boardIDs.length === 0) return;
-  return listenToCollections(boardIDs, boardsTable, boardConverter, Board, callback);
+export const listenToBoards = (board_ids, callback) => {
+  if (!board_ids || board_ids.length === 0) return;
+  return listenToCollections(board_ids, boardsTable, boardConverter, Board, callback);
 }
 
-export const listenToLists = (listIDs, callback) => {
-  if (!listIDs || listIDs.length === 0) return;
-  return listenToCollections(listIDs, listsTable, listConverter, List, callback);
+export const listenToLists = (list_ids, callback) => {
+  if (!list_ids || list_ids.length === 0) return;
+  return listenToCollections(list_ids, listsTable, listConverter, List, callback);
 }
 
-export const listenToItems = (itemIDs, callback) => {
-  if (!itemIDs || itemIDs.length === 0) return;
-  return listenToCollections(itemIDs, itemsTable, itemConverter, Item, callback);
+export const listenToItems = (item_ids, callback) => {
+  if (!item_ids || item_ids.length === 0) return;
+  return listenToCollections(item_ids, itemsTable, itemConverter, Item, callback);
 }
 
-export const listenToTasks = (taskIDs, callback) => {
-  if (!taskIDs || taskIDs.length === 0) return;
-  return listenToCollections(taskIDs, tasksTable, taskConverter, Task, callback);
+export const listenToTasks = (task_ids, callback) => {
+  if (!task_ids || task_ids.length === 0) return;
+  return listenToCollections(task_ids, tasksTable, taskConverter, Task, callback);
 }
 
-export const getBoardsFromBoardIDs = async (boardIDs) => {
-  let boardsFromBoardIDs = [];
+export const getBoardsFromBoardIds = async (board_ids) => {
+  let boardsFromBoardIds = [];
   const boardsDatabase = await collection(db, boardsTable)?.withConverter(boardConverter);
-  const boardsQuery = await query(boardsDatabase, where(`ID`, `in`, boardIDs));
+  const boardsQuery = await query(boardsDatabase, where(`id`, `in`, board_ids));
   const boardsToGet = await getDocs(boardsQuery);
   if (boardsToGet) {
     boardsToGet.forEach(doc => {
-      boardsFromBoardIDs.push(new Board({ ...doc.data() }));
+      boardsFromBoardIds.push(new Board({ ...doc.data() }));
     });
   }
-  return boardsFromBoardIDs;
+  return boardsFromBoardIds;
+}
+
+export const deleteUserAuth = async (usr: User) => {
+  const currentUser = auth.currentUser;
+  if (usr == null || !currentUser) {
+    await logToast(`Error Deleting User Not Signed In`, ``, true);
+    return;
+  }
+  try {
+    await deleteUser(currentUser);
+    return usr?.email;
+  } catch (deleteUserError) {
+    await logToast(`Error Deleting User ${usr?.email} from Authentication`, deleteUserError, true);
+  }
+}
+
+export const deleteUserData = async (email: string) => {
+  try {
+    for (const collectionName of collectionNames) {
+      const q = query(collection(db, collectionName), where(`email`, `==`, email));
+      const querySnapshot = await getDocs(q);
+
+      querySnapshot.forEach(async (document) => {
+        await deleteDoc(document.ref);
+        console.log(`Deleted Document from ${collectionName}:`, document?.id);
+      });
+    }
+  } catch (deleteUserDataError) {
+    await logToast(`Error Deleting User Data for ${email}`, deleteUserDataError, true);
+  }
 }
 
 export default firebaseApp;

@@ -16,20 +16,20 @@ export default function Grids(props: any) {
         let gridsDatabaseRealtimeListener = null;
         let boardsDatabaseRealtimeListener = null;
 
-        let ID = ``;
+        let id = ``;
         let lastSelectedGridID = ``;
 
-        // ID = `User_1_Test_UWD8cQIapTMMm4PwxjrE8tYiv4K2`;
+        // id = `User_1_Test_UWD8cQIapTMMm4PwxjrE8tYiv4K2`;
         // lastSelectedGridID = `test@test.com_Grid_1_Personal_qmjuBaJI5_UWD8cQIapTMMm4PwxjrE8tYiv4K2`;
 
         if (user != null) {
-            ID = user?.ID;
+            id = user?.id;
             lastSelectedGridID = user?.data?.selectedGridIDs[0];
         }
 
-        if (ID != `` && lastSelectedGridID != ``) {
+        if (id != `` && lastSelectedGridID != ``) {
             const gridsDatabase = collection(db, gridsTable)?.withConverter(gridConverter);
-            const gridsQuery = query(gridsDatabase, where(`ownerID`, `==`, ID));
+            const gridsQuery = query(gridsDatabase, where(`ownerID`, `==`, id));
             gridsDatabaseRealtimeListener = onSnapshot(gridsQuery, gridsSnapshot => {
                 let gridsFromDB = [];
                 gridsSnapshot.forEach((doc) => gridsFromDB.push(new GridModel({ ...doc.data() })));
@@ -61,14 +61,14 @@ export default function Grids(props: any) {
 
     return (
         <div className={`grids userGrids ${className}`}>
-            <Grid gridID={user != null ? user?.lastSelectedGridID : selectedGrids?.length > 0 ? selectedGrids[0]?.ID : ``} />
+            <Grid gridID={user != null ? user?.lastSelectedGridID : selectedGrids?.length > 0 ? selectedGrids[0]?.id : ``} />
             {/* {selectedGrids?.map((sgr, sgrIndex) => (
-                <div key={sgrIndex} id={`selected_grid_${sgr?.ID}`} className={`selectedGrid`}>
+                <div key={sgrIndex} id={`selected_grid_${sgr?.id}`} className={`selectedGrid`}>
                     {sgr?.name} Grid
                     <div className={`gridsBoardsContainer`}>
                         {sgr?.data?.boardIDs?.length > 0 ? (
                             sgr?.data?.boardIDs?.map((brdID, brdIDIndex) => {
-                                let thisGridBoard = userBoards?.find(bord => bord?.ID == brdID);
+                                let thisGridBoard = userBoards?.find(bord => bord?.id == brdID);
                                 if (thisGridBoard) {
                                     return (
                                         <div key={brdIDIndex}>

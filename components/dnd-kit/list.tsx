@@ -53,7 +53,7 @@ export default function List() {
 
     return (
         <DndContext onDragEnd={handleDragEnd}>
-            <DroppableContainer id={`IVF_dnd-kit_droppable_${user != null ? user?.ID : `gridItems`}`} items={items} />
+            <DroppableContainer id={`IVF_dnd-kit_droppable_${user != null ? user?.id : `gridItems`}`} items={items} />
         </DndContext>
     );
 }

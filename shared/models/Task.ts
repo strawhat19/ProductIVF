@@ -82,7 +82,7 @@ export const createTask = (
         description,
 
         ...(user != null && {
-            ownerID: user?.ID,
+            ownerID: user?.id,
             owner: user?.email,
             email: user?.email,
             ownerUID: user?.uid,

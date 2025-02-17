@@ -155,8 +155,8 @@ export default function MultiSelector(props) {
     id: `${id}_multiselector`,
     getOptionLabel: (option) => option?.label,
     onChange: (e, val: any) => onChangeValue(val),
+    options: options.map(gr => ({ ...gr, value: gr?.id, label: gr?.name })),
     isOptionEqualToValue: (option: any, value: any) => option?.id === value.id,
-    options: options.map(gr => ({ ...gr, id: gr?.ID, value: gr?.ID, label: gr?.name })),
   });
 
   const getActiveOptions = (opts, arrayOfOptions) => {

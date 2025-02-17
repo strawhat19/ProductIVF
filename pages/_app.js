@@ -469,7 +469,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
     let gridsBoardsIDs = activeGrds?.length > 0 ? activeGrds.map(grd => grd?.data?.boardIDs).flat() : [];
     if (gridsBoardsIDs.length > 0) {
       gridsBoardsIDs.forEach(gbID => {
-        let gBoard = brds.find(br => br?.ID == gbID);
+        let gBoard = brds.find(br => br?.id == gbID);
         if (gBoard) gridsBoards.push(gBoard);
       })
     }
@@ -480,10 +480,10 @@ export default function ProductIVF({ Component, pageProps, router }) {
     setGrids(grds);
     setUserBoards(brds);
 
-    let lastSelectedGrid = grds.find(gr => gr?.ID == activeGridID);
+    let lastSelectedGrid = grds.find(gr => gr?.id == activeGridID);
     let defaultSeletedGrid = lastSelectedGrid ? lastSelectedGrid : grds[0];
     
-    let defaultSeletedGrids = [defaultSeletedGrid]?.map(gr => ({ ...gr, label: gr?.name, value: gr?.ID }));
+    let defaultSeletedGrids = [defaultSeletedGrid]?.map(gr => ({ ...gr, label: gr?.name, value: gr?.id }));
     let gridBoards = getGridsBoards(defaultSeletedGrids, brds);
 
     setSelectedGrids(defaultSeletedGrids);
@@ -527,7 +527,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
   }
 
   // useEffect(() => {
-  //   let selectedGridIDs = selectedGrids?.length > 0 ? selectedGrids?.map(gr => gr?.ID) : [];
+  //   let selectedGridIDs = selectedGrids?.length > 0 ? selectedGrids?.map(gr => gr?.id) : [];
   //   setUser(prevUser => ({ ...prevUser, data: { ...prevUser?.data, selectedGridIDs } }));
   // }, [selectedGrids])
 

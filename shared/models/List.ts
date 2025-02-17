@@ -76,7 +76,7 @@ export const createList = (
         description,
 
         ...(user != null && {
-            ownerID: user?.ID,
+            ownerID: user?.id,
             email: user?.email,
             owner: user?.email,
             ownerUID: user?.uid,

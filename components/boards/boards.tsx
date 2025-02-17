@@ -1,7 +1,7 @@
 import Board from './board';
 import { toast } from 'react-toastify';
 import { createBoard } from '../../shared/database';
-import { getBoardsFromBoardIDs } from '../../firebase';
+import { getBoardsFromBoardIds, updateUserFields } from '../../firebase';
 import MultiSelector from '../selector/multi-selector';
 import { useState, useEffect, useContext } from 'react';
 import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
@@ -53,7 +53,7 @@ export default function Boards(props: any) {
   
     const setBoardsFromGrid = async (activeGrid) => {
         setBoardsLoading(true);
-        let boardsForGrid = await getBoardsFromBoardIDs(activeGrid?.data?.boardIDs);
+        let boardsForGrid = await getBoardsFromBoardIds(activeGrid?.data?.boardIDs);
         setBoards(boardsForGrid);
         setBoardsLoading(false);
     }
@@ -61,6 +61,7 @@ export default function Boards(props: any) {
     const updateSelectedGrids = async (updatedSelectedGrids) => {
         setSelectedGrids(updatedSelectedGrids);
         let activeGrid = updatedSelectedGrids[0];
+        // updateUserFields()
         if (activeGrid) setBoardsFromGrid(activeGrid);
     }
 
@@ -95,7 +96,7 @@ export default function Boards(props: any) {
         
         setSystemStatus(`Creating Board ${boardName}.`);
 
-        let newBoard = createBoard(rank, boardName, user, titleWidth, selectedGrids[0]?.ID);
+        let newBoard = createBoard(rank, boardName, user, titleWidth, selectedGrids[0]?.id);
 
         dev() && console.log(`New Board`, newBoard);
 

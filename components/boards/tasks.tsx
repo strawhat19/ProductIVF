@@ -116,7 +116,7 @@ export default function Tasks(props) {
     localStorage.setItem(`boards`, JSON.stringify(bords));
     if (dynamicScrollbars) addBoardScrollBars();
     if (user != null) {
-      updateUserFields(user?.id, { boards: bords });
+      // updateUserFields(user?.id, { boards: bords });
     }
   }
 

@@ -1,4 +1,4 @@
-import { genID } from '../ID';
+import { generateID, genID } from '../ID';
 import { Data } from './Data';
 import { Types } from '../types/types';
 import { capWords } from '../../pages/_app';
@@ -57,6 +57,7 @@ export class User extends Data {
   avatar: any = ``;
   password?: string;
   email: string = ``;
+  signedIn: boolean = false;
   provider: Providers.Firebase;
   lastSelectedGridID: string = ``;
 
@@ -89,11 +90,12 @@ export class User extends Data {
     this.A = this.name;
 
     let ID = genID(this.type, this.rank, this.name, this.uid);
-    let { id, date, title, id_Title, generatedUUID } = ID;
+    let { id, date, title } = ID;
+    let uuid = generateID();
 
     if (!isValid(this.id)) this.id = id;
+    if (!isValid(this.uuid)) this.uuid = uuid;
     if (!isValid(this.title)) this.title = title;
-    if (!isValid(this.uuid)) this.uuid = generatedUUID;
     if (!isValid(this.meta.created)) this.meta.created = date;
     if (!isValid(this.meta.updated)) this.meta.updated = date;
     if (!isValid(this.properties)) this.properties = countPropertiesInObject(this) + 1;

@@ -5,6 +5,7 @@ import { Roles, User } from './models/User';
 import { GridTypes, Types } from './types/types';
 import { BoardTypes } from '../components/boards/boards';
 import { isValid, removeNullAndUndefinedProperties, stringNoSpaces } from './constants';
+import { generateID } from './ID';
 
 export const createUser = (
     uid: string, 
@@ -80,7 +81,7 @@ export const createGrid = (
         description,
 
         ...(user != null && {
-            ownerID: user?.ID,
+            ownerID: user?.id,
             email: user?.email,
             owner: user?.email,
             ownerUID: user?.uid,
@@ -134,7 +135,7 @@ export const createBoard = (
         description,
 
         ...(user != null && {
-            ownerID: user?.ID,
+            ownerID: user?.id,
             email: user?.email,
             owner: user?.email,
             ownerUID: user?.uid,
@@ -162,6 +163,15 @@ export const createBoard = (
 }
 
 export const seedUserData = (user: User | any) => {
+    let uuid = generateID();
+    
+    user = {
+        ...user,
+        uuid,
+        id: user?.id + `_${uuid}`,
+        ID: user?.ID + `_${uuid}`,
+    }
+
     let board1 = createBoard(1, `Daily Tasks`, user, `135px`);
     let board2 = createBoard(2, `Goals`, user, `85px`);
 
@@ -175,47 +185,47 @@ export const seedUserData = (user: User | any) => {
     let board8 = createBoard(8, `Deprecated`, user, `144px`);
 
     let grid1 = createGrid(1, GridTypes.Personal, user, GridTypes.Personal, [
-        board1?.ID, 
-        board2?.ID,
+        board1?.id, 
+        board2?.id,
     ]);
 
     let grid2 = createGrid(2, GridTypes.Work, user, GridTypes.Work, [
-        board3?.ID,
-        board4?.ID,
+        board3?.id,
+        board4?.id,
     ]);
 
     let grid3 = createGrid(3, GridTypes.Private, user, GridTypes.Private, [
-        board5?.ID, 
-        board6?.ID,
+        board5?.id, 
+        board6?.id,
     ]);
 
     let grid4 = createGrid(4, GridTypes.Archived, user, GridTypes.Archived, [
-        board7?.ID,
-        board8?.ID,
+        board7?.id,
+        board8?.id,
     ]);
 
-    board1 = new Board({ ...board1, gridID: grid1?.ID });
-    board2 = new Board({ ...board2, gridID: grid1?.ID });
+    board1 = new Board({ ...board1, gridID: grid1?.id });
+    board2 = new Board({ ...board2, gridID: grid1?.id });
 
-    board3 = new Board({ ...board3, gridID: grid2?.ID });
-    board4 = new Board({ ...board4, gridID: grid2?.ID });
+    board3 = new Board({ ...board3, gridID: grid2?.id });
+    board4 = new Board({ ...board4, gridID: grid2?.id });
     
-    board5 = new Board({ ...board5, gridID: grid3?.ID });
-    board6 = new Board({ ...board6, gridID: grid3?.ID });
+    board5 = new Board({ ...board5, gridID: grid3?.id });
+    board6 = new Board({ ...board6, gridID: grid3?.id });
 
-    board7 = new Board({ ...board7, gridID: grid4?.ID });
-    board8 = new Board({ ...board8, gridID: grid4?.ID });
+    board7 = new Board({ ...board7, gridID: grid4?.id });
+    board8 = new Board({ ...board8, gridID: grid4?.id });
 
     let grids = [grid1, grid2, grid3, grid4];
     let boards = [board1, board2, board3, board4, board5, board6, board7, board8];
 
     let updatedUser = {
         ...user,
-        lastSelectedGridID: grid1?.ID,
+        lastSelectedGridID: grid1?.id,
         data: {
             ...user.data,
-            selectedGridIDs: [grid1?.ID],
-            gridIDs: grids.map(gr => gr?.ID),
+            selectedGridIDs: [grid1?.id],
+            gridIDs: grids.map(gr => gr?.id),
         }
     }
 

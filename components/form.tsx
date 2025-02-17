@@ -3,13 +3,14 @@
 import { toast } from 'react-toastify';
 import { User } from '../shared/models/User';
 import { createUser } from '../shared/database';
-import { addUserToDatabase, auth, boardConverter, boardsTable, db, gridConverter, gridsTable, usersTable } from '../firebase';
+import { addUserToDatabase, auth, boardConverter, boardsTable, db, deleteUserAuth, deleteUserData, gridConverter, gridsTable, usersTable } from '../firebase';
 import IVFSkeleton from './loaders/skeleton/ivf_skeleton';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { formatDate, StateContext, showAlert, dev } from '../pages/_app';
-import { findHighestNumberInArrayByKey, localStorageKeys, stringNoSpaces } from '../shared/constants';
+import { findHighestNumberInArrayByKey, isValid, localStorageKeys, logToast, stringNoSpaces } from '../shared/constants';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, writeBatch } from 'firebase/firestore';
+import { AuthStates } from '../shared/types/types';
 
 export const convertHexToRGB = (HexString?:any, returnObject?: any) => {
   let r = parseInt(HexString.slice(1, 3), 16),
@@ -66,8 +67,9 @@ export default function Form(props?: any) {
   } = useContext<any>(StateContext);
 
   const getAuthStateIcon = (authState) => {
+    let trashIcon = `fas fa-trash`;
     let signoutIcon = `fas fa-sign-out-alt`;
-    let icon = signoutIcon;
+    let icon = authState == AuthStates.Delete ? trashIcon : signoutIcon;
     return icon;
   }
 
@@ -233,24 +235,24 @@ export default function Form(props?: any) {
       default:
         console.log(`Clicked Value`, clickedValue);
         break;
-      case `Next`:
+      case AuthStates.Next:
         let macthingEmails = users.filter((usr: any) => usr?.email.toLowerCase() == email.toLowerCase());
         if (macthingEmails?.length > 0) {
-          setAuthState(`Sign In`);
+          setAuthState(AuthStates.Sign_In);
         } else {
-          setAuthState(`Sign Up`);
+          setAuthState(AuthStates.Sign_Up);
         }
         setEmailField(true);
         break;
-      case `Back`:
+      case AuthStates.Back:
         setUpdates(updates + 1);
-        setAuthState(`Next`);
+        setAuthState(AuthStates.Next);
         setEmailField(false);
         break;
-      case `Sign Out`:
+      case AuthStates.Sign_Out:
         onSignOut();
         break;
-      case `Save`:
+      case AuthStates.Save:
         let emptyFields = [];
         let fieldsToUpdate = [];
 
@@ -277,7 +279,7 @@ export default function Form(props?: any) {
           })));
         }
         break;
-      case `Sign In`:
+      case AuthStates.Sign_In:
         if (password == ``) {
           toast.error(`Password Required`);
         } else {
@@ -288,7 +290,7 @@ export default function Form(props?: any) {
           }
         }
         break;
-      case `Sign Up`:
+      case AuthStates.Sign_Up:
         if (password == ``) {
           toast.error(`Password Required`);
         } else {
@@ -298,6 +300,14 @@ export default function Form(props?: any) {
             toast.error(`Password must be 6 characters or greater`);
           }
         }
+        break;
+      case AuthStates.Delete:
+        deleteUserAuth(user)?.then(async eml => {
+          if (isValid(eml)) {
+            await onSignOut();
+            await deleteUserData(eml);
+          }
+        })?.catch(async deleteUserError => await logToast(`Error on Delete User`, deleteUserError, true));
         break;
     };
   }
@@ -339,6 +349,15 @@ export default function Form(props?: any) {
         `usersSkeleton`, 
         user ? `Sign Out` : authState,
         <input className={(user && window?.location?.href?.includes(`profile`) || (authState == `Sign In` || authState == `Sign Up`)) ? `submit half` : `submit full`} type="submit" name="authFormSubmit" value={user ? `Sign Out` : authState} />,
+      )}
+    
+      {user != null && (
+        formButtonField(
+          `Users Loading`, 
+          `usersSkeleton`, 
+          AuthStates.Delete,
+          <input className={`authFormDelete`} type="submit" name="authFormSubmit" value={AuthStates.Delete} />
+        )
       )}
 
       {(authState == `Sign In` || authState == `Sign Up`) && (
