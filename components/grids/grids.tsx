@@ -1,5 +1,6 @@
 import Grid from './grid';
-import { useContext } from 'react';
+// import { useRouter } from 'next/router';
+import { useContext, useEffect } from 'react';
 import { StateContext } from '../../pages/_app';
 // import { logToast } from '../../shared/constants';
 // import { Grid as GridModel } from '../../shared/models/Grid';
@@ -8,9 +9,25 @@ import { StateContext } from '../../pages/_app';
 // import { boardConverter, boardsTable, db, gridConverter, gridsTable } from '../../firebase';
 
 export default function Grids(props: any) {
+    // let router = useRouter();
+    // let { id, gridid } = router.query;
     let { className = `gridsComponent` } = props;
     let { user, selectedGrids } = useContext<any>(StateContext);
 
+    // useEffect(() => {
+    //     if (user != null) {
+    //         if (id) {
+    //             if (gridid) {
+    //                 if (usersGrids && usersGrids?.length > 0) {
+    //                     let thisGrid = usersGrids?.find(gr => String(gr?.rank) == String(gridid));
+    //                     if (thisGrid) {
+    //                         setUsersGridsState(thisGrid?.id, usersGrids, false);
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }, [user, usersGrids])
     
     // useEffect(() => {
     //     let gridsDatabaseRealtimeListener = null;

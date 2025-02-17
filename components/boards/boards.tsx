@@ -1,13 +1,12 @@
 import Board from './board';
 import { toast } from 'react-toastify';
 import { createBoard } from '../../shared/database';
-import { getBoardsFromBoardIds } from '../../firebase';
 import MultiSelector from '../selector/multi-selector';
-import { useState, useEffect, useContext } from 'react';
 import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
+import { useState, useEffect, useContext, useRef } from 'react';
 import { capWords, dev, replaceAll, StateContext } from '../../pages/_app';
 import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
-import { findHighestNumberInArrayByKey, generateArray } from '../../shared/constants';
+import { findHighestNumberInArrayByKey, generateArray, isValid } from '../../shared/constants';
 
 export enum ItemTypes {
     Item = `Item`,
@@ -37,32 +36,30 @@ export default function Boards(props: any) {
         user, 
         authState,
         setLoading, 
+        usersGrids,
         IDs, setIDs, 
         setSystemStatus, 
+        setUsersGridsState,
         rte, router, setRte, 
-        grids, gridsLoading, selectedGrids, setSelectedGrids, 
         boards, userBoards, setBoards, boardsLoading, setBoardsLoading,
+        grids, gridsLoading, selectedGrids, selectedGrid, setSelectedGrids, 
     } = useContext<any>(StateContext);
 
     let { dbBoards = boards } = props;
 
+    const multiSelectorRef = useRef(null);
     let [updates, setUpdates] = useState(0);
     let [useSingleSelect, ] = useState(true);
     let [useGridSearchCreate, ] = useState(false);
     let [searchingGrid, setSearchingGrid] = useState(true);
-  
-    const setBoardsFromGrid = async (activeGrid) => {
-        setBoardsLoading(true);
-        let boardsForGrid = await getBoardsFromBoardIds(activeGrid?.data?.boardIDs);
-        setBoards(boardsForGrid);
-        setBoardsLoading(false);
-    }
 
     const updateSelectedGrids = async (updatedSelectedGrids) => {
-        setSelectedGrids(updatedSelectedGrids);
-        let activeGrid = updatedSelectedGrids[0];
-        // updateUserFields()
-        if (activeGrid) setBoardsFromGrid(activeGrid);
+        let thisGrid = updatedSelectedGrids[0];
+        setUsersGridsState(thisGrid?.id, usersGrids, false);
+        let userGridURL = `/user/${user?.rank}/grids/${thisGrid?.rank}`;
+        router.replace(userGridURL, undefined, {
+            shallow: true,
+        });
     }
 
     const onDragEnd = (dragEndEvent) => {
@@ -78,7 +75,7 @@ export default function Boards(props: any) {
         let updatedBoardsPositions = updatedBoards.map((brd, brdIndex) => ({ ...brd, position: brdIndex + 1 }));
         setBoards(updatedBoardsPositions);
 
-        // dev() && console.log(`Boards Drag`, updatedBoardsPositions);
+        dev() && console.log(`Boards Drag`, updatedBoardsPositions);
     }
 
     const addNewBoard = async (e) => {
@@ -161,7 +158,7 @@ export default function Boards(props: any) {
             <div className={`row gridRow ${gridsLoading ? `gridsAreLoading` : ``} ${(gridsLoading || grids?.length > 1) ? `hasGridSelector ${useSingleSelect ? `withSingleSelect` : ``}` : ``}`} style={{ padding: 0, paddingBottom: 7 }}>
                 <div className={`flex row left`} style={{ height: `var(--buttonSize)` }}>
                     <h1 className={`nx-mt-2 nx-text-4xl nx-font-bold nx-tracking-tight nx-text-slate-900 dark:nx-text-slate-100`} style={{ maxWidth: `unset` }}>
-                        {user != null ? user?.name + `s ` : ``}{selectedGrids.length == 1 ? selectedGrids[0]?.name + (!useGridSearchCreate ? ` Grid` : ``) : `Grids`}
+                        {user != null ? user?.name + `s ` : ``}{(!gridsLoading && selectedGrids.length == 1) ? selectedGrids[0]?.name + (!useGridSearchCreate ? ` Grid` : ``) : `Grids`}
                     </h1>
                 </div>
                 <div className={`flex row middle`} style={{ textAlign: `center`, height: `var(--buttonSize)` }}>
@@ -188,9 +185,9 @@ export default function Boards(props: any) {
                     ) : grids?.length > 1 && (
                         <MultiSelector 
                             options={grids} 
+                            ref={multiSelectorRef}
                             id={`select_grid_type`}
                             single={useSingleSelect}
-                            defaultValue={selectedGrids} 
                             showClearAll={!useSingleSelect}
                             inputDisabled={useSingleSelect}
                             placeholder={`Search Grids to View`}
@@ -228,7 +225,8 @@ export default function Boards(props: any) {
                                 {(provided, snapshot) => (
                                     <div className={`all_boards_div ${snapshot.isDraggingOver ? `isDraggingOver` : ``}`} ref={provided.innerRef} {...provided.droppableProps}>
                                         {dbBoards && dbBoards?.length > 0 && dbBoards?.map((bord, bordIndex) => {
-                                            if (bord.expanded == null || bord.expanded == undefined) bord.expanded = true;
+                                            let boardDefaultExpanded = !isValid(bord?.expanded) || bord?.options?.expanded;
+                                            bord.expanded = boardDefaultExpanded;
                                             return (
                                                 <Draggable key={`${bordIndex + 1}_${bord.id}_bord_key`} draggableId={`${bordIndex + 1}_${bord.id}_draggable_bord`} index={bordIndex}>
                                                     {(provided, snapshot) => (

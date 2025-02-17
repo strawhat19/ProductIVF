@@ -11,13 +11,14 @@ import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
 export default function Profile(props: any) {
     let router = useRouter();
     let { id, gridid } = router.query;
-    let { userItem = false, profileType = `Profile` } = props;
     let { user, users, usersLoading } = useContext<any>(StateContext);
+    let { userItem = false, profileType = `Profile`, userOnUserGrids = true } = props;
 
     let [userIsQuery, setUserIsQuery] = useState(false);
     let [originalQuery, setOriginalQuery] = useState(``);
     let [profileLoading, setProfileLoading] = useState(true);
     let [profileToRender, setProfileToRender] = useState(user);
+    let [userOnGrids, setUserOnGrids] = useState(userOnUserGrids);
 
     const profileLoadingComponent = (label: string = `${profileType} Loading`) => {
         return (
@@ -49,8 +50,9 @@ export default function Profile(props: any) {
     }
 
     useEffect(() => {
-        let userOnGrids = user != null && id && window?.location?.href?.includes(`grids`);
-        if (userOnGrids) return;
+        let userIsOnGrids = userItem == true && userOnUserGrids == true && user != null && id && window?.location?.href?.includes(`grids`);
+        setUserOnGrids(userIsOnGrids);
+        if (userIsOnGrids) return;
         if (id && !userOnGrids) {
             let quer = id?.toString();
             setOriginalQuery(quer);
@@ -96,7 +98,7 @@ export default function Profile(props: any) {
     }, [user, users])
 
     return <>
-        {user != null && id && window?.location?.href?.includes(`grids`) ? <Grids /> : usersLoading ? profileLoadingComponent(`Loading ${profileType}`) : (
+        {(userOnGrids || usersLoading) ? <Grids /> : (
             <div className={`profileComponent`}>
                 <div className={`profileHeader`}>
                     {id ? <>

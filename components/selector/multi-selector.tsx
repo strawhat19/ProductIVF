@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { forwardRef, useContext, useImperativeHandle, useState } from 'react';
 import { styled } from '@mui/material/styles';
 import { autocompleteClasses } from '@mui/material/Autocomplete';
 import { AutocompleteGetTagProps, useAutocomplete } from '@mui/material';
 import { GridTypes, Types } from '../../shared/types/types';
 import { isValid } from '../../shared/constants';
+import { StateContext } from '../../pages/_app';
 
 const InputWrapper = styled(`div`)(
   ({ theme }) => `
@@ -117,19 +118,19 @@ const Listbox = styled(`ul`)(
 `,
 );
 
-export default function MultiSelector(props) {
+const MultiSelector = forwardRef((props: any, ref) => {
   let { 
     id, 
     options,
     onChange,
-    defaultValue,
     single = false,
     showClearAll = true,
     inputDisabled = false,
     hostClass = `multiSelectorContainer`,
     placeholder = `Start Typing or Click Here`, 
   } = props;
-  const [activeOptions, setActiveOptions] = useState(defaultValue || []);
+
+  let { activeOptions, setActiveOptions } = useContext<any>(StateContext);
 
   const onChangeValue = (val) => {
     if (single) val = isValid(val) && val?.length > 0 ? [val[val.length - 1]] : [];
@@ -137,6 +138,12 @@ export default function MultiSelector(props) {
     setActiveOptions(val);
     onChange(val);
   }
+
+  useImperativeHandle(ref, () => ({
+    setValue: (newValues) => {
+      onChangeValue(newValues);
+    },
+  }));
 
   const {
     value,
@@ -240,4 +247,6 @@ export default function MultiSelector(props) {
       </div>
     </div>
   );
-}
+})
+
+export default MultiSelector;

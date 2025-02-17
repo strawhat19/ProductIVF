@@ -71,6 +71,7 @@ export default function Form(props?: any) {
   const { id, navForm, className, style } = props;
 
   const { 
+    devEnv,
     onSignIn,
     onSignOut, 
     setContent,
@@ -362,14 +363,7 @@ export default function Form(props?: any) {
         </> : <></>}
       </> : <></>}
 
-      {formButtonField(
-        `Users Loading`, 
-        `usersSkeleton`, 
-        user ? `Sign Out` : authState,
-        <input className={(user && window?.location?.href?.includes(`profile`) || (authState == `Sign In` || authState == `Sign Up`)) ? `submit half` : `submit full`} type="submit" name="authFormSubmit" value={user ? `Sign Out` : authState} />,
-      )}
-    
-      {user != null && (
+      {devEnv && user != null && (
         <div className={`formFieldWithConfirm`} style={{ position: `relative` }}>
           {formButtonField(
             `Users Loading`, 
@@ -381,6 +375,13 @@ export default function Form(props?: any) {
             <ConfirmAction className={`formUserConfirmAction`} onConfirm={(e) => onDeleteUser(e, user, false)} style={{ right: 0, top: 40 }} />
           )}
         </div>
+      )}
+
+      {formButtonField(
+        `Users Loading`, 
+        `usersSkeleton`, 
+        user ? `Sign Out` : authState,
+        <input className={(user && window?.location?.href?.includes(`profile`) || (authState == `Sign In` || authState == `Sign Up`)) ? `submit half` : `submit full`} type="submit" name="authFormSubmit" value={user ? `Sign Out` : authState} />,
       )}
 
       {(authState == `Sign In` || authState == `Sign Up`) && (

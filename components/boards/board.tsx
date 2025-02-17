@@ -1,11 +1,12 @@
 import Column from './column';
-import { getBoardTitleWidth, ItemTypes } from './boards';
 import { toast } from 'react-toastify';
+import { getBoardTitleWidth, ItemTypes } from './boards';
 import ConfirmAction from '../context-menus/confirm-action';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { forceFieldBlurOnPressEnter } from '../../shared/constants';
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { capitalizeAllWords, dev, formatDate, generateUniqueID, StateContext } from '../../pages/_app';
+import { Types } from '../../shared/types/types';
 
 export const addBoardScrollBars = () => {
     let boardColumnItems = document.querySelectorAll(`.boardColumnItems`);
@@ -76,9 +77,19 @@ export default function Board(props) {
 
     const expandCollapseBoard = (e, board) => {
         setBoard(prevBoard => {
-            return {
-                ...prevBoard,
-                expanded: !prevBoard.expanded,
+            if (board?.type == Types.Board) {
+                return {
+                    ...prevBoard,
+                    options: {
+                        ...prevBoard?.options,
+                        expanded: !prevBoard?.options?.expanded,
+                    }
+                }
+            } else {
+                return {
+                    ...prevBoard,
+                    expanded: !prevBoard.expanded,
+                }
             }
         });
     }
@@ -102,11 +113,11 @@ export default function Board(props) {
         e.preventDefault();
         setLoading(true);
         setSystemStatus(`Creating Column.`);
-        let newListID = `list_${board?.columnOrder.length + 1}`;
+        let newListID = `list_${board?.data?.columnIDs.length + 1}`;
         let columnID = `${newListID}_${generateUniqueID(IDs)}`;
         let formFields = e.target.children;
 
-        const newColumnOrder = Array.from(board?.columnOrder);
+        const newColumnOrder = Array.from(board?.data?.columnIDs);
         newColumnOrder.push(columnID);
 
         const newColumn = {
@@ -162,13 +173,16 @@ export default function Board(props) {
        }
 
         if (type === `column`) {
-            const newColumnOrder = Array.from(board?.columnOrder);
+            const newColumnOrder = Array.from(board?.data?.columnIDs);
             newColumnOrder.splice(source.index, 1);
             newColumnOrder.splice(destination.index, 0, draggableId);
 
             setBoard({
                 ...board,
-                columnOrder: newColumnOrder,
+                data: {
+                    ...board.data,
+                    listIDs: newColumnOrder,
+                }
             });
             return;
         }
@@ -221,16 +235,16 @@ export default function Board(props) {
         });
     }
 
-    // useEffect(() => {
-    //     let thisBoard = boards.find(brd => brd.id == board.id);
-    //     if (thisBoard) {
-    //         setBoard(thisBoard);
-    //     }
-    // }, [boards])
+    useEffect(() => {
+        let thisBoard = boards.find(brd => brd.id == board.id);
+        if (thisBoard) {
+            setBoard(thisBoard);
+        }
+    }, [boards])
 
     useEffect(() => {
         if (updates > 0) {
-            // dev() && board?.columnOrder &&  board?.columnOrder.length > 0 && console.log(`Updated Board`, board);
+            // dev() && board?.data?.columnIDs &&  board?.data?.columnIDs.length > 0 && console.log(`Updated Board`, board);
             setBoards(prevBoards => {
                 return prevBoards.map(brd => {
                     if (brd.id == board.id) {
@@ -259,7 +273,7 @@ export default function Board(props) {
         setPage(`Boards`);
         setUpdates(updates + 1);
         // dev() && console.log(`Updates`, updates);
-        // dev() && board?.columnOrder &&  board?.columnOrder.length > 0 && console.log(`Board`, board);
+        // dev() && board?.data?.columnIDs &&  board?.data?.columnIDs.length > 0 && console.log(`Board`, board);
 
     },  [board])
 
@@ -268,14 +282,14 @@ export default function Board(props) {
             <section className={`boardsTitle boards`} style={{paddingBottom: 0}}>
                 <div className={`board boardInner boardTitle`}>
                     <div {...props.provided.dragHandleProps} className={`boardDetailsRowContainer titleRow flex row`}>
-                        <div className={`boardDetailsRow flex row innerRow ${board?.expanded ? `expandedBoardDetailsRow` : `collapsedBoardDetailsRow`}`}>
-                            <div className={`boardIndexAndTitle flex row left ${board?.expanded ? `` : `stretch`}`}>
+                        <div className={`boardDetailsRow flex row innerRow ${(board?.expanded || board?.options?.expanded) ? `expandedBoardDetailsRow` : `collapsedBoardDetailsRow`}`}>
+                            <div className={`boardIndexAndTitle flex row left ${(board?.expanded || board?.options?.expanded) ? `` : `stretch`}`}>
                                 <h3 className={`boardIndexBadge`}>
                                     <span className={`subscript itemOrder slashes`}>
                                         {props.index + 1}
                                     </span>
                                 </h3>
-                                <h2 className={`boardTitleField ${board?.expanded ? `` : `stretch`}`}>
+                                <h2 className={`boardTitleField ${(board?.expanded || board?.options?.expanded) ? `` : `stretch`}`}>
                                     <input 
                                         type={`text`} 
                                         ref={boardNameRef} 
@@ -285,11 +299,11 @@ export default function Board(props) {
                                         defaultValue={board?.name ?? `Board`} 
                                         onBlur={(e) => changeLabel(e, board, setBoard)} 
                                         onKeyDown={(e) => forceFieldBlurOnPressEnter(e)}
-                                        style={{ width: board?.expanded ? (board.titleWidth ? board.titleWidth : `75px`) : `100%` }} 
-                                        className={`boardNameField changeLabel textOverflow ${board?.expanded ? `expandedBoardChangeLabel` : `stretch collapsedBoardChangeLabel`}`} 
+                                        style={{ width: (board?.expanded || board?.options?.expanded) ? (board.titleWidth ? board.titleWidth : `75px`) : `100%` }} 
+                                        className={`boardNameField changeLabel textOverflow ${(board?.expanded || board?.options?.expanded) ? `expandedBoardChangeLabel` : `stretch collapsedBoardChangeLabel`}`} 
                                     />
                                 </h2>
-                                {board?.expanded && <>
+                                {(board?.expanded || board?.options?.expanded) && <>
                                     <h3 className={`boardDate`}>
                                         <span className={`subscript rowDate itemDate itemName itemCreated itemUpdated textOverflow extended flex row`}>
                                             <i> - </i>
@@ -331,8 +345,8 @@ export default function Board(props) {
                                     |
                                 </span>
                             </h3>
-                            <div className={`boardOptionsRow flex row right ${board?.expanded ? `expandedBoardOptionsRow` : `collapsedBoardOptionsRow`}`}>
-                                {board?.expanded && <>
+                            <div className={`boardOptionsRow flex row right ${(board?.expanded || board?.options?.expanded) ? `expandedBoardOptionsRow` : `collapsedBoardOptionsRow`}`}>
+                                {(board?.expanded || board?.options?.expanded) && <>
                                     <h3 className={`boardOptions filtersSubscript`}>
                                         <span className={`boardOptionsLabel subscript`}>
                                             Options   
@@ -340,7 +354,7 @@ export default function Board(props) {
                                     </h3>
                                 </>}
                                 <div className={`filterFormDiv filterButtons itemButtons`} style={{textAlign: `center`, justifyContent: `space-between`, alignItems: `center`}}>
-                                    {board?.expanded && <>
+                                    {(board?.expanded || board?.options?.expanded) && <>
                                         <button onClick={(e) =>  filterSubtasks(e)} id={`filter_tasks`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Filter Tasks`} className={`iconButton deleteButton filterButton ${(board.hideAllTasks || board?.tasksFiltered) ? `filterActive` : `filterInactive`}`}>
                                             <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${(board?.tasksFiltered && !board.hideAllTasks) ? `fa-times-circle` : board.hideAllTasks ? `fa-list-ol` : `fa-bars`}`}></i>
                                             <span className={`iconButtonText textOverflow extended`}>
@@ -402,7 +416,7 @@ export default function Board(props) {
                                         </button>
                                         {boards?.length > 1 && (
                                             <button onClick={(e) => expandCollapseBoard(e, board)} className={`iconButton`}>
-                                                {board?.expanded ? <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-chevron-up"></i> : <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-chevron-down"></i>}
+                                                {(board?.expanded || board?.options?.expanded) ? <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-chevron-up"></i> : <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-chevron-down"></i>}
                                             </button>
                                         )}
                                     </div>
@@ -412,11 +426,11 @@ export default function Board(props) {
                     </div>
                 </div>
             </section>
-            {board?.columnOrder && board?.columnOrder?.length > 0 && (
+            {board?.data?.columnIDs && board?.data?.columnIDs?.length > 0 && (
                 <Droppable droppableId={`${board.id}_boardColumns`} direction="horizontal" type="column">
                     {(provided, snapshot) => (
-                        <section id={`board_${board.id}`} className={`board lists columns container ${board?.expanded ? `expanded` : `collapsed`} ${snapshot.isDraggingOver ? `isDraggingOver` : ``} ${board?.columnOrder && (board?.columnOrder.length == 2 ? `clipColumns` : board?.columnOrder.length == 3 ? `threeBoard overflowingBoard` : board?.columnOrder.length > 3 ? `moreBoard overflowingBoard` : ``)}`} ref={provided.innerRef} {...provided.droppableProps} style={props.style}>
-                            {board?.columnOrder && board?.columnOrder.map((columnId, index) => {
+                        <section id={`board_${board.id}`} className={`board lists columns container ${(board?.expanded || board?.options?.expanded) ? `expanded` : `collapsed`} ${snapshot.isDraggingOver ? `isDraggingOver` : ``} ${board?.data?.columnIDs && (board?.data?.columnIDs.length == 2 ? `clipColumns` : board?.data?.columnIDs.length == 3 ? `threeBoard overflowingBoard` : board?.data?.columnIDs.length > 3 ? `moreBoard overflowingBoard` : ``)}`} ref={provided.innerRef} {...provided.droppableProps} style={props.style}>
+                            {board?.data?.columnIDs && board?.data?.columnIDs.map((columnId, index) => {
                                 const column = board?.columns[columnId];
                                 const items = column.itemIds.map(itemId => board?.items[itemId]);
                                 if (!column.itemType) column.itemType = ItemTypes.Item;

@@ -6,14 +6,19 @@ import { User } from '../shared/models/User';
 import { toast, ToastContainer } from 'react-toastify';
 import { isValid, logToast } from '../shared/constants';
 import { AnimatePresence, motion } from 'framer-motion';
-import { collection, onSnapshot  } from 'firebase/firestore';
-import { AuthStates, GridTypes } from '../shared/types/types';
-import { auth, db, userConverter, usersTable } from '../firebase';
+import { collection, onSnapshot, query, where  } from 'firebase/firestore';
+import { AuthStates, GridTypes, Types } from '../shared/types/types';
 import { createContext, useRef, useState, useEffect } from 'react';
 import ContextMenu from '../components/context-menus/context-menu';
 import { renderFirebaseAuthErrorMessage } from '../components/form';
 import { seedUserData as generateSeedUserData } from '../shared/database';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { auth, db, userConverter, gridDataCollectionNames, usersTable, gridsTable, gridConverter } from '../firebase';
+import { Grid } from '../shared/models/Grid';
+import { Board } from '../shared/models/Board';
+import { List } from '../shared/models/List';
+import { Item } from '../shared/models/Item';
+import { Task } from '../shared/models/Task';
 
 export const StateContext = createContext({});
 
@@ -373,6 +378,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let menuRef = useRef(null);
   let loaded = useRef(false);
   let mobileMenuBreakPoint = 697;
+  let { id, gridid } = router.query;
 
   let [IDs, setIDs] = useState([]);
   let [rte, setRte] = useState(``);
@@ -414,6 +420,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let [userGrids, setUserGrids] = useState([]);
   let [selected, setSelected] = useState(null);
   let [userBoards, setUserBoards] = useState([]);
+  let [usersGrids, setUsersGrids] = useState([]);
   let [alertOpen, setAlertOpen] = useState(false);
   let [rearranging, setRearranging] = useState(false);
   let [boardLoaded, setBoardLoaded] = useState(false);
@@ -422,11 +429,13 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let [menuPosition, setMenuPosition] = useState(null);
   let [gridsLoading, setGridsLoading] = useState(true);
   let [usersLoading, setUsersLoading] = useState(true);
+  let [activeOptions, setActiveOptions] = useState([]);
   let [emailsLoading, setEmailsLoading] = useState(true);
   let [boardsLoading, setBoardsLoading] = useState(true);
   let [tasksFiltered, setTasksFiltered] = useState(false);
   let [boardCategories, setBoardCategories] = useState([]);
   let [profilesLoading, setProfilesLoading] = useState(true);
+  let [selectedGridData, setSelectedGridData] = useState(null);
   let [itemTypeMenuOpen, setItemTypeMenuOpen] = useState(false);
   let [completeFiltered, setCompleteFiltered] = useState(false);
 
@@ -441,7 +450,10 @@ export default function ProductIVF({ Component, pageProps, router }) {
   const resetGridsBoards = () => {
     setGrids([]);
     setBoards([]);
+    setUserGrids([]);
+    setUsersGrids([]);
     setSelectedGrids([]);
+    setActiveOptions([]);
     setSelectedGrid(null);
     setGridsLoading(true);
     setBoardsLoading(true);
@@ -550,13 +562,18 @@ export default function ProductIVF({ Component, pageProps, router }) {
   const signInUser = (usr, navigateToLastSelectedGrid = false) => {
     setUser(usr);
     setAuthState(AuthStates.Sign_Out);
+
     if (navigateToLastSelectedGrid) {
-      const urlId = `${usr?.rank}-${usr?.name}-${usr?.uid}`;
+      const urlId = `${usr?.rank}`;
+      // const urlId = `${usr?.rank}-${usr?.name}-${usr?.uid}`;
       const userId = urlId || usr?.id;
       const gridId = usr?.lastSelectedGridID;
-      let { rank, name, uuid, uid } = extractIDDetails(gridId);
-      let gridUrlId = `${rank}-${name}-${uuid}`;
-      router.replace(`/user/${userId}/grids/${gridUrlId}`, undefined, {
+      let { rank } = extractIDDetails(gridId);
+      // let { name, uuid } = extractIDDetails(gridId);
+      let gridUrlId = `${rank}`;
+      // let gridUrlId = `${rank}-${name}-${uuid}`;
+      let userStartURL = `/user/${userId}/grids/${gridUrlId}`;
+      router.replace(userStartURL, undefined, {
         shallow: true,
       });
     }
@@ -590,9 +607,111 @@ export default function ProductIVF({ Component, pageProps, router }) {
   }
 
   useEffect(() => {
+    if (selectedGridData?.selectedGrid && selectedGridData?.boards && selectedGridData?.lists && selectedGridData?.items && selectedGridData?.tasks) {
+      dev() && console.log(`Selected Grid Data`, selectedGridData);
+      let gridBoardsByID = selectedGridData?.selectedGrid?.data?.boardIDs?.map(bordID => {
+        let gridBoard = selectedGridData?.boards?.find(brd => brd?.id == bordID);
+        if (gridBoard) return new Board(gridBoard);
+      })
+      setBoards(gridBoardsByID);
+      setBoardsLoading(false);
+    }
+  }, [selectedGridData]);
+
+  useEffect(() => {
+    let unsubscribeUserData = {};
+    let listenforGridsDataChanges = null;
+    if (selectedGrid != null) {
+      setBoardsLoading(true);
+      dev() && console.log(`Selected Grid`, selectedGrid);
+      for (const collectionName of gridDataCollectionNames) {
+        const gridData_Database = collection(db, collectionName);
+        const gridDataQuery = query(gridData_Database, where(`gridID`, `==`, selectedGrid?.id));
+        if (unsubscribeUserData[collectionName] == null) {
+          unsubscribeUserData[collectionName] = onSnapshot(gridDataQuery, gridDataSnapshot => {
+            const gridDataDocs = gridDataSnapshot.docs.map(doc => ({ ...doc.data() }));
+            const formattedGridDataDocs = gridDataDocs?.sort((a, b) => a?.rank - b?.rank)?.map(doc => ({ ...doc, label: doc?.name, value: doc?.id }));
+            const modeledGridDataDocs = formattedGridDataDocs?.map(doc => {
+              if (doc?.type == Types.Board) {
+                return new Board(doc);
+              } else if (doc?.type == Types.List) {
+                return new List(doc);
+              } else if (doc?.type == Types.Item) {
+                return new Item(doc);
+              } else {
+                return new Task(doc);
+              }
+            });
+            setSelectedGridData(prevGridData => ({
+              ...prevGridData,
+              selectedGrid,
+              [collectionName]: modeledGridDataDocs,
+            }))
+          });
+        } else {
+          setSelectedGridData(null);
+          unsubscribeUserData[collectionName] = null;
+        }
+      }
+    } else if (listenforGridsDataChanges != null) {
+      if (listenforGridsDataChanges != null) listenforGridsDataChanges();
+      if (Object.keys(unsubscribeUserData)?.length > 0) Object.values(unsubscribeUserData).forEach(unsubscribe => unsubscribe());
+    };
+    return () => {
+      if (listenforGridsDataChanges != null) listenforGridsDataChanges();
+      if (Object.keys(unsubscribeUserData)?.length > 0) Object.values(unsubscribeUserData).forEach(unsubscribe => unsubscribe());
+    };
+  }, [selectedGrid])
+
+  const setUsersGridsState = (lastSelectedGridID, usersGridsByID, updateGrids = true) => {
+    if (updateGrids == true) {
+      setGrids(usersGridsByID);
+      setUserGrids(usersGridsByID);
+      setUsersGrids(usersGridsByID);
+    }
+    let lastSelectedGrid = usersGridsByID?.find(gr => gr?.id == lastSelectedGridID);
+    if (lastSelectedGrid) {
+      setSelectedGrid(lastSelectedGrid);
+      setSelectedGrids([lastSelectedGrid]);
+      setActiveOptions([lastSelectedGrid]);
+    }
+    setGridsLoading(false);
+  }
+
+  useEffect(() => {
+    let listenforUserGridsChanges = null;
+    if (user != null) {
+      const gridsDatabase = collection(db, gridsTable)?.withConverter(gridConverter);
+      const gridsQuery = query(gridsDatabase, where(`data.users`, `array-contains`, user?.email));
+      if (listenforUserGridsChanges == null) listenforUserGridsChanges = onSnapshot(gridsQuery, gridsUpdates => {
+        setGridsLoading(true);
+        let userGridsFromDB = [];
+        gridsUpdates.forEach((doc) => userGridsFromDB.push({ ...doc.data() }));
+        userGridsFromDB = userGridsFromDB?.sort((a, b) => a?.rank - b?.rank)?.map(gr => new Grid({ ...gr, label: gr?.name, value: gr?.id }));
+        let usersGridsByID = user?.data?.gridIDs.map(gridID => {
+          let userGridByID = userGridsFromDB?.find(gr => gr?.id == gridID);
+          if (userGridByID) return userGridByID;
+        })
+        if (id) {
+          if (gridid) {
+            if (usersGridsByID && usersGridsByID?.length > 0) {
+              let thisGrid = usersGridsByID?.find(gr => String(gr?.rank) == String(gridid));
+              if (thisGrid) {
+                setUsersGridsState(thisGrid?.id, usersGridsByID);
+              }
+            }
+          } else setUsersGridsState(user?.lastSelectedGridID, usersGridsByID);
+        } else setUsersGridsState(user?.lastSelectedGridID, usersGridsByID);
+        dev() && console.log(`Grids`, usersGridsByID);
+      })
+    } else if (listenforUserGridsChanges != null) listenforUserGridsChanges();
+    return () => {if (listenforUserGridsChanges != null) listenforUserGridsChanges();};
+  }, [user])
+
+  useEffect(() => {
     let listenForUserAuthChanges = null;
     if (users?.length > 0) {
-      listenForUserAuthChanges = onAuthStateChanged(auth, async (usr) => {
+      if (listenForUserAuthChanges == null) listenForUserAuthChanges = onAuthStateChanged(auth, async (usr) => {
         if (usr) {
           if (usr?.uid) {
             let thisUser = users.find(us => us?.uid == usr?.uid);
@@ -600,21 +719,18 @@ export default function ProductIVF({ Component, pageProps, router }) {
           }
         }
       });
-    } else {
-      if (listenForUserAuthChanges != null) listenForUserAuthChanges();
-    }
-    return () => {
-      if (listenForUserAuthChanges != null) listenForUserAuthChanges();
-    }
+    } else if (listenForUserAuthChanges != null) listenForUserAuthChanges();
+    return () => {if (listenForUserAuthChanges != null) listenForUserAuthChanges();};
   }, [users]);
 
   useEffect(() => {
     const usersDatabase = collection(db, usersTable)?.withConverter(userConverter);
     const usersDatabaseRealtimeListener = onSnapshot(usersDatabase, async usersUpdates => {
+      // On Users Database Update
       setUsersLoading(true);
       let usersFromDB = [];
       usersUpdates.forEach((doc) => usersFromDB.push(new User({ ...doc.data() })));
-      usersFromDB = usersFromDB.sort((a, b) => a?.rank - b?.rank);
+      usersFromDB = usersFromDB?.sort((a, b) => a?.rank - b?.rank);
       setUsers(usersFromDB);
       if (user != null) {
         let thisUser = usersFromDB?.find(usr => usr?.uid == user?.uid);
@@ -622,12 +738,9 @@ export default function ProductIVF({ Component, pageProps, router }) {
       }
       setUsersLoading(false);
       dev() && console.log(`Users`, usersFromDB);
-    }, error => {
-      logToast(`Error on Get Users from Database`, error, true);
-    })
-    return () => {
-      usersDatabaseRealtimeListener();
-    }
+      // Finish Users Database Update
+    }, error => logToast(`Error on Get Users from Database`, error, true));
+    return () => usersDatabaseRealtimeListener();
   }, [])
   
   useEffect(() => {
@@ -776,6 +889,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       seedUserData,
       signOutReset,
       getGridsBoards,
+      setUsersGridsState,
 
       // Grids & Boards
       menuRef, 
@@ -786,6 +900,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       boards, setBoards, 
       selected, setSelected, 
       userGrids, setUserGrids,
+      usersGrids, setUsersGrids,
       userBoards, setUserBoards,
       categories, setCategories, 
       boardLoaded, setBoardLoaded, 
@@ -793,9 +908,11 @@ export default function ProductIVF({ Component, pageProps, router }) {
       gridsLoading, setGridsLoading,
       menuPosition, setMenuPosition, 
       boardsLoading, setBoardsLoading,
+      activeOptions, setActiveOptions,
       selectedGrids, setSelectedGrids,
       tasksFiltered, setTasksFiltered, 
       boardCategories, setBoardCategories, 
+      selectedGridData, setSelectedGridData,
       completeFiltered, setCompleteFiltered, 
       itemTypeMenuOpen, setItemTypeMenuOpen, 
     }}>

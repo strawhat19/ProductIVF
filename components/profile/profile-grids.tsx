@@ -11,13 +11,14 @@ import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
 export default function ProfileGrids(props: any) {
     let router = useRouter();
     let { id, gridid } = router.query;
-    let { userItem = false, profileType = `Profile` } = props;
     let { user, users, usersLoading } = useContext<any>(StateContext);
+    let { userItem = false, profileType = `Profile`, userOnUserGrids = true } = props;
 
     let [userIsQuery, setUserIsQuery] = useState(false);
     let [originalQuery, setOriginalQuery] = useState(``);
     let [profileLoading, setProfileLoading] = useState(true);
     let [profileToRender, setProfileToRender] = useState(user);
+    let [userOnGrids, setUserOnGrids] = useState(userOnUserGrids);
 
     const profileLoadingComponent = (label: string = `${profileType} Loading`) => {
         return (
@@ -48,8 +49,56 @@ export default function ProfileGrids(props: any) {
         </>
     }
 
+    // useEffect(() => {
+    //     let userIsOnGrids = userItem == true && userOnUserGrids == true && user != null && id && window?.location?.href?.includes(`grids`);
+    //     setUserOnGrids(userIsOnGrids);
+    //     if (userIsOnGrids) return;
+    //     if (id && !userOnGrids) {
+    //         let quer = id?.toString();
+    //         setOriginalQuery(quer);
+    //         let query = quer?.toLowerCase();
+
+    //         const onCantFindUser = () => {
+    //             setUserIsQuery(false);
+    //             setProfileLoading(false);
+    //             if (!userOnGrids) {
+    //                 console.log(`Cannot Find User for Query "${quer}"`);
+    //             }
+    //         }
+
+    //         if (users.length > 0) {
+    //             let profQuery = users.find((prf: User) => (
+    //                 stringMatch(prf?.name, query) 
+    //                 || stringMatch(prf?.id, query) 
+    //                 || stringMatch(prf?.ID, query) 
+    //                 || stringMatch(prf?.uid, query) 
+    //                 || stringMatch(prf?.uuid, query) 
+    //                 || stringMatch(prf?.email, query) 
+    //                 || stringMatch(prf?.rank?.toString(), query) 
+    //             ))
+
+    //             const onFoundUser = () => {
+    //                 setProfileLoading(false);
+    //                 setProfileToRender(profQuery);
+    //                 console.log(`Found User for Query "${quer}"`, profQuery);
+    //             }
+
+    //             if (profQuery) {
+    //                 if (user != null) {
+    //                     if (stringMatch(user?.id, profQuery?.id)) {
+    //                         setUserIsQuery(true);
+    //                         console.log(`User is Profile Query "${quer}"`);
+    //                     } else onFoundUser();
+    //                 } else onFoundUser();
+    //             } else onCantFindUser();
+    //         } else onCantFindUser();
+    //     } else {
+    //         setProfileToRender(user);
+    //     }
+    // }, [user, users])
+
     return <>
-        {user != null && id && window?.location?.href?.includes(`grids`) ? <Grids /> : usersLoading ? profileLoadingComponent(`Loading ${profileType}`) : (
+        {(usersLoading || user != null) ? <Grids /> : (
             <div className={`profileComponent`}>
                 <div className={`profileHeader`}>
                     {id ? <>

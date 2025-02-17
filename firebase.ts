@@ -7,10 +7,10 @@ import { Task } from './shared/models/Task';
 import { initializeApp } from 'firebase/app';
 import { Board } from './shared/models/Board';
 import { Email } from './shared/models/Email';
+import { Profile } from './shared/models/Profile';
 import { logToast, userQueryFields } from './shared/constants';
 import { GoogleAuthProvider, browserLocalPersistence, deleteUser, getAuth, setPersistence } from 'firebase/auth';
-import { collection, deleteDoc, doc, getDocs, getFirestore, onSnapshot, orderBy, query, setDoc, updateDoc, where, writeBatch } from 'firebase/firestore';
-import { Profile } from './shared/models/Profile';
+import { collection, deleteDoc, doc, getDocs, getFirestore, onSnapshot, orderBy, query, setDoc, updateDoc, where } from 'firebase/firestore';
 
 export enum Environments {
   beta = `beta_`,
@@ -70,13 +70,21 @@ export const listsTable = environment + Tables.lists;
 export const itemsTable = environment + Tables.items;
 export const tasksTable = environment + Tables.tasks;
 
-export const usingCollections = {
-  users: usersTable,
-  grids: gridsTable,
+export const gridDataCollections = {
   boards: boardsTable,
   lists: listsTable,
   items: itemsTable,
   tasks: tasksTable,
+}
+
+export const userDataCollections = {
+  grids: gridsTable,
+  ...gridDataCollections,
+}
+
+export const usingCollections = {
+  users: usersTable,
+  ...userDataCollections,
 }
 
 export const dbCollections = {
@@ -86,6 +94,8 @@ export const dbCollections = {
 }
 
 export const collectionNames = Object.values(usingCollections);
+export const userDataCollectionNames = Object.values(userDataCollections);
+export const gridDataCollectionNames = Object.values(gridDataCollections);
 
 export const userConverter = {
   toFirestore: (usr: User) => {
