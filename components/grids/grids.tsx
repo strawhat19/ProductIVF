@@ -27,7 +27,7 @@ export default function Grids(props: any) {
             lastSelectedGridID = user?.data?.selectedGridIDs[0];
         }
 
-        if (id != `` && lastSelectedGridID != ``) {
+        if (user != null && id != `` && lastSelectedGridID != ``) {
             const gridsDatabase = collection(db, gridsTable)?.withConverter(gridConverter);
             const gridsQuery = query(gridsDatabase, where(`ownerID`, `==`, id));
             gridsDatabaseRealtimeListener = onSnapshot(gridsQuery, gridsSnapshot => {
@@ -50,6 +50,9 @@ export default function Grids(props: any) {
             }, error => {
                 logToast(`Error on Get Grids from Database`, error, true);
             })
+        } else {
+            if (gridsDatabaseRealtimeListener != null) gridsDatabaseRealtimeListener();
+            if (boardsDatabaseRealtimeListener != null) boardsDatabaseRealtimeListener();
         }
     
         return () => {

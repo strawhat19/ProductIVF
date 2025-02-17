@@ -453,12 +453,12 @@ export default function ProductIVF({ Component, pageProps, router }) {
 
   const onSignOut = async () => {
     try {
-      await signOut(auth);
       await setUser(null);
       await setAuthState(`Next`);
       await setEmailField(false);
       await setUpdates(updates + 1);
       await signOutReset();
+      await signOut(auth);
     } catch (signOutError) {
       await logToast(`Error on Sign Out`, signOutError, true);
     }

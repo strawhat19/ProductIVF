@@ -77,7 +77,7 @@ export default function Form(props?: any) {
     updates, setUpdates, 
     authState, setAuthState, 
     emailField, setEmailField,  
-    user, setUser, usersLoading, users, seedUserData,
+    user, usersLoading, users, seedUserData,
   } = useContext<any>(StateContext);
 
   const getAuthStateIcon = (authState) => {
@@ -280,21 +280,30 @@ export default function Form(props?: any) {
           toast.error(`Password Required`);
         } else {
           if (password?.length >= 6) {
-            onSignUp(email, password);
+            if (email?.includes(`@`) && (
+              email?.includes(`.com`) || email?.includes(`.net`) || email?.includes(`.org`) || email?.includes(`.gov`)
+              || email?.includes(`.app`) || email?.includes(`.io`) || email?.includes(`.ai`) || email?.includes(`.eu`)
+            )) {
+              onSignUp(email, password);
+            } else {
+              toast.error(`Invalid Email`);
+            }
           } else {
             toast.error(`Password must be 6 characters or greater`);
           }
         }
         break;
       case AuthStates.Delete:
-        deleteUserAuth(user)?.then(async eml => {
-          if (isValid(eml)) {
-            await deleteUserData(eml)?.then(async deletedDocIds => {
-              logToast(`Deleted ${eml} Data`, deletedDocIds, false, deletedDocIds);
-              await onSignOut();
+        // deleteUserAuth(user)?.then(async eml => {
+          // if (isValid(eml)) {
+            deleteUserData(user?.email)?.then(async deletedDocIds => {
+              logToast(`Deleted ${user?.email} Data`, deletedDocIds, false, deletedDocIds);
+              // await deleteUserAuth(user).then(async eml => {
+                await onSignOut();
+              // });
             })?.catch(async deleteUserDataError => logToast(`Delete User Data Error`, deleteUserDataError, true, deleteUserDataError));
-          }
-        })?.catch(async deleteUserError => await logToast(`Error on Delete User`, deleteUserError, true));
+          // }
+        // })?.catch(async deleteUserError => await logToast(`Error on Delete User`, deleteUserError, true));
         break;
     };
   }
