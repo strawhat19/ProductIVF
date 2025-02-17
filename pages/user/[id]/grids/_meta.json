@@ -1,0 +1,11 @@
+{
+    "index": {
+        "title": "Grids",
+        "type": "page",
+        "display": "hidden",
+        "theme": {
+            "pagination": false,
+            "layout": "full"
+        }
+    }
+}

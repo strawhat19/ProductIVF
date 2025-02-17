@@ -8,7 +8,7 @@ import { stringMatch } from '../../shared/constants';
 import { useContext, useEffect, useState } from 'react';
 import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
 
-export default function Profile(props: any) {
+export default function ProfileGrids(props: any) {
     let router = useRouter();
     let { id, gridid } = router.query;
     let { userItem = false, profileType = `Profile` } = props;
@@ -47,53 +47,6 @@ export default function Profile(props: any) {
             <h3> - Tasks: {profileToShow?.data?.taskIDs?.length}</h3>
         </>
     }
-
-    useEffect(() => {
-        let userOnGrids = user != null && id && window?.location?.href?.includes(`grids`);
-        if (userOnGrids) return;
-        if (id && !userOnGrids) {
-            let quer = id?.toString();
-            setOriginalQuery(quer);
-            let query = quer?.toLowerCase();
-
-            const onCantFindUser = () => {
-                setUserIsQuery(false);
-                setProfileLoading(false);
-                if (!userOnGrids) {
-                    console.log(`Cannot Find User for Query "${quer}"`);
-                }
-            }
-
-            if (users.length > 0) {
-                let profQuery = users.find((prf: User) => (
-                    stringMatch(prf?.name, query) 
-                    || stringMatch(prf?.id, query) 
-                    || stringMatch(prf?.ID, query) 
-                    || stringMatch(prf?.uid, query) 
-                    || stringMatch(prf?.uuid, query) 
-                    || stringMatch(prf?.email, query) 
-                    || stringMatch(prf?.rank?.toString(), query) 
-                ))
-
-                const onFoundUser = () => {
-                    setProfileLoading(false);
-                    setProfileToRender(profQuery);
-                    console.log(`Found User for Query "${quer}"`, profQuery);
-                }
-
-                if (profQuery) {
-                    if (user != null) {
-                        if (stringMatch(user?.id, profQuery?.id)) {
-                            setUserIsQuery(true);
-                            console.log(`User is Profile Query "${quer}"`);
-                        } else onFoundUser();
-                    } else onFoundUser();
-                } else onCantFindUser();
-            } else onCantFindUser();
-        } else {
-            setProfileToRender(user);
-        }
-    }, [user, users])
 
     return <>
         {user != null && id && window?.location?.href?.includes(`grids`) ? <Grids /> : usersLoading ? profileLoadingComponent(`Loading ${profileType}`) : (

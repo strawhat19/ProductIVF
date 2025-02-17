@@ -90,6 +90,9 @@
     width: 100%;
     grid-gap: 5px;
     flex-direction: column;
+    .formFieldWithConfirm {
+        width: 100%;
+    }
     input, .formButtonsField {
         width: 100%;
         max-width: unset;

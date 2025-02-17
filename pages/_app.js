@@ -460,6 +460,9 @@ export default function ProductIVF({ Component, pageProps, router }) {
       await setUpdates(updates + 1);
       await signOutReset();
       await signOut(auth);
+      router.replace(`/`, undefined, {
+        shallow: true,
+      });
     } catch (signOutError) {
       await logToast(`Error on Sign Out`, signOutError, true);
     }
@@ -528,9 +531,35 @@ export default function ProductIVF({ Component, pageProps, router }) {
     }
   }
 
-  const signInUser = (usr) => {
+  const extractIDDetails = (ID) => {
+    const regex = /^(.+?)_([^_]+)_(\d+)_([^_]+)_(\d+_\d+_[APM]+_\d+_\d+_\d+)_([^_]+)_(.+)$/;
+    const match = ID.match(regex);
+    if (match) {
+      return {
+        email: match[1],
+        type: match[2],
+        rank: parseInt(match[3], 10),
+        name: match[4],
+        created: match[5].replace(/_/g, ` `),
+        uuid: match[6],
+        uid: match[7],
+      }
+    }
+  }
+
+  const signInUser = (usr, navigateToLastSelectedGrid = false) => {
     setUser(usr);
     setAuthState(AuthStates.Sign_Out);
+    if (navigateToLastSelectedGrid) {
+      const urlId = `${usr?.rank}-${usr?.name}-${usr?.uid}`;
+      const userId = urlId || usr?.id;
+      const gridId = usr?.lastSelectedGridID;
+      let { rank, name, uuid, uid } = extractIDDetails(gridId);
+      let gridUrlId = `${rank}-${name}-${uuid}`;
+      router.replace(`/user/${userId}/grids/${gridUrlId}`, undefined, {
+        shallow: true,
+      });
+    }
   }
 
   const onSignIn = async (email, password) => {
@@ -538,7 +567,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       if (userCredential != null) {
         let existingUser = users.find(eml => eml?.email?.toLowerCase() == email?.toLowerCase());
         if (existingUser) {
-          signInUser(existingUser);
+          signInUser(existingUser, true);
           toast.success(`Successfully Signed In`);
         } else {
           setEmailField(true);
