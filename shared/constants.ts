@@ -1,9 +1,5 @@
 import { toast } from 'react-toastify';
 
-export const localStorageKeys = {
-  lastSignedInEmail: `last_signed_in_user_email`,
-}
-
 export const userQueryFields = [`id`, `ID`, `uid`, `uuid`, `rank`, `name`, `role`, `email`, `image`, `avatar`, `phone`, `token`];
 
 export const logToast = (message: string, content: any, error = false, data = null) => {

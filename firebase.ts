@@ -7,8 +7,8 @@ import { Task } from './shared/models/Task';
 import { initializeApp } from 'firebase/app';
 import { Board } from './shared/models/Board';
 import { Email } from './shared/models/Email';
-import { GoogleAuthProvider, deleteUser, getAuth, signOut } from 'firebase/auth';
 import { logToast, userQueryFields } from './shared/constants';
+import { GoogleAuthProvider, browserLocalPersistence, deleteUser, getAuth, setPersistence } from 'firebase/auth';
 import { collection, deleteDoc, doc, getDocs, getFirestore, onSnapshot, orderBy, query, updateDoc, where, writeBatch } from 'firebase/firestore';
 
 export enum Environments {
@@ -52,6 +52,8 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 export const db = getFirestore(firebaseApp);
 export const auth = getAuth(firebaseApp);
+
+setPersistence(auth, browserLocalPersistence);
 
 export const environment = Environments.production;
 export const isProduction = process.env.NODE_ENV == `production`;
@@ -170,11 +172,12 @@ export const getUsersFromDatabase = async (search: string | number) => {
 
 export const addUserToDatabase = async (usr: User) => {
   try {
+    const emailToSet = new Email(usr) as Email;
     const batchUserAddOperation = writeBatch(db);
     const userReference = await doc(db, usersTable, usr?.id)?.withConverter(userConverter);
-    const emailReference = await doc(db, emailsTable, usr?.id)?.withConverter(emailConverter);
+    const emailReference = await doc(db, emailsTable, emailToSet?.id)?.withConverter(emailConverter);
     await batchUserAddOperation.set(userReference, usr as User);
-    await batchUserAddOperation.set(emailReference, new Email(usr) as Email);
+    await batchUserAddOperation.set(emailReference, emailToSet as Email);
     await batchUserAddOperation.commit();
   } catch (addUserError) {
     logToast(`Error Adding User to Database ${usersTable}`, addUserError, true);
@@ -267,15 +270,16 @@ export const deleteUserAuth = async (usr: User) => {
 
 export const deleteUserData = async (email: string) => {
   try {
+    let deletedDocumentIds = [];
     for (const collectionName of collectionNames) {
       const q = query(collection(db, collectionName), where(`email`, `==`, email));
       const querySnapshot = await getDocs(q);
-
       querySnapshot.forEach(async (document) => {
+        deletedDocumentIds.push(document?.id);
         await deleteDoc(document.ref);
-        console.log(`Deleted Document from ${collectionName}:`, document?.id);
       });
     }
+    return deletedDocumentIds;
   } catch (deleteUserDataError) {
     await logToast(`Error Deleting User Data for ${email}`, deleteUserDataError, true);
   }

@@ -2,15 +2,16 @@
 
 import { toast } from 'react-toastify';
 import { User } from '../shared/models/User';
+import { Email } from '../shared/models/Email';
 import { createUser } from '../shared/database';
-import { addUserToDatabase, auth, boardConverter, boardsTable, db, deleteUserAuth, deleteUserData, gridConverter, gridsTable, usersTable } from '../firebase';
-import IVFSkeleton from './loaders/skeleton/ivf_skeleton';
-import { useContext, useEffect, useRef, useState } from 'react';
-import { formatDate, StateContext, showAlert, dev } from '../pages/_app';
-import { findHighestNumberInArrayByKey, isValid, localStorageKeys, logToast, stringNoSpaces } from '../shared/constants';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
-import { doc, writeBatch } from 'firebase/firestore';
 import { AuthStates } from '../shared/types/types';
+import { doc, writeBatch } from 'firebase/firestore';
+import IVFSkeleton from './loaders/skeleton/ivf_skeleton';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { useContext, useEffect, useRef, useState } from 'react';
+import { formatDate, StateContext, showAlert } from '../pages/_app';
+import { findHighestNumberInArrayByKey, isValid, logToast, stringNoSpaces } from '../shared/constants';
+import { addUserToDatabase, auth, boardConverter, boardsTable, db, deleteUserAuth, deleteUserData, gridConverter, gridsTable } from '../firebase';
 
 export const convertHexToRGB = (HexString?:any, returnObject?: any) => {
   let r = parseInt(HexString.slice(1, 3), 16),
@@ -29,6 +30,17 @@ export const isShadeOfBlack = (HexString?:any) => {
   let returnObject = true;
   let rgb: any = convertHexToRGB(HexString, returnObject);
   return (rgb?.r < darkColorBias) && (rgb?.g < darkColorBias) && (rgb?.b < darkColorBias);
+}
+
+export const getMatchingEmails = (query, users: User[] | Email[]) => {
+  let matchingEmails = users.filter((usr: any) => {
+    let usrNam = usr?.name.toLowerCase();
+    let usrEml = usr?.email.toLowerCase();
+    let emlFieldValue = query.toLowerCase();
+    let queryFields = [usrNam, usrEml];
+    return queryFields?.includes(emlFieldValue);
+  });
+  return matchingEmails;
 }
 
 export const renderFirebaseAuthErrorMessage = (erMsg: string) => {
@@ -58,8 +70,10 @@ export default function Form(props?: any) {
   const { id, navForm, className, style } = props;
 
   const { 
+    onSignIn,
     onSignOut, 
-    setContent, 
+    setContent,
+    signInUser, 
     updates, setUpdates, 
     authState, setAuthState, 
     emailField, setEmailField,  
@@ -126,39 +140,6 @@ export default function Form(props?: any) {
     let email = formFields?.email?.value ?? `email`;
     let clickedValue = value ? value : clicked?.value;
     let password = formFields?.password?.value ?? `pass`;
-
-    const signInUser = (usr: User) => {
-      localStorage.setItem(localStorageKeys?.lastSignedInEmail, usr?.email);
-      setAuthState(`Sign Out`);
-      setUser(usr);
-    }
-
-    const onSignIn = (email, password) => {
-      signInWithEmailAndPassword(auth, email, password).then((userCredential: any) => {
-        if (userCredential != null) {
-          let existingUser = users.find(usr => usr?.email?.toLowerCase() == email?.toLowerCase());
-          if (existingUser != null) {
-            signInUser(existingUser);
-            toast.success(`Successfully Signed In`);
-          } else {
-            setEmailField(true);
-            setAuthState(`Sign Up`);
-          }
-        }
-      }).catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        if (errorMessage) {
-          toast.error(renderFirebaseAuthErrorMessage(errorMessage));
-          console.log(`Error Signing In`, {
-            error,
-            errorCode,
-            errorMessage
-          });
-        }
-        return;
-      });
-    }
 
     const onSignUp = async (email, password) => {
       createUserWithEmailAndPassword(auth, email, password).then(async (userCredential: any) => {
@@ -236,8 +217,8 @@ export default function Form(props?: any) {
         console.log(`Clicked Value`, clickedValue);
         break;
       case AuthStates.Next:
-        let macthingEmails = users.filter((usr: any) => usr?.email.toLowerCase() == email.toLowerCase());
-        if (macthingEmails?.length > 0) {
+        let matchingEmails = getMatchingEmails(email, users);
+        if (matchingEmails?.length > 0) {
           setAuthState(AuthStates.Sign_In);
         } else {
           setAuthState(AuthStates.Sign_Up);
@@ -284,7 +265,11 @@ export default function Form(props?: any) {
           toast.error(`Password Required`);
         } else {
           if (password?.length >= 6) {
-            onSignIn(email, password);
+            let matchingEmails = getMatchingEmails(email, users);
+            if (matchingEmails?.length > 0) {
+              let emailToUse = matchingEmails[0]?.email;
+              onSignIn(emailToUse, password);
+            }
           } else {
             toast.error(`Password must be 6 characters or greater`);
           }
@@ -304,8 +289,10 @@ export default function Form(props?: any) {
       case AuthStates.Delete:
         deleteUserAuth(user)?.then(async eml => {
           if (isValid(eml)) {
-            await onSignOut();
-            await deleteUserData(eml);
+            await deleteUserData(eml)?.then(async deletedDocIds => {
+              logToast(`Deleted ${eml} Data`, deletedDocIds, false, deletedDocIds);
+              await onSignOut();
+            })?.catch(async deleteUserDataError => logToast(`Delete User Data Error`, deleteUserDataError, true, deleteUserDataError));
           }
         })?.catch(async deleteUserError => await logToast(`Error on Delete User`, deleteUserError, true));
         break;

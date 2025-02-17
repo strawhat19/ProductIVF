@@ -2,17 +2,18 @@ import '../main.scss';
 import 'react-toastify/dist/ReactToastify.css';
 
 import ReactDOM from 'react-dom/client';
-import { signOut } from 'firebase/auth';
 import { User } from '../shared/models/User';
 import { Email } from '../shared/models/Email';
-import { ToastContainer } from 'react-toastify';
-import { AuthStates, GridTypes } from '../shared/types/types';
+import { toast, ToastContainer } from 'react-toastify';
+import { isValid, logToast } from '../shared/constants';
 import { AnimatePresence, motion } from 'framer-motion';
 import { collection, onSnapshot  } from 'firebase/firestore';
+import { AuthStates, GridTypes } from '../shared/types/types';
 import { createContext, useRef, useState, useEffect } from 'react';
 import ContextMenu from '../components/context-menus/context-menu';
-import { isValid, localStorageKeys, logToast } from '../shared/constants';
+import { renderFirebaseAuthErrorMessage } from '../components/form';
 import { seedUserData as generateSeedUserData } from '../shared/database';
+import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { auth, db, emailConverter, emailsTable, getUsersFromDatabase } from '../firebase';
 
 export const StateContext = createContext({});
@@ -457,7 +458,6 @@ export default function ProductIVF({ Component, pageProps, router }) {
       await setAuthState(`Next`);
       await setEmailField(false);
       await setUpdates(updates + 1);
-      await localStorage.removeItem(localStorageKeys.lastSignedInEmail);
       await signOutReset();
     } catch (signOutError) {
       await logToast(`Error on Sign Out`, signOutError, true);
@@ -526,10 +526,67 @@ export default function ProductIVF({ Component, pageProps, router }) {
     }
   }
 
+  const signInUser = (usr) => {
+    setAuthState(`Sign Out`);
+    setUser(usr);
+  }
+
+  const onSignIn = async (email, password) => {
+    signInWithEmailAndPassword(auth, email, password).then(async (userCredential) => {
+      if (userCredential != null) {
+        let existingEmail = users.find(usr => usr?.email?.toLowerCase() == email?.toLowerCase());
+        if (existingEmail != null) {
+          if (existingEmail) {
+            let usersToSignIn = await getUsersFromDatabase(existingEmail?.email);
+            if (usersToSignIn) {
+              if (usersToSignIn?.length > 0) {
+                let thisUser = usersToSignIn[0];
+                signInUser(thisUser);
+                toast.success(`Successfully Signed In`);
+              }
+            }
+          }
+        } else {
+          setEmailField(true);
+          setAuthState(`Sign Up`);
+        }
+      }
+    }).catch((error) => {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      if (errorMessage) {
+        toast.error(renderFirebaseAuthErrorMessage(errorMessage));
+        console.log(`Error Signing In`, {
+          error,
+          errorCode,
+          errorMessage
+        });
+      }
+      return;
+    });
+  }
+
   // useEffect(() => {
   //   let selectedGridIDs = selectedGrids?.length > 0 ? selectedGrids?.map(gr => gr?.id) : [];
   //   setUser(prevUser => ({ ...prevUser, data: { ...prevUser?.data, selectedGridIDs } }));
   // }, [selectedGrids])
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (usr) => {
+      if (usr) {
+        let theseUsers = await getUsersFromDatabase(usr?.uid);
+        if (theseUsers) {
+          if (theseUsers?.length > 0) {
+            let thisUser = new User(theseUsers[0]);
+            setUser(thisUser);
+            setAuthState(AuthStates.Sign_Out);
+          }
+        }
+      }
+    });
+
+    return () => unsubscribe(); // Cleanup listener on unmount
+  }, []);
 
   useEffect(() => {
     const emailsDatabase = collection(db, emailsTable)?.withConverter(emailConverter);
@@ -539,23 +596,6 @@ export default function ProductIVF({ Component, pageProps, router }) {
       snapshot.forEach((doc) => emailsFromDB.push(new Email({ ...doc.data() })));
       emailsFromDB = emailsFromDB.sort((a, b) => a?.rank - b?.rank);
       setUsers(emailsFromDB);
-
-      let hasStoredUser = localStorage.getItem(localStorageKeys.lastSignedInEmail);
-      if (hasStoredUser) {
-        if (hasStoredUser != null) {
-          let thisEmailFromDB = emailsFromDB.find(eml => eml?.email?.toLowerCase() == hasStoredUser?.toLowerCase());
-          if (thisEmailFromDB) {
-            let theseUsers = await getUsersFromDatabase(thisEmailFromDB?.id);
-            if (theseUsers) {
-              if (theseUsers?.length > 0) {
-                let thisUser = new User(theseUsers[0]);
-                setUser(thisUser);
-                setAuthState(AuthStates.Sign_Out);
-              }
-            }
-          }
-        }
-      }
 
       setUsersLoading(false);
       dev() && console.log(`Registered Email(s)`, emailsFromDB);
@@ -702,7 +742,9 @@ export default function ProductIVF({ Component, pageProps, router }) {
       systemStatus, setSystemStatus, 
 
       // Functions
+      onSignIn,
       onSignOut,
+      signInUser,
       setUserData,
       seedUserData,
       getGridsBoards,
