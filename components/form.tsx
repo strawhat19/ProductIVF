@@ -6,6 +6,7 @@ import { createUser } from '../shared/database';
 import { AuthStates } from '../shared/types/types';
 import { doc, writeBatch } from 'firebase/firestore';
 import IVFSkeleton from './loaders/skeleton/ivf_skeleton';
+import ConfirmAction from './context-menus/confirm-action';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { formatDate, StateContext, showAlert } from '../pages/_app';
@@ -65,6 +66,7 @@ export default function Form(props?: any) {
   const passwordRef = useRef<HTMLInputElement | null>(null);
 
   const [loaded, setLoaded] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   
   const { id, navForm, className, style } = props;
 
@@ -82,9 +84,10 @@ export default function Form(props?: any) {
   } = useContext<any>(StateContext);
 
   const getAuthStateIcon = (authState) => {
+    let cancelIcon = `fas fa-ban`;
     let trashIcon = `fas fa-trash`;
     let signoutIcon = `fas fa-sign-out-alt`;
-    let icon = authState == AuthStates.Delete ? trashIcon : signoutIcon;
+    let icon = authState == AuthStates.Delete ? trashIcon : authState == AuthStates.Cancel ? cancelIcon : signoutIcon;
     return icon;
   }
 
@@ -93,6 +96,32 @@ export default function Form(props?: any) {
     let form = formRef?.current;
     if (form != null) {
       authForm(e, form, auth_state);
+    }
+  }
+
+  const finallyDeleteUser = (usr) => {
+    toast.info(`Deleting User ${usr?.email} Data`);
+    signOutReset();
+    deleteUserData(usr?.email)?.then(async deletedDocIds => {
+      await logToast(`Deleted ${user?.email} Data`, deletedDocIds, false);
+      await deleteUserAuth(user).then(async eml => {
+        await onSignOut();
+      });
+    })?.catch(async deleteUserDataError => logToast(`Delete User Data Error`, deleteUserDataError, true, deleteUserDataError));
+  }
+
+  const onDeleteUser = (e, usr, initialConfirm = true) => {
+    if (showConfirm == true) {
+      if (!initialConfirm) {
+        finallyDeleteUser(usr);
+      }
+      setShowConfirm(false);
+    } else {
+      if (usr?.data?.gridIDs?.length > 0) {
+        setShowConfirm(true);
+      } else {
+        finallyDeleteUser(usr);
+      }
     }
   }
 
@@ -294,18 +323,9 @@ export default function Form(props?: any) {
           }
         }
         break;
+      case AuthStates.Cancel:
       case AuthStates.Delete:
-        // deleteUserAuth(user)?.then(async eml => {
-          // if (isValid(eml)) {
-            signOutReset();
-            deleteUserData(user?.email)?.then(async deletedDocIds => {
-              await logToast(`Deleted ${user?.email} Data`, deletedDocIds, false);
-              await deleteUserAuth(user).then(async eml => {
-                await onSignOut();
-              });
-            })?.catch(async deleteUserDataError => logToast(`Delete User Data Error`, deleteUserDataError, true, deleteUserDataError));
-          // }
-        // })?.catch(async deleteUserError => await logToast(`Error on Delete User`, deleteUserError, true));
+        onDeleteUser(e, user);
         break;
     };
   }
@@ -350,12 +370,17 @@ export default function Form(props?: any) {
       )}
     
       {user != null && (
-        formButtonField(
-          `Users Loading`, 
-          `usersSkeleton`, 
-          AuthStates.Delete,
-          <input className={`authFormDelete`} type="submit" name="authFormSubmit" value={AuthStates.Delete} />
-        )
+        <div className={`formFieldWithConfirm`} style={{ position: `relative` }}>
+          {formButtonField(
+            `Users Loading`, 
+            `usersSkeleton`, 
+            showConfirm ? AuthStates.Cancel : AuthStates.Delete,
+            <input className={`authFormDelete`} type="submit" name="authFormSubmit" value={showConfirm ? AuthStates.Cancel : AuthStates.Delete} />
+          )}
+          {showConfirm && (
+            <ConfirmAction className={`formUserConfirmAction`} onConfirm={(e) => onDeleteUser(e, user, false)} style={{ right: 0, top: 40 }} />
+          )}
+        </div>
       )}
 
       {(authState == `Sign In` || authState == `Sign Up`) && (

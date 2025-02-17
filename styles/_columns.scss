@@ -43,14 +43,36 @@
     }
 }
 
+.formUserConfirmAction {
+    cursor: pointer;
+    min-height: var(--buttonSize);
+    &:hover {
+        background: transparent !important;
+    }
+    .confirmActionOption {
+        color: black;
+        font-size: 14px;
+        grid-gap: 10px !important;
+        font-weight: 600 !important;
+        min-height: var(--buttonSize);
+        justify-content: center !important;
+        i, span {
+            max-width: fit-content;
+        }
+        i {
+            font-size: 18px !important;
+        }
+    }
+}
+
 .confirmAction {
     padding: 0;
     width: 100%;
     grid-gap: 0;
-    border-radius: 3px;
     position: absolute;
     background: white;
     min-width: max-content;
+    border-radius: var(--borderRadius);
     .confirmActionOption {
         width: 100%;
         display: flex;

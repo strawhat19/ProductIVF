@@ -312,7 +312,7 @@ export default function Board(props) {
                             </h3>
                             <div className={`boardMetaData flex row middle`}>
                                 <h3 className={`boardCount boardColumnCount`}>
-                                    {board?.data?.columnIDs && board?.data?.columnIDs?.length} {(
+                                    {board?.data?.listIDs && board?.data?.listIDs?.length} {(
                                         <span className={`boardCountLabel boardColumnCountLabel subscript`}>
                                             Column(s)
                                         </span>
@@ -380,10 +380,10 @@ export default function Board(props) {
                                                     <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-list"></i>
                                                     <span className={`iconButtonText textOverflow extended`}>
                                                         <span style={{ fontSize: 12 }}>
-                                                            Create Column
+                                                            Create List
                                                         </span>
                                                         <span className={`itemLength index`} style={{ fontSize: 14, fontWeight: 700, padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content` }}>
-                                                            {board?.columnOrder && board?.columnOrder.length + 1}
+                                                            {board?.data?.listIDs && board?.data?.listIDs.length + 1}
                                                         </span>
                                                     </span>
                                                 </button>
