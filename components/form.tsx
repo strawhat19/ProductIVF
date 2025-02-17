@@ -1,7 +1,6 @@
 'use client';
 
 import { toast } from 'react-toastify';
-import { User } from '../shared/models/User';
 import { Email } from '../shared/models/Email';
 import { createUser } from '../shared/database';
 import { AuthStates } from '../shared/types/types';
@@ -10,7 +9,7 @@ import IVFSkeleton from './loaders/skeleton/ivf_skeleton';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { formatDate, StateContext, showAlert } from '../pages/_app';
-import { findHighestNumberInArrayByKey, isValid, logToast, stringNoSpaces } from '../shared/constants';
+import { findHighestNumberInArrayByKey, logToast, stringNoSpaces } from '../shared/constants';
 import { addUserToDatabase, auth, boardConverter, boardsTable, db, deleteUserAuth, deleteUserData, gridConverter, gridsTable } from '../firebase';
 
 export const convertHexToRGB = (HexString?:any, returnObject?: any) => {
@@ -32,8 +31,8 @@ export const isShadeOfBlack = (HexString?:any) => {
   return (rgb?.r < darkColorBias) && (rgb?.g < darkColorBias) && (rgb?.b < darkColorBias);
 }
 
-export const getMatchingEmails = (query, users: User[] | Email[]) => {
-  let matchingEmails = users.filter((usr: any) => {
+export const getMatchingEmails = (query, emails: Email[]) => {
+  let matchingEmails = emails.filter((usr: any) => {
     let usrNam = usr?.name.toLowerCase();
     let usrEml = usr?.email.toLowerCase();
     let emlFieldValue = query.toLowerCase();
@@ -74,10 +73,12 @@ export default function Form(props?: any) {
     onSignOut, 
     setContent,
     signInUser, 
+    signOutReset,
     updates, setUpdates, 
+    emails, emailsLoading,
     authState, setAuthState, 
     emailField, setEmailField,  
-    user, usersLoading, users, seedUserData,
+    user, users, seedUserData,
   } = useContext<any>(StateContext);
 
   const getAuthStateIcon = (authState) => {
@@ -113,7 +114,7 @@ export default function Form(props?: any) {
   // }
 
   const formButtonField = (label, className, auth_state, input) => <>
-    {usersLoading ? (
+    {emailsLoading ? (
       <IVFSkeleton 
         label={label} 
         labelSize={14}
@@ -217,7 +218,7 @@ export default function Form(props?: any) {
         console.log(`Clicked Value`, clickedValue);
         break;
       case AuthStates.Next:
-        let matchingEmails = getMatchingEmails(email, users);
+        let matchingEmails = getMatchingEmails(email, emails);
         if (matchingEmails?.length > 0) {
           setAuthState(AuthStates.Sign_In);
         } else {
@@ -265,7 +266,7 @@ export default function Form(props?: any) {
           toast.error(`Password Required`);
         } else {
           if (password?.length >= 6) {
-            let matchingEmails = getMatchingEmails(email, users);
+            let matchingEmails = getMatchingEmails(email, emails);
             if (matchingEmails?.length > 0) {
               let emailToUse = matchingEmails[0]?.email;
               onSignIn(emailToUse, password);
@@ -296,11 +297,12 @@ export default function Form(props?: any) {
       case AuthStates.Delete:
         // deleteUserAuth(user)?.then(async eml => {
           // if (isValid(eml)) {
+            signOutReset();
             deleteUserData(user?.email)?.then(async deletedDocIds => {
-              logToast(`Deleted ${user?.email} Data`, deletedDocIds, false, deletedDocIds);
-              // await deleteUserAuth(user).then(async eml => {
+              await logToast(`Deleted ${user?.email} Data`, deletedDocIds, false, deletedDocIds);
+              await deleteUserAuth(user).then(async eml => {
                 await onSignOut();
-              // });
+              });
             })?.catch(async deleteUserDataError => logToast(`Delete User Data Error`, deleteUserDataError, true, deleteUserDataError));
           // }
         // })?.catch(async deleteUserError => await logToast(`Error on Delete User`, deleteUserError, true));
@@ -323,7 +325,7 @@ export default function Form(props?: any) {
   return <>
     <form ref={formRef} {...id && { id }} onSubmit={authForm} className={`flex authForm customButtons ${className} ${stringNoSpaces(authState)}_formButton`} style={style}>
 
-      {usersLoading ? <></> : <>
+      {emailsLoading ? <></> : <>
         {!user && <input placeholder="Email" type="email" name="email" autoComplete={`email`} required />}
         {!user && emailField && <input ref={passwordRef} placeholder="Password" type="password" minLength={6} name="password" autoComplete={`current-password`} />}
       </>}

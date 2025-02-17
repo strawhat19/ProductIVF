@@ -5,12 +5,12 @@ import { User } from '../../shared/models/User';
 import { dev, StateContext } from '../../pages/_app';
 import { stringMatch } from '../../shared/constants';
 import { useContext, useEffect, useState } from 'react';
-import KanbanBoard from '../boards/kanban/kanban';
+import { Email } from '../../shared/models/Email';
 
 export default function Profile({ }) {
     let router = useRouter();
     let { id } = router.query;
-    let { user, users } = useContext<any>(StateContext);
+    let { user, emails } = useContext<any>(StateContext);
 
     let [originalQuery, setOriginalQuery] = useState(``);
     let [profile, setProfile] = useState<User | null>(user);
@@ -24,7 +24,7 @@ export default function Profile({ }) {
             <h2> - Created: {profile?.meta?.created}</h2>
             <h2> - Email: {profile?.email}</h2>
             <br />
-            <h2> - Boards: {profile?.boards?.length}</h2>
+            {/* <h2> - Boards: {profile?.boards?.length}</h2> */}
             {/* <h2> - Lists: {profile?.boards?.length}</h2>
             <h2> - Items: {profile?.boards?.length}</h2>
             <h2> - Tasks: {profile?.boards?.length}</h2> */}
@@ -36,24 +36,24 @@ export default function Profile({ }) {
             let quer = id?.toString();
             setOriginalQuery(quer);
             let query = quer?.toLowerCase();
-            if (users.length > 0) {
-                let userQuery = users.find((usr: User) => (
-                    stringMatch(usr?.name, query) 
-                    || stringMatch(usr?.id, query) 
-                    || stringMatch(usr?.uid, query) 
-                    || stringMatch(usr?.uuid, query) 
-                    || stringMatch(usr?.title, query) 
-                    || stringMatch(usr?.email, query) 
-                    || stringMatch(usr?.rank?.toString(), query) 
+            if (emails.length > 0) {
+                let profQuery = emails.find((eml: Email) => (
+                    stringMatch(eml?.name, query) 
+                    || stringMatch(eml?.id, query) 
+                    || stringMatch(eml?.ID, query) 
+                    || stringMatch(eml?.uid, query) 
+                    || stringMatch(eml?.uuid, query) 
+                    || stringMatch(eml?.email, query) 
+                    || stringMatch(eml?.rank?.toString(), query) 
                 ))
-                if (userQuery) {
+                if (profQuery) {
                     const onFoundUser = () => {
-                        setProfile(userQuery);
+                        setProfile(profQuery);
                         setProfileLoading(false);
-                        console.log(`Found User for Query "${quer}"`, userQuery);
+                        console.log(`Found User for Query "${quer}"`, profQuery);
                     }
                     if (profile != null) {
-                        if (stringMatch(profile?.id, userQuery?.id)) {
+                        if (stringMatch(profile?.id, profQuery?.id)) {
                             console.log(`User is Profile Query "${quer}"`);
                         } else onFoundUser();
                     } else onFoundUser();
@@ -63,7 +63,7 @@ export default function Profile({ }) {
                 }
             }
         }
-    }, [user, users])
+    }, [user, emails])
 
     return <>
         <div className={`profileComponent`}>
