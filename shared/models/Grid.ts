@@ -15,6 +15,12 @@ export class Grid extends Data {
     type: Types = Types.Grid;
     gridType: GridTypes = GridTypes.Personal;
 
+    items?: any;
+    tasks?: any;
+    lists?: any;
+    boards?: any;
+    focusedBoard?: any;
+
     image = ``;
     description = ``;
     color = `Default`;
@@ -26,6 +32,9 @@ export class Grid extends Data {
 
     data?: { [key: string]: string[] } = {
         users: [],
+        itemIDs: [],
+        listIDs: [],
+        taskIDs: [],
         boardIDs: [],
     }
 

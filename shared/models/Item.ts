@@ -23,6 +23,8 @@ export class Item extends Data {
     image = ``;
     description = ``;
     color = `Default`;
+
+    tasks?: any;
     
     options = {
         private: false,

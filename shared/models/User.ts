@@ -1,6 +1,6 @@
-import { generateID, genID } from '../ID';
 import { Data } from './Data';
 import { Types } from '../types/types';
+import { generateID, genID } from '../ID';
 import { capWords } from '../../pages/_app';
 import { countPropertiesInObject, isValid } from '../constants';
 
@@ -50,23 +50,29 @@ export const ROLES = {
 
 export class User extends Data {
   ID: any;
-
-  grids: any;
+  
   token: string;
   phone: any = ``;
   avatar: any = ``;
-  password?: string;
   email: string = ``;
   signedIn: boolean = false;
   provider: Providers.Firebase;
   lastSelectedGridID: string = ``;
-
+  
   type: Types = Types.User;
   role = ROLES.Subscriber.name;
-
+  
   color = `Default`;
   description = ``;
   image = ``;
+  
+  grids?: any;
+  items?: any;
+  tasks?: any;
+  lists?: any;
+  boards?: any;
+  selectedGrid?: any;
+  selectedGrids?: any;
 
   options = {
     active: true,
@@ -77,6 +83,10 @@ export class User extends Data {
   data?: { [key: string]: string[] } = {
     users: [],
     gridIDs: [],
+    itemIDs: [],
+    listIDs: [],
+    taskIDs: [],
+    boardIDs: [],
     friendIDs: [],
     selectedGridIDs: [],
   }

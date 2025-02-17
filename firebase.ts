@@ -9,7 +9,8 @@ import { Board } from './shared/models/Board';
 import { Email } from './shared/models/Email';
 import { logToast, userQueryFields } from './shared/constants';
 import { GoogleAuthProvider, browserLocalPersistence, deleteUser, getAuth, setPersistence } from 'firebase/auth';
-import { collection, deleteDoc, doc, getDocs, getFirestore, onSnapshot, orderBy, query, updateDoc, where, writeBatch } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDocs, getFirestore, onSnapshot, orderBy, query, setDoc, updateDoc, where, writeBatch } from 'firebase/firestore';
+import { Profile } from './shared/models/Profile';
 
 export enum Environments {
   beta = `beta_`,
@@ -30,6 +31,7 @@ export enum Tables {
   visits = `visits`,
   metrics = `metrics`,
   columns = `columns`,
+  profiles = `profiles`,
   comments = `comments`,
   templates = `templates`,
   preferences = `preferences`,
@@ -61,23 +63,29 @@ export const isProduction = process.env.NODE_ENV == `production`;
 
 export const usersTable = environment + Tables.users;
 export const emailsTable = environment + Tables.emails;
+export const profilesTable = environment + Tables.profiles;
 export const gridsTable = environment + Tables.grids;
 export const boardsTable = environment + Tables.boards;
 export const listsTable = environment + Tables.lists;
 export const itemsTable = environment + Tables.items;
 export const tasksTable = environment + Tables.tasks;
 
-export const dbCollections = {
+export const usingCollections = {
   users: usersTable,
-  email: emailsTable,
   grids: gridsTable,
-  board: boardsTable,
+  boards: boardsTable,
   lists: listsTable,
   items: itemsTable,
   tasks: tasksTable,
 }
 
-export const collectionNames = Object.values(dbCollections);
+export const dbCollections = {
+  ...usingCollections,
+  emails: emailsTable,
+  profiles: profilesTable,
+}
+
+export const collectionNames = Object.values(usingCollections);
 
 export const userConverter = {
   toFirestore: (usr: User) => {
@@ -96,6 +104,16 @@ export const emailConverter = {
   fromFirestore: (snapshot: any, options: any) => {
     const data = snapshot.data(options);
     return new Email(data);
+  }
+}
+
+export const profileConverter = {
+  toFirestore: (prf: Profile) => {
+    return JSON.parse(JSON.stringify(prf));
+  },
+  fromFirestore: (snapshot: any, options: any) => {
+    const data = snapshot.data(options);
+    return new Profile(data);
   }
 }
 
@@ -172,13 +190,8 @@ export const getUsersFromDatabase = async (search: string | number) => {
 
 export const addUserToDatabase = async (usr: User) => {
   try {
-    const emailToSet = new Email(usr) as Email;
-    const batchUserAddOperation = writeBatch(db);
-    const userReference = await doc(db, usersTable, usr?.id)?.withConverter(userConverter);
-    const emailReference = await doc(db, emailsTable, emailToSet?.id)?.withConverter(emailConverter);
-    await batchUserAddOperation.set(userReference, usr as User);
-    await batchUserAddOperation.set(emailReference, emailToSet as Email);
-    await batchUserAddOperation.commit();
+    const userReference = await doc(db, usersTable, usr?.id).withConverter(userConverter);
+    await setDoc(userReference, usr as User);
   } catch (addUserError) {
     logToast(`Error Adding User to Database ${usersTable}`, addUserError, true);
   }

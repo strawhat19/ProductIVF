@@ -1,7 +1,7 @@
 'use client';
 
 import { toast } from 'react-toastify';
-import { Email } from '../shared/models/Email';
+import { User } from '../shared/models/User';
 import { createUser } from '../shared/database';
 import { AuthStates } from '../shared/types/types';
 import { doc, writeBatch } from 'firebase/firestore';
@@ -31,8 +31,8 @@ export const isShadeOfBlack = (HexString?:any) => {
   return (rgb?.r < darkColorBias) && (rgb?.g < darkColorBias) && (rgb?.b < darkColorBias);
 }
 
-export const getMatchingEmails = (query, emails: Email[]) => {
-  let matchingEmails = emails.filter((usr: any) => {
+export const getMatchingEmails = (query, usrs: User[]) => {
+  let matchingEmails = usrs.filter((usr: any) => {
     let usrNam = usr?.name.toLowerCase();
     let usrEml = usr?.email.toLowerCase();
     let emlFieldValue = query.toLowerCase();
@@ -74,8 +74,8 @@ export default function Form(props?: any) {
     setContent,
     signInUser, 
     signOutReset,
+    usersLoading,
     updates, setUpdates, 
-    emails, emailsLoading,
     authState, setAuthState, 
     emailField, setEmailField,  
     user, users, seedUserData,
@@ -114,7 +114,7 @@ export default function Form(props?: any) {
   // }
 
   const formButtonField = (label, className, auth_state, input) => <>
-    {emailsLoading ? (
+    {usersLoading ? (
       <IVFSkeleton 
         label={label} 
         labelSize={14}
@@ -218,7 +218,7 @@ export default function Form(props?: any) {
         console.log(`Clicked Value`, clickedValue);
         break;
       case AuthStates.Next:
-        let matchingEmails = getMatchingEmails(email, emails);
+        let matchingEmails = getMatchingEmails(email, users);
         if (matchingEmails?.length > 0) {
           setAuthState(AuthStates.Sign_In);
         } else {
@@ -266,7 +266,7 @@ export default function Form(props?: any) {
           toast.error(`Password Required`);
         } else {
           if (password?.length >= 6) {
-            let matchingEmails = getMatchingEmails(email, emails);
+            let matchingEmails = getMatchingEmails(email, users);
             if (matchingEmails?.length > 0) {
               let emailToUse = matchingEmails[0]?.email;
               onSignIn(emailToUse, password);
@@ -299,7 +299,7 @@ export default function Form(props?: any) {
           // if (isValid(eml)) {
             signOutReset();
             deleteUserData(user?.email)?.then(async deletedDocIds => {
-              await logToast(`Deleted ${user?.email} Data`, deletedDocIds, false, deletedDocIds);
+              await logToast(`Deleted ${user?.email} Data`, deletedDocIds, false);
               await deleteUserAuth(user).then(async eml => {
                 await onSignOut();
               });
@@ -325,20 +325,20 @@ export default function Form(props?: any) {
   return <>
     <form ref={formRef} {...id && { id }} onSubmit={authForm} className={`flex authForm customButtons ${className} ${stringNoSpaces(authState)}_formButton`} style={style}>
 
-      {emailsLoading ? <></> : <>
+      {usersLoading ? <></> : <>
         {!user && <input placeholder="Email" type="email" name="email" autoComplete={`email`} required />}
         {!user && emailField && <input ref={passwordRef} placeholder="Password" type="password" minLength={6} name="password" autoComplete={`current-password`} />}
       </>}
 
       {(!navForm && user != null) ? <>
         {window?.location?.href?.includes(`profile`) ? <>
-          <input id="name" className={`name userData`} placeholder="Name" type="text" name="status" />
-          <input id="status" className={`status userData`} placeholder="Status" type="text" name="status" />
-          <input id="bio" className={`bio userData`} placeholder="About You" type="text" name="bio" />
-          <input id="number" className={`number userData`} placeholder="Favorite Number" type="number" name="number" />
-          <input id="password" className={`editPassword userData`} placeholder="Edit Password" type="password" name="editPassword" autoComplete={`current-password`} />
-          {/* <input type="color" id="color" name="color" placeholder="color" className={dark ? `dark` : `light`} data-color={`Color: ${convertHexToRGB(color)} // Hex: ${color}`} onInput={(e?: any) => changeColor(e)} defaultValue={color} /> */}
-          <input id={`save_${user?.id}`} className={`save`} type="submit" name="authFormSave" style={{padding: 0}} value={`Save`} />
+          <input className={`name userData`} placeholder="Name" type="text" name="status" />
+          <input className={`status userData`} placeholder="Status" type="text" name="status" />
+          <input className={`bio userData`} placeholder="About You" type="text" name="bio" />
+          <input className={`number userData`} placeholder="Favorite Number" type="number" name="number" />
+          <input className={`editPassword userData`} placeholder="Edit Password" type="password" name="editPassword" autoComplete={`current-password`} />
+          {/* <input type="color" name="color" placeholder="color" className={dark ? `dark` : `light`} data-color={`Color: ${convertHexToRGB(color)} // Hex: ${color}`} onInput={(e?: any) => changeColor(e)} defaultValue={color} /> */}
+          <input className={`save`} type="submit" name="authFormSave" style={{padding: 0}} value={`Save`} />
         </> : <></>}
       </> : <></>}
 

@@ -86,6 +86,20 @@
     --transition: 0.24s cubic-bezier(0.77, 0.2, 0.05, 1) !important;
 }
 
+.profileForm {
+    width: 100%;
+    grid-gap: 5px;
+    flex-direction: column;
+    input, .formButtonsField {
+        width: 100%;
+        max-width: unset;
+        justify-content: center;
+        input {
+            max-width: fit-content;
+        }
+    }
+}
+
 ::selection {
     background: var(--darkCheckBox);
 }

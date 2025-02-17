@@ -3,18 +3,17 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import ReactDOM from 'react-dom/client';
 import { User } from '../shared/models/User';
-import { Email } from '../shared/models/Email';
 import { toast, ToastContainer } from 'react-toastify';
 import { isValid, logToast } from '../shared/constants';
 import { AnimatePresence, motion } from 'framer-motion';
 import { collection, onSnapshot  } from 'firebase/firestore';
 import { AuthStates, GridTypes } from '../shared/types/types';
+import { auth, db, userConverter, usersTable } from '../firebase';
 import { createContext, useRef, useState, useEffect } from 'react';
 import ContextMenu from '../components/context-menus/context-menu';
 import { renderFirebaseAuthErrorMessage } from '../components/form';
 import { seedUserData as generateSeedUserData } from '../shared/database';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import { auth, db, emailConverter, emailsTable, getUsersFromDatabase } from '../firebase';
 
 export const StateContext = createContext({});
 
@@ -410,12 +409,15 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let [board, setBoard] = useState({});
   let [emails, setEmails] = useState([]);
   let [boards, setBoards] = useState([]);
+  let [profile, setProfile] = useState(null);
+  let [profiles, setProfiles] = useState([]);
   let [userGrids, setUserGrids] = useState([]);
   let [selected, setSelected] = useState(null);
   let [userBoards, setUserBoards] = useState([]);
   let [alertOpen, setAlertOpen] = useState(false);
   let [rearranging, setRearranging] = useState(false);
   let [boardLoaded, setBoardLoaded] = useState(false);
+  let [selectedGrid, setSelectedGrid] = useState(null);
   let [selectedGrids, setSelectedGrids] = useState([]);
   let [menuPosition, setMenuPosition] = useState(null);
   let [gridsLoading, setGridsLoading] = useState(true);
@@ -424,36 +426,33 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let [boardsLoading, setBoardsLoading] = useState(true);
   let [tasksFiltered, setTasksFiltered] = useState(false);
   let [boardCategories, setBoardCategories] = useState([]);
+  let [profilesLoading, setProfilesLoading] = useState(true);
   let [itemTypeMenuOpen, setItemTypeMenuOpen] = useState(false);
   let [completeFiltered, setCompleteFiltered] = useState(false);
 
   const getPageContainerClasses = () => {
     let route = rte == `_` ? `root` : rte;
     let pageName = isValid(page.toUpperCase()) ? page.toUpperCase() : `home_Page`;
-    let userClasses = `${user != null ? `signed_in` : `signed_out`} ${emailsLoading ? `emails_loading` : `emails_loaded`} ${usersLoading ? `users_loading` : `users_loaded`}`;
+    let userClasses = `${user != null ? `signed_in` : `signed_out`} ${usersLoading ? `users_loading` : `users_loaded`}`;
     let classes = `pageWrapContainer ${route} ${pageName} ${userClasses}`;
     return classes;
   }
 
   const resetGridsBoards = () => {
+    setGrids([]);
     setBoards([]);
-    // setGrids([]);
+    setSelectedGrids([]);
+    setSelectedGrid(null);
     setGridsLoading(true);
     setBoardsLoading(true);
-    // setSelectedGrids([]);
   }
 
-  const signOutReset = async (useLocal = false) => {
+  const signOutReset = async () => {
     await setUser(null);
-    await setAuthState(`Next`);
+    await setProfile(null);
+    await setAuthState(AuthStates.Next);
     await setEmailField(false);
-    let hasLocalBoards = await localStorage.getItem(`local_boards`);
-    if (useLocal && hasLocalBoards) {
-      let localBoards = await JSON.parse(hasLocalBoards);
-      await setBoards(localBoards);
-    } else {
-      await resetGridsBoards();
-    }
+    await resetGridsBoards();
   }
 
   const onSignOut = async () => {
@@ -511,6 +510,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
 
     if (useDB == false) {
       setSelectedGrids(defaultSeletedGrids);
+      setSelectedGrid(defaultSeletedGrid);
       setGridsLoading(false);
    
       setBoards(gridBoards);
@@ -536,18 +536,10 @@ export default function ProductIVF({ Component, pageProps, router }) {
   const onSignIn = async (email, password) => {
     signInWithEmailAndPassword(auth, email, password).then(async (userCredential) => {
       if (userCredential != null) {
-        let existingEmail = emails.find(eml => eml?.email?.toLowerCase() == email?.toLowerCase());
-        if (existingEmail != null) {
-          if (existingEmail) {
-            let usersToSignIn = await getUsersFromDatabase(existingEmail?.email);
-            if (usersToSignIn) {
-              if (usersToSignIn?.length > 0) {
-                let thisUser = usersToSignIn[0];
-                signInUser(thisUser);
-                toast.success(`Successfully Signed In`);
-              }
-            }
-          }
+        let existingUser = users.find(eml => eml?.email?.toLowerCase() == email?.toLowerCase());
+        if (existingUser) {
+          signInUser(existingUser);
+          toast.success(`Successfully Signed In`);
         } else {
           setEmailField(true);
           setAuthState(AuthStates.Sign_Up);
@@ -568,45 +560,44 @@ export default function ProductIVF({ Component, pageProps, router }) {
     });
   }
 
-  // useEffect(() => {
-  //   let selectedGridIDs = selectedGrids?.length > 0 ? selectedGrids?.map(gr => gr?.id) : [];
-  //   setUser(prevUser => ({ ...prevUser, data: { ...prevUser?.data, selectedGridIDs } }));
-  // }, [selectedGrids])
-
   useEffect(() => {
-    const listenForUserAuthChanges = onAuthStateChanged(auth, async (usr) => {
-      if (usr) {
-        let theseUsers = await getUsersFromDatabase(usr?.uid);
-        if (theseUsers) {
-          if (theseUsers?.length > 0) {
-            let thisUser = new User(theseUsers[0]);
+    let listenForUserAuthChanges = null;
+    if (users?.length > 0) {
+      listenForUserAuthChanges = onAuthStateChanged(auth, async (usr) => {
+        if (usr) {
+          if (usr?.uid) {
+            let thisUser = users.find(us => us?.uid == usr?.uid);
             signInUser(thisUser);
           }
         }
-      }
-    });
-
-    return () => listenForUserAuthChanges();
-  }, []);
+      });
+    } else {
+      if (listenForUserAuthChanges != null) listenForUserAuthChanges();
+    }
+    return () => {
+      if (listenForUserAuthChanges != null) listenForUserAuthChanges();
+    }
+  }, [users]);
 
   useEffect(() => {
-    const emailsDatabase = collection(db, emailsTable)?.withConverter(emailConverter);
-    const emailsDatabaseRealtimeListener = onSnapshot(emailsDatabase, async snapshot => {
+    const usersDatabase = collection(db, usersTable)?.withConverter(userConverter);
+    const usersDatabaseRealtimeListener = onSnapshot(usersDatabase, async usersUpdates => {
       setUsersLoading(true);
-      setEmailsLoading(true);
-      let emailsFromDB = [];
-      snapshot.forEach((doc) => emailsFromDB.push(new Email({ ...doc.data() })));
-      emailsFromDB = emailsFromDB.sort((a, b) => a?.rank - b?.rank);
-      setEmails(emailsFromDB);
+      let usersFromDB = [];
+      usersUpdates.forEach((doc) => usersFromDB.push(new User({ ...doc.data() })));
+      usersFromDB = usersFromDB.sort((a, b) => a?.rank - b?.rank);
+      setUsers(usersFromDB);
+      if (user != null) {
+        let thisUser = usersFromDB?.find(usr => usr?.uid == user?.uid);
+        if (thisUser) signInUser(thisUser);
+      }
       setUsersLoading(false);
-      setEmailsLoading(false);
-      dev() && console.log(`Registered Email(s)`, emailsFromDB);
+      dev() && console.log(`Users`, usersFromDB);
     }, error => {
-      logToast(`Error on Get Registered Email(s) from Database`, error, true);
+      logToast(`Error on Get Users from Database`, error, true);
     })
-
     return () => {
-      emailsDatabaseRealtimeListener();
+      usersDatabaseRealtimeListener();
     }
   }, [])
   
@@ -726,10 +717,13 @@ export default function ProductIVF({ Component, pageProps, router }) {
       user, setUser, 
       users, setUsers, 
       emails, setEmails,
+      profile, setProfile, 
+      profiles, setProfiles,
       authState, setAuthState, 
       emailField, setEmailField, 
       usersLoading, setUsersLoading,
       emailsLoading, setEmailsLoading,
+      profilesLoading, setProfilesLoading,
 
       // State
       IDs, setIDs, 
@@ -766,6 +760,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       userBoards, setUserBoards,
       categories, setCategories, 
       boardLoaded, setBoardLoaded, 
+      selectedGrid, setSelectedGrid,
       gridsLoading, setGridsLoading,
       menuPosition, setMenuPosition, 
       boardsLoading, setBoardsLoading,

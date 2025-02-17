@@ -18,6 +18,9 @@ export class List extends Data {
     type: Types = Types.List;
     listType: any = `Vertical`;
 
+    items?: any;
+    tasks?: any;
+
     image = ``;
     description = ``;
     color = `Default`;
@@ -29,6 +32,7 @@ export class List extends Data {
     data?: { [key: string]: string[] } = {
         users: [],
         itemIDs: [],
+        taskIDs: [],
     }
 
     constructor(data: Partial<List>) {

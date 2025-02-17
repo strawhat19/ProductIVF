@@ -39,10 +39,6 @@ export const createUser = (
         color,
         description,
 
-        data: {
-            users: [email],
-        },
-
         name: isValid(name) ? name : capWords(email.split(`@`)[0]),
         options: {
             active,
@@ -115,7 +111,7 @@ export const createBoard = (
     titleWidth: string = `140px`, 
     gridID = ``, 
     boardType = BoardTypes.Kanban,
-    columnIDs = [`Active`, `Complete`], 
+    listIDs = [`Active`, `Complete`], 
     color = `Default`,
     description = ``,
     image = ``,
@@ -152,7 +148,7 @@ export const createBoard = (
         board.id = idTitle + `_` + stringNoSpaces(board?.meta?.created) + extensionIDs;
         board.data = {
             ...board?.data,
-            columnIDs,
+            listIDs,
             ...(user != null && {
                 users: [user?.email],
             }),
@@ -164,7 +160,7 @@ export const createBoard = (
 
 export const seedUserData = (user: User | any) => {
     let uuid = generateID();
-    
+
     user = {
         ...user,
         uuid,
@@ -223,9 +219,11 @@ export const seedUserData = (user: User | any) => {
         ...user,
         lastSelectedGridID: grid1?.id,
         data: {
-            ...user.data,
+            ...user?.data,
+            users: [user?.email],
             selectedGridIDs: [grid1?.id],
             gridIDs: grids.map(gr => gr?.id),
+            boardIDs: boards.map(br => br?.id),
         }
     }
 

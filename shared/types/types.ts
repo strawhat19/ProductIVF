@@ -1,6 +1,8 @@
 export enum Types {
     Data = `Data`,
     User = `User`,
+    Email = `Email`,
+    Profile = `Profile`,
 
     Grid = `Grid`,
     Board = `Board`,
@@ -9,7 +11,6 @@ export enum Types {
     Item = `Item`,
     Task = `Task`,
 
-    Email = `Email`,
     Feature = `Feature`,
     Preference = `Preference`,
     Notification = `Notification`,

@@ -18,6 +18,10 @@ export class Board extends Data {
     type: Types = Types.Board;
     boardType: BoardTypes = BoardTypes.Kanban;
 
+    items?: any;
+    tasks?: any;
+    lists?: any;
+
     image = ``;
     description = ``;
     color = `Default`;
@@ -36,6 +40,7 @@ export class Board extends Data {
         users: [],
         itemIDs: [],
         listIDs: [],
+        taskIDs: [],
     }
 
     constructor(data: Partial<Board>) {

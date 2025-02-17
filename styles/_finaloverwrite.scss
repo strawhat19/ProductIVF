@@ -42,7 +42,7 @@ button {
 
 .pageWrapContainer {
     &.signed_out {
-        &.emails_loading {
+        &.users_loading {
             .nav_Form {
                 width: 100%;
             }

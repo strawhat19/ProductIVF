@@ -1,30 +1,15 @@
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import { StateContext } from '../pages/_app';
+import { AuthStates } from '../shared/types/types';
 
-export default function AuthState({ classes, nextOverride = ``, hideOnEmailsLoading = false }: any) {
-    let { user, emails, authState, emailsLoading } = useContext<any>(StateContext);
-
-    let [profile, setProfile] = useState(user);
-
-    const getMatchingEmailDoc = (email: string) => {
-        if (email) {
-            if (emails && emails.length > 0) {
-                let matchingEmails = emails.filter(eml => eml?.email?.toLowerCase() == email?.toLowerCase());
-                if (matchingEmails) {
-                    let prof = matchingEmails[0];
-                    // setProfile(prof);
-                    return prof;
-                }
-            }
-        }
-    }
-
+export default function AuthState({ classes, nextOverride = ``, hideOnUsersLoading = false }: any) {
+    let { user, authState, usersLoading } = useContext<any>(StateContext);
     return (
-        hideOnEmailsLoading == true && emailsLoading ? <></> : (
+        hideOnUsersLoading == true && usersLoading ? <></> : (
             <span className={`${classes} textOverflow extended`} style={{minWidth: `fit-content`}}>
                 {user != null ? (
-                    `Welcome, ${getMatchingEmailDoc(user?.email)?.name}`
-                ) : (nextOverride != `` && authState == `Next`) ? nextOverride : authState}
+                    `Welcome, ${user?.name}`
+                ) : (nextOverride != `` && authState == AuthStates.Next) ? nextOverride : authState}
             </span>
         )
     )
