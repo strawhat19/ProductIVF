@@ -225,8 +225,6 @@ export default function Boards(props: any) {
                                 {(provided, snapshot) => (
                                     <div className={`all_boards_div ${snapshot.isDraggingOver ? `isDraggingOver` : ``}`} ref={provided.innerRef} {...provided.droppableProps}>
                                         {dbBoards && dbBoards?.length > 0 && dbBoards?.map((bord, bordIndex) => {
-                                            let boardDefaultExpanded = !isValid(bord?.expanded) || bord?.options?.expanded;
-                                            bord.expanded = boardDefaultExpanded;
                                             return (
                                                 <Draggable key={`${bordIndex + 1}_${bord.id}_bord_key`} draggableId={`${bordIndex + 1}_${bord.id}_draggable_bord`} index={bordIndex}>
                                                     {(provided, snapshot) => (

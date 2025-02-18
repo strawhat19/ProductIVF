@@ -1,12 +1,12 @@
 import Column from './column';
 import { toast } from 'react-toastify';
+import { Types } from '../../shared/types/types';
 import { getBoardTitleWidth, ItemTypes } from './boards';
 import ConfirmAction from '../context-menus/confirm-action';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { forceFieldBlurOnPressEnter } from '../../shared/constants';
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { capitalizeAllWords, dev, formatDate, generateUniqueID, StateContext } from '../../pages/_app';
-import { Types } from '../../shared/types/types';
 
 export const addBoardScrollBars = () => {
     let boardColumnItems = document.querySelectorAll(`.boardColumnItems`);
@@ -23,10 +23,12 @@ export const addBoardScrollBars = () => {
 
 export default function Board(props) {
     let boardNameRef = useRef();
+
     let [updates, setUpdates] = useState(0);
     let [board, setBoard] = useState(props.board);
     let [showSearch, setShowSearch] = useState(false);
     let [showConfirm, setShowConfirm] = useState(false);
+    let [boardName, setBoardName] = useState(board?.name ?? `Board`);
     let { user, boards, setBoards, setLoading, setSystemStatus, completeFiltered, setCompleteFiltered, setPage, IDs, setIDs } = useContext<any>(StateContext);
 
     const filterSubtasks = (e?: any) => {
@@ -101,8 +103,10 @@ export default function Board(props) {
             e.target.value = capitalizeAllWords(item.name);
             return;
         };
-        let titleWidth = getBoardTitleWidth(value);
-        e.target.value = capitalizeAllWords(value);
+        let newTitle = capitalizeAllWords(value);
+        let titleWidth = getBoardTitleWidth(newTitle);
+        setBoardName(newTitle);
+        e.target.value = newTitle;
         e.target.style.width = titleWidth;
         if (item.id.includes(`board`)) {
             setItem({ ...item, titleWidth, updated: formatDate(new Date()), name: capitalizeAllWords(value)});
@@ -236,46 +240,14 @@ export default function Board(props) {
     }
 
     useEffect(() => {
-        let thisBoard = boards.find(brd => brd.id == board.id);
-        if (thisBoard) {
-            setBoard(thisBoard);
+        let updatedBoard = boards.find(brd => brd.id == board.id);
+        if (updatedBoard) {
+            let updatedBoardName = updatedBoard?.name;
+            let updatedTitleWidth = getBoardTitleWidth(updatedBoardName);
+            setBoard({ ...updatedBoard, titleWidth: updatedTitleWidth });
+            setBoardName(updatedBoardName);
         }
     }, [boards])
-
-    useEffect(() => {
-        if (updates > 0) {
-            // dev() && board?.data?.columnIDs &&  board?.data?.columnIDs.length > 0 && console.log(`Updated Board`, board);
-            setBoards(prevBoards => {
-                return prevBoards.map(brd => {
-                    if (brd.id == board.id) {
-                        return board;
-                    } else {
-                        return brd;
-                    }
-                })
-            })
-            // localStorage.setItem(`board`, JSON.stringify(board));
-            // localStorage.setItem(`boards`, JSON.stringify(boards));
-        };
-
-        addBoardScrollBars();
-
-        // let itemContents = document.querySelectorAll(`.boardItemContent`);
-        // let arrayOfItemContents = Array.from(itemContents).map(content => content.innerHTML.toLowerCase());
-
-        // console.clear();
-        // console.log(arrayOfItemContents);
-        // console.log(getCommonWords(arrayOfItemContents));
-
-        // setBoardCategories(getCommonWords(arrayOfItemContents));
-        // setCategories(boardCategories.map(cat => cat.word));
-
-        setPage(`Boards`);
-        setUpdates(updates + 1);
-        // dev() && console.log(`Updates`, updates);
-        // dev() && board?.data?.columnIDs &&  board?.data?.columnIDs.length > 0 && console.log(`Board`, board);
-
-    },  [board])
 
     return (
         <DragDropContext onDragEnd={onDragEnd}>
@@ -292,13 +264,14 @@ export default function Board(props) {
                                 <h2 className={`boardTitleField ${(board?.expanded || board?.options?.expanded) ? `` : `stretch`}`}>
                                     <input 
                                         type={`text`} 
+                                        value={boardName} 
                                         ref={boardNameRef} 
                                         name={`boardName`} 
                                         title={board?.name} 
                                         id={`${board.id}_change_label`} 
-                                        defaultValue={board?.name ?? `Board`} 
                                         onBlur={(e) => changeLabel(e, board, setBoard)} 
                                         onKeyDown={(e) => forceFieldBlurOnPressEnter(e)}
+                                        onChange={(e) => changeLabel(e, board, setBoard)}
                                         style={{ width: (board?.expanded || board?.options?.expanded) ? (board.titleWidth ? board.titleWidth : `75px`) : `100%` }} 
                                         className={`boardNameField changeLabel textOverflow ${(board?.expanded || board?.options?.expanded) ? `expandedBoardChangeLabel` : `stretch collapsedBoardChangeLabel`}`} 
                                     />

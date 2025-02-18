@@ -19,6 +19,7 @@ import { Board } from '../shared/models/Board';
 import { List } from '../shared/models/List';
 import { Item } from '../shared/models/Item';
 import { Task } from '../shared/models/Task';
+import { getIDParts } from '../shared/ID';
 
 export const StateContext = createContext({});
 
@@ -434,10 +435,11 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let [boardsLoading, setBoardsLoading] = useState(true);
   let [tasksFiltered, setTasksFiltered] = useState(false);
   let [boardCategories, setBoardCategories] = useState([]);
+  let [globalUserData, setGlobalUserData] = useState(null);
   let [profilesLoading, setProfilesLoading] = useState(true);
-  let [selectedGridData, setSelectedGridData] = useState(null);
   let [itemTypeMenuOpen, setItemTypeMenuOpen] = useState(false);
   let [completeFiltered, setCompleteFiltered] = useState(false);
+  let [globalUserDataLoading, setGlobalUserDataLoading] = useState(true);
 
   const getPageContainerClasses = () => {
     let route = rte == `_` ? `root` : rte;
@@ -607,23 +609,28 @@ export default function ProductIVF({ Component, pageProps, router }) {
   }
 
   useEffect(() => {
-    if (selectedGridData?.selectedGrid && selectedGridData?.boards && selectedGridData?.lists && selectedGridData?.items && selectedGridData?.tasks) {
-      dev() && console.log(`Selected Grid Data`, selectedGridData);
-      let gridBoardsByID = selectedGridData?.selectedGrid?.data?.boardIDs?.map(bordID => {
-        let gridBoard = selectedGridData?.boards?.find(brd => brd?.id == bordID);
+    let usersLoaded = globalUserData?.users;
+    let userLoaded = usersLoaded && globalUserData?.user;
+    let gridsLoaded = globalUserData?.grids && globalUserData?.grid;
+    let gridDataLoaded = globalUserData?.boards && globalUserData?.lists && globalUserData?.items && globalUserData?.tasks;
+    if (userLoaded && gridsLoaded && gridDataLoaded) {
+      setGlobalUserDataLoading(false);
+      dev() && console.log(`Application State Data Update`, globalUserData);
+      let gridBoardsByID = globalUserData?.grid?.data?.boardIDs?.map(bordID => {
+        let gridBoard = globalUserData?.boards?.find(brd => brd?.id == bordID);
         if (gridBoard) return new Board(gridBoard);
       })
       setBoards(gridBoardsByID);
       setBoardsLoading(false);
     }
-  }, [selectedGridData]);
+  }, [globalUserData]);
 
   useEffect(() => {
     let unsubscribeUserData = {};
     let listenforGridsDataChanges = null;
     if (selectedGrid != null) {
-      setBoardsLoading(true);
-      dev() && console.log(`Selected Grid`, selectedGrid);
+      setBoardsLoading(globalUserDataLoading);
+      // dev() && console.log(`Selected Grid`, selectedGrid);
       for (const collectionName of gridDataCollectionNames) {
         const gridData_Database = collection(db, collectionName);
         const gridDataQuery = query(gridData_Database, where(`gridID`, `==`, selectedGrid?.id));
@@ -642,14 +649,16 @@ export default function ProductIVF({ Component, pageProps, router }) {
                 return new Task(doc);
               }
             });
-            setSelectedGridData(prevGridData => ({
-              ...prevGridData,
-              selectedGrid,
+            setGlobalUserData(prevGlobalUserData => ({
+              ...prevGlobalUserData,
+              grid: selectedGrid,
               [collectionName]: modeledGridDataDocs,
+              lastUpdateFrom: capWords(collectionName),
+              lastUpdate: getIDParts()?.date,
             }))
           });
         } else {
-          setSelectedGridData(null);
+          setGlobalUserData(null);
           unsubscribeUserData[collectionName] = null;
         }
       }
@@ -675,6 +684,13 @@ export default function ProductIVF({ Component, pageProps, router }) {
       setSelectedGrids([lastSelectedGrid]);
       setActiveOptions([lastSelectedGrid]);
     }
+    setGlobalUserData(prevGlobalUserData => ({
+      ...prevGlobalUserData,
+      user,
+      lastUpdateFrom: `Grids`,
+      lastUpdate: getIDParts()?.date,
+      grids: usersGridsByID,
+    }))
     setGridsLoading(false);
   }
 
@@ -684,7 +700,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       const gridsDatabase = collection(db, gridsTable)?.withConverter(gridConverter);
       const gridsQuery = query(gridsDatabase, where(`data.users`, `array-contains`, user?.email));
       if (listenforUserGridsChanges == null) listenforUserGridsChanges = onSnapshot(gridsQuery, gridsUpdates => {
-        setGridsLoading(true);
+        setGridsLoading(globalUserDataLoading);
         let userGridsFromDB = [];
         gridsUpdates.forEach((doc) => userGridsFromDB.push({ ...doc.data() }));
         userGridsFromDB = userGridsFromDB?.sort((a, b) => a?.rank - b?.rank)?.map(gr => new Grid({ ...gr, label: gr?.name, value: gr?.id }));
@@ -702,7 +718,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
             }
           } else setUsersGridsState(user?.lastSelectedGridID, usersGridsByID);
         } else setUsersGridsState(user?.lastSelectedGridID, usersGridsByID);
-        dev() && console.log(`Grids`, usersGridsByID);
+        // dev() && console.log(`Grids`, usersGridsByID);
       })
     } else if (listenforUserGridsChanges != null) listenforUserGridsChanges();
     return () => {if (listenforUserGridsChanges != null) listenforUserGridsChanges();};
@@ -717,6 +733,8 @@ export default function ProductIVF({ Component, pageProps, router }) {
             let thisUser = users.find(us => us?.uid == usr?.uid);
             signInUser(thisUser);
           }
+        } else {
+          dev() && console.log(`Users`, users);
         }
       });
     } else if (listenForUserAuthChanges != null) listenForUserAuthChanges();
@@ -736,8 +754,14 @@ export default function ProductIVF({ Component, pageProps, router }) {
         let thisUser = usersFromDB?.find(usr => usr?.uid == user?.uid);
         if (thisUser) signInUser(thisUser);
       }
+      setGlobalUserData(prevGlobalUserData => ({
+        ...prevGlobalUserData,
+        lastUpdateFrom: `Users`,
+        lastUpdate: getIDParts()?.date,
+        users: usersFromDB,
+      }))
       setUsersLoading(false);
-      dev() && console.log(`Users`, usersFromDB);
+      // dev() && console.log(`Users`, usersFromDB);
       // Finish Users Database Update
     }, error => logToast(`Error on Get Users from Database`, error, true));
     return () => usersDatabaseRealtimeListener();
@@ -911,10 +935,11 @@ export default function ProductIVF({ Component, pageProps, router }) {
       activeOptions, setActiveOptions,
       selectedGrids, setSelectedGrids,
       tasksFiltered, setTasksFiltered, 
+      globalUserData, setGlobalUserData,
       boardCategories, setBoardCategories, 
-      selectedGridData, setSelectedGridData,
       completeFiltered, setCompleteFiltered, 
       itemTypeMenuOpen, setItemTypeMenuOpen, 
+      globalUserDataLoading, setGlobalUserDataLoading,
     }}>
       {(browser != `chrome` || onMac) ? (
         <AnimatePresence mode={`wait`}>
