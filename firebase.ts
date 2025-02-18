@@ -229,6 +229,26 @@ export const updateUserFieldsWTimeStamp = async (user_id: string, updates: Parti
   }
 }
 
+export const updateDocFieldsWTimeStamp = async (
+  doc_id: string, 
+  tableName: string,
+  converter: any,
+  updates: Partial<User> | Partial<Grid> | Partial<Board> | Partial<List> | Partial<Item> | Partial<Task> | any, 
+  logResult = true,
+) => {
+  const now = formatDate(new Date());
+  try {
+    const userRef = await doc(db, tableName, doc_id).withConverter(converter);
+    await updateDoc(userRef, {
+      ...updates,
+      'meta.updated': now,
+    });
+    if (logResult) console.log(`Fields Updated in Database`, updates);
+  } catch (updateUserFieldsError) {
+    logToast(`Error Updating User ${doc_id} Fields w/ Timestamp`, updateUserFieldsError, true, updates);
+  }
+}
+
 export const listenToCollections = (arrayOfIds, tableName, converter, Class, callback) => {
   if (!arrayOfIds || arrayOfIds.length === 0) return;
   const collectionQuery = query(collection(db, tableName), where(`id`, `in`, arrayOfIds))?.withConverter(converter);

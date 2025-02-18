@@ -3,10 +3,12 @@ import { toast } from 'react-toastify';
 import { createBoard } from '../../shared/database';
 import MultiSelector from '../selector/multi-selector';
 import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
+import { Board as BoardModel } from '../../shared/models/Board';
 import { useState, useEffect, useContext, useRef } from 'react';
 import { capWords, dev, replaceAll, StateContext } from '../../pages/_app';
 import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
-import { findHighestNumberInArrayByKey, generateArray, isValid } from '../../shared/constants';
+import { findHighestNumberInArrayByKey, generateArray } from '../../shared/constants';
+import { gridConverter, gridsTable, updateDocFieldsWTimeStamp } from '../../firebase';
 
 export enum ItemTypes {
     Item = `Item`,
@@ -41,6 +43,7 @@ export default function Boards(props: any) {
         setSystemStatus, 
         setUsersGridsState,
         rte, router, setRte, 
+        globalUserData, setGlobalUserData,
         boards, userBoards, setBoards, boardsLoading, setBoardsLoading,
         grids, gridsLoading, selectedGrids, selectedGrid, setSelectedGrids, 
     } = useContext<any>(StateContext);
@@ -62,6 +65,14 @@ export default function Boards(props: any) {
         });
     }
 
+    useEffect(() => {
+        console.log(`Boards Update`, boards);
+        // if (boards[0]?.position) {
+        //     let updatedBoardIDs = boards?.map(brd => brd?.id);
+        //     updateDocFieldsWTimeStamp(selectedGrid?.id, gridsTable, gridConverter, { 'data.boardIDs': updatedBoardIDs }, true);
+        // }
+    }, [boards])
+
     const onDragEnd = (dragEndEvent) => {
         const { destination, source } = dragEndEvent;
 
@@ -72,10 +83,15 @@ export default function Boards(props: any) {
         const [reorderedBoard] = updatedBoards.splice(source.index, 1);
         updatedBoards.splice(destination.index, 0, reorderedBoard);
 
-        let updatedBoardsPositions = updatedBoards.map((brd, brdIndex) => ({ ...brd, position: brdIndex + 1 }));
+        let updatedBoardsPositions = updatedBoards.map((brd, brdIndex) => new BoardModel({ ...brd, position: brdIndex + 1 }));
+        let updatedBoardIDs = updatedBoardsPositions?.map(brd => brd?.id);
+        
         setBoards(updatedBoardsPositions);
+        // setGlobalUserData(prevGlobalUserData => ({ ...prevGlobalUserData, emitChange: false }));
+        // updateDocFieldsWTimeStamp(selectedGrid?.id, gridsTable, gridConverter, { 'data.boardIDs': updatedBoardIDs }, true);
+        // updateDocFieldsWTimeStamp(selectedGrid?.id, gridsTable, gridConverter, { emitChange: false, 'data.boardIDs': updatedBoardIDs }, true);
 
-        dev() && console.log(`Boards Drag`, updatedBoardsPositions);
+        dev() && console.log(`Boards Drag`, updatedBoardIDs, globalUserData);
     }
 
     const addNewBoard = async (e) => {

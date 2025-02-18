@@ -423,6 +423,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let [userBoards, setUserBoards] = useState([]);
   let [usersGrids, setUsersGrids] = useState([]);
   let [alertOpen, setAlertOpen] = useState(false);
+  let [gridBoardIDs, setGridBoardIDs] = useState([]);
   let [rearranging, setRearranging] = useState(false);
   let [boardLoaded, setBoardLoaded] = useState(false);
   let [selectedGrid, setSelectedGrid] = useState(null);
@@ -620,6 +621,8 @@ export default function ProductIVF({ Component, pageProps, router }) {
         let gridBoard = globalUserData?.boards?.find(brd => brd?.id == bordID);
         if (gridBoard) return new Board(gridBoard);
       })
+      // if (globalUserData?.emitChange && globalUserData?.grid?.emitChange || globalUserDataLoading) setBoards(gridBoardsByID);
+      // if (gridBoardIDs.every((gid, gidIndex) => gid != globalUserData?.grid?.data?.boardIDs[gidIndex])) setBoards(gridBoardsByID);
       setBoards(gridBoardsByID);
       setBoardsLoading(false);
     }
@@ -631,6 +634,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
     if (selectedGrid != null) {
       setBoardsLoading(globalUserDataLoading);
       // dev() && console.log(`Selected Grid`, selectedGrid);
+      setGridBoardIDs(selectedGrid?.data?.boardIDs);
       for (const collectionName of gridDataCollectionNames) {
         const gridData_Database = collection(db, collectionName);
         const gridDataQuery = query(gridData_Database, where(`gridID`, `==`, selectedGrid?.id));
@@ -687,6 +691,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
     setGlobalUserData(prevGlobalUserData => ({
       ...prevGlobalUserData,
       user,
+      emitChange: true,
       lastUpdateFrom: `Grids`,
       lastUpdate: getIDParts()?.date,
       grids: usersGridsByID,
@@ -928,6 +933,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       userBoards, setUserBoards,
       categories, setCategories, 
       boardLoaded, setBoardLoaded, 
+      gridBoardIDs, setGridBoardIDs,
       selectedGrid, setSelectedGrid,
       gridsLoading, setGridsLoading,
       menuPosition, setMenuPosition, 
