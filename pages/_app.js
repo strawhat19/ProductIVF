@@ -717,10 +717,10 @@ export default function ProductIVF({ Component, pageProps, router }) {
               let thisGrid = usersGridsByID?.find(gr => String(gr?.rank) == String(gridid));
               if (thisGrid) {
                 if (user?.lastSelectedGridID != thisGrid?.id) {
-                  updateDocFieldsWTimeStamp(user?.id, usersTable, userConverter, { 
+                  updateDocFieldsWTimeStamp(user, { 
                     lastSelectedGridID: thisGrid?.id, 
                     'data.selectedGridIDs': [thisGrid?.id], 
-                  }, false);
+                  });
                 }
                 setUsersGridsState(thisGrid?.id, usersGridsByID, globalUserDataLoading);
               }

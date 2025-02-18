@@ -2,13 +2,13 @@ import Board from './board';
 import { toast } from 'react-toastify';
 import { createBoard } from '../../shared/database';
 import MultiSelector from '../selector/multi-selector';
+import { updateDocFieldsWTimeStamp } from '../../firebase';
 import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
 import { Board as BoardModel } from '../../shared/models/Board';
 import { useState, useEffect, useContext, useRef } from 'react';
 import { capWords, dev, replaceAll, StateContext } from '../../pages/_app';
 import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
 import { findHighestNumberInArrayByKey, generateArray } from '../../shared/constants';
-import { gridConverter, gridsTable, updateDocFieldsWTimeStamp, userConverter, usersTable } from '../../firebase';
 
 export enum ItemTypes {
     Item = `Item`,
@@ -59,13 +59,13 @@ export default function Boards(props: any) {
     const updateSelectedGrids = async (updatedSelectedGrids) => {
         let thisGrid = updatedSelectedGrids[0];
         // setUsersGridsState(thisGrid?.id, usersGrids, false);
+        let userGridURL = `/user/${user?.rank}/grids/${thisGrid?.rank}`;
         if (user?.lastSelectedGridID != thisGrid?.id) {
-            updateDocFieldsWTimeStamp(user?.id, usersTable, userConverter, { 
+            updateDocFieldsWTimeStamp(user, { 
                 lastSelectedGridID: thisGrid?.id, 
                 'data.selectedGridIDs': [thisGrid?.id], 
-            }, false);
+            });
         }
-        let userGridURL = `/user/${user?.rank}/grids/${thisGrid?.rank}`;
         router.replace(userGridURL, undefined, {
             shallow: true,
         });
@@ -85,7 +85,11 @@ export default function Boards(props: any) {
         let updatedBoardIDs = updatedBoardsPositions?.map(brd => brd?.id);
         
         setBoards(updatedBoardsPositions);
-        updateDocFieldsWTimeStamp(globalUserData?.grid?.id, gridsTable, gridConverter, { 'data.boardIDs': updatedBoardIDs }, false);
+        updateDocFieldsWTimeStamp(selectedGrid, { 'data.boardIDs': updatedBoardIDs });
+    }
+
+    const sortDescending = (arr: (string | number)[]): number[] => {
+        return arr.map(item => (typeof item === `number` ? item : parseFloat(item))).filter(item => !isNaN(item)).sort((a, b) => b - a);
     }
 
     const addNewBoard = async (e) => {
@@ -98,19 +102,21 @@ export default function Boards(props: any) {
 
         let boardLn = boards?.length;
         let boardRank = await findHighestNumberInArrayByKey(userBoards, `rank`);
+        let userBoardsLength = user?.data?.boardIDs?.length;
         let boardIDX = boardRank > boardLn ? boardRank : boardLn;
-        let rank = boardIDX + 1;
+        let maxRank = sortDescending([boardIDX, userBoardsLength])[0];
+        let rank = maxRank + 1;
         
         setSystemStatus(`Creating Board ${boardName}.`);
 
-        let newBoard = createBoard(rank, boardName, user, titleWidth, selectedGrids[0]?.id);
+        let newBoard = createBoard(rank, boardName, user, titleWidth, user?.lastSelectedGridID);
 
         dev() && console.log(`New Board`, newBoard);
 
         // Add to Firestore Boards Here Later
 
         setBoards([newBoard, ...boards]);
-        setIDs([...IDs, newBoard.id]);
+        // setIDs([...IDs, newBoard.id]);
 
         e.target.reset();
         setTimeout(() => {
@@ -211,7 +217,7 @@ export default function Boards(props: any) {
 
         <hr className={`lineSep`} style={{ marginBottom: 10 }} />
 
-        {boardsLoading ? <></> : createBoardComponent()}
+        {(boardsLoading || user?.uid != selectedGrid?.ownerUID) ? <></> : createBoardComponent()}
 
         <DragDropContext onDragEnd={onDragEnd}>
             <div id={`allBoards`} className={`boards`}>

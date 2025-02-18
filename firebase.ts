@@ -5,12 +5,11 @@ import { List } from './shared/models/List';
 import { Item } from './shared/models/Item';
 import { Task } from './shared/models/Task';
 import { initializeApp } from 'firebase/app';
+import { logToast } from './shared/constants';
 import { Board } from './shared/models/Board';
-import { Email } from './shared/models/Email';
-import { Profile } from './shared/models/Profile';
-import { logToast, userQueryFields } from './shared/constants';
 import { GoogleAuthProvider, browserLocalPersistence, deleteUser, getAuth, setPersistence } from 'firebase/auth';
-import { collection, deleteDoc, doc, getDocs, getFirestore, onSnapshot, orderBy, query, setDoc, updateDoc, where } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDocs, getFirestore, query, setDoc, updateDoc, where } from 'firebase/firestore';
+import { Types } from './shared/types/types';
 
 export enum Environments {
   beta = `beta_`,
@@ -107,26 +106,6 @@ export const userConverter = {
   }
 }
 
-export const emailConverter = {
-  toFirestore: (eml: Email) => {
-    return JSON.parse(JSON.stringify(eml));
-  },
-  fromFirestore: (snapshot: any, options: any) => {
-    const data = snapshot.data(options);
-    return new Email(data);
-  }
-}
-
-export const profileConverter = {
-  toFirestore: (prf: Profile) => {
-    return JSON.parse(JSON.stringify(prf));
-  },
-  fromFirestore: (snapshot: any, options: any) => {
-    const data = snapshot.data(options);
-    return new Profile(data);
-  }
-}
-
 export const gridConverter = {
   toFirestore: (grd: Grid) => {
     return JSON.parse(JSON.stringify(grd));
@@ -177,25 +156,31 @@ export const taskConverter = {
   }
 }
 
-export const getUsersFromDatabase = async (search: string | number) => {
-  try {
-    let foundUsers = [];
-    const usersRef = collection(db, usersTable)?.withConverter(userConverter);
-    const searchTerm = String(search).toLowerCase();
-    const snapshot = await getDocs(query(usersRef, orderBy(`rank`))); 
-    snapshot.forEach((doc) => {
-      const userData = doc.data();
-      const matches = userQueryFields.some(field => 
-        userData[field] && String(userData[field]).toLowerCase() === searchTerm
-      );
-      if (matches) {
-        foundUsers.push(new User({ ...userData }));
-      }
-    })
-    return foundUsers.sort((a, b) => a.rank - b.rank);
-  } catch (getUserError) {
-    logToast(`Error Getting User from Database ${usersTable}`, getUserError, true);
-  }
+export const documentTypes = {
+  [Types.User]: {
+    tableName: usersTable,
+    converter: userConverter,
+  },
+  [Types.Grid]: {
+    tableName: gridsTable,
+    converter: gridConverter,
+  },
+  [Types.Board]: {
+    tableName: boardsTable,
+    converter: boardConverter,
+  },
+  [Types.List]: {
+    tableName: listsTable,
+    converter: listConverter,
+  },
+  [Types.Item]: {
+    tableName: itemsTable,
+    converter: itemConverter,
+  },
+  [Types.Task]: {
+    tableName: tasksTable,
+    converter: taskConverter,
+  },
 }
 
 export const addUserToDatabase = async (usr: User) => {
@@ -205,96 +190,6 @@ export const addUserToDatabase = async (usr: User) => {
   } catch (addUserError) {
     logToast(`Error Adding User to Database ${usersTable}`, addUserError, true);
   }
-}
-
-export const updateUserFields = async (user_id: string, updates: Partial<User>, logResult = true) => {
-  try {
-    const userRef = await doc(db, usersTable, user_id).withConverter(userConverter);
-    await updateDoc(userRef, updates);
-    if (logResult) console.log(`User Fields Updated in Database`, updates);
-  } catch (updateUserError) {
-    logToast(`Error Updating User ${user_id} Fields`, updateUserError, true, updates);
-  }
-}
-
-export const updateUserFieldsWTimeStamp = async (user_id: string, updates: Partial<User>, logResult = true) => {
-  const now = formatDate(new Date());
-  const fields = { ...updates, meta: { updated: now } };
-  try {
-    const userRef = await doc(db, usersTable, user_id).withConverter(userConverter);
-    await updateDoc(userRef, fields);
-    if (logResult) console.log(`User Fields Updated in Database`, fields);
-  } catch (updateUserFieldsError) {
-    logToast(`Error Updating User ${user_id} Fields w/ Timestamp`, updateUserFieldsError, true, fields);
-  }
-}
-
-export const updateDocFieldsWTimeStamp = async (
-  doc_id: string, 
-  tableName: string,
-  converter: any,
-  updates: Partial<User> | Partial<Grid> | Partial<Board> | Partial<List> | Partial<Item> | Partial<Task> | any, 
-  logResult = true,
-) => {
-  const now = formatDate(new Date());
-  try {
-    const userRef = await doc(db, tableName, doc_id).withConverter(converter);
-    await updateDoc(userRef, {
-      ...updates,
-      'meta.updated': now,
-    });
-    if (logResult) console.log(`Fields Updated in Database`, updates);
-  } catch (updateUserFieldsError) {
-    logToast(`Error Updating User ${doc_id} Fields w/ Timestamp`, updateUserFieldsError, true, updates);
-  }
-}
-
-export const listenToCollections = (arrayOfIds, tableName, converter, Class, callback) => {
-  if (!arrayOfIds || arrayOfIds.length === 0) return;
-  const collectionQuery = query(collection(db, tableName), where(`id`, `in`, arrayOfIds))?.withConverter(converter);
-  return onSnapshot(collectionQuery, (snapshot) => {
-    const documents = snapshot.docs.map(doc => new Class({ ...doc.data() }));
-    console.log(`${tableName} Updated`, documents);
-    callback(documents);
-  });
-}
-
-export const listenToGrid = (grid_id, callback) => {
-  if (!grid_id) return;
-  return listenToCollections([grid_id], gridsTable, gridConverter, Grid, callback);
-}
-
-export const listenToBoards = (board_ids, callback) => {
-  if (!board_ids || board_ids.length === 0) return;
-  return listenToCollections(board_ids, boardsTable, boardConverter, Board, callback);
-}
-
-export const listenToLists = (list_ids, callback) => {
-  if (!list_ids || list_ids.length === 0) return;
-  return listenToCollections(list_ids, listsTable, listConverter, List, callback);
-}
-
-export const listenToItems = (item_ids, callback) => {
-  if (!item_ids || item_ids.length === 0) return;
-  return listenToCollections(item_ids, itemsTable, itemConverter, Item, callback);
-}
-
-export const listenToTasks = (task_ids, callback) => {
-  if (!task_ids || task_ids.length === 0) return;
-  return listenToCollections(task_ids, tasksTable, taskConverter, Task, callback);
-}
-
-export const getBoardsFromBoardIds = async (board_ids) => {
-  let boardsFromBoardIds = [];
-  const boardsDatabase = await collection(db, boardsTable)?.withConverter(boardConverter);
-  const boardsQuery = await query(boardsDatabase, where(`id`, `in`, board_ids));
-  const boardsToGet = await getDocs(boardsQuery);
-  if (boardsToGet) {
-    boardsToGet.forEach(doc => {
-      boardsFromBoardIds.push(new Board({ ...doc.data() }));
-    });
-  }
-  return boardsFromBoardIds;
 }
 
 export const deleteUserAuth = async (usr: User) => {
@@ -325,6 +220,23 @@ export const deleteUserData = async (email: string) => {
     return deletedDocumentIds;
   } catch (deleteUserDataError) {
     await logToast(`Error Deleting User Data for ${email}`, deleteUserDataError, true);
+  }
+}
+
+export const updateDocFieldsWTimeStamp = async (
+  document: Partial<User> | Partial<Grid> | Partial<Board> | Partial<List> | Partial<Item> | Partial<Task>, 
+  updates: Partial<User> | Partial<Grid> | Partial<Board> | Partial<List> | Partial<Item> | Partial<Task> | any, 
+) => {
+  let { tableName, converter } = documentTypes[document?.type];
+  try {
+    const now = formatDate(new Date());
+    const userRef = await doc(db, tableName, document?.id).withConverter(converter);
+    await updateDoc(userRef, {
+      ...updates,
+      'meta.updated': now,
+    });
+  } catch (updateDocFieldsWTimeStampError) {
+    logToast(`Error Updating User ${document?.id} Fields w/ Timestamp`, updateDocFieldsWTimeStampError, true, updates);
   }
 }
 

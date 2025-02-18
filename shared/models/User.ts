@@ -48,6 +48,10 @@ export const ROLES = {
   Owner: new Role(7, Roles.Owner),
 }
 
+export const userIsMinRole = (usr: User, role: Roles) => {
+  return parseFloat(RolesMap[usr?.role]) >= ROLES[role]?.level;
+}
+
 export class User extends Data {
   ID: any;
   

@@ -1,7 +1,6 @@
 'use client';
 
 import { toast } from 'react-toastify';
-import { User } from '../shared/models/User';
 import { createUser } from '../shared/database';
 import { AuthStates } from '../shared/types/types';
 import { doc, writeBatch } from 'firebase/firestore';
@@ -9,6 +8,7 @@ import IVFSkeleton from './loaders/skeleton/ivf_skeleton';
 import ConfirmAction from './context-menus/confirm-action';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useContext, useEffect, useRef, useState } from 'react';
+import { Roles, User, userIsMinRole } from '../shared/models/User';
 import { formatDate, StateContext, showAlert } from '../pages/_app';
 import { findHighestNumberInArrayByKey, logToast, stringNoSpaces } from '../shared/constants';
 import { addUserToDatabase, auth, boardConverter, boardsTable, db, deleteUserAuth, deleteUserData, gridConverter, gridsTable } from '../firebase';
@@ -363,7 +363,7 @@ export default function Form(props?: any) {
         </> : <></>}
       </> : <></>}
 
-      {devEnv && user != null && (
+      {devEnv && user != null && userIsMinRole(user, Roles.Moderator) && (
         <div className={`formFieldWithConfirm`} style={{ position: `relative` }}>
           {formButtonField(
             `Users Loading`, 

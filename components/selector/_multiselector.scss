@@ -56,12 +56,45 @@
     align-items: center;
     padding: 5px 0 5px 7px;
     justify-content: flex-start;
+    .listedOptionIndexField {
+        position: relative;
+        .listedOptionIndexBadge {
+            top: 50%;
+            left: 50%;
+            width: 28px;
+            padding: 3px;
+            border-radius: 50%;
+            position: absolute;
+            color: rgba(0, 0, 0, 0.66);
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.52);
+        }
+    }
     .listedOptionIcon {
         transition: var(--transition);
         color: var(--selectorMainIcon);
     }
     .listedOptionLabel {
         font-weight: 500;
+    }
+}
+
+.multiSelectorOption {
+    .invertedColorBadge {
+        color: rgba(255, 255, 255, 1);
+        background: rgba(255, 255, 255, 0.15);
+    }
+    &[aria-selected="true"] {
+        .listedOptionIndexBadge {
+            @extend .invertedColorBadge;
+        }
+    }
+    &[aria-selected="false"] {
+        &:hover {
+            .listedOptionIndexBadge {
+                @extend .invertedColorBadge;
+            }
+        }
     }
 }
 

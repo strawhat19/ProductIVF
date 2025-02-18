@@ -191,7 +191,12 @@ const MultiSelector = forwardRef((props: any, ref) => {
               return (
                 <li className={`multiSelectorOption customHookOption ${isFirst ? `isFirst` : isLast ? `isLast` : `isMiddle`}`} key={index} {...getOptionProps({ option, index })}>
                   <div className={`listedOptionContainer`}>
-                    <i className={`listedOptionIcon selectedOptionIcon ${getGridIconOption(option)}`} style={{ fontSize: 16 }} />
+                    <div className={`listedOptionIndexField`}> 
+                      <i className={`listedOptionIcon selectedOptionIcon ${getGridIconOption(option)}`} style={{ fontSize: 16 }} />
+                      <div className={`listedOptionIndexBadge`}>
+                        {index + 1}
+                      </div>
+                    </div>
                     <span className={`listedOptionLabel`}>
                       {option?.label}
                     </span>

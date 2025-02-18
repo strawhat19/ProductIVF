@@ -1,6 +1,5 @@
 import Tasks from './tasks';
 import { ItemTypes } from './boards';
-import { updateUserFields } from '../../firebase';
 import React, { useContext, useState } from 'react';
 import Item, { getTypeIcon, manageItem } from './item';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
@@ -16,11 +15,9 @@ export default function Column(props) {
     let [itemTypeMenuOpen, setItemTypeMenuOpen] = useState(false);
     let { user, boards, setBoards, setLoading, setSystemStatus, completeFiltered, IDs, setIDs, selected, menuPosition } = useContext<any>(StateContext);
 
-    const updateBoards = (user) => {
-        if (user != null) {
-            updateUserFields(user?.id, { boards });
-        }
-    }
+    // const updateBoards = (user) => {
+    
+    // }
 
     const itemActiveFilters = (itm) => {
         if (completeFiltered) {
@@ -40,7 +37,7 @@ export default function Column(props) {
         } else {
             if (type && type != column?.itemType) {
                 column.itemType = type;
-                updateBoards(user);
+                // updateBoards(user);
                 setItemTypeMenuOpen(!itemTypeMenuOpen);
             }
         }
@@ -62,7 +59,7 @@ export default function Column(props) {
         item.content = elemValue;
         item.updated = formatDate(new Date());
         
-        updateBoards(user);
+        // updateBoards(user);
     }
 
     const adjustColumnsDetails = (column) => {

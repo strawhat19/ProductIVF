@@ -6,7 +6,6 @@ import ConfirmAction from '../context-menus/confirm-action';
 import React, { useContext, useEffect, useState } from 'react';
 import { showAlert, formatDate, dev, StateContext, capitalizeAllWords } from '../../pages/_app';
 import { forceFieldBlurOnPressEnter, removeExtraSpacesFromString } from '../../shared/constants';
-import { updateUserFields } from '../../firebase';
 
 export const getTaskPercentage = (tasks: any[]) => {
     let tasksProgress = 0;

@@ -24,12 +24,11 @@ export const addBoardScrollBars = () => {
 export default function Board(props) {
     let boardNameRef = useRef();
 
-    let [updates, setUpdates] = useState(0);
     let [board, setBoard] = useState(props.board);
     let [showSearch, setShowSearch] = useState(false);
     let [showConfirm, setShowConfirm] = useState(false);
     let [boardName, setBoardName] = useState(board?.name ?? `Board`);
-    let { user, boards, setBoards, setLoading, setSystemStatus, completeFiltered, setCompleteFiltered, setPage, IDs, setIDs } = useContext<any>(StateContext);
+    let { user, boards, setBoards, setLoading, setSystemStatus, completeFiltered, setCompleteFiltered, IDs, setIDs } = useContext<any>(StateContext);
 
     const filterSubtasks = (e?: any) => {
         if (board.hideAllTasks) {
@@ -378,15 +377,17 @@ export default function Board(props) {
                                         </section>
                                     </>}
                                     <div className={`itemButtons customButtons`}>
-                                        <button id={`delete_${board?.id}`} onClick={(e) => deleteBoard(e, board)} title={`Delete Board`} className={`iconButton deleteButton deleteBoardButton ${showConfirm ? `cancelBtn` : ``}`}>
-                                            <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`mainIcon fas fa-${showConfirm ? `ban` : `trash`}`} />
-                                            <span className={`iconButtonText textOverflow extended`}>
-                                                {showConfirm ? `Cancel` : `Delete`}
-                                            </span>
-                                            {showConfirm && (
-                                                <ConfirmAction onConfirm={(e) => deleteBoard(e, board, false)} />
-                                            )}
-                                        </button>
+                                        {user?.uid == board?.ownerUID && (
+                                            <button id={`delete_${board?.id}`} onClick={(e) => deleteBoard(e, board)} title={`Delete Board`} className={`iconButton deleteButton deleteBoardButton ${showConfirm ? `cancelBtn` : ``}`}>
+                                                <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`mainIcon fas fa-${showConfirm ? `ban` : `trash`}`} />
+                                                <span className={`iconButtonText textOverflow extended`}>
+                                                    {showConfirm ? `Cancel` : `Delete`}
+                                                </span>
+                                                {showConfirm && (
+                                                    <ConfirmAction onConfirm={(e) => deleteBoard(e, board, false)} />
+                                                )}
+                                            </button>
+                                        )}
                                         {boards?.length > 1 && (
                                             <button onClick={(e) => expandCollapseBoard(e, board)} className={`iconButton`}>
                                                 {(board?.expanded || board?.options?.expanded) ? <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-chevron-up"></i> : <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-chevron-down"></i>}

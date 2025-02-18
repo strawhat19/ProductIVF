@@ -1,8 +1,7 @@
 import { CSS } from '@dnd-kit/utilities';
 import { addBoardScrollBars } from './board';
-import { updateUserFields } from '../../firebase';
 import React, { useState, useContext } from 'react';
-import { capWords, dev, formatDate, generateUniqueID, StateContext } from '../../pages/_app';
+import { capWords, formatDate, generateUniqueID, StateContext } from '../../pages/_app';
 import { DndContext, PointerSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { restrictToFirstScrollableAncestor, restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers';
@@ -109,16 +108,7 @@ export default function Tasks(props) {
     })
   );
 
-  // Capitalize words
   const capitalizeAllWords = capWords;
-
-  const updateBoards = (user, dynamicScrollbars = false, bords = boards) => {
-    localStorage.setItem(`boards`, JSON.stringify(bords));
-    if (dynamicScrollbars) addBoardScrollBars();
-    if (user != null) {
-      // updateUserFields(user?.id, { boards: bords });
-    }
-  }
 
   // Called when user edits label
   const changeLabel = (e, taskItem) => {
@@ -130,7 +120,7 @@ export default function Tasks(props) {
     taskItem.task = cleanedValue;
     taskItem.updated = formatDate(new Date());
 
-    updateBoards(user);
+    // updateBoards(user);
   };
 
   // Toggle complete
@@ -142,7 +132,7 @@ export default function Tasks(props) {
     subtask.updated = formatDate(new Date());
     item.updated = formatDate(new Date());
 
-    updateBoards(user);
+    // updateBoards(user);
 
     setTimeout(() => {
       setSystemStatus(`Marked Task as ${subtask?.complete ? `Complete` : `Reopened`}.`);
@@ -196,7 +186,7 @@ export default function Tasks(props) {
     board.items[item?.id] = item;
     let updatedBoards = boards.map(brd => brd.id == board?.id ? board : brd);
 
-    updateBoards(user, true, updatedBoards);
+    // updateBoards(user, true, updatedBoards);
 
     // Reset form
     e.target.reset();
@@ -234,7 +224,7 @@ export default function Tasks(props) {
     item.subtasks = updatedTasks;
     item.updated = formatDate(new Date());
 
-    updateBoards(user, true);
+    // updateBoards(user, true);
 
     setTimeout(() => {
       setSystemStatus('Deleted Task.');
@@ -259,7 +249,7 @@ export default function Tasks(props) {
     item.updated = now;
     item.subtasks = updated;
 
-    updateBoards(user, true);
+    // updateBoards(user, true);
 
     // dev() && console.log(`Dragged & Reordered`, updated);
   };
