@@ -219,6 +219,10 @@ export const seedUserData = (user: User | any) => {
         ...user,
         signedIn: true,
         lastSelectedGridID: grid1?.id,
+        options: {
+            ...user?.options,
+            active: true,
+        },
         meta: {
             ...user?.meta,
             lastSignIn: user?.meta?.updated,
