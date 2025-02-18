@@ -1,6 +1,17 @@
+import { User } from './models/User';
+import { Grid } from './models/Grid';
+import { List } from './models/List';
+import { Item } from './models/Item';
+import { Task } from './models/Task';
+import { Types } from './types/types';
+import { Board } from './models/Board';
 import { toast } from 'react-toastify';
 
 export const userQueryFields = [`id`, `ID`, `uid`, `uuid`, `rank`, `name`, `role`, `email`, `image`, `avatar`, `phone`, `token`];
+
+export const sortDescending = (arr: (string | number)[]): number[] => {
+  return arr.map(item => (typeof item === `number` ? item : parseFloat(item))).filter(item => !isNaN(item)).sort((a, b) => b - a);
+}
 
 export const logToast = (message: string, content: any, error = false, data = null) => {
   let sendMsg = typeof content == `string` ? content : ``;
@@ -16,6 +27,18 @@ export const removeExtraSpacesFromString = (string: string) => string.trim().rep
 export const generateArray = (length: number, itemData: any) => Array.from({ length }, () => itemData);
 export const stringMatch = (string: string, check: string): boolean => string?.toLowerCase()?.includes(check?.toLowerCase());
 export const stringNoSpaces = (string: string) => string?.replaceAll(/[\s,:/]/g, `_`)?.replaceAll(/[\s,:/]/g, `-`).replaceAll(/-/g, `_`);
+
+export const extractRankFromDocId = (doc_id: string, doc_email: string, doc_type: Types) => {
+  let fromFirstNumberInId = doc_id?.split(`${doc_email}_${doc_type}_`)[1];
+  let rank = fromFirstNumberInId?.split(`_`)[0];
+  return parseFloat(rank);
+}
+
+export const extractRankFromDoc = (doc: Partial<User> | Partial<Grid> | Partial<Board> | Partial<List> | Partial<Item> | Partial<Task>) => {
+  let fromFirstNumberInId = doc?.id?.split(`${doc?.email}_${doc?.type}_`)[1];
+  let rank = fromFirstNumberInId?.split(`_`)[0];
+  return parseFloat(rank);
+}
 
 export const nameFields = {
   board: { min: 1, max: 30 },

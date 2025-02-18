@@ -217,7 +217,12 @@ export const seedUserData = (user: User | any) => {
 
     let updatedUser = {
         ...user,
+        signedIn: true,
         lastSelectedGridID: grid1?.id,
+        meta: {
+            ...user?.meta,
+            lastSignIn: user?.meta?.updated,
+        },
         data: {
             ...user?.data,
             users: [user?.email],

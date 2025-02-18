@@ -473,6 +473,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
 
   const onSignOut = async () => {
     try {
+      await updateDocFieldsWTimeStamp(user, { signedIn: false });
       await setUpdates(updates + 1);
       await signOutReset();
       await signOut(auth);
@@ -587,6 +588,8 @@ export default function ProductIVF({ Component, pageProps, router }) {
       if (userCredential != null) {
         let existingUser = users.find(eml => eml?.email?.toLowerCase() == email?.toLowerCase());
         if (existingUser) {
+          const { date } = getIDParts();
+          await updateDocFieldsWTimeStamp(existingUser, { signedIn: true, 'meta.lastSignIn': date });
           signInUser(existingUser, true);
           toast.success(`Successfully Signed In`);
         } else {

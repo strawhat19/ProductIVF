@@ -1,5 +1,6 @@
 import Board from './board';
 import { toast } from 'react-toastify';
+import { Types } from '../../shared/types/types';
 import { createBoard } from '../../shared/database';
 import MultiSelector from '../selector/multi-selector';
 import { updateDocFieldsWTimeStamp } from '../../firebase';
@@ -8,7 +9,7 @@ import { Board as BoardModel } from '../../shared/models/Board';
 import { useState, useEffect, useContext, useRef } from 'react';
 import { capWords, dev, replaceAll, StateContext } from '../../pages/_app';
 import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
-import { findHighestNumberInArrayByKey, generateArray } from '../../shared/constants';
+import { extractRankFromDocId, findHighestNumberInArrayByKey, generateArray, sortDescending } from '../../shared/constants';
 
 export enum ItemTypes {
     Item = `Item`,
@@ -38,14 +39,10 @@ export default function Boards(props: any) {
         user, 
         authState,
         setLoading, 
-        usersGrids,
-        IDs, setIDs, 
         setSystemStatus, 
-        setUsersGridsState,
         rte, router, setRte, 
-        globalUserData, setGlobalUserData,
-        boards, userBoards, setBoards, boardsLoading, setBoardsLoading,
-        grids, gridsLoading, selectedGrids, selectedGrid, setSelectedGrids, 
+        boards, userBoards, setBoards, boardsLoading,
+        grids, gridsLoading, selectedGrids, selectedGrid, 
     } = useContext<any>(StateContext);
 
     let { dbBoards = boards } = props;
@@ -58,7 +55,6 @@ export default function Boards(props: any) {
 
     const updateSelectedGrids = async (updatedSelectedGrids) => {
         let thisGrid = updatedSelectedGrids[0];
-        // setUsersGridsState(thisGrid?.id, usersGrids, false);
         let userGridURL = `/user/${user?.rank}/grids/${thisGrid?.rank}`;
         if (user?.lastSelectedGridID != thisGrid?.id) {
             updateDocFieldsWTimeStamp(user, { 
@@ -88,10 +84,6 @@ export default function Boards(props: any) {
         updateDocFieldsWTimeStamp(selectedGrid, { 'data.boardIDs': updatedBoardIDs });
     }
 
-    const sortDescending = (arr: (string | number)[]): number[] => {
-        return arr.map(item => (typeof item === `number` ? item : parseFloat(item))).filter(item => !isNaN(item)).sort((a, b) => b - a);
-    }
-
     const addNewBoard = async (e) => {
         e.preventDefault();
         
@@ -104,14 +96,16 @@ export default function Boards(props: any) {
         let boardRank = await findHighestNumberInArrayByKey(userBoards, `rank`);
         let userBoardsLength = user?.data?.boardIDs?.length;
         let boardIDX = boardRank > boardLn ? boardRank : boardLn;
-        let maxRank = sortDescending([boardIDX, userBoardsLength])[0];
+        let boardsRanks = user?.data?.boardIDs?.map(brdID => extractRankFromDocId(brdID, user?.email, Types.Board));
+        let allRanks = [boardIDX, userBoardsLength, ...boardsRanks];
+        let maxRank = sortDescending(allRanks)[0];
         let rank = maxRank + 1;
         
         setSystemStatus(`Creating Board ${boardName}.`);
 
         let newBoard = createBoard(rank, boardName, user, titleWidth, user?.lastSelectedGridID);
 
-        dev() && console.log(`New Board`, newBoard);
+        dev() && console.log(`New Board`, {newBoard, allRanks});
 
         // Add to Firestore Boards Here Later
 
