@@ -226,6 +226,7 @@ export const deleteUserData = async (email: string) => {
 export const updateDocFieldsWTimeStamp = async (
   document: Partial<User> | Partial<Grid> | Partial<Board> | Partial<List> | Partial<Item> | Partial<Task>, 
   updates: Partial<User> | Partial<Grid> | Partial<Board> | Partial<List> | Partial<Item> | Partial<Task> | any, 
+  log = false,
 ) => {
   let { tableName, converter } = documentTypes[document?.type];
   try {
@@ -235,6 +236,7 @@ export const updateDocFieldsWTimeStamp = async (
       ...updates,
       'meta.updated': now,
     });
+    if (log) console.log(`Fields Updated`, updates);
   } catch (updateDocFieldsWTimeStampError) {
     logToast(`Error Updating User ${document?.id} Fields w/ Timestamp`, updateDocFieldsWTimeStampError, true, updates);
   }

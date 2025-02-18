@@ -39,6 +39,7 @@ export default function Boards(props: any) {
         user, 
         authState,
         setLoading, 
+        globalUserData,
         setSystemStatus, 
         rte, router, setRte, 
         boards, userBoards, setBoards, boardsLoading,
@@ -109,7 +110,7 @@ export default function Boards(props: any) {
 
         // Add to Firestore Boards Here Later
 
-        setBoards([newBoard, ...boards]);
+        setBoards(selectedGrid?.options?.newestBoardsOnTop ? [newBoard, ...boards] : [...boards, newBoard]);
         // setIDs([...IDs, newBoard.id]);
 
         e.target.reset();
@@ -165,10 +166,12 @@ export default function Boards(props: any) {
 
     return <>
         <div className={`boardsTitleRow flex row _projects_boards`}>
-            <div className={`row gridRow ${gridsLoading ? `gridsAreLoading` : ``} ${(gridsLoading || grids?.length > 1) ? `hasGridSelector ${useSingleSelect ? `withSingleSelect` : ``}` : ``}`} style={{ padding: 0, paddingBottom: 7 }}>
+            <div className={`row gridRow ${gridsLoading ? `gridsAreLoading` : `gridsLoaded`} ${(gridsLoading || (grids?.length > 1 || globalUserData?.grids?.length > 1)) ? `hasGridSelector ${useSingleSelect ? `withSingleSelect` : ``}` : ``}`} style={{ padding: 0, paddingBottom: 7 }}>
                 <div className={`flex row left`} style={{ height: `var(--buttonSize)` }}>
                     <h1 className={`nx-mt-2 nx-text-4xl nx-font-bold nx-tracking-tight nx-text-slate-900 dark:nx-text-slate-100`} style={{ maxWidth: `unset` }}>
-                        {user != null ? user?.name + `s ` : ``}{(!gridsLoading && selectedGrids.length == 1) ? selectedGrids[0]?.name + (!useGridSearchCreate ? ` Grid` : ``) : `Grids`}
+                        {selectedGrid?.options?.nameLabel == true ? selectedGrid?.name : <>
+                            {user != null ? user?.name + `s ` : ``}{(!gridsLoading && selectedGrids.length == 1) ? selectedGrids[0]?.name + (!useGridSearchCreate ? ` Grid` : ``) : `Grids`}
+                        </>}
                     </h1>
                 </div>
                 <div className={`flex row middle`} style={{ textAlign: `center`, height: `var(--buttonSize)` }}>
@@ -192,9 +195,8 @@ export default function Boards(props: any) {
                             label={getLoadingLabel(`Grids`, authState, user)} 
                             style={{ minWidth: 300, '--animation-delay': `${0.15}s` }} 
                         />
-                    ) : grids?.length > 1 && (
+                    ) : (grids?.length > 1 || globalUserData?.grids?.length > 1) ? (
                         <MultiSelector 
-                            options={grids} 
                             ref={multiSelectorRef}
                             id={`select_grid_type`}
                             single={useSingleSelect}
@@ -203,15 +205,16 @@ export default function Boards(props: any) {
                             placeholder={`Search Grids to View`}
                             hostClass={`gridsMultiSelectorContainer`}
                             onChange={(val) => updateSelectedGrids(val)} 
+                            options={grids?.length > 1 ? grids : globalUserData?.grids} 
                         />
-                    )}
+                    ) : `no grids`}
                 </div>
             </div>
         </div>
 
         <hr className={`lineSep`} style={{ marginBottom: 10 }} />
 
-        {(boardsLoading || user?.uid != selectedGrid?.ownerUID) ? <></> : createBoardComponent()}
+        {selectedGrid?.options?.newestBoardsOnTop ? ((boardsLoading || user?.uid != selectedGrid?.ownerUID) ? <></> : createBoardComponent()) : <></>}
 
         <DragDropContext onDragEnd={onDragEnd}>
             <div id={`allBoards`} className={`boards`}>
@@ -258,5 +261,7 @@ export default function Boards(props: any) {
                 </div>
             </div>
         </DragDropContext>
+
+        {selectedGrid?.options?.newestBoardsOnTop ? <></> : ((boardsLoading || user?.uid != selectedGrid?.ownerUID) ? <></> : createBoardComponent())}
     </>
 }

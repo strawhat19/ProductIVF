@@ -45,6 +45,32 @@
     background: var(--gameBlue);
 }
 
+.MuiToggleButtonGroup-root {
+    width: 100%;
+    font-size: 16px;
+    max-height: var(--buttonSize);
+    button {
+        align-items: center;
+        width: 100% !important;
+        text-transform: capitalize;
+        transition: var(--transition) !important;
+        &.Mui-selected {
+            color: white !important;
+            background: black !important;
+            &:hover {
+                box-shadow: 0 0 10px black;
+                background: black !important;
+                color: var(--gameBlue) !important;
+            }
+        }
+        &:hover {
+            color: var(--gameBlue);
+            background: white !important;
+            box-shadow: 0 0 10px white;
+        }
+    }
+}
+
 .MuiBox-root {
     width: 100%;
     max-width: 100% !important;

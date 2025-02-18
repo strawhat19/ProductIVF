@@ -14,6 +14,28 @@
     align-items: center;
 }
 
+.selectedGridButton {
+    cursor: pointer;
+}
+
+.gridDetailView {
+    width: 100%;
+}
+
+.toggleButtonIcon {
+    top: -2px;
+    position: relative;
+}
+
+.gridFormField {
+    width: 100% !important;
+    height: var(--buttonSize);
+    font-size: 16px !important;
+    min-height: var(--buttonSize);
+    max-height: var(--buttonSize);
+    border-radius: var(--borderRadius);
+}
+
 .Sign_Out_formButton {
     .formButtonsField  {
         background: var(--authFormButtonFontColor) !important;

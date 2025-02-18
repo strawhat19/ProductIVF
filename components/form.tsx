@@ -105,9 +105,9 @@ export default function Form(props?: any) {
     signOutReset();
     deleteUserData(usr?.email)?.then(async deletedDocIds => {
       await logToast(`Deleted ${user?.email} Data`, deletedDocIds, false);
-      await deleteUserAuth(user).then(async eml => {
+      // await deleteUserAuth(user).then(async eml => {
         await onSignOut();
-      });
+      // });
     })?.catch(async deleteUserDataError => logToast(`Delete User Data Error`, deleteUserDataError, true, deleteUserDataError));
   }
 
@@ -363,7 +363,7 @@ export default function Form(props?: any) {
         </> : <></>}
       </> : <></>}
 
-      {devEnv && user != null && userIsMinRole(user, Roles.Moderator) && (
+      {((devEnv && user != null) || userIsMinRole(user, Roles.Moderator)) && (
         <div className={`formFieldWithConfirm`} style={{ position: `relative` }}>
           {formButtonField(
             `Users Loading`, 

@@ -1,10 +1,11 @@
-import { forwardRef, useContext, useImperativeHandle, useState } from 'react';
 import { styled } from '@mui/material/styles';
-import { autocompleteClasses } from '@mui/material/Autocomplete';
-import { AutocompleteGetTagProps, useAutocomplete } from '@mui/material';
-import { GridTypes, Types } from '../../shared/types/types';
+import { showAlert, StateContext } from '../../pages/_app';
 import { isValid } from '../../shared/constants';
-import { StateContext } from '../../pages/_app';
+import { GridTypes, Types } from '../../shared/types/types';
+import { autocompleteClasses } from '@mui/material/Autocomplete';
+import { forwardRef, useContext, useImperativeHandle, useState } from 'react';
+import { AutocompleteGetTagProps, useAutocomplete } from '@mui/material';
+import GridDetailView from '../grids/grid-detail-view';
 
 const InputWrapper = styled(`div`)(
   ({ theme }) => `
@@ -130,7 +131,9 @@ const MultiSelector = forwardRef((props: any, ref) => {
     placeholder = `Start Typing or Click Here`, 
   } = props;
 
-  let { activeOptions, setActiveOptions } = useContext<any>(StateContext);
+  let { selectedGrid, activeOptions, setActiveOptions } = useContext<any>(StateContext);
+
+  let [hoveringOver, setHoveringOver] = useState(false);
 
   const onChangeValue = (val) => {
     if (single) val = isValid(val) && val?.length > 0 ? [val[val.length - 1]] : [];
@@ -169,6 +172,10 @@ const MultiSelector = forwardRef((props: any, ref) => {
   const getActiveOptions = (opts, arrayOfOptions) => {
     let activeOpts = arrayOfOptions?.length > 0 ? arrayOfOptions.filter(opti => opts.map(opt => opt?.name).includes(opti?.name)) : [];
     return activeOpts;
+  }
+
+  const showGridDetailView = (e?: any) => {
+    showAlert(`"${selectedGrid?.name}" Grid Details`, <GridDetailView selectedGrid={selectedGrid} />, `95%`, `85%`, `30px`);
   }
 
   const multiSelectorAutoComplete = () => {
@@ -228,11 +235,11 @@ const MultiSelector = forwardRef((props: any, ref) => {
           className={`multiSelectOptionContainer customHookRoot selectedOptions${activeOptions.length}Container customHookRootInputWrapper ${focused ? `focused` : ``}`} 
         >
           <div className={`multiSelectedIconLabels`}>
-            <div className={`gridsIconButon multiSelectOption styledTagWithProps`}>
+            <div className={`selectedGridButton hoverBright gridsIconButon multiSelectOption styledTagWithProps`} onClick={(e) => showGridDetailView(e)} onMouseEnter={(e) => setHoveringOver(true)} onMouseLeave={(e) => setHoveringOver(false)}>
               <div className={`gridsIconRow multiSelectedOption isFirst`}>
-                <i className={`gridsIcon fas fa-th`} style={{ fontSize: 16 }} />
+                <i className={`gridsIcon fas ${hoveringOver ? `fa-cogs` : `fa-th`}`} style={{ fontSize: 16 }} />
                 <span className={`gridsIconLabel selectorOptionLabel`}>
-                  Active Grid{single ? `` : `s`}
+                  {hoveringOver ? `Manage Grid` : `Selected Grid${single ? `` : `s`}`}
                 </span>
               </div>
             </div>

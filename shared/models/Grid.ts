@@ -28,6 +28,8 @@ export class Grid extends Data {
     options = {
         private: true,
         archived: false,
+        nameLabel: true,
+        newestBoardsOnTop: true,
     }
 
     data?: { [key: string]: string[] } = {

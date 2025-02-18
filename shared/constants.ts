@@ -41,8 +41,10 @@ export const extractRankFromDoc = (doc: Partial<User> | Partial<Grid> | Partial<
 }
 
 export const nameFields = {
+  grid: { min: 1, max: 10 },
   board: { min: 1, max: 30 },
   column: { min: 1, max: 15 },
+  list: { min: 1, max: 15 },
   item: { min: 1, max: 25 },
   task: { min: 1, max: 30 },
 }
