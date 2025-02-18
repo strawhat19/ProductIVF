@@ -621,9 +621,9 @@ export default function ProductIVF({ Component, pageProps, router }) {
         let gridBoard = globalUserData?.boards?.find(brd => brd?.id == bordID);
         if (gridBoard) return new Board(gridBoard);
       })
-      // if (globalUserData?.emitChange && globalUserData?.grid?.emitChange || globalUserDataLoading) setBoards(gridBoardsByID);
-      // if (gridBoardIDs.every((gid, gidIndex) => gid != globalUserData?.grid?.data?.boardIDs[gidIndex])) setBoards(gridBoardsByID);
-      setBoards(gridBoardsByID);
+      if (globalUserDataLoading || globalUserData?.lastUpdateFrom == `Tasks` || globalUserData?.lastUpdateFrom == `Boards`) {
+        setBoards(gridBoardsByID);
+      }
       setBoardsLoading(false);
     }
   }, [globalUserData]);
@@ -634,7 +634,6 @@ export default function ProductIVF({ Component, pageProps, router }) {
     if (selectedGrid != null) {
       setBoardsLoading(globalUserDataLoading);
       // dev() && console.log(`Selected Grid`, selectedGrid);
-      setGridBoardIDs(selectedGrid?.data?.boardIDs);
       for (const collectionName of gridDataCollectionNames) {
         const gridData_Database = collection(db, collectionName);
         const gridDataQuery = query(gridData_Database, where(`gridID`, `==`, selectedGrid?.id));

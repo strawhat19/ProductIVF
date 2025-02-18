@@ -65,14 +65,6 @@ export default function Boards(props: any) {
         });
     }
 
-    useEffect(() => {
-        console.log(`Boards Update`, boards);
-        // if (boards[0]?.position) {
-        //     let updatedBoardIDs = boards?.map(brd => brd?.id);
-        //     updateDocFieldsWTimeStamp(selectedGrid?.id, gridsTable, gridConverter, { 'data.boardIDs': updatedBoardIDs }, true);
-        // }
-    }, [boards])
-
     const onDragEnd = (dragEndEvent) => {
         const { destination, source } = dragEndEvent;
 
@@ -87,11 +79,7 @@ export default function Boards(props: any) {
         let updatedBoardIDs = updatedBoardsPositions?.map(brd => brd?.id);
         
         setBoards(updatedBoardsPositions);
-        // setGlobalUserData(prevGlobalUserData => ({ ...prevGlobalUserData, emitChange: false }));
-        // updateDocFieldsWTimeStamp(selectedGrid?.id, gridsTable, gridConverter, { 'data.boardIDs': updatedBoardIDs }, true);
-        // updateDocFieldsWTimeStamp(selectedGrid?.id, gridsTable, gridConverter, { emitChange: false, 'data.boardIDs': updatedBoardIDs }, true);
-
-        dev() && console.log(`Boards Drag`, updatedBoardIDs, globalUserData);
+        updateDocFieldsWTimeStamp(selectedGrid?.id, gridsTable, gridConverter, { 'data.boardIDs': updatedBoardIDs }, false);
     }
 
     const addNewBoard = async (e) => {
