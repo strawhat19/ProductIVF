@@ -233,9 +233,9 @@ article {
     padding: 8px 0 1em;
     min-height: calc(94vh - var(--nextra-navbar-height)) !important;
     main {
-        max-width: 92rem !important;
-        width: 100% !important;
         padding: 0;
+        width: 100% !important;
+        max-width: 92rem !important;
     }
 }
 

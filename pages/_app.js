@@ -2,24 +2,24 @@ import '../main.scss';
 import 'react-toastify/dist/ReactToastify.css';
 
 import ReactDOM from 'react-dom/client';
+import { getIDParts } from '../shared/ID';
 import { User } from '../shared/models/User';
-import { toast, ToastContainer } from 'react-toastify';
-import { isValid, logToast } from '../shared/constants';
-import { AnimatePresence, motion } from 'framer-motion';
-import { collection, onSnapshot, query, where  } from 'firebase/firestore';
-import { AuthStates, GridTypes, Types } from '../shared/types/types';
-import { createContext, useRef, useState, useEffect } from 'react';
-import ContextMenu from '../components/context-menus/context-menu';
-import { renderFirebaseAuthErrorMessage } from '../components/form';
-import { seedUserData as generateSeedUserData } from '../shared/database';
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import { auth, db, userConverter, gridDataCollectionNames, usersTable, gridsTable, gridConverter } from '../firebase';
 import { Grid } from '../shared/models/Grid';
-import { Board } from '../shared/models/Board';
 import { List } from '../shared/models/List';
 import { Item } from '../shared/models/Item';
 import { Task } from '../shared/models/Task';
-import { getIDParts } from '../shared/ID';
+import { Board } from '../shared/models/Board';
+import { toast, ToastContainer } from 'react-toastify';
+import { isValid, logToast } from '../shared/constants';
+import { AnimatePresence, motion } from 'framer-motion';
+import { createContext, useRef, useState, useEffect } from 'react';
+import ContextMenu from '../components/context-menus/context-menu';
+import { renderFirebaseAuthErrorMessage } from '../components/form';
+import { AuthStates, GridTypes, Types } from '../shared/types/types';
+import { seedUserData as generateSeedUserData } from '../shared/database';
+import { collection, onSnapshot, query, where  } from 'firebase/firestore';
+import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { auth, db, userConverter, gridDataCollectionNames, usersTable, gridsTable, gridConverter, updateDocFieldsWTimeStamp } from '../firebase';
 
 export const StateContext = createContext({});
 
@@ -460,6 +460,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
     setSelectedGrid(null);
     setGridsLoading(true);
     setBoardsLoading(true);
+    setGlobalUserDataLoading(true);
   }
 
   const signOutReset = async () => {
@@ -565,7 +566,6 @@ export default function ProductIVF({ Component, pageProps, router }) {
   const signInUser = (usr, navigateToLastSelectedGrid = false) => {
     setUser(usr);
     setAuthState(AuthStates.Sign_Out);
-
     if (navigateToLastSelectedGrid) {
       const urlId = `${usr?.rank}`;
       // const urlId = `${usr?.rank}-${usr?.name}-${usr?.uid}`;
@@ -655,9 +655,9 @@ export default function ProductIVF({ Component, pageProps, router }) {
             setGlobalUserData(prevGlobalUserData => ({
               ...prevGlobalUserData,
               grid: selectedGrid,
+              lastUpdate: getIDParts()?.date,
               [collectionName]: modeledGridDataDocs,
               lastUpdateFrom: capWords(collectionName),
-              lastUpdate: getIDParts()?.date,
             }))
           });
         } else {
@@ -690,10 +690,9 @@ export default function ProductIVF({ Component, pageProps, router }) {
     setGlobalUserData(prevGlobalUserData => ({
       ...prevGlobalUserData,
       user,
-      emitChange: true,
+      grids: usersGridsByID,
       lastUpdateFrom: `Grids`,
       lastUpdate: getIDParts()?.date,
-      grids: usersGridsByID,
     }))
     setGridsLoading(false);
   }
@@ -717,12 +716,17 @@ export default function ProductIVF({ Component, pageProps, router }) {
             if (usersGridsByID && usersGridsByID?.length > 0) {
               let thisGrid = usersGridsByID?.find(gr => String(gr?.rank) == String(gridid));
               if (thisGrid) {
-                setUsersGridsState(thisGrid?.id, usersGridsByID);
+                if (user?.lastSelectedGridID != thisGrid?.id) {
+                  updateDocFieldsWTimeStamp(user?.id, usersTable, userConverter, { 
+                    lastSelectedGridID: thisGrid?.id, 
+                    'data.selectedGridIDs': [thisGrid?.id], 
+                  }, false);
+                }
+                setUsersGridsState(thisGrid?.id, usersGridsByID, globalUserDataLoading);
               }
             }
-          } else setUsersGridsState(user?.lastSelectedGridID, usersGridsByID);
-        } else setUsersGridsState(user?.lastSelectedGridID, usersGridsByID);
-        // dev() && console.log(`Grids`, usersGridsByID);
+          } else setUsersGridsState(user?.lastSelectedGridID, usersGridsByID, globalUserDataLoading);
+        } else setUsersGridsState(user?.lastSelectedGridID, usersGridsByID, globalUserDataLoading);
       })
     } else if (listenforUserGridsChanges != null) listenforUserGridsChanges();
     return () => {if (listenforUserGridsChanges != null) listenforUserGridsChanges();};

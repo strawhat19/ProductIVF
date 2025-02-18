@@ -8,7 +8,7 @@ import { useState, useEffect, useContext, useRef } from 'react';
 import { capWords, dev, replaceAll, StateContext } from '../../pages/_app';
 import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
 import { findHighestNumberInArrayByKey, generateArray } from '../../shared/constants';
-import { gridConverter, gridsTable, updateDocFieldsWTimeStamp } from '../../firebase';
+import { gridConverter, gridsTable, updateDocFieldsWTimeStamp, userConverter, usersTable } from '../../firebase';
 
 export enum ItemTypes {
     Item = `Item`,
@@ -58,7 +58,13 @@ export default function Boards(props: any) {
 
     const updateSelectedGrids = async (updatedSelectedGrids) => {
         let thisGrid = updatedSelectedGrids[0];
-        setUsersGridsState(thisGrid?.id, usersGrids, false);
+        // setUsersGridsState(thisGrid?.id, usersGrids, false);
+        if (user?.lastSelectedGridID != thisGrid?.id) {
+            updateDocFieldsWTimeStamp(user?.id, usersTable, userConverter, { 
+                lastSelectedGridID: thisGrid?.id, 
+                'data.selectedGridIDs': [thisGrid?.id], 
+            }, false);
+        }
         let userGridURL = `/user/${user?.rank}/grids/${thisGrid?.rank}`;
         router.replace(userGridURL, undefined, {
             shallow: true,
@@ -79,7 +85,7 @@ export default function Boards(props: any) {
         let updatedBoardIDs = updatedBoardsPositions?.map(brd => brd?.id);
         
         setBoards(updatedBoardsPositions);
-        updateDocFieldsWTimeStamp(selectedGrid?.id, gridsTable, gridConverter, { 'data.boardIDs': updatedBoardIDs }, false);
+        updateDocFieldsWTimeStamp(globalUserData?.grid?.id, gridsTable, gridConverter, { 'data.boardIDs': updatedBoardIDs }, false);
     }
 
     const addNewBoard = async (e) => {

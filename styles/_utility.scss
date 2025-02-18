@@ -23,6 +23,9 @@ article {
         padding-right: max(env(safe-area-inset-right), 1.5rem);
         main {
             padding: 0;
+            width: 100% !important;
+            min-width: 100% !important;
+            max-width: 100% !important;
             div {
                 &.nx-mt-16, &.nx-mb-8 {
                     display: none;
