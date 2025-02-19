@@ -1,11 +1,11 @@
 import { styled } from '@mui/material/styles';
-import { showAlert, StateContext } from '../../pages/_app';
 import { isValid } from '../../shared/constants';
+import GridDetailView from '../grids/grid-detail-view';
+import { showAlert, StateContext } from '../../pages/_app';
 import { GridTypes, Types } from '../../shared/types/types';
 import { autocompleteClasses } from '@mui/material/Autocomplete';
-import { forwardRef, useContext, useImperativeHandle, useState } from 'react';
 import { AutocompleteGetTagProps, useAutocomplete } from '@mui/material';
-import GridDetailView from '../grids/grid-detail-view';
+import { forwardRef, useContext, useImperativeHandle, useState } from 'react';
 
 const InputWrapper = styled(`div`)(
   ({ theme }) => `

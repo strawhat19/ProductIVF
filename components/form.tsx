@@ -346,11 +346,13 @@ export default function Form(props?: any) {
   return <>
     <form ref={formRef} {...id && { id }} onSubmit={authForm} className={`flex authForm customButtons ${className} ${stringNoSpaces(authState)}_formButton`} style={style}>
 
+      {/* Sign In // Sign Up */}
       {usersLoading ? <></> : <>
         {!user && <input placeholder="Email" type="email" name="email" autoComplete={`email`} required />}
         {!user && emailField && <input ref={passwordRef} placeholder="Password" type="password" minLength={6} name="password" autoComplete={`current-password`} />}
       </>}
 
+      {/* Profile Edit Form */}
       {(!navForm && user != null) ? <>
         {window?.location?.href?.includes(`profile`) ? <>
           <input className={`name userData`} placeholder="Name" type="text" name="status" />
@@ -363,6 +365,7 @@ export default function Form(props?: any) {
         </> : <></>}
       </> : <></>}
 
+      {/* Delete User */}
       {((devEnv && user != null) || userIsMinRole(user, Roles.Moderator)) && (
         <div className={`formFieldWithConfirm`} style={{ position: `relative` }}>
           {formButtonField(
@@ -377,6 +380,7 @@ export default function Form(props?: any) {
         </div>
       )}
 
+      {/* Sign In // Sign Up // Sign Out */}
       {formButtonField(
         `Users Loading`, 
         `usersSkeleton`, 
@@ -384,6 +388,7 @@ export default function Form(props?: any) {
         <input className={(user && window?.location?.href?.includes(`profile`) || (authState == `Sign In` || authState == `Sign Up`)) ? `submit half` : `submit full`} type="submit" name="authFormSubmit" value={user ? `Sign Out` : authState} />,
       )}
 
+      {/* Back */}
       {(authState == `Sign In` || authState == `Sign Up`) && (
         formButtonField(
           `Users Loading`, 
