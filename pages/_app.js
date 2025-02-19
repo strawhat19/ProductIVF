@@ -379,6 +379,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let menuRef = useRef(null);
   let loaded = useRef(false);
   let mobileMenuBreakPoint = 697;
+
   let { id, gridid } = router.query;
 
   let [IDs, setIDs] = useState([]);
@@ -471,15 +472,12 @@ export default function ProductIVF({ Component, pageProps, router }) {
     await resetGridsBoards();
   }
 
-  const onSignOut = async () => {
+  const onSignOut = async (navigateToHome = true) => {
     try {
-      await updateDocFieldsWTimeStamp(user, { signedIn: false, 'options.active': false });
       await setUpdates(updates + 1);
       await signOutReset();
       await signOut(auth);
-      router.replace(`/`, undefined, {
-        shallow: true,
-      });
+      if (navigateToHome == true) router.replace(`/`, undefined, { shallow: true });
     } catch (signOutError) {
       await logToast(`Error on Sign Out`, signOutError, true);
     }
@@ -497,30 +495,11 @@ export default function ProductIVF({ Component, pageProps, router }) {
     return gridsBoards;
   }
 
-  const setUserData = (activeGridID, grds, brds) => {
-    setGrids(grds);
-    setUserBoards(brds);
-
-    let lastSelectedGrid = grds.find(gr => gr?.id == activeGridID);
-    let defaultSeletedGrid = lastSelectedGrid ? lastSelectedGrid : grds[0];
-    
-    let defaultSeletedGrids = [defaultSeletedGrid]?.map(gr => ({ ...gr, label: gr?.name, value: gr?.id }));
-    let gridBoards = getGridsBoards(defaultSeletedGrids, brds);
-
-    setSelectedGrids(defaultSeletedGrids);
-    setGridsLoading(false);
- 
-    setBoards(gridBoards);
-    setBoardsLoading(false);
-  }
-  
-  const seedUserData = (usr, useDB = false) => {
+  const seedUserDataNoDB = (usr) => {
     let { grids: grds, boards: brds, user: updatedUser } = generateSeedUserData(usr);
     
-    if (useDB == false) {
-      setGrids(grds);
-      setUserBoards(brds);
-    }
+    setGrids(grds);
+    setUserBoards(brds);
 
     let privatePersonalGrid = grds.find(gr => gr.type == GridTypes.Personal);
     let defaultSeletedGrid = privatePersonalGrid ? privatePersonalGrid : grds[0];
@@ -528,24 +507,27 @@ export default function ProductIVF({ Component, pageProps, router }) {
     let defaultSeletedGrids = [defaultSeletedGrid];
     let gridBoards = getGridsBoards(defaultSeletedGrids, brds);
 
-    if (useDB == false) {
-      setSelectedGrids(defaultSeletedGrids);
-      setSelectedGrid(defaultSeletedGrid);
-      setGridsLoading(false);
-   
-      setBoards(gridBoards);
-      setBoardsLoading(false);
-   
-      if (user != null && updatedUser != null) {
-        setUser(updatedUser);
-      }
-    } else {
+    setSelectedGrids(defaultSeletedGrids);
+    setSelectedGrid(defaultSeletedGrid);
+    setGridsLoading(false);
+  
+    setBoards(gridBoards);
+    setBoardsLoading(false);
+  
+    if (user != null && updatedUser != null) {
+      setUser(updatedUser);
+    }
+  }
+
+  const seedUserData = (usr, useDB = true) => {
+    let { grids: grds, boards: brds, user: updatedUser } = generateSeedUserData(usr);
+    if (useDB == true) {
       return {
         seeded_Grids: grds,
         seeded_Boards: brds,
         seeded_User: updatedUser,
       }
-    }
+    } else seedUserDataNoDB(usr);
   }
 
   const extractIDDetails = (ID) => {
@@ -567,25 +549,38 @@ export default function ProductIVF({ Component, pageProps, router }) {
   const signInUser = (usr, navigateToLastSelectedGrid = false) => {
     setUser(usr);
     setAuthState(AuthStates.Sign_Out);
+
     if (navigateToLastSelectedGrid) {
-      const urlId = `${usr?.rank}`;
-      // const urlId = `${usr?.rank}-${usr?.name}-${usr?.uid}`;
-      const userId = urlId || usr?.id;
-      const gridId = usr?.lastSelectedGridID;
-      let { rank } = extractIDDetails(gridId);
-      // let { name, uuid } = extractIDDetails(gridId);
-      let gridUrlId = `${rank}`;
-      // let gridUrlId = `${rank}-${name}-${uuid}`;
-      let userStartURL = `/user/${userId}/grids/${gridUrlId}`;
-      router.replace(userStartURL, undefined, {
-        shallow: true,
-      });
+      let userURL, gridURL;
+
+      const useExtendedURLIDs = false;
+
+      if (usr != null) {
+        const gridId = usr?.lastSelectedGridID;
+        const { name, rank, uuid } = extractIDDetails(gridId);
+        
+        const gridUrlId = `${rank}`;
+        const urlId = `${usr?.rank}`;
+        const userUrlId = urlId || usr?.id;
+        const gridUrlIdExtended = `${rank}-${name}-${uuid}`;
+        const userUrlIdExtended = `${usr?.rank}-${usr?.name}-${usr?.uid}`;
+
+        userURL = useExtendedURLIDs ? userUrlIdExtended : userUrlId;
+        gridURL = useExtendedURLIDs ? gridUrlIdExtended : gridUrlId;
+
+        const userStartURL = `/user/${userURL}/grids/${gridURL}`;
+        
+        router.replace(userStartURL, undefined, {
+          shallow: true,
+        });
+      }
     }
   }
 
   const onSignIn = async (email, password) => {
     signInWithEmailAndPassword(auth, email, password).then(async (userCredential) => {
       if (userCredential != null) {
+        console.log(`User Credential`, userCredential);
         let existingUser = users.find(eml => eml?.email?.toLowerCase() == email?.toLowerCase());
         if (existingUser) {
           const { date } = getIDParts();
@@ -598,6 +593,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
         }
       }
     }).catch((error) => {
+      onSignOut(false);
       const errorCode = error.code;
       const errorMessage = error.message;
       if (errorMessage) {
@@ -697,7 +693,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       lastUpdateFrom: `Grids`,
       lastUpdate: getIDParts()?.date,
     }))
-    setGridsLoading(false);
+    if (usersGridsByID?.length > 0) setGridsLoading(false);
   }
 
   useEffect(() => {
@@ -731,7 +727,9 @@ export default function ProductIVF({ Component, pageProps, router }) {
           } else setUsersGridsState(user?.lastSelectedGridID, usersGridsByID, globalUserDataLoading);
         } else setUsersGridsState(user?.lastSelectedGridID, usersGridsByID, globalUserDataLoading);
       })
-    } else if (listenforUserGridsChanges != null) listenforUserGridsChanges();
+    } else {
+      if (listenforUserGridsChanges != null) listenforUserGridsChanges();
+    }
     return () => {if (listenforUserGridsChanges != null) listenforUserGridsChanges();};
   }, [user])
 
@@ -767,9 +765,9 @@ export default function ProductIVF({ Component, pageProps, router }) {
       }
       setGlobalUserData(prevGlobalUserData => ({
         ...prevGlobalUserData,
+        users: usersFromDB,
         lastUpdateFrom: `Users`,
         lastUpdate: getIDParts()?.date,
-        users: usersFromDB,
       }))
       setUsersLoading(false);
       // dev() && console.log(`Users`, usersFromDB);
@@ -920,7 +918,6 @@ export default function ProductIVF({ Component, pageProps, router }) {
       onSignIn,
       onSignOut,
       signInUser,
-      setUserData,
       seedUserData,
       signOutReset,
       getGridsBoards,

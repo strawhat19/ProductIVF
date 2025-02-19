@@ -121,10 +121,10 @@
         display: flex;
     }
     &.hasGridSelector {
-        grid-template-columns: auto auto 1fr;
+        grid-template-columns: auto auto 1fr !important;
         &.withSingleSelect {
             &:not(.gridsAreLoading) {
-                grid-template-columns: auto 1fr auto;
+                grid-template-columns: auto 1fr auto !important;
             }
             .multiSelectOptionInput {
                 cursor: pointer;

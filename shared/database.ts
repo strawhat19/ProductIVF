@@ -1,3 +1,4 @@
+import { generateID } from './ID';
 import { Grid } from './models/Grid';
 import { Board } from './models/Board';
 import { capWords } from '../pages/_app';
@@ -5,7 +6,6 @@ import { Roles, User } from './models/User';
 import { GridTypes, Types } from './types/types';
 import { BoardTypes } from '../components/boards/boards';
 import { isValid, removeNullAndUndefinedProperties, stringNoSpaces } from './constants';
-import { generateID } from './ID';
 
 export const createUser = (
     uid: string, 
@@ -39,6 +39,10 @@ export const createUser = (
         color,
         description,
 
+        owner: email,
+        ownerUID: uid,
+        creator: email,
+
         name: isValid(name) ? name : capWords(email.split(`@`)[0]),
         options: {
             active,
@@ -49,7 +53,7 @@ export const createUser = (
 
     let cleanedUser: any = removeNullAndUndefinedProperties(user);
     let cleanedID = `${stringNoSpaces(cleanedUser?.title)}_${uid}`;
-    user = new User({ ...cleanedUser, ID: cleanedID });
+    user = new User({ ...cleanedUser, ID: cleanedID, ownerID: cleanedUser?.id, });
 
     return user;
 }

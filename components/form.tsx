@@ -9,9 +9,9 @@ import ConfirmAction from './context-menus/confirm-action';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { Roles, User, userIsMinRole } from '../shared/models/User';
-import { formatDate, StateContext, showAlert } from '../pages/_app';
+import { formatDate, StateContext, showAlert, dev } from '../pages/_app';
 import { findHighestNumberInArrayByKey, logToast, stringNoSpaces } from '../shared/constants';
-import { addUserToDatabase, auth, boardConverter, boardsTable, db, deleteUserAuth, deleteUserData, gridConverter, gridsTable } from '../firebase';
+import { addUserToDatabase, auth, boardConverter, boardsTable, db, deleteUserAuth, deleteUserData, gridConverter, gridsTable, updateDocFieldsWTimeStamp } from '../firebase';
 
 export const convertHexToRGB = (HexString?:any, returnObject?: any) => {
   let r = parseInt(HexString.slice(1, 3), 16),
@@ -32,7 +32,7 @@ export const isShadeOfBlack = (HexString?:any) => {
   return (rgb?.r < darkColorBias) && (rgb?.g < darkColorBias) && (rgb?.b < darkColorBias);
 }
 
-export const getMatchingEmails = (query, usrs: User[]) => {
+export const getMatchingUsersToEmail = (query, usrs: User[]) => {
   let matchingEmails = usrs.filter((usr: any) => {
     let usrNam = usr?.name.toLowerCase();
     let usrEml = usr?.email.toLowerCase();
@@ -48,7 +48,7 @@ export const renderFirebaseAuthErrorMessage = (erMsg: string) => {
   if (erMsgQuery.includes(`invalid-email`)) {
     return `Please use a valid email.`;
   } else if (erMsgQuery?.includes(`email-already-in-use`)) {
-    return `Existing Email, Switching to Sign In`;
+    return `Existing Email or Username, Switching to Sign In`;
   } else if (erMsgQuery?.includes(`weak-password`)) {
     return `Password should be at least 6 characters`;
   } else if (erMsgQuery?.includes(`wrong-password`) || erMsgQuery?.includes(`invalid-login-credentials`)) {
@@ -101,17 +101,17 @@ export default function Form(props?: any) {
   }
 
   const finallyDeleteUser = (usr) => {
-    toast.info(`Deleting User ${usr?.email} Data`);
+    toast.info(`Deleting User ${usr?.id}`);
     signOutReset();
-    deleteUserData(usr?.email)?.then(async deletedDocIds => {
-      await logToast(`Deleted ${user?.email} Data`, deletedDocIds, false);
-      // await deleteUserAuth(user).then(async eml => {
+    deleteUserData(usr?.id)?.then(async deletedDocIds => {
+      await logToast(`Deleted ${user?.id} Data, Signing Out`, deletedDocIds, false);
+      await deleteUserAuth(user).then(async eml => {
         await onSignOut();
-      // });
+      });
     })?.catch(async deleteUserDataError => logToast(`Delete User Data Error`, deleteUserDataError, true, deleteUserDataError));
   }
 
-  const onDeleteUser = (e, usr, initialConfirm = true) => {
+  const onDeleteOrCancelUser = (e, usr, initialConfirm = true) => {
     if (showConfirm == true) {
       if (!initialConfirm) {
         finallyDeleteUser(usr);
@@ -162,6 +162,87 @@ export default function Form(props?: any) {
     )}
   </>
 
+  const switchToSignIn = (email, password) => {
+    if (password && (password != `` && password?.length >= 6)) {
+      onSignIn(email, password);
+    } else {
+      toast.warn(renderFirebaseAuthErrorMessage(`email-already-in-use`));
+      setAuthState(AuthStates.Sign_In);
+    }
+  }
+
+  const onSignUp = async (email, password, form) => {
+    createUserWithEmailAndPassword(auth, email, password).then(async (userCredential: any) => {
+      if (userCredential != null) {
+        let { 
+          uid, 
+          photoURL: avatar, 
+          displayName: name, 
+          accessToken: token, 
+          phoneNumber: phone, 
+          isAnonymous: anonymous, 
+          emailVerified: verified, 
+        } = userCredential?.user;
+
+        let highestRank = await findHighestNumberInArrayByKey(users, `rank`);
+        let rank = highestRank + 1;
+      
+        let newUser = await createUser(uid, rank, email, name, phone, avatar, token, verified, anonymous);
+
+        const setUserStartingData = async (userToSeed) => {
+          let {
+            seeded_User,
+            seeded_Grids,
+            seeded_Boards,
+          } = await seedUserData(userToSeed);
+
+          const batchFirestore_InitialUserData = writeBatch(db);
+          for (const grd of seeded_Grids) {
+            const gridRef = await doc(db, gridsTable, grd?.id)?.withConverter(gridConverter);
+            batchFirestore_InitialUserData.set(gridRef, grd);
+          }
+          for (const brd of seeded_Boards) {
+            const boardRef = await doc(db, boardsTable, brd?.id)?.withConverter(boardConverter);
+            batchFirestore_InitialUserData.set(boardRef, brd);
+          }
+          return await {seeded_User, batchFirestore_InitialUserData};
+        }
+
+        let { seeded_User, batchFirestore_InitialUserData } = await setUserStartingData(newUser);
+        
+        await addUserToDatabase(seeded_User).then(async () => {
+          toast.success(`Signed Up & In as: ${seeded_User?.name}`);
+          signInUser(seeded_User);
+          form.reset();
+          await batchFirestore_InitialUserData.commit();
+          await toast.success(`Set Default Grids & Boards for: ${seeded_User?.name}`);
+        }).catch(signUpAndSeedError => {
+          let errorMessage = `Error on Sign Up & Set Default Data`;
+          console.log(errorMessage, signUpAndSeedError);
+          toast.error(errorMessage);
+          return;
+        });
+
+      } else {
+        toast.error(`Error on Sign Up`);
+        return;
+      }
+    }).catch((error) => {
+      console.log(`Error Signing Up`, error);
+      const errorMessage = error.message;
+      if (errorMessage) {
+        if (errorMessage?.includes(`email-already-in-use`)) {
+          switchToSignIn(email, password);
+        } else {
+          toast.error(renderFirebaseAuthErrorMessage(errorMessage));  
+        }         
+      } else {
+        toast.error(`Error Signing Up`);
+      }
+      return;
+    });
+  }
+
   const authForm = (e?: any, frm?, value?) => {
     e.preventDefault();
     
@@ -172,84 +253,14 @@ export default function Form(props?: any) {
     let clickedValue = value ? value : clicked?.value;
     let password = formFields?.password?.value ?? `pass`;
 
-    const onSignUp = async (email, password) => {
-      createUserWithEmailAndPassword(auth, email, password).then(async (userCredential: any) => {
-        if (userCredential != null) {
-          let { 
-            uid, 
-            photoURL: avatar, 
-            displayName: name, 
-            accessToken: token, 
-            phoneNumber: phone, 
-            isAnonymous: anonymous, 
-            emailVerified: verified, 
-          } = userCredential?.user;
-
-          let highestRank = await findHighestNumberInArrayByKey(users, `rank`);
-          let rank = highestRank + 1;
-        
-          let newUser = await createUser(uid, rank, email, name, phone, avatar, token, verified, anonymous);
-
-          const setUserStartingData = async (userToSeed) => {
-            let {
-              seeded_User,
-              seeded_Grids,
-              seeded_Boards,
-            } = await seedUserData(userToSeed, true);
-
-            const batchFirestore_InitialUserData = writeBatch(db);
-            for (const grd of seeded_Grids) {
-              const gridRef = await doc(db, gridsTable, grd?.id)?.withConverter(gridConverter);
-              batchFirestore_InitialUserData.set(gridRef, grd);
-            }
-            for (const brd of seeded_Boards) {
-              const boardRef = await doc(db, boardsTable, brd?.id)?.withConverter(boardConverter);
-              batchFirestore_InitialUserData.set(boardRef, brd);
-            }
-            return await {seeded_User, batchFirestore_InitialUserData};
-          }
-
-          let { seeded_User, batchFirestore_InitialUserData } = await setUserStartingData(newUser);
-          
-          await addUserToDatabase(seeded_User).then(async () => {
-            toast.success(`Signed Up & In as: ${seeded_User?.name}`);
-            signInUser(seeded_User);
-            form.reset();
-            await batchFirestore_InitialUserData.commit();
-            await toast.success(`Set Default Grids & Boards for: ${seeded_User?.name}`);
-          }).catch(signUpAndSeedError => {
-            let errorMessage = `Error on Sign Up & Set Default Data`;
-            console.log(errorMessage, signUpAndSeedError);
-            toast.error(errorMessage);
-            return;
-          });
-
-        } else {
-          toast.error(`Error on Sign Up`);
-          return;
-        }
-      }).catch((error) => {
-        console.log(`Error Signing Up`, error);
-        const errorMessage = error.message;
-        if (errorMessage) {
-          toast.error(renderFirebaseAuthErrorMessage(errorMessage));  
-          if (errorMessage?.includes(`email-already-in-use`)) {
-            setAuthState(`Sign In`);
-          }         
-        } else {
-          toast.error(`Error Signing Up`);
-        }
-        return;
-      });
-    }
+    let matchingUsers = getMatchingUsersToEmail(email, users);
 
     switch(clickedValue) {
       default:
-        console.log(`Clicked Value`, clickedValue);
+        dev() && console.log(`Clicked Value`, clickedValue);
         break;
       case AuthStates.Next:
-        let matchingEmails = getMatchingEmails(email, users);
-        if (matchingEmails?.length > 0) {
+        if (matchingUsers?.length > 0) {
           setAuthState(AuthStates.Sign_In);
         } else {
           setAuthState(AuthStates.Sign_Up);
@@ -262,7 +273,7 @@ export default function Form(props?: any) {
         setEmailField(false);
         break;
       case AuthStates.Sign_Out:
-        onSignOut();
+        updateDocFieldsWTimeStamp(user, { signedIn: false, 'options.active': false })?.then(() => onSignOut());
         break;
       case AuthStates.Save:
         let emptyFields = [];
@@ -296,9 +307,8 @@ export default function Form(props?: any) {
           toast.error(`Password Required`);
         } else {
           if (password?.length >= 6) {
-            let matchingEmails = getMatchingEmails(email, users);
-            if (matchingEmails?.length > 0) {
-              let emailToUse = matchingEmails[0]?.email;
+            if (matchingUsers?.length > 0) {
+              let emailToUse = matchingUsers[0]?.email;
               onSignIn(emailToUse, password);
             }
           } else {
@@ -307,26 +317,30 @@ export default function Form(props?: any) {
         }
         break;
       case AuthStates.Sign_Up:
-        if (password == ``) {
-          toast.error(`Password Required`);
+        if (matchingUsers?.length > 0) {
+          switchToSignIn(matchingUsers[0]?.email, password);
         } else {
-          if (password?.length >= 6) {
-            if (email?.includes(`@`) && (
-              email?.includes(`.com`) || email?.includes(`.net`) || email?.includes(`.org`) || email?.includes(`.gov`)
-              || email?.includes(`.app`) || email?.includes(`.io`) || email?.includes(`.ai`) || email?.includes(`.eu`)
-            )) {
-              onSignUp(email, password);
-            } else {
-              toast.error(`Invalid Email`);
-            }
+          if (password == ``) {
+            toast.error(`Password Required`);
           } else {
-            toast.error(`Password must be 6 characters or greater`);
+            if (password?.length >= 6) {
+              if (email?.includes(`@`) && (
+                email?.includes(`.com`) || email?.includes(`.net`) || email?.includes(`.org`) || email?.includes(`.gov`)
+                || email?.includes(`.app`) || email?.includes(`.io`) || email?.includes(`.ai`) || email?.includes(`.eu`)
+              )) {
+                onSignUp(email, password, form);
+              } else {
+                toast.error(`Invalid Email`);
+              }
+            } else {
+              toast.error(`Password must be 6 characters or greater`);
+            }
           }
         }
         break;
       case AuthStates.Cancel:
       case AuthStates.Delete:
-        onDeleteUser(e, user);
+        onDeleteOrCancelUser(e, user);
         break;
     };
   }
@@ -348,25 +362,25 @@ export default function Form(props?: any) {
 
       {/* Sign In // Sign Up */}
       {usersLoading ? <></> : <>
-        {!user && <input placeholder="Email" type="email" name="email" autoComplete={`email`} required />}
-        {!user && emailField && <input ref={passwordRef} placeholder="Password" type="password" minLength={6} name="password" autoComplete={`current-password`} />}
+        {!user && <input placeholder={`Email or Username`} type={`email`} name={`email`} autoComplete={`email`} required />}
+        {!user && emailField && <input ref={passwordRef} placeholder={`Password`} type={`password`} minLength={6} name={`password`} autoComplete={`current-password`} />}
       </>}
 
       {/* Profile Edit Form */}
       {(!navForm && user != null) ? <>
         {window?.location?.href?.includes(`profile`) ? <>
-          <input className={`name userData`} placeholder="Name" type="text" name="status" />
-          <input className={`status userData`} placeholder="Status" type="text" name="status" />
-          <input className={`bio userData`} placeholder="About You" type="text" name="bio" />
-          <input className={`number userData`} placeholder="Favorite Number" type="number" name="number" />
-          <input className={`editPassword userData`} placeholder="Edit Password" type="password" name="editPassword" autoComplete={`current-password`} />
-          {/* <input type="color" name="color" placeholder="color" className={dark ? `dark` : `light`} data-color={`Color: ${convertHexToRGB(color)} // Hex: ${color}`} onInput={(e?: any) => changeColor(e)} defaultValue={color} /> */}
-          <input className={`save`} type="submit" name="authFormSave" style={{padding: 0}} value={`Save`} />
+          <input className={`name userData`} placeholder={`Name`} type={`text`} name={`status`} />
+          <input className={`status userData`} placeholder={`Status`} type={`text`} name={`status`} />
+          <input className={`bio userData`} placeholder={`About You`} type={`text`} name={`bio`} />
+          <input className={`number userData`} placeholder={`Favorite Number`} type={`number`} name={`number`} />
+          <input className={`editPassword userData`} placeholder={`Edit Password`} type={`password`} name={`editPassword`} autoComplete={`current-password`} />
+          {/* <input type={`color`} name={`color`} placeholder={`color`} className={dark ? `dark` : `light`} data-color={`Color: ${convertHexToRGB(color)} // Hex: ${color}`} onInput={(e?: any) => changeColor(e)} defaultValue={color} /> */}
+          <input className={`save`} type={`submit`} name={`authFormSave`} style={{padding: 0}} value={`Save`} />
         </> : <></>}
       </> : <></>}
 
       {/* Delete User */}
-      {((devEnv && user != null) || userIsMinRole(user, Roles.Moderator)) && (
+      {user != null && userIsMinRole(user, Roles.Moderator) && (
         <div className={`formFieldWithConfirm`} style={{ position: `relative` }}>
           {formButtonField(
             `Users Loading`, 
@@ -375,7 +389,7 @@ export default function Form(props?: any) {
             <input className={`authFormDelete`} type="submit" name="authFormSubmit" value={showConfirm ? AuthStates.Cancel : AuthStates.Delete} />
           )}
           {showConfirm && (
-            <ConfirmAction className={`formUserConfirmAction`} onConfirm={(e) => onDeleteUser(e, user, false)} style={{ right: 0, top: 40 }} />
+            <ConfirmAction className={`formUserConfirmAction`} onConfirm={(e) => onDeleteOrCancelUser(e, user, false)} style={{ right: 0, top: 40 }} />
           )}
         </div>
       )}

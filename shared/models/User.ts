@@ -54,6 +54,12 @@ export const userIsMinRole = (usr: User, role: Roles) => {
 
 export class User extends Data {
   ID: any;
+
+  creator: string;
+
+  owner: string;
+  ownerID: string;
+  ownerUID: string;
   
   token: string;
   phone: any = ``;
@@ -75,6 +81,9 @@ export class User extends Data {
   tasks?: any;
   lists?: any;
   boards?: any;
+
+  friends?: any;
+
   selectedGrid?: any;
   selectedGrids?: any;
 

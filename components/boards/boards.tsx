@@ -58,6 +58,7 @@ export default function Boards(props: any) {
         let thisGrid = updatedSelectedGrids[0];
         let userGridURL = `/user/${user?.rank}/grids/${thisGrid?.rank}`;
         if (user?.lastSelectedGridID != thisGrid?.id) {
+            // Update User Selected Grids
             updateDocFieldsWTimeStamp(user, { 
                 lastSelectedGridID: thisGrid?.id, 
                 'data.selectedGridIDs': [thisGrid?.id], 
@@ -82,6 +83,7 @@ export default function Boards(props: any) {
         let updatedBoardIDs = updatedBoardsPositions?.map(brd => brd?.id);
         
         setBoards(updatedBoardsPositions);
+        // Update Grid Board IDs on Drag End
         updateDocFieldsWTimeStamp(selectedGrid, { 'data.boardIDs': updatedBoardIDs });
     }
 
@@ -109,6 +111,9 @@ export default function Boards(props: any) {
         dev() && console.log(`New Board`, {newBoard, allRanks});
 
         // Add to Firestore Boards Here Later
+        // Add Board to Boards DB
+        // Add Board ID to Selected Grid // Order Matters
+        // Add Board ID to User // Order Does Not Matter
 
         setBoards(selectedGrid?.options?.newestBoardsOnTop ? [newBoard, ...boards] : [...boards, newBoard]);
         // setIDs([...IDs, newBoard.id]);
@@ -166,7 +171,7 @@ export default function Boards(props: any) {
 
     return <>
         <div className={`boardsTitleRow flex row _projects_boards`}>
-            <div className={`row gridRow ${gridsLoading ? `gridsAreLoading` : `gridsLoaded`} ${(gridsLoading || (grids?.length > 1 || globalUserData?.grids?.length > 1)) ? `hasGridSelector ${useSingleSelect ? `withSingleSelect` : ``}` : ``}`} style={{ padding: 0, paddingBottom: 7 }}>
+            <div className={`row gridRow ${gridsLoading ? `gridsAreLoading` : `gridsLoaded`} ${(gridsLoading || (selectedGrid == null || (grids?.length == 0 || globalUserData?.grids?.length == 0)) || (grids?.length > 1 || globalUserData?.grids?.length > 1)) ? `hasGridSelector ${useSingleSelect ? `withSingleSelect` : ``}` : ``}`} style={{ padding: 0, paddingBottom: 7 }}>
                 <div className={`flex row left`} style={{ height: `var(--buttonSize)` }}>
                     <h1 className={`nx-mt-2 nx-text-4xl nx-font-bold nx-tracking-tight nx-text-slate-900 dark:nx-text-slate-100`} style={{ maxWidth: `unset` }}>
                         {selectedGrid?.options?.nameLabel == true ? selectedGrid?.name : <>
@@ -175,7 +180,7 @@ export default function Boards(props: any) {
                     </h1>
                 </div>
                 <div className={`flex row middle`} style={{ textAlign: `center`, height: `var(--buttonSize)` }}>
-                    {(gridsLoading || !useGridSearchCreate) ? <></> : <>
+                    {(gridsLoading || (selectedGrid == null || (grids?.length == 0 || globalUserData?.grids?.length == 0)) || !useGridSearchCreate) ? <></> : <>
                         <button style={{ background: `white`, pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33, justifyContent: `center`, borderTopRightRadius: 0, borderBottomRightRadius: 0 }} title={`${searchingGrid ? `Search` : `Create`} Grid`} className={`gridTypeIconButton iconButton filterButton hoverGlow ${searchingGrid ? `filerActive searchButton` : `filterInactive createGridButton`}`} onClick={() => setSearchingGrid(!searchingGrid)}>
                             {searchingGrid ? <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-search`} /> : `+`}
                         </button>
@@ -187,7 +192,7 @@ export default function Boards(props: any) {
                     </>}
                 </div>
                 <div className={`flex row right`} style={{ height: `var(--buttonSize)` }}>
-                    {gridsLoading ? (
+                    {(gridsLoading || (selectedGrid == null || (grids?.length == 0 || globalUserData?.grids?.length == 0))) ? (
                         <IVFSkeleton 
                             labelSize={14}
                             showLoading={true}
@@ -195,7 +200,7 @@ export default function Boards(props: any) {
                             label={getLoadingLabel(`Grids`, authState, user)} 
                             style={{ minWidth: 300, '--animation-delay': `${0.15}s` }} 
                         />
-                    ) : (grids?.length > 1 || globalUserData?.grids?.length > 1) ? (
+                    ) : (
                         <MultiSelector 
                             ref={multiSelectorRef}
                             id={`select_grid_type`}
@@ -207,7 +212,7 @@ export default function Boards(props: any) {
                             onChange={(val) => updateSelectedGrids(val)} 
                             options={grids?.length > 1 ? grids : globalUserData?.grids} 
                         />
-                    ) : `no grids`}
+                    )}
                 </div>
             </div>
         </div>
@@ -219,7 +224,7 @@ export default function Boards(props: any) {
         <DragDropContext onDragEnd={onDragEnd}>
             <div id={`allBoards`} className={`boards`}>
                 <div className={`flex ${dbBoards && dbBoards?.length > 0 ? `hasBoards` : `noBoards`} ${dbBoards && dbBoards?.length == 1 ? `oneBoard` : ``}`}>
-                    {boardsLoading ? <>
+                    {(boardsLoading || selectedGrid == null) ? <>
                         <div className={`flex isColumn`} style={{ paddingTop: 5 }}>
                             {generateArray(10, getLoadingLabel(`Boards`, authState, user)).map((lbl, lblIndex) => (
                                 <IVFSkeleton 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { capWords, dev } from '../../pages/_app';
+import { capWords } from '../../pages/_app';
 import { nameFields } from '../../shared/constants';
 import { updateDocFieldsWTimeStamp } from '../../firebase';
 import { ToggleButton, ToggleButtonGroup } from '@mui/material';
@@ -31,6 +31,7 @@ export default function GridDetailView({ selectedGrid }: any) {
 
         // dev() && console.log(`Grid Detail View Form Submit`, updatedFormData);
 
+        // Update Grid Options
         updateDocFieldsWTimeStamp(selectedGrid, {
             ...(selectedGrid?.name?.toLowerCase() != gridName?.toLowerCase() && {
                 name: updatedFormData?.name,

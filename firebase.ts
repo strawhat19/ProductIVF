@@ -8,7 +8,7 @@ import { initializeApp } from 'firebase/app';
 import { logToast } from './shared/constants';
 import { Board } from './shared/models/Board';
 import { GoogleAuthProvider, browserLocalPersistence, deleteUser, getAuth, setPersistence } from 'firebase/auth';
-import { collection, deleteDoc, doc, getDocs, getFirestore, query, setDoc, updateDoc, where } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDocs, getFirestore, query, setDoc, updateDoc, where, writeBatch } from 'firebase/firestore';
 import { Types } from './shared/types/types';
 
 export enum Environments {
@@ -206,20 +206,24 @@ export const deleteUserAuth = async (usr: User) => {
   }
 }
 
-export const deleteUserData = async (email: string) => {
+export const deleteUserData = async (userID: string) => {
   try {
     let deletedDocumentIds = [];
     for (const collectionName of collectionNames) {
-      const q = query(collection(db, collectionName), where(`email`, `==`, email));
-      const querySnapshot = await getDocs(q);
-      querySnapshot.forEach(async (document) => {
-        deletedDocumentIds.push(document?.id);
-        await deleteDoc(document.ref);
-      });
+      const userDataQuery = query(collection(db, collectionName), where(`ownerID`, `==`, userID));
+      const userDataQuerySnapshots = await getDocs(userDataQuery);
+      if (!userDataQuerySnapshots.empty) {
+        const batchDeleteJob = writeBatch(db);
+        userDataQuerySnapshots.forEach(document => {
+          deletedDocumentIds.push(document?.id);
+          batchDeleteJob.delete(document?.ref);
+        });
+        await batchDeleteJob.commit();
+      }
     }
     return deletedDocumentIds;
   } catch (deleteUserDataError) {
-    await logToast(`Error Deleting User Data for ${email}`, deleteUserDataError, true);
+    await logToast(`Error Deleting User Data for ${userID}`, deleteUserDataError, true);
   }
 }
 
@@ -228,9 +232,9 @@ export const updateDocFieldsWTimeStamp = async (
   updates: Partial<User> | Partial<Grid> | Partial<Board> | Partial<List> | Partial<Item> | Partial<Task> | any, 
   log = false,
 ) => {
+  const now = formatDate(new Date());
   let { tableName, converter } = documentTypes[document?.type];
   try {
-    const now = formatDate(new Date());
     const userRef = await doc(db, tableName, document?.id).withConverter(converter);
     await updateDoc(userRef, {
       ...updates,
@@ -238,7 +242,7 @@ export const updateDocFieldsWTimeStamp = async (
     });
     if (log) console.log(`Fields Updated`, updates);
   } catch (updateDocFieldsWTimeStampError) {
-    logToast(`Error Updating User ${document?.id} Fields w/ Timestamp`, updateDocFieldsWTimeStampError, true, updates);
+    logToast(`Error Updating ${document?.type} ${document?.id} Fields w/ Timestamp ${now}`, updateDocFieldsWTimeStampError, true, updates);
   }
 }
 
