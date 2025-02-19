@@ -49,56 +49,56 @@ export default function ProfileGrids(props: any) {
         </>
     }
 
-    // useEffect(() => {
-    //     let userIsOnGrids = userItem == true && userOnUserGrids == true && user != null && id && window?.location?.href?.includes(`grids`);
-    //     setUserOnGrids(userIsOnGrids);
-    //     if (userIsOnGrids) return;
-    //     if (id && !userOnGrids) {
-    //         let quer = id?.toString();
-    //         setOriginalQuery(quer);
-    //         let query = quer?.toLowerCase();
+    useEffect(() => {
+        let userIsOnGrids = userItem == true && userOnUserGrids == true && user != null && id && window?.location?.href?.includes(`grids`);
+        setUserOnGrids(userIsOnGrids);
+        if (userIsOnGrids) return;
+        if (id && !userOnGrids) {
+            let quer = id?.toString();
+            setOriginalQuery(quer);
+            let query = quer?.toLowerCase();
 
-    //         const onCantFindUser = () => {
-    //             setUserIsQuery(false);
-    //             setProfileLoading(false);
-    //             if (!userOnGrids) {
-    //                 console.log(`Cannot Find User for Query "${quer}"`);
-    //             }
-    //         }
+            const onCantFindUser = () => {
+                setUserIsQuery(false);
+                setProfileLoading(false);
+                if (!userOnGrids) {
+                    console.log(`Cannot Find User for Query "${quer}"`);
+                }
+            }
 
-    //         if (users.length > 0) {
-    //             let profQuery = users.find((prf: User) => (
-    //                 stringMatch(prf?.name, query) 
-    //                 || stringMatch(prf?.id, query) 
-    //                 || stringMatch(prf?.ID, query) 
-    //                 || stringMatch(prf?.uid, query) 
-    //                 || stringMatch(prf?.uuid, query) 
-    //                 || stringMatch(prf?.email, query) 
-    //                 || stringMatch(prf?.rank?.toString(), query) 
-    //             ))
+            if (users.length > 0) {
+                let profQuery = users.find((prf: User) => (
+                    stringMatch(prf?.name, query) 
+                    // || stringMatch(prf?.id, query) 
+                    // || stringMatch(prf?.ID, query) 
+                    // || stringMatch(prf?.uid, query) 
+                    // || stringMatch(prf?.uuid, query) 
+                    // || stringMatch(prf?.email, query) 
+                    || stringMatch(prf?.rank?.toString(), query) 
+                ))
 
-    //             const onFoundUser = () => {
-    //                 setProfileLoading(false);
-    //                 setProfileToRender(profQuery);
-    //                 console.log(`Found User for Query "${quer}"`, profQuery);
-    //             }
+                const onFoundUser = () => {
+                    setProfileLoading(false);
+                    setProfileToRender(profQuery);
+                    console.log(`Found User for Query "${quer}"`, profQuery);
+                }
 
-    //             if (profQuery) {
-    //                 if (user != null) {
-    //                     if (stringMatch(user?.id, profQuery?.id)) {
-    //                         setUserIsQuery(true);
-    //                         console.log(`User is Profile Query "${quer}"`);
-    //                     } else onFoundUser();
-    //                 } else onFoundUser();
-    //             } else onCantFindUser();
-    //         } else onCantFindUser();
-    //     } else {
-    //         setProfileToRender(user);
-    //     }
-    // }, [user, users])
+                if (profQuery) {
+                    if (user != null) {
+                        if (stringMatch(user?.id, profQuery?.id)) {
+                            setUserIsQuery(true);
+                            console.log(`User is Profile Query "${quer}"`);
+                        } else onFoundUser();
+                    } else onFoundUser();
+                } else onCantFindUser();
+            } else onCantFindUser();
+        } else {
+            setProfileToRender(user);
+        }
+    }, [user, users])
 
     return <>
-        {(usersLoading || user != null) ? <Grids /> : (
+        {(usersLoading || (user != null && ((id && gridid) && (String(id)?.toLowerCase() == String(user?.rank)?.toLowerCase() || String(id)?.toLowerCase() == String(user?.name)?.toLowerCase())))) ? <Grids /> : (
             <div className={`profileComponent`}>
                 <div className={`profileHeader`}>
                     {id ? <>

@@ -175,7 +175,7 @@ const MultiSelector = forwardRef((props: any, ref) => {
   }
 
   const showGridDetailView = (e?: any) => {
-    showAlert(`"${selectedGrid?.name}" Grid Details`, <GridDetailView selectedGrid={selectedGrid} />, `95%`, `85%`, `30px`);
+    showAlert(`"${selectedGrid?.name}" Grid Details`, <GridDetailView selectedGrid={selectedGrid} />, `95%`, `auto`, `30px`);
   }
 
   const multiSelectorAutoComplete = () => {

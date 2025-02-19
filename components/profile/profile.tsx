@@ -69,11 +69,11 @@ export default function Profile(props: any) {
             if (users.length > 0) {
                 let profQuery = users.find((prf: User) => (
                     stringMatch(prf?.name, query) 
-                    || stringMatch(prf?.id, query) 
-                    || stringMatch(prf?.ID, query) 
-                    || stringMatch(prf?.uid, query) 
-                    || stringMatch(prf?.uuid, query) 
-                    || stringMatch(prf?.email, query) 
+                    // || stringMatch(prf?.id, query) 
+                    // || stringMatch(prf?.ID, query) 
+                    // || stringMatch(prf?.uid, query) 
+                    // || stringMatch(prf?.uuid, query) 
+                    // || stringMatch(prf?.email, query) 
                     || stringMatch(prf?.rank?.toString(), query) 
                 ))
 
