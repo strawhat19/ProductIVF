@@ -61,14 +61,26 @@ export default function Board(props) {
         }
     }
 
-    const finallyDeleteBoard = (bord) => {
+    const deleteBoardNoDB = (bord) => {
         setBoards(prevBoards => {
-            let boardsWithoutDeleted = prevBoards.filter(brd => brd.id != bord.id);
+            let boardsWithoutDeleted = prevBoards.filter(brd => brd?.id != bord?.id);
             if (boardsWithoutDeleted.length == 1) {
-                boardsWithoutDeleted[0].expanded = true; // Expand if Only Board
+                let expandIfLastBoard = true;
+                boardsWithoutDeleted[0].options.expanded = expandIfLastBoard;
             }
             return boardsWithoutDeleted;
         })
+    }
+
+    const finallyDeleteBoard = (bord, useDB = true) => {
+        if (useDB == true) {
+            // Firestore Delete Board
+            // Delete Board from Boards DB
+            // Delete Board ID from Selected Grid // Order Matters
+            // Delete Board ID from User // Order Does Not Matter
+        } else {
+            deleteBoardNoDB(bord);
+        }
     }
 
     const onShowSearchClick = (e?: any) => {
@@ -377,7 +389,7 @@ export default function Board(props) {
                                         </section>
                                     </>}
                                     <div className={`itemButtons customButtons`}>
-                                        {user?.uid == board?.ownerUID && (
+                                        {user?.uid == board?.ownerUID && boards?.length > 1 && (
                                             <button id={`delete_${board?.id}`} onClick={(e) => deleteBoard(e, board)} title={`Delete Board`} className={`iconButton deleteButton deleteBoardButton ${showConfirm ? `cancelBtn` : ``}`}>
                                                 <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`mainIcon fas fa-${showConfirm ? `ban` : `trash`}`} />
                                                 <span className={`iconButtonText textOverflow extended`}>

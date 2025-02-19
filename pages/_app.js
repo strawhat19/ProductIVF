@@ -303,7 +303,7 @@ export const defaultLists = [
   ]},
 ];
 
-export const showAlert = async (title, component, width, height, top = `0px`) => {
+export const showAlert = async (title, component, width, height, top = `0px`, rightComponent = <></>) => {
   let isAlertOpen = JSON.parse(localStorage.getItem(`alertOpen`)) == true;
   if (isAlertOpen) return;
   let overlay = document.createElement(`div`);
@@ -326,7 +326,14 @@ export const showAlert = async (title, component, width, height, top = `0px`) =>
   alertDialog.style.transition = `opacity 0.3s ease-out, transform 0.3s ease-out`;
 
   ReactDOM.createRoot(alertDialog).render(<>
-    <h2 className={`alertTitle`}>{title}</h2>
+    <div className={`alertTitleRow`}>
+      <h2 className={`alertTitle`}>
+        {title}
+      </h2>
+      <div className={`rightTitleField`}>
+        {rightComponent}
+      </div>
+    </div>
     <div className={`inner`}>
       {component}
     </div>
@@ -408,6 +415,10 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let [showLeaders, setShowLeaders] = useState(false);
   let [content, setContent] = useState(`defaultContent`);
   let [year, setYear] = useState(new Date().getFullYear());
+
+  // State Variables
+  let [attempts, setAttempts] = useState(0);
+  let [maxAttempts, setMaxAttempts] = useState(5);
 
   let [user, setUser] = useState(null);
   let [users, setUsers] = useState([]);
@@ -587,6 +598,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
           await updateDocFieldsWTimeStamp(existingUser, { signedIn: true, 'options.active': true, 'meta.lastSignIn': date });
           signInUser(existingUser, true);
           toast.success(`Successfully Signed In`);
+          // return true;
         } else {
           setEmailField(true);
           setAuthState(AuthStates.Sign_Up);
@@ -922,6 +934,10 @@ export default function ProductIVF({ Component, pageProps, router }) {
       signOutReset,
       getGridsBoards,
       setUsersGridsState,
+
+      // Variables,
+      attempts, setAttempts,
+      maxAttempts, setMaxAttempts,
 
       // Grids & Boards
       menuRef, 

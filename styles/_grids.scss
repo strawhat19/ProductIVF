@@ -20,6 +20,19 @@
 
 .gridDetailView {
     width: 100%;
+    .formFieldLabel {
+        font-weight: 600;
+        padding-right: 15px; 
+        min-width: max-content;
+    }
+}
+
+.disabledField {
+    opacity: 0.5;
+}
+
+.maxAttemptsField {
+    min-width: max-content;
 }
 
 .toggleButtonIcon {

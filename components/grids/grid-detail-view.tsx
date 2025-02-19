@@ -52,13 +52,14 @@ export default function GridDetailView({ selectedGrid }: any) {
         <div className={`gridDetailView`}>
             <form className={`gridDetailViewForm flex isColumn`} onSubmit={(e) => gridDetailViewFormSubmit(e)}>
                 <div className={`gridDetailFormField flex`}>
-                    <span style={{ paddingRight: 15, minWidth: `max-content` }}>
+                    <span className={`formFieldLabel gridNameLabel`} style={{ paddingRight: 15, minWidth: `max-content` }}>
                         Grid Name
                     </span>
                     <input 
                         type={`text`} 
                         value={gridName} 
                         name={`gridNameField`} 
+                        placeholder={`Enter Grid Name`}
                         minLength={nameFields?.grid?.min}
                         maxLength={nameFields?.grid?.max}
                         className={`gridNameField gridFormField`}
@@ -67,7 +68,7 @@ export default function GridDetailView({ selectedGrid }: any) {
                     />
                 </div>
                 <div className={`gridDetailFormField flex`}>
-                    <span style={{ paddingRight: 15, minWidth: `max-content` }}>
+                    <span className={`formFieldLabel`}>
                         Grid Name as Label
                     </span>
                     <ToggleButtonGroup
@@ -88,7 +89,7 @@ export default function GridDetailView({ selectedGrid }: any) {
                     </ToggleButtonGroup>
                 </div>
                 <div className={`gridDetailFormField flex`}>
-                    <span style={{ paddingRight: 15, minWidth: `max-content` }}>
+                    <span className={`formFieldLabel`}>
                         Newest Boards on Top
                     </span>
                     <ToggleButtonGroup
@@ -108,7 +109,8 @@ export default function GridDetailView({ selectedGrid }: any) {
                         </ToggleButton>
                     </ToggleButtonGroup>
                 </div>
-                <button className={`gridDetailViewFormSubmit gridFormField hoverBright`} type={`submit`}>
+                <button className={`gridDetailViewFormSubmit gridFormField hoverBright flex gap5`} type={`submit`}>
+                    <i className={`modalFormButtonIcon fas fa-save`} style={{ color: `var(--grass)` }} />
                     Save
                 </button>
             </form>

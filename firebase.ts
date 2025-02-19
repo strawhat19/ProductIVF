@@ -206,11 +206,29 @@ export const deleteUserAuth = async (usr: User) => {
   }
 }
 
-export const deleteUserData = async (userID: string) => {
+export const deleteUserDataFromEmail = async (email: string) => {
   try {
     let deletedDocumentIds = [];
     for (const collectionName of collectionNames) {
-      const userDataQuery = query(collection(db, collectionName), where(`ownerID`, `==`, userID));
+      const userDataQuery = query(collection(db, collectionName), where(`email`, `==`, email));
+      const querySnapshot = await getDocs(userDataQuery);
+      querySnapshot.forEach(async (document) => {
+        deletedDocumentIds.push(document?.id);
+        await deleteDoc(document.ref);
+      });
+    }
+    return deletedDocumentIds;
+  } catch (deleteUserDataError) {
+    await logToast(`Error Deleting User Data for ${email}`, deleteUserDataError, true);
+  }
+}
+
+export const deleteUserData = async (user: User) => {
+  try {
+    let deletedDocumentIds = [];
+    for (const collectionName of collectionNames) {
+      const userDataQuery = query(collection(db, collectionName), where(`email`, `==`, user?.email));
+      // const userDataQuery = query(collection(db, collectionName), where(`ownerID`, `==`, userID));
       const userDataQuerySnapshots = await getDocs(userDataQuery);
       if (!userDataQuerySnapshots.empty) {
         const batchDeleteJob = writeBatch(db);
@@ -223,7 +241,7 @@ export const deleteUserData = async (userID: string) => {
     }
     return deletedDocumentIds;
   } catch (deleteUserDataError) {
-    await logToast(`Error Deleting User Data for ${userID}`, deleteUserDataError, true);
+    await logToast(`Error Deleting User Data for ${user?.email}`, deleteUserDataError, true);
   }
 }
 

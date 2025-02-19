@@ -1423,13 +1423,23 @@ textarea {
     // background: rgba(1, 47, 74, 0.75);
     // background: rgba(0, 194, 255, 0.4);
 
-    .alertTitle {
+    .alertTitleRow {
         width: 95%;
-        color: white;
-        font-weight: 600;
-        font-size: 2.5em;
-        border-radius: 3px 3px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-radius: var(--borderRadius);
         border-bottom: 4px solid var(--gameBlue);
+        .alertTitle {
+            width: 100%;
+            color: white;
+            font-weight: 600;
+            font-size: 2.5em;
+        }
+        .rightTitleField {
+            text-align: right;
+            max-width: fit-content;
+        }
     }
 
     .inner {

@@ -110,7 +110,7 @@ export default function Boards(props: any) {
 
         dev() && console.log(`New Board`, {newBoard, allRanks});
 
-        // Add to Firestore Boards Here Later
+        // Firestore Add Board
         // Add Board to Boards DB
         // Add Board ID to Selected Grid // Order Matters
         // Add Board ID to User // Order Does Not Matter
@@ -124,7 +124,6 @@ export default function Boards(props: any) {
             setSystemStatus(`Created Board ${newBoard.name}.`);
         }, 1000);
     }
-
     
     const createBoardComponent = () => (
         <div className={`createBoard lists extended`}>
@@ -180,7 +179,7 @@ export default function Boards(props: any) {
                     </h1>
                 </div>
                 <div className={`flex row middle`} style={{ textAlign: `center`, height: `var(--buttonSize)` }}>
-                    {(gridsLoading || (selectedGrid == null || (grids?.length == 0 || globalUserData?.grids?.length == 0)) || !useGridSearchCreate) ? <></> : <>
+                    {(gridsLoading || (selectedGrid == null && (grids?.length == 0 || globalUserData?.grids?.length == 0)) || !useGridSearchCreate) ? <></> : <>
                         <button style={{ background: `white`, pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33, justifyContent: `center`, borderTopRightRadius: 0, borderBottomRightRadius: 0 }} title={`${searchingGrid ? `Search` : `Create`} Grid`} className={`gridTypeIconButton iconButton filterButton hoverGlow ${searchingGrid ? `filerActive searchButton` : `filterInactive createGridButton`}`} onClick={() => setSearchingGrid(!searchingGrid)}>
                             {searchingGrid ? <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-search`} /> : `+`}
                         </button>
@@ -192,7 +191,7 @@ export default function Boards(props: any) {
                     </>}
                 </div>
                 <div className={`flex row right`} style={{ height: `var(--buttonSize)` }}>
-                    {(gridsLoading || (selectedGrid == null || (grids?.length == 0 || globalUserData?.grids?.length == 0))) ? (
+                    {(gridsLoading || (selectedGrid == null && (grids?.length == 0 || globalUserData?.grids?.length == 0))) ? (
                         <IVFSkeleton 
                             labelSize={14}
                             showLoading={true}

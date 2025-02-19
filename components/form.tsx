@@ -6,6 +6,7 @@ import { AuthStates } from '../shared/types/types';
 import { doc, writeBatch } from 'firebase/firestore';
 import IVFSkeleton from './loaders/skeleton/ivf_skeleton';
 import ConfirmAction from './context-menus/confirm-action';
+import Authenticate from './modals/authenticate/authenticate';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { Roles, User, userIsMinRole } from '../shared/models/User';
@@ -71,7 +72,6 @@ export default function Form(props?: any) {
   const { id, navForm, className, style } = props;
 
   const { 
-    devEnv,
     onSignIn,
     onSignOut, 
     setContent,
@@ -82,6 +82,7 @@ export default function Form(props?: any) {
     authState, setAuthState, 
     emailField, setEmailField,  
     user, users, seedUserData,
+    attempts, maxAttempts, setAttempts,
   } = useContext<any>(StateContext);
 
   const getAuthStateIcon = (authState) => {
@@ -100,15 +101,32 @@ export default function Form(props?: any) {
     }
   }
 
-  const finallyDeleteUser = (usr) => {
+  const deleteUserFromDatabases = (usr) => {
     toast.info(`Deleting User ${usr?.id}`);
     signOutReset();
-    deleteUserData(usr?.id)?.then(async deletedDocIds => {
+    deleteUserData(usr)?.then(async deletedDocIds => {
       await logToast(`Deleted ${user?.id} Data, Signing Out`, deletedDocIds, false);
       await deleteUserAuth(user).then(async eml => {
         await onSignOut();
       });
     })?.catch(async deleteUserDataError => logToast(`Delete User Data Error`, deleteUserDataError, true, deleteUserDataError));
+  }
+
+  const finallyDeleteUser = (usr) => {
+    // deleteUserFromDatabases(usr);
+    showAlert(`Authenticate for "${usr?.name}"`, (
+      <Authenticate 
+        usr={user} 
+        attempts={attempts} 
+        setAttempts={setAttempts} 
+        maxAttempts={maxAttempts} 
+        deleteUserFromDatabases={deleteUserFromDatabases} 
+      />
+    ), `95%`, `auto`, `30px`, (
+      <div className={`maxAttemptsField`}>
+        Attempts: {attempts} / {maxAttempts}
+      </div>
+    ));
   }
 
   const onDeleteOrCancelUser = (e, usr, initialConfirm = true) => {
@@ -362,8 +380,8 @@ export default function Form(props?: any) {
 
       {/* Sign In // Sign Up */}
       {usersLoading ? <></> : <>
-        {!user && <input placeholder={`Email or Username`} type={`email`} name={`email`} autoComplete={`email`} required />}
-        {!user && emailField && <input ref={passwordRef} placeholder={`Password`} type={`password`} minLength={6} name={`password`} autoComplete={`current-password`} />}
+        {!user && <input placeholder={`Email or Username`} type={`email`} name={`email`} autoComplete={`off`} required />}
+        {!user && emailField && <input ref={passwordRef} placeholder={`Password`} type={`password`} minLength={6} name={`password`} autoComplete={`off`} />}
       </>}
 
       {/* Profile Edit Form */}
@@ -373,7 +391,7 @@ export default function Form(props?: any) {
           <input className={`status userData`} placeholder={`Status`} type={`text`} name={`status`} />
           <input className={`bio userData`} placeholder={`About You`} type={`text`} name={`bio`} />
           <input className={`number userData`} placeholder={`Favorite Number`} type={`number`} name={`number`} />
-          <input className={`editPassword userData`} placeholder={`Edit Password`} type={`password`} name={`editPassword`} autoComplete={`current-password`} />
+          <input className={`editPassword userData`} placeholder={`Edit Password`} type={`password`} name={`editPassword`} autoComplete={`off`} />
           {/* <input type={`color`} name={`color`} placeholder={`color`} className={dark ? `dark` : `light`} data-color={`Color: ${convertHexToRGB(color)} // Hex: ${color}`} onInput={(e?: any) => changeColor(e)} defaultValue={color} /> */}
           <input className={`save`} type={`submit`} name={`authFormSave`} style={{padding: 0}} value={`Save`} />
         </> : <></>}

@@ -1,12 +1,12 @@
 import { AgGridReact } from 'ag-grid-react';
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 
-import { formatDate, StateContext } from '../pages/_app';
+import { StateContext } from '../pages/_app';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 
-const Grid = ({columns, rows}) => {
-    const { lists, setLists, alertOpen, setAlertOpen, loading, setLoading, systemStatus, setSystemStatus, setAnimComplete, setPage, IDs, setIDs } = useContext<any>(StateContext);
+const Grid = ({columns, }) => {
+    const { lists } = useContext<any>(StateContext);
   
     const [rowData] = useState(columns[0].items);
 
