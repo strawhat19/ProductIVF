@@ -8,7 +8,7 @@ import { initializeApp } from 'firebase/app';
 import { logToast } from './shared/constants';
 import { Board } from './shared/models/Board';
 import { GoogleAuthProvider, browserLocalPersistence, deleteUser, getAuth, setPersistence } from 'firebase/auth';
-import { collection, deleteDoc, doc, getDocs, getFirestore, query, setDoc, updateDoc, where, writeBatch } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDocs, getFirestore, query, setDoc, updateDoc, where, WhereFilterOp, writeBatch } from 'firebase/firestore';
 import { Types } from './shared/types/types';
 
 export enum Environments {
@@ -206,33 +206,20 @@ export const deleteUserAuth = async (usr: User) => {
   }
 }
 
-export const deleteUserDataFromEmail = async (email: string) => {
+export const deleteDatabaseData = async (
+  queryField: string, 
+  operator: WhereFilterOp, 
+  value: any, 
+  tablesToUse: string[] = collectionNames,
+) => {
   try {
     let deletedDocumentIds = [];
-    for (const collectionName of collectionNames) {
-      const userDataQuery = query(collection(db, collectionName), where(`email`, `==`, email));
-      const querySnapshot = await getDocs(userDataQuery);
-      querySnapshot.forEach(async (document) => {
-        deletedDocumentIds.push(document?.id);
-        await deleteDoc(document.ref);
-      });
-    }
-    return deletedDocumentIds;
-  } catch (deleteUserDataError) {
-    await logToast(`Error Deleting User Data for ${email}`, deleteUserDataError, true);
-  }
-}
-
-export const deleteUserData = async (user: User) => {
-  try {
-    let deletedDocumentIds = [];
-    for (const collectionName of collectionNames) {
-      const userDataQuery = query(collection(db, collectionName), where(`email`, `==`, user?.email));
-      // const userDataQuery = query(collection(db, collectionName), where(`ownerID`, `==`, userID));
-      const userDataQuerySnapshots = await getDocs(userDataQuery);
-      if (!userDataQuerySnapshots.empty) {
+    for (const collectionName of tablesToUse) {
+      const dataFieldQuery = query(collection(db, collectionName), where(queryField, operator, value));
+      const dataQuerySnapshots = await getDocs(dataFieldQuery);
+      if (!dataQuerySnapshots.empty) {
         const batchDeleteJob = writeBatch(db);
-        userDataQuerySnapshots.forEach(document => {
+        dataQuerySnapshots.forEach(document => {
           deletedDocumentIds.push(document?.id);
           batchDeleteJob.delete(document?.ref);
         });
@@ -241,7 +228,7 @@ export const deleteUserData = async (user: User) => {
     }
     return deletedDocumentIds;
   } catch (deleteUserDataError) {
-    await logToast(`Error Deleting User Data for ${user?.email}`, deleteUserDataError, true);
+    await logToast(`Error Deleting Data for ${value}`, deleteUserDataError, true);
   }
 }
 
@@ -253,14 +240,19 @@ export const updateDocFieldsWTimeStamp = async (
   const now = formatDate(new Date());
   let { tableName, converter } = documentTypes[document?.type];
   try {
-    const userRef = await doc(db, tableName, document?.id).withConverter(converter);
-    await updateDoc(userRef, {
+    const docRef = await doc(db, tableName, document?.id).withConverter(converter);
+    await updateDoc(docRef, {
       ...updates,
       'meta.updated': now,
     });
     if (log) console.log(`Fields Updated`, updates);
   } catch (updateDocFieldsWTimeStampError) {
-    logToast(`Error Updating ${document?.type} ${document?.id} Fields w/ Timestamp ${now}`, updateDocFieldsWTimeStampError, true, updates);
+    logToast(
+      `Error Updating ${document?.type} ${document?.id} Fields w/ Timestamp ${now}`, 
+      updateDocFieldsWTimeStampError, 
+      true, 
+      updates,
+    );
   }
 }
 

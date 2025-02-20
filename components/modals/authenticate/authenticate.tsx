@@ -1,24 +1,23 @@
 import { useState } from 'react';
 import { toast } from 'react-toastify';
-import { auth } from '../../../firebase';
 import { dev } from '../../../pages/_app';
+import { getIDParts } from '../../../shared/ID';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { renderFirebaseAuthErrorMessage } from '../../form';
+import { maxAuthAttempts } from '../../../shared/constants';
+import { auth, updateDocFieldsWTimeStamp } from '../../../firebase';
 
-export default function Authenticate({ usr, actionLabel = `Delete User & All Data`, attempts, maxAttempts, setAttempts, deleteUserFromDatabases }: any) {
+export default function Authenticate({ usr, actionLabel = `Delete User & All Data`, deleteUserFromDatabases }: any) {
     let [password, setPassword] = useState(``);
-    let [authenticated, setAuthenticated] = useState(false);
 
     const authenticateFormSubmit = (e?: any) => {
         if (e) e?.preventDefault();
 
         let email = usr?.email;
-        setAttempts(prevAttempts => prevAttempts + 1);
         dev() && console.log(`Authenticate Form Submit`, { email, password });
 
         signInWithEmailAndPassword(auth, email, password).then(async (userCredential) => {
             if (userCredential != null) {
-                setAuthenticated(true);
                 let closeButton: any = document.querySelector(`.alertButton`);
                 if (closeButton) {
                     closeButton.click();
@@ -27,9 +26,14 @@ export default function Authenticate({ usr, actionLabel = `Delete User & All Dat
             }
         }).catch((error) => {
             const errorCode = error.code;
+            const { date } = getIDParts();
             const errorMessage = error.message;
+            const nextAttemptNum = usr?.auth?.attempts + 1;
+            if (nextAttemptNum < maxAuthAttempts) {
+                updateDocFieldsWTimeStamp(usr, { 'auth.attempts': nextAttemptNum, 'auth.lastAttempt': date });
+            }
             if (errorMessage) {
-                toast.error(renderFirebaseAuthErrorMessage(errorMessage) + `, Attempt #${attempts + 1} / ${maxAttempts}`);
+                toast.error(renderFirebaseAuthErrorMessage(errorMessage) + `, Attempt #${usr?.auth?.attempts} / ${maxAuthAttempts}`);
                 console.log(`Error Authenticating`, {
                     error,
                     errorCode,
@@ -53,15 +57,15 @@ export default function Authenticate({ usr, actionLabel = `Delete User & All Dat
                         type={`password`} 
                         name={`password`} 
                         autoComplete={`off`}
-                        disabled={attempts >= maxAttempts}
                         // onPaste={(e) => e?.preventDefault()}
                         placeholder={`Re-Enter Password to Confirm`}
                         onBlur={(e) => setPassword(e?.target?.value)} 
                         onChange={(e) => setPassword(e?.target?.value)} 
-                        className={`authenticateFormPasswordField gridNameField gridFormField ${attempts >= maxAttempts ? `disabledField` : ``}`}
+                        disabled={usr?.auth?.attempts >= maxAuthAttempts}
+                        className={`authenticateFormPasswordField gridNameField gridFormField ${usr?.auth?.attempts >= maxAuthAttempts ? `disabledField` : ``}`}
                     />
                 </div>
-                <button disabled={(attempts >= maxAttempts)} className={`authenticateFormSubmitButton gridDetailViewFormSubmit gridFormField flex gap5 ${attempts >= maxAttempts ? `disabledField` : `hoverBright`}`} type={`submit`}>
+                <button disabled={(usr?.auth?.attempts >= maxAuthAttempts)} className={`authenticateFormSubmitButton gridDetailViewFormSubmit gridFormField flex gap5 ${usr?.auth?.attempts >= maxAuthAttempts ? `disabledField` : `hoverBright`}`} type={`submit`}>
                     <i className={`modalFormButtonIcon fas fa-trash`} style={{ color: `red` }} />
                     Confirm {actionLabel}
                 </button>

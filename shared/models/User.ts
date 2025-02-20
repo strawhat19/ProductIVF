@@ -2,7 +2,7 @@ import { Data } from './Data';
 import { Types } from '../types/types';
 import { generateID, genID } from '../ID';
 import { capWords } from '../../pages/_app';
-import { countPropertiesInObject, isValid } from '../constants';
+import { countPropertiesInObject, isValid, removeNullAndUndefinedProperties, stringNoSpaces } from '../constants';
 
 export enum Providers { 
   Google = `Google` ,
@@ -72,28 +72,14 @@ export class User extends Data {
   
   color = `Default`;
   description = ``;
+  theme = `dark`;
   image = ``;
-  
-  grids?: any;
-  items?: any;
-  tasks?: any;
-  lists?: any;
-  boards?: any;
-
-  friends?: any;
-
-  selectedGrid?: any;
-  selectedGrids?: any;
-
-  options = {
-    active: true,
-    verified: false,
-    anonymous: false,
-  }
 
   auth = {
     attempts: 0,
+    verified: false,
     signedIn: false,
+    anonymous: false,
     lastAttempt: undefined,
     provider: Providers.Firebase,
   }
@@ -128,4 +114,59 @@ export class User extends Data {
     if (!isValid(this.meta.updated)) this.meta.updated = date;
     if (!isValid(this.properties)) this.properties = countPropertiesInObject(this) + 1;
   }
+}
+
+export const createUser = (
+  uid: string, 
+  rank: number, 
+  email: string, 
+  name: string, 
+  phone = ``, 
+  avatar = ``, 
+  token = ``, 
+  verified = false, 
+  anonymous = false, 
+  role = Roles.Subscriber,
+  color = `Default`,
+  description = ``,
+  image = ``,
+  type = Types.User,
+) => {
+
+  let user: User = new User({
+    uid,
+    role,
+    rank,
+    type,
+    email,
+    token,
+    phone,
+    avatar,
+
+    image,
+    color,
+    description,
+
+    owner: email,
+    ownerUID: uid,
+    creator: email,
+
+    name: isValid(name) ? name : capWords(email.split(`@`)[0]),
+  }) as User;
+
+  let cleanedUser: any = removeNullAndUndefinedProperties(user);
+  let cleanedID = `${stringNoSpaces(cleanedUser?.title)}_${uid}`;
+
+  user = new User({ 
+    ...cleanedUser, 
+    ID: cleanedID, 
+    ownerID: cleanedUser?.id, 
+    auth: {
+      ...cleanedUser?.auth,
+      verified,
+      anonymous,
+    },
+  }) as User;
+
+  return user;
 }

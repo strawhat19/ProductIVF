@@ -1,7 +1,6 @@
 'use client';
 
 import { toast } from 'react-toastify';
-import { createUser } from '../shared/database';
 import { AuthStates } from '../shared/types/types';
 import { doc, writeBatch } from 'firebase/firestore';
 import IVFSkeleton from './loaders/skeleton/ivf_skeleton';
@@ -9,10 +8,10 @@ import ConfirmAction from './context-menus/confirm-action';
 import Authenticate from './modals/authenticate/authenticate';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useContext, useEffect, useRef, useState } from 'react';
-import { Roles, User, userIsMinRole } from '../shared/models/User';
 import { formatDate, StateContext, showAlert, dev } from '../pages/_app';
-import { findHighestNumberInArrayByKey, logToast, stringNoSpaces } from '../shared/constants';
-import { addUserToDatabase, auth, boardConverter, boardsTable, db, deleteUserAuth, deleteUserData, gridConverter, gridsTable, updateDocFieldsWTimeStamp } from '../firebase';
+import { createUser, Roles, User, userIsMinRole } from '../shared/models/User';
+import { findHighestNumberInArrayByKey, logToast, maxAuthAttempts, stringNoSpaces } from '../shared/constants';
+import { addUserToDatabase, auth, boardConverter, boardsTable, db, deleteDatabaseData, deleteUserAuth, gridConverter, gridsTable, updateDocFieldsWTimeStamp } from '../firebase';
 
 export const convertHexToRGB = (HexString?:any, returnObject?: any) => {
   let r = parseInt(HexString.slice(1, 3), 16),
@@ -82,7 +81,6 @@ export default function Form(props?: any) {
     authState, setAuthState, 
     emailField, setEmailField,  
     user, users, seedUserData,
-    attempts, maxAttempts, setAttempts,
   } = useContext<any>(StateContext);
 
   const getAuthStateIcon = (authState) => {
@@ -101,30 +99,27 @@ export default function Form(props?: any) {
     }
   }
 
-  const deleteUserFromDatabases = (usr) => {
+  const deleteUserFromDatabases = async (usr) => {
     toast.info(`Deleting User ${usr?.id}`);
     signOutReset();
-    deleteUserData(usr)?.then(async deletedDocIds => {
+    await deleteDatabaseData(`ownerID`, `==`, user?.ownerID)?.then(async deletedDocIds => {
       await logToast(`Deleted ${user?.id} Data, Signing Out`, deletedDocIds, false);
       await deleteUserAuth(user).then(async eml => {
         await onSignOut();
       });
-    })?.catch(async deleteUserDataError => logToast(`Delete User Data Error`, deleteUserDataError, true, deleteUserDataError));
+    })?.catch(async deleteUserDataError => {
+      await logToast(`Delete User Data Error`, deleteUserDataError, true, deleteUserDataError);
+    });
   }
 
+  const getAttempts = () => user?.auth?.attempts;
+
   const finallyDeleteUser = (usr) => {
-    // deleteUserFromDatabases(usr);
     showAlert(`Authenticate for "${usr?.name}"`, (
-      <Authenticate 
-        usr={user} 
-        attempts={attempts} 
-        setAttempts={setAttempts} 
-        maxAttempts={maxAttempts} 
-        deleteUserFromDatabases={deleteUserFromDatabases} 
-      />
+      <Authenticate usr={user} deleteUserFromDatabases={deleteUserFromDatabases} />
     ), `95%`, `auto`, `30px`, (
       <div className={`maxAttemptsField`}>
-        Attempts: {attempts} / {maxAttempts}
+        Attempts: {getAttempts()} / {maxAuthAttempts}
       </div>
     ));
   }
@@ -205,7 +200,7 @@ export default function Form(props?: any) {
         let highestRank = await findHighestNumberInArrayByKey(users, `rank`);
         let rank = highestRank + 1;
       
-        let newUser = await createUser(uid, rank, email, name, phone, avatar, token, verified, anonymous);
+        let newUser = await createUser(uid, rank, email, name, phone, avatar, token, verified, anonymous, Roles.Developer);
 
         const setUserStartingData = async (userToSeed) => {
           let {
@@ -291,7 +286,7 @@ export default function Form(props?: any) {
         setEmailField(false);
         break;
       case AuthStates.Sign_Out:
-        updateDocFieldsWTimeStamp(user, { signedIn: false, 'options.active': false })?.then(() => onSignOut());
+        updateDocFieldsWTimeStamp(user, { 'auth.signedIn': false })?.then(() => onSignOut());
         break;
       case AuthStates.Save:
         let emptyFields = [];

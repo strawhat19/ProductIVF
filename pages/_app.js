@@ -416,10 +416,6 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let [content, setContent] = useState(`defaultContent`);
   let [year, setYear] = useState(new Date().getFullYear());
 
-  // State Variables
-  let [attempts, setAttempts] = useState(0);
-  let [maxAttempts, setMaxAttempts] = useState(5);
-
   let [user, setUser] = useState(null);
   let [users, setUsers] = useState([]);
   let [grids, setGrids] = useState([]);
@@ -595,10 +591,9 @@ export default function ProductIVF({ Component, pageProps, router }) {
         let existingUser = users.find(eml => eml?.email?.toLowerCase() == email?.toLowerCase());
         if (existingUser) {
           const { date } = getIDParts();
-          await updateDocFieldsWTimeStamp(existingUser, { signedIn: true, 'options.active': true, 'meta.lastSignIn': date });
+          await updateDocFieldsWTimeStamp(existingUser, { 'auth.signedIn': false, 'meta.lastSignIn': date });
           signInUser(existingUser, true);
           toast.success(`Successfully Signed In`);
-          // return true;
         } else {
           setEmailField(true);
           setAuthState(AuthStates.Sign_Up);
@@ -934,10 +929,6 @@ export default function ProductIVF({ Component, pageProps, router }) {
       signOutReset,
       getGridsBoards,
       setUsersGridsState,
-
-      // Variables,
-      attempts, setAttempts,
-      maxAttempts, setMaxAttempts,
 
       // Grids & Boards
       menuRef, 

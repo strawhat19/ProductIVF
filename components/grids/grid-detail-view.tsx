@@ -19,9 +19,6 @@ export default function GridDetailView({ selectedGrid }: any) {
 
     const gridDetailViewFormSubmit = (e?: any) => {
         if (e) e?.preventDefault();
-        // let form = e?.target;
-        // let formFields = form?.children;
-        // let { gridNameField } = formFields;
 
         let updatedFormData = {
             name: gridName,
@@ -29,9 +26,6 @@ export default function GridDetailView({ selectedGrid }: any) {
             newestBoardsOnTop: gridBoardsPosition == `Top`,
         };
 
-        // dev() && console.log(`Grid Detail View Form Submit`, updatedFormData);
-
-        // Update Grid Options
         updateDocFieldsWTimeStamp(selectedGrid, {
             ...(selectedGrid?.name?.toLowerCase() != gridName?.toLowerCase() && {
                 A: updatedFormData?.name,

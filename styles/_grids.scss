@@ -27,6 +27,12 @@
     }
 }
 
+.newestBoardsOnBottom {
+    &.isFirstBoardSection {
+        padding-top: 0;
+    }
+}
+
 .disabledField {
     opacity: 0.5;
 }

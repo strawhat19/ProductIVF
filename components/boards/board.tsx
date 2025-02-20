@@ -28,7 +28,7 @@ export default function Board(props) {
     let [showSearch, setShowSearch] = useState(false);
     let [showConfirm, setShowConfirm] = useState(false);
     let [boardName, setBoardName] = useState(board?.name ?? `Board`);
-    let { user, boards, setBoards, setLoading, setSystemStatus, completeFiltered, setCompleteFiltered, IDs, setIDs } = useContext<any>(StateContext);
+    let { user, boards, setBoards, setLoading, selectedGrid, setSystemStatus, completeFiltered, setCompleteFiltered, IDs, setIDs } = useContext<any>(StateContext);
 
     const filterSubtasks = (e?: any) => {
         if (board.hideAllTasks) {
@@ -262,7 +262,7 @@ export default function Board(props) {
 
     return (
         <DragDropContext onDragEnd={onDragEnd}>
-            <section className={`boardsTitle boards`} style={{paddingBottom: 0}}>
+            <section className={`boardsTitle boards ${props.index == 0 ? `isFirstBoardSection` : selectedGrid?.data?.boardIDs?.length == props.index - 1 ? `isLastBoardSection` : `isMiddleBoardSection`} ${selectedGrid?.options?.newestBoardsOnTop ? `newestBoardsOnTop` : `newestBoardsOnBottom`}`} style={{ paddingBottom: 0 }}>
                 <div className={`board boardInner boardTitle`}>
                     <div {...props.provided.dragHandleProps} className={`boardDetailsRowContainer titleRow flex row`}>
                         <div className={`boardDetailsRow flex row innerRow ${(board?.expanded || board?.options?.expanded) ? `expandedBoardDetailsRow` : `collapsedBoardDetailsRow`}`}>

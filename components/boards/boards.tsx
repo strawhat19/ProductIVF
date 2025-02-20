@@ -1,14 +1,13 @@
 import Board from './board';
 import { toast } from 'react-toastify';
 import { Types } from '../../shared/types/types';
-import { createBoard } from '../../shared/database';
 import MultiSelector from '../selector/multi-selector';
 import { updateDocFieldsWTimeStamp } from '../../firebase';
 import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
-import { Board as BoardModel } from '../../shared/models/Board';
 import { useState, useEffect, useContext, useRef } from 'react';
 import { capWords, dev, replaceAll, StateContext } from '../../pages/_app';
 import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
+import { Board as BoardModel, createBoard } from '../../shared/models/Board';
 import { extractRankFromDocId, findHighestNumberInArrayByKey, generateArray, sortDescending } from '../../shared/constants';
 
 export enum ItemTypes {
@@ -83,7 +82,6 @@ export default function Boards(props: any) {
         let updatedBoardIDs = updatedBoardsPositions?.map(brd => brd?.id);
         
         setBoards(updatedBoardsPositions);
-        // Update Grid Board IDs on Drag End
         updateDocFieldsWTimeStamp(selectedGrid, { 'data.boardIDs': updatedBoardIDs });
     }
 

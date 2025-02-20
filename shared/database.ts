@@ -1,169 +1,11 @@
-import { generateID } from './ID';
-import { Grid } from './models/Grid';
-import { Board } from './models/Board';
-import { capWords } from '../pages/_app';
-import { Roles, User } from './models/User';
-import { GridTypes, Types } from './types/types';
-import { BoardTypes } from '../components/boards/boards';
-import { isValid, removeNullAndUndefinedProperties, stringNoSpaces } from './constants';
-
-export const createUser = (
-    uid: string, 
-    rank: number, 
-    email: string, 
-    name: string, 
-    phone = ``, 
-    avatar = ``, 
-    token = ``, 
-    verified = false, 
-    anonymous = false, 
-    role = Roles.Developer,
-    color = `Default`,
-    description = ``,
-    image = ``,
-    active = true, 
-    type = Types.User,
-) => {
-
-    let user: User = new User({
-        uid,
-        role,
-        rank,
-        type,
-        email,
-        token,
-        phone,
-        avatar,
-
-        image,
-        color,
-        description,
-
-        owner: email,
-        ownerUID: uid,
-        creator: email,
-
-        name: isValid(name) ? name : capWords(email.split(`@`)[0]),
-        options: {
-            active,
-            verified,
-            anonymous,
-        }
-    }) as User;
-
-    let cleanedUser: any = removeNullAndUndefinedProperties(user);
-    let cleanedID = `${stringNoSpaces(cleanedUser?.title)}_${uid}`;
-    user = new User({ ...cleanedUser, ID: cleanedID, ownerID: cleanedUser?.id, });
-
-    return user;
-}
-
-export const createGrid = (
-    rank: number, 
-    name: string, 
-    user: User, 
-    gridType = GridTypes.Personal,
-    boardIDs = [`Daily Tasks`], 
-    color = `Default`,
-    description = ``,
-    image = ``,
-    type = Types.Grid, 
-) => {
-
-    let grid: Grid = new Grid({
-        name,
-        type,
-        rank,
-        gridType,
-
-        image,
-        color,
-        description,
-
-        ...(user != null && {
-            ownerID: user?.id,
-            email: user?.email,
-            owner: user?.email,
-            ownerUID: user?.uid,
-            creator: user?.email,
-        }),
-    }) as Grid;
-
-    if (user != null) {
-        let title = stringNoSpaces(grid?.title);
-        let idTitle = user?.email + `_` + title;
-        let extensionIDs = `_` + grid?.uuid + `_` + user?.uid;
-        grid.ID = idTitle + extensionIDs;
-        grid.uid = title + `_` + grid?.uuid + `_` + user?.email;
-        grid.id = idTitle + `_` + stringNoSpaces(grid?.meta?.created) + extensionIDs;
-        grid.data = {
-            ...grid.data,
-            boardIDs,
-            ...(user != null && {
-                users: [user?.email],
-            }),
-        }
-    }
-
-    return grid;
-}
-
-export const createBoard = (
-    rank: number, 
-    name: string, 
-    user: User | any, 
-    titleWidth: string = `140px`, 
-    gridID = ``, 
-    boardType = BoardTypes.Kanban,
-    listIDs = [`Active`, `Complete`], 
-    color = `Default`,
-    description = ``,
-    image = ``,
-    type = Types.Board, 
-) => {
-
-    let board: Board = new Board({
-        name,
-        type,
-        rank,
-        gridID,
-        boardType,
-        titleWidth,
-
-        image,
-        color,
-        description,
-
-        ...(user != null && {
-            ownerID: user?.id,
-            email: user?.email,
-            owner: user?.email,
-            ownerUID: user?.uid,
-            creator: user?.email,
-        }),
-    }) as Board;
-
-    if (user != null) {
-        let title = stringNoSpaces(board?.title);
-        let idTitle = user?.email + `_` + title;
-        let extensionIDs = `_` + board?.uuid + `_` + user?.uid;
-        board.ID = idTitle + extensionIDs;
-        board.uid = title + `_` + board?.uuid + `_` + user?.email;
-        board.id = idTitle + `_` + stringNoSpaces(board?.meta?.created) + extensionIDs;
-        board.data = {
-            ...board?.data,
-            listIDs,
-            ...(user != null && {
-                users: [user?.email],
-            }),
-        }
-    }
-
-    return board;
-}
+import { getIDParts } from './ID';
+import { User } from './models/User';
+import { GridTypes } from './types/types';
+import { createGrid } from './models/Grid';
+import { Board, createBoard } from './models/Board';
 
 export const seedUserData = (user: User | any) => {
-    let uuid = generateID();
+    let { uuid } = getIDParts();
 
     user = {
         ...user,
@@ -221,11 +63,12 @@ export const seedUserData = (user: User | any) => {
 
     let updatedUser = {
         ...user,
-        signedIn: true,
+        ownerID: user?.id,
         lastSelectedGridID: grid1?.id,
-        options: {
-            ...user?.options,
-            active: true,
+        auth: {
+            ...user?.auth,
+            signedIn: true,
+            lastAttempt: user?.meta?.updated,
         },
         meta: {
             ...user?.meta,

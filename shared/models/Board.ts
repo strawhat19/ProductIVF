@@ -1,8 +1,9 @@
 import { Data } from './Data';
 import { genID } from '../ID';
+import { User } from './User';
 import { TasksFilterStates, Types } from '../types/types';
 import { BoardTypes } from '../../components/boards/boards';
-import { countPropertiesInObject, isValid } from '../constants';
+import { countPropertiesInObject, isValid, stringNoSpaces } from '../constants';
 
 export class Board extends Data {
     ID: any;
@@ -59,4 +60,60 @@ export class Board extends Data {
         if (!isValid(this.meta.updated)) this.meta.updated = date;
         if (!isValid(this.properties)) this.properties = countPropertiesInObject(this) + 1;
     }
+}
+
+export const createBoard = (
+    rank: number, 
+    name: string, 
+    user: User | any, 
+    titleWidth: string = `140px`, 
+    gridID = ``, 
+    boardType = BoardTypes.Kanban,
+    listIDs = [`Active`, `Complete`], 
+    color = `Default`,
+    description = ``,
+    image = ``,
+    type = Types.Board, 
+) => {
+
+    let board: Board = new Board({
+        name,
+        type,
+        rank,
+        gridID,
+        boardType,
+        titleWidth,
+
+        image,
+        color,
+        description,
+
+        ...(user != null && {
+            ownerID: user?.id,
+            email: user?.email,
+            owner: user?.email,
+            ownerUID: user?.uid,
+            creator: user?.email,
+        }),
+    }) as Board;
+
+    if (user != null) {
+        let title = stringNoSpaces(board?.title);
+        let idTitle = user?.email + `_` + title;
+        let extensionIDs = `_` + board?.uuid + `_` + user?.uid;
+
+        board.ID = idTitle + extensionIDs;
+        board.uid = title + `_` + board?.uuid + `_` + user?.email;
+        board.id = idTitle + `_` + stringNoSpaces(board?.meta?.created) + extensionIDs;
+
+        board.data = {
+            ...board?.data,
+            listIDs,
+            ...(user != null && {
+                users: [user?.email],
+            }),
+        }
+    }
+
+    return board;
 }
