@@ -10,11 +10,11 @@ export default function GridDetailView({ selectedGrid }: any) {
     let [gridBoardsPosition, setGridBoardsPosition] = useState(selectedGrid?.options?.newestBoardsOnTop ? `Top` : `Bottom`);
 
     const changeGridBoardsPosition = (event: React.MouseEvent<HTMLElement>, newPosition: string) => {
-        setGridBoardsPosition(newPosition);
+        if (newPosition != gridBoardsPosition && newPosition != null) setGridBoardsPosition(newPosition);
     }
 
     const changeGridNameLabel = (event: React.MouseEvent<HTMLElement>, newNamePreference: string) => {
-        setGridNameLabel(newNamePreference);
+        if (newNamePreference != gridNameLabel && newNamePreference != null) setGridNameLabel(newNamePreference);
     }
 
     const gridDetailViewFormSubmit = (e?: any) => {

@@ -7,7 +7,7 @@ import { Types } from './types/types';
 import { Board } from './models/Board';
 import { toast } from 'react-toastify';
 
-export const maxAuthAttempts = 5;
+export const maxAuthAttempts = 15;
 export const userQueryFields = [`id`, `ID`, `uid`, `uuid`, `rank`, `name`, `role`, `email`, `image`, `avatar`, `phone`, `token`];
 
 export const sortDescending = (arr: (string | number)[]): number[] => {

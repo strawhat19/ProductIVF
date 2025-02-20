@@ -12,6 +12,9 @@ import { formatDate, StateContext, showAlert, dev } from '../pages/_app';
 import { createUser, Roles, User, userIsMinRole } from '../shared/models/User';
 import { findHighestNumberInArrayByKey, logToast, maxAuthAttempts, stringNoSpaces } from '../shared/constants';
 import { addUserToDatabase, auth, boardConverter, boardsTable, db, deleteDatabaseData, deleteUserAuth, gridConverter, gridsTable, updateDocFieldsWTimeStamp } from '../firebase';
+import { Button } from 'antd';
+import { Dialog, TextField } from '@mui/material';
+import { getIDParts } from '../shared/ID';
 
 export const convertHexToRGB = (HexString?:any, returnObject?: any) => {
   let r = parseInt(HexString.slice(1, 3), 16),
@@ -67,6 +70,7 @@ export default function Form(props?: any) {
 
   const [loaded, setLoaded] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [authenticateOpen, setAuthenticateOpen] = useState(false);
   
   const { id, navForm, className, style } = props;
 
@@ -99,8 +103,8 @@ export default function Form(props?: any) {
     }
   }
 
-  const deleteUserFromDatabases = async (usr) => {
-    toast.info(`Deleting User ${usr?.id}`);
+  const deleteUserFromDatabases = async () => {
+    toast.info(`Deleting User ${user?.id}`);
     signOutReset();
     await deleteDatabaseData(`ownerID`, `==`, user?.ownerID)?.then(async deletedDocIds => {
       await logToast(`Deleted ${user?.id} Data, Signing Out`, deletedDocIds, false);
@@ -112,30 +116,24 @@ export default function Form(props?: any) {
     });
   }
 
-  const getAttempts = () => user?.auth?.attempts;
-
-  const finallyDeleteUser = (usr) => {
-    showAlert(`Authenticate for "${usr?.name}"`, (
-      <Authenticate usr={user} deleteUserFromDatabases={deleteUserFromDatabases} />
+  const finallyDeleteUser = () => {
+    showAlert(`Authenticate for "${user?.name}"`, (
+      <Authenticate attempts={user?.auth?.attempts} userToAuthenticate={user} onAuthenticatedFunction={deleteUserFromDatabases} />
     ), `95%`, `auto`, `30px`, (
       <div className={`maxAttemptsField`}>
-        Attempts: {getAttempts()} / {maxAuthAttempts}
+        Attempts: {user?.auth?.attempts} / {maxAuthAttempts}
       </div>
     ));
   }
 
-  const onDeleteOrCancelUser = (e, usr, initialConfirm = true) => {
+  const onDeleteOrCancelUser = (e, initialConfirm = true) => {
     if (showConfirm == true) {
-      if (!initialConfirm) {
-        finallyDeleteUser(usr);
-      }
+      if (!initialConfirm) finallyDeleteUser();
       setShowConfirm(false);
     } else {
-      if (usr?.data?.gridIDs?.length > 0) {
+      if (user?.data?.gridIDs?.length > 0) {
         setShowConfirm(true);
-      } else {
-        finallyDeleteUser(usr);
-      }
+      } else finallyDeleteUser();
     }
   }
 
@@ -353,7 +351,7 @@ export default function Form(props?: any) {
         break;
       case AuthStates.Cancel:
       case AuthStates.Delete:
-        onDeleteOrCancelUser(e, user);
+        onDeleteOrCancelUser(e);
         break;
     };
   }
@@ -395,6 +393,44 @@ export default function Form(props?: any) {
       {/* Delete User */}
       {user != null && userIsMinRole(user, Roles.Moderator) && (
         <div className={`formFieldWithConfirm`} style={{ position: `relative` }}>
+          <Button onClick={(e) => setAuthenticateOpen(!authenticateOpen)}>
+            Open simple dialog
+          </Button>
+          <Dialog
+            open={authenticateOpen}
+            onClose={(e) => setAuthenticateOpen(!authenticateOpen)}
+            slotProps={{
+              paper: {
+                component: `form`,
+                onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
+                  event.preventDefault();
+                  const formData = new FormData(event.currentTarget);
+                  const formJson = Object.fromEntries((formData as any).entries());
+                  const email = formJson.email;
+                  console.log(`dialog form submit`, email);
+
+                  let { date } = getIDParts();
+                  updateDocFieldsWTimeStamp(user, { 'auth.attempts': user?.auth?.attempts + 1, 'auth.lastAttempt': date })?.then(() => {
+                    // dev() && console.log(`Authenticate Form Submit`, { user, globalUserData, attempts, email, password });
+                  });
+                  // handleClose();
+                },
+              },
+            }}
+          >
+            {user?.auth?.attempts}
+            <TextField
+              autoFocus
+              required
+              margin="dense"
+              id="name"
+              name="email"
+              label="Email Address"
+              type="email"
+              fullWidth
+              variant="standard"
+            />
+          </Dialog>
           {formButtonField(
             `Users Loading`, 
             `usersSkeleton`, 
@@ -402,7 +438,7 @@ export default function Form(props?: any) {
             <input className={`authFormDelete`} type="submit" name="authFormSubmit" value={showConfirm ? AuthStates.Cancel : AuthStates.Delete} />
           )}
           {showConfirm && (
-            <ConfirmAction className={`formUserConfirmAction`} onConfirm={(e) => onDeleteOrCancelUser(e, user, false)} style={{ right: 0, top: 40 }} />
+            <ConfirmAction className={`formUserConfirmAction`} onConfirm={(e) => onDeleteOrCancelUser(e, false)} style={{ right: 0, top: 40 }} />
           )}
         </div>
       )}
