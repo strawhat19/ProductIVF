@@ -34,7 +34,9 @@ export default function GridDetailView({ selectedGrid }: any) {
         // Update Grid Options
         updateDocFieldsWTimeStamp(selectedGrid, {
             ...(selectedGrid?.name?.toLowerCase() != gridName?.toLowerCase() && {
+                A: updatedFormData?.name,
                 name: updatedFormData?.name,
+                title: `${selectedGrid?.type} ${selectedGrid?.rank} ${updatedFormData?.name}`,
             }),
             ...(selectedGrid?.options?.nameLabel != updatedFormData?.nameLabel && {
                 'options.nameLabel': updatedFormData?.nameLabel,

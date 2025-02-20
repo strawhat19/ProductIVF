@@ -65,8 +65,6 @@ export class User extends Data {
   phone: any = ``;
   avatar: any = ``;
   email: string = ``;
-  signedIn: boolean = false;
-  provider: Providers.Firebase;
   lastSelectedGridID: string = ``;
   
   type: Types = Types.User;
@@ -91,6 +89,13 @@ export class User extends Data {
     active: true,
     verified: false,
     anonymous: false,
+  }
+
+  auth = {
+    attempts: 0,
+    signedIn: false,
+    lastAttempt: undefined,
+    provider: Providers.Firebase,
   }
 
   data?: { [key: string]: string[] } = {
