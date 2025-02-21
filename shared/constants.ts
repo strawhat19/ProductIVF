@@ -8,7 +8,7 @@ import { Types } from './types/types';
 import { Board } from './models/Board';
 import { toast } from 'react-toastify';
 
-export const maxAuthAttempts = 15;
+export const maxAuthAttempts = 5;
 export const dateTimeStampFormat = `h:mm A M/D/YYYY`;
 export const userQueryFields = [`id`, `ID`, `uid`, `uuid`, `rank`, `name`, `role`, `email`, `image`, `avatar`, `phone`, `token`];
 
@@ -80,7 +80,7 @@ export const combineArraysByKey = <T>(data: T[], key: keyof T): any[] => {
 
 export const withinXTime = (formattedDate: string, time: number, interval = `hours`) => {
   const nowMoment = moment();
-  const xMoment = moment()?.subtract(interval as any, time);
+  const xMoment = moment()?.subtract(time, interval as any);
   const dateMoment = moment(new Date(Date.parse(formattedDate)));
   const dateWithinTime = dateMoment?.isBetween(xMoment, nowMoment);
   return dateWithinTime;
