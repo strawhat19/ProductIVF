@@ -57,6 +57,8 @@ export const renderFirebaseAuthErrorMessage = (erMsg: string) => {
     return `Incorrect Password`;
   } else if (erMsgQuery?.includes(`user-not-found`)) {
     return `User Not Found`;
+  } else if (erMsgQuery?.includes(`too-many-requests`)) {
+    return `Too Many Requests, Try Again Later`;
   } else {
     return erMsg;
   }

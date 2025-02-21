@@ -5,7 +5,7 @@ import { List } from './shared/models/List';
 import { Item } from './shared/models/Item';
 import { Task } from './shared/models/Task';
 import { initializeApp } from 'firebase/app';
-import { logToast } from './shared/constants';
+import { countPropertiesInObject, logToast } from './shared/constants';
 import { Board } from './shared/models/Board';
 import { GoogleAuthProvider, browserLocalPersistence, deleteUser, getAuth, setPersistence } from 'firebase/auth';
 import { collection, deleteDoc, doc, getDocs, getFirestore, query, setDoc, updateDoc, where, WhereFilterOp, writeBatch } from 'firebase/firestore';
@@ -244,6 +244,7 @@ export const updateDocFieldsWTimeStamp = async (
     await updateDoc(docRef, {
       ...updates,
       'meta.updated': now,
+      properties: countPropertiesInObject(document),
     });
     if (log) console.log(`Fields Updated`, updates);
   } catch (updateDocFieldsWTimeStampError) {
