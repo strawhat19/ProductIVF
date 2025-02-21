@@ -9,7 +9,6 @@ import { Board } from './models/Board';
 import { toast } from 'react-toastify';
 
 export const maxAuthAttempts = 5;
-export const dateTimeStampFormat = `h:mm A M/D/YYYY`;
 export const userQueryFields = [`id`, `ID`, `uid`, `uuid`, `rank`, `name`, `role`, `email`, `image`, `avatar`, `phone`, `token`];
 
 export const sortDescending = (arr: (string | number)[]): number[] => {
@@ -31,6 +30,10 @@ export const extractRankFromDoc = (doc: Partial<User> | Partial<Grid> | Partial<
   let fromFirstNumberInId = doc?.id?.split(`${doc?.email}_${doc?.type}_`)[1];
   let rank = fromFirstNumberInId?.split(`_`)[0];
   return parseFloat(rank);
+}
+
+export const momentFormats = {
+  default: `h:mm A M/D/YYYY`,
 }
 
 export const nameFields = {

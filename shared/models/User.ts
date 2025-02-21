@@ -67,6 +67,7 @@ export class User extends Data {
   email: string = ``;
   lastSelectedGridID: string = ``;
   
+  beta: boolean = false;
   type: Types = Types.User;
   role = ROLES.Subscriber.name;
   

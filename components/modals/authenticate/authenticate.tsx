@@ -7,7 +7,7 @@ import { dev, StateContext } from '../../../pages/_app';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { renderFirebaseAuthErrorMessage } from '../../form';
 import { auth, updateDocFieldsWTimeStamp } from '../../../firebase';
-import { dateTimeStampFormat, maxAuthAttempts, withinXTime } from '../../../shared/constants';
+import { maxAuthAttempts, momentFormats, withinXTime } from '../../../shared/constants';
 
 const defaultTimePass = 24;
 const defaultInterval = `hours`;
@@ -41,7 +41,7 @@ export const onAuthenticate = (usr: User, password: string, onAuthenticatedFunct
                         updateDocFieldsWTimeStamp(usr, { 'auth.attempts': attemptsToUse, 'auth.lastAttempt': date });
                     } else {
                         const errorMessage = error.message;
-                        const nextTryDate = moment(new Date(lastAttempt))?.add(defaultTimePass, defaultInterval)?.format(dateTimeStampFormat);
+                        const nextTryDate = moment(new Date(lastAttempt))?.add(defaultTimePass, defaultInterval)?.format(momentFormats?.default);
                         const customErrorMessage = `Try again after ${nextTryDate}`;
                         if (errorMessage) {
                             let attemptsRemaining = maxAuthAttempts - attemptsToUse;
