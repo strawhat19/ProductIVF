@@ -108,7 +108,7 @@ export default function Form(props?: any) {
     toast.info(`Deleting User ${user?.id}`);
     signOutReset();
     await deleteDatabaseData(`ownerID`, `==`, user?.ownerID)?.then(async deletedDocIds => {
-      await logToast(`Deleted ${user?.id} Data, Signing Out`, deletedDocIds, false);
+      await logToast(`Deleted ${user?.id} Data`, deletedDocIds, false);
       await deleteUserAuth(user).then(async eml => {
         await onSignOut();
       });
@@ -117,25 +117,14 @@ export default function Form(props?: any) {
     });
   }
 
-  const finallyDeleteUser = () => {
-    setAuthenticateOpen(true);
-    // showAlert(`Authenticate for "${user?.name}"`, (
-    //   <Authenticate attempts={user?.auth?.attempts} userToAuthenticate={user} onAuthenticatedFunction={deleteUserFromDatabases} />
-    // ), `95%`, `auto`, `30px`, (
-    //   <div className={`maxAttemptsField`}>
-    //     Attempts: {user?.auth?.attempts} / {maxAuthAttempts}
-    //   </div>
-    // ));
-  }
-
   const onDeleteOrCancelUser = (e, initialConfirm = true) => {
     if (showConfirm == true) {
-      if (!initialConfirm) finallyDeleteUser();
+      if (!initialConfirm) setAuthenticateOpen(true);
       setShowConfirm(false);
     } else {
       if (user?.data?.gridIDs?.length > 0) {
         setShowConfirm(true);
-      } else finallyDeleteUser();
+      } else setAuthenticateOpen(true);
     }
   }
 

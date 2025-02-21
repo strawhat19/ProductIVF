@@ -1,7 +1,7 @@
 import { getIDParts } from './ID';
 import { User } from './models/User';
 import { GridTypes } from './types/types';
-import { createGrid } from './models/Grid';
+import { createGrid, Grid } from './models/Grid';
 import { Board, createBoard } from './models/Board';
 import { countPropertiesInObject } from './constants';
 
@@ -59,7 +59,7 @@ export const seedUserData = (user: User | any) => {
     board7 = new Board({ ...board7, gridID: grid4?.id });
     board8 = new Board({ ...board8, gridID: grid4?.id });
 
-    let grids = [grid1, grid2, grid3, grid4];
+    let grids = [grid1, grid2, grid3, grid4]?.map(grd => new Grid(grd));
     let boards = [board1, board2, board3, board4, board5, board6, board7, board8];
 
     let updatedUser = {
