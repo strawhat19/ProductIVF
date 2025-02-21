@@ -5,6 +5,49 @@
     --skeletonSweepColor: var(--skeletonSweepDarkBlue);
 }
 
+.MuiDialog-root {
+    &:has(.authConfirmForm) {
+        --authFormSpacing: 10px;
+        backdrop-filter: blur(10px);
+        .MuiDialog-container {
+            width: 100%;
+            .authConfirmForm {
+                width: 100%;
+                max-height: 150px;
+                background: white !important;
+                .authenticateFormContainer {
+                    height: 100%;
+                    padding: 20px;
+                    display: flex;
+                    align-items: center;
+                    flex-direction: column;
+                    justify-content: center;
+                    grid-gap: var(--authFormSpacing);
+                    .authenticateFormField  {
+                        flex-direction: column;
+                        grid-gap: var(--authFormSpacing);
+                        .authenticateFormPasswordField {
+                            text-align: center;
+                        }
+                    }
+                    .authenticateFormSubmitButton {
+                        color: white;
+                        font-weight: 600;
+                        background: red;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 15px !important;
+                        grid-gap: var(--authFormSpacing);
+                        i {
+                            color: white !important;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 .IVF_skeleton {
     width: 100%;
     height: 100%;

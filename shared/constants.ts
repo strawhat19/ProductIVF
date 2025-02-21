@@ -1,3 +1,4 @@
+import moment from 'moment-timezone';
 import { User } from './models/User';
 import { Grid } from './models/Grid';
 import { List } from './models/List';
@@ -8,20 +9,11 @@ import { Board } from './models/Board';
 import { toast } from 'react-toastify';
 
 export const maxAuthAttempts = 15;
+export const dateTimeStampFormat = `h:mm A M/D/YYYY`;
 export const userQueryFields = [`id`, `ID`, `uid`, `uuid`, `rank`, `name`, `role`, `email`, `image`, `avatar`, `phone`, `token`];
 
 export const sortDescending = (arr: (string | number)[]): number[] => {
   return arr.map(item => (typeof item === `number` ? item : parseFloat(item))).filter(item => !isNaN(item)).sort((a, b) => b - a);
-}
-
-export const logToast = (message: string, content: any, error = false, data = null) => {
-  let sendMsg = typeof content == `string` ? content : ``;
-  console.log(message, content, data);
-  if (error == false) {
-    toast.success(message + ` ` + sendMsg);
-  } else {
-    toast.error(message + ` ` + sendMsg);
-  }
 }
 
 export const removeExtraSpacesFromString = (string: string) => string.trim().replace(/\s+/g, ` `);
@@ -57,6 +49,16 @@ export const forceFieldBlurOnPressEnter = (e: any) => {
   }
 }
 
+export const logToast = (message: string, content: any, error = false, data = null) => {
+  let sendMsg = typeof content == `string` ? content : ``;
+  console.log(message, content, data);
+  if (error == false) {
+    toast.success(message + ` ` + sendMsg);
+  } else {
+    toast.error(message + ` ` + sendMsg);
+  }
+}
+
 export const removeNullAndUndefinedProperties = (object) => {
   return Object.entries(object).reduce((accumulator, [key, value]) => {
     if (value !== null && value !== undefined) {
@@ -74,6 +76,23 @@ export const combineArraysByKey = <T>(data: T[], key: keyof T): any[] => {
     }
     return combined;
   }, [] as any[]);
+}
+
+export const withinXTime = (formattedDate: string, time: number, interval = `hours`) => {
+  const nowMoment = moment();
+  const xMoment = moment()?.subtract(interval as any, time);
+  const dateMoment = moment(new Date(Date.parse(formattedDate)));
+  const dateWithinTime = dateMoment?.isBetween(xMoment, nowMoment);
+  return dateWithinTime;
+}
+
+export const withinXHours = (hours: number, formattedDate: string) => {
+  const currentTime = new Date();
+  const parsedDate = new Date(Date.parse(formattedDate));
+  const timeDifference = Math.abs(currentTime.getTime() - parsedDate.getTime());
+  const hourDifference = timeDifference / (1000 * 60 * 60);
+  const isWithinXHours = hourDifference <= hours;
+  return isWithinXHours;
 }
 
 export const findHighestNumberInArrayByKey = async ( arrayOfObjects: any[], key: string ): Promise<number | null> => {

@@ -8,7 +8,7 @@ export default function AuthState({ classes, nextOverride = ``, hideOnUsersLoadi
         hideOnUsersLoading == true && usersLoading ? <></> : (
             <span className={`${classes} textOverflow extended`} style={{minWidth: `fit-content`}}>
                 {user != null ? (
-                    `Welcome, ${user?.name} Attempts: ${user?.auth?.attempts}`
+                    `Welcome, ${user?.name}`
                 ) : (nextOverride != `` && authState == AuthStates.Next) ? nextOverride : authState}
             </span>
         )

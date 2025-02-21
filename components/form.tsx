@@ -1,20 +1,19 @@
 'use client';
 
 import { toast } from 'react-toastify';
+import { Dialog } from '@mui/material';
+import { getIDParts } from '../shared/ID';
 import { AuthStates } from '../shared/types/types';
 import { doc, writeBatch } from 'firebase/firestore';
 import IVFSkeleton from './loaders/skeleton/ivf_skeleton';
 import ConfirmAction from './context-menus/confirm-action';
-import Authenticate from './modals/authenticate/authenticate';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { formatDate, StateContext, showAlert, dev } from '../pages/_app';
 import { createUser, Roles, User, userIsMinRole } from '../shared/models/User';
-import { findHighestNumberInArrayByKey, logToast, maxAuthAttempts, stringNoSpaces } from '../shared/constants';
+import Authenticate, { onAuthenticate } from './modals/authenticate/authenticate';
+import { findHighestNumberInArrayByKey, logToast, stringNoSpaces } from '../shared/constants';
 import { addUserToDatabase, auth, boardConverter, boardsTable, db, deleteDatabaseData, deleteUserAuth, gridConverter, gridsTable, updateDocFieldsWTimeStamp } from '../firebase';
-import { Button } from 'antd';
-import { Dialog, TextField } from '@mui/material';
-import { getIDParts } from '../shared/ID';
 
 export const convertHexToRGB = (HexString?:any, returnObject?: any) => {
   let r = parseInt(HexString.slice(1, 3), 16),
@@ -117,13 +116,14 @@ export default function Form(props?: any) {
   }
 
   const finallyDeleteUser = () => {
-    showAlert(`Authenticate for "${user?.name}"`, (
-      <Authenticate attempts={user?.auth?.attempts} userToAuthenticate={user} onAuthenticatedFunction={deleteUserFromDatabases} />
-    ), `95%`, `auto`, `30px`, (
-      <div className={`maxAttemptsField`}>
-        Attempts: {user?.auth?.attempts} / {maxAuthAttempts}
-      </div>
-    ));
+    setAuthenticateOpen(true);
+    // showAlert(`Authenticate for "${user?.name}"`, (
+    //   <Authenticate attempts={user?.auth?.attempts} userToAuthenticate={user} onAuthenticatedFunction={deleteUserFromDatabases} />
+    // ), `95%`, `auto`, `30px`, (
+    //   <div className={`maxAttemptsField`}>
+    //     Attempts: {user?.auth?.attempts} / {maxAuthAttempts}
+    //   </div>
+    // ));
   }
 
   const onDeleteOrCancelUser = (e, initialConfirm = true) => {
@@ -370,7 +370,6 @@ export default function Form(props?: any) {
 
   return <>
     <form ref={formRef} {...id && { id }} onSubmit={authForm} className={`flex authForm customButtons ${className} ${stringNoSpaces(authState)}_formButton`} style={style}>
-
       {/* Sign In // Sign Up */}
       {usersLoading ? <></> : <>
         {!user && <input placeholder={`Email or Username`} type={`email`} name={`email`} autoComplete={`off`} required />}
@@ -393,44 +392,6 @@ export default function Form(props?: any) {
       {/* Delete User */}
       {user != null && userIsMinRole(user, Roles.Moderator) && (
         <div className={`formFieldWithConfirm`} style={{ position: `relative` }}>
-          <Button onClick={(e) => setAuthenticateOpen(!authenticateOpen)}>
-            Open simple dialog
-          </Button>
-          <Dialog
-            open={authenticateOpen}
-            onClose={(e) => setAuthenticateOpen(!authenticateOpen)}
-            slotProps={{
-              paper: {
-                component: `form`,
-                onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
-                  event.preventDefault();
-                  const formData = new FormData(event.currentTarget);
-                  const formJson = Object.fromEntries((formData as any).entries());
-                  const email = formJson.email;
-                  console.log(`dialog form submit`, email);
-
-                  let { date } = getIDParts();
-                  updateDocFieldsWTimeStamp(user, { 'auth.attempts': user?.auth?.attempts + 1, 'auth.lastAttempt': date })?.then(() => {
-                    // dev() && console.log(`Authenticate Form Submit`, { user, globalUserData, attempts, email, password });
-                  });
-                  // handleClose();
-                },
-              },
-            }}
-          >
-            {user?.auth?.attempts}
-            <TextField
-              autoFocus
-              required
-              margin="dense"
-              id="name"
-              name="email"
-              label="Email Address"
-              type="email"
-              fullWidth
-              variant="standard"
-            />
-          </Dialog>
           {formButtonField(
             `Users Loading`, 
             `usersSkeleton`, 
@@ -460,7 +421,27 @@ export default function Form(props?: any) {
           <input className={`back authFormBack`} type="submit" name="authFormBack" value={`Back`} />
         )
       )}
-      
     </form>
+
+    {/* Popup which opens to Authenticate before Full Delete */}
+    <Dialog
+      open={authenticateOpen}
+      onClose={(e) => setAuthenticateOpen(!authenticateOpen)}
+      slotProps={{
+        paper: {
+          component: `form`,
+          className: `authConfirmForm`,
+          onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
+            event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            const formJson = Object.fromEntries((formData as any).entries());
+            const { password } = formJson;
+            onAuthenticate(user, password, deleteUserFromDatabases, event);
+          },
+        },
+      }}
+    >
+      <Authenticate />
+    </Dialog>
   </>
 }
