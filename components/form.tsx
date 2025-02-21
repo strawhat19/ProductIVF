@@ -71,7 +71,6 @@ export default function Form(props?: any) {
 
   const [loaded, setLoaded] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [authenticateOpen, setAuthenticateOpen] = useState(false);
   
   const { id, navForm, className, style } = props;
 
@@ -86,6 +85,7 @@ export default function Form(props?: any) {
     authState, setAuthState, 
     emailField, setEmailField,  
     user, users, seedUserData,
+    authenticateOpen, setAuthenticateOpen,
   } = useContext<any>(StateContext);
 
   const getAuthStateIcon = (authState) => {
@@ -200,7 +200,8 @@ export default function Form(props?: any) {
         let highestRank = await findHighestNumberInArrayByKey(users, `rank`);
         let rank = highestRank + 1;
       
-        let newUser = await createUser(uid, rank, email, name, phone, avatar, token, verified, anonymous, Roles.Developer);
+        let default_Role_On_Create = dev() ? Roles.Developer : Roles.Subscriber;
+        let newUser = await createUser(uid, rank, email, name, phone, avatar, token, verified, anonymous, default_Role_On_Create);
 
         const setUserStartingData = async (userToSeed) => {
           let {
@@ -438,7 +439,11 @@ export default function Form(props?: any) {
             const formData = new FormData(event.currentTarget);
             const formJson = Object.fromEntries((formData as any).entries());
             const { password } = formJson;
-            onAuthenticate(user, password, deleteUserFromDatabases, event);
+            const deleteAndCloseDialog = () => {
+              setAuthenticateOpen(false);
+              deleteUserFromDatabases();
+            }
+            onAuthenticate(user, password, deleteAndCloseDialog, event);
           },
         },
       }}

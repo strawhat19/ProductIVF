@@ -241,10 +241,13 @@ export const updateDocFieldsWTimeStamp = async (
   let { tableName, converter } = documentTypes[document?.type];
   try {
     const docRef = await doc(db, tableName, document?.id).withConverter(converter);
+    const dataUpdate = JSON.stringify(updates)?.includes(`data.`);
     await updateDoc(docRef, {
       ...updates,
       'meta.updated': now,
-      properties: countPropertiesInObject(document),
+      ...(dataUpdate && {
+        properties: countPropertiesInObject(document),
+      }),
     });
     if (log) console.log(`Fields Updated`, updates);
   } catch (updateDocFieldsWTimeStampError) {

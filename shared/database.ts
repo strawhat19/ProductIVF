@@ -3,6 +3,7 @@ import { User } from './models/User';
 import { GridTypes } from './types/types';
 import { createGrid } from './models/Grid';
 import { Board, createBoard } from './models/Board';
+import { countPropertiesInObject } from './constants';
 
 export const seedUserData = (user: User | any) => {
     let { uuid } = getIDParts();
@@ -82,6 +83,8 @@ export const seedUserData = (user: User | any) => {
             boardIDs: boards.map(br => br?.id),
         }
     }
+
+    updatedUser.properties = countPropertiesInObject(updatedUser);
 
     let seedUserData = {
         grids,

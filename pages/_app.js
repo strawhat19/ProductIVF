@@ -416,6 +416,9 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let [content, setContent] = useState(`defaultContent`);
   let [year, setYear] = useState(new Date().getFullYear());
 
+  // State
+  let [authenticateOpen, setAuthenticateOpen] = useState(false);
+
   let [user, setUser] = useState(null);
   let [users, setUsers] = useState([]);
   let [grids, setGrids] = useState([]);
@@ -920,6 +923,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       rearranging, setRearranging, 
       showLeaders, setShowLeaders, 
       systemStatus, setSystemStatus, 
+      authenticateOpen, setAuthenticateOpen,
 
       // Functions
       onSignIn,
