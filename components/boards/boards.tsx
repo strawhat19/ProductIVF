@@ -35,9 +35,9 @@ export const getLoadingLabel = (lbl: string, authState, user) => {
 
 export default function Boards(props: any) {
     let { 
-        user, 
         authState,
         setLoading, 
+        user, users, 
         globalUserData,
         setSystemStatus, 
         rte, router, setRte, 
@@ -101,12 +101,21 @@ export default function Boards(props: any) {
         let allRanks = [boardIDX, userBoardsLength, ...boardsRanks];
         let maxRank = sortDescending(allRanks)[0];
         let rank = maxRank + 1;
+
+        let allUsersRanks = [];
+        if (users && users?.length > 0) {
+            users.forEach(usr => {
+                let usrBoardsRanks = usr?.data?.boardIDs?.map(brdID => extractRankFromDocId(brdID, usr?.email, Types.Board));
+                usrBoardsRanks?.forEach(brdRank => allUsersRanks?.push(brdRank));
+            })
+            allUsersRanks = sortDescending(allUsersRanks);
+        }
         
         setSystemStatus(`Creating Board ${boardName}.`);
 
         let newBoard = createBoard(rank, boardName, user, titleWidth, user?.lastSelectedGridID);
 
-        dev() && console.log(`New Board`, {newBoard, allRanks});
+        dev() && console.log(`New Board`, { newBoard, allRanks, allUsersRanks });
 
         // Firestore Add Board
         // Add Board to Boards DB

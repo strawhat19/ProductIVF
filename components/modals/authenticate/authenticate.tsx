@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 import { useContext, useState } from 'react';
 import { getIDParts } from '../../../shared/ID';
 import { User } from '../../../shared/models/User';
-import { dev, StateContext } from '../../../pages/_app';
+import { StateContext } from '../../../pages/_app';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { renderFirebaseAuthErrorMessage } from '../../form';
 import { auth, updateDocFieldsWTimeStamp } from '../../../firebase';
