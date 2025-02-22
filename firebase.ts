@@ -10,6 +10,7 @@ import { Types } from './shared/types/types';
 import { countPropertiesInObject, logToast } from './shared/constants';
 import { GoogleAuthProvider, browserLocalPersistence, deleteUser, getAuth, setPersistence } from 'firebase/auth';
 import { collection, doc, getDocs, getFirestore, query, setDoc, updateDoc, where, WhereFilterOp, writeBatch } from 'firebase/firestore';
+import { Feature } from './shared/admin/features';
 
 export enum Environments {
   beta = `beta_`,
@@ -30,6 +31,7 @@ export enum Tables {
   visits = `visits`,
   metrics = `metrics`,
   columns = `columns`,
+  features = `features`,
   profiles = `profiles`,
   comments = `comments`,
   templates = `templates`,
@@ -68,6 +70,7 @@ export const boardsTable = environment + Tables.boards;
 export const listsTable = environment + Tables.lists;
 export const itemsTable = environment + Tables.items;
 export const tasksTable = environment + Tables.tasks;
+export const featuresTable = environment + Tables.features;
 
 export const gridDataCollections = {
   boards: boardsTable,
@@ -156,6 +159,16 @@ export const taskConverter = {
   }
 }
 
+export const featureConverter = {
+  toFirestore: (feat: Feature) => {
+    return JSON.parse(JSON.stringify(feat));
+  },
+  fromFirestore: (snapshot: any, options: any) => {
+    const data = snapshot.data(options);
+    return new Feature(data);
+  }
+}
+
 export const documentTypes = {
   [Types.User]: {
     tableName: usersTable,
@@ -180,6 +193,10 @@ export const documentTypes = {
   [Types.Task]: {
     tableName: tasksTable,
     converter: taskConverter,
+  },
+  [Types.Feature]: {
+    tableName: featuresTable,
+    converter: featureConverter,
   },
 }
 

@@ -7,6 +7,7 @@ import { countPropertiesInObject, isValid, stringNoSpaces } from '../constants';
 
 export class Board extends Data {
     ID: any;
+    number: number;
     gridID: string;
     titleWidth: any;
 
@@ -18,10 +19,6 @@ export class Board extends Data {
 
     type: Types = Types.Board;
     boardType: BoardTypes = BoardTypes.Kanban;
-
-    items?: any;
-    tasks?: any;
-    lists?: any;
 
     image = ``;
     description = ``;
@@ -67,6 +64,7 @@ export const createBoard = (
     name: string, 
     user: User | any, 
     titleWidth: string = `140px`, 
+    number: number = 1,
     gridID = ``, 
     boardType = BoardTypes.Kanban,
     listIDs = [`Active`, `Complete`], 
@@ -80,6 +78,7 @@ export const createBoard = (
         name,
         type,
         rank,
+        number,
         gridID,
         boardType,
         titleWidth,

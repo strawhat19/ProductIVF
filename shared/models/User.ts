@@ -69,6 +69,7 @@ export class User extends Data {
   
   beta: boolean = false;
   type: Types = Types.User;
+  showBeta: boolean = false;
   role = ROLES.Subscriber.name;
   
   color = `Default`;

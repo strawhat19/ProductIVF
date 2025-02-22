@@ -98,24 +98,29 @@ export default function Boards(props: any) {
         let userBoardsLength = user?.data?.boardIDs?.length;
         let boardIDX = boardRank > boardLn ? boardRank : boardLn;
         let boardsRanks = user?.data?.boardIDs?.map(brdID => extractRankFromDocId(brdID, user?.email, Types.Board));
-        let allRanks = [boardIDX, userBoardsLength, ...boardsRanks];
-        let maxRank = sortDescending(allRanks)[0];
-        let rank = maxRank + 1;
 
-        let allUsersRanks = [];
+        let allBoardsRanks = [];
         if (users && users?.length > 0) {
             users.forEach(usr => {
                 let usrBoardsRanks = usr?.data?.boardIDs?.map(brdID => extractRankFromDocId(brdID, usr?.email, Types.Board));
-                usrBoardsRanks?.forEach(brdRank => allUsersRanks?.push(brdRank));
+                usrBoardsRanks?.forEach(brdRank => allBoardsRanks?.push(brdRank));
             })
-            allUsersRanks = sortDescending(allUsersRanks);
+            allBoardsRanks = sortDescending(allBoardsRanks);
         }
+
+        let allBoardsRanksLn = allBoardsRanks?.length;
+        
+        let allRanks = [boardIDX, userBoardsLength, ...boardsRanks];
+        let maxRank = sortDescending(allRanks)[0];
+
+        let rank = maxRank + 1;
+        let number = allBoardsRanksLn + 1;
         
         setSystemStatus(`Creating Board ${boardName}.`);
 
-        let newBoard = createBoard(rank, boardName, user, titleWidth, user?.lastSelectedGridID);
+        let newBoard = createBoard(rank, boardName, user, titleWidth, number, user?.lastSelectedGridID);
 
-        dev() && console.log(`New Board`, { newBoard, allRanks, allUsersRanks });
+        dev() && console.log(`New Board`, { newBoard, allRanks, allBoardsRanks });
 
         // Firestore Add Board
         // Add Board to Boards DB
