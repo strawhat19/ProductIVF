@@ -2,10 +2,12 @@ import Column from './column';
 import { toast } from 'react-toastify';
 import { Types } from '../../shared/types/types';
 import { getBoardTitleWidth, ItemTypes } from './boards';
+import { deleteBoardFromDatabase } from '../../firebase';
 import ConfirmAction from '../context-menus/confirm-action';
+import { Board as BoardModel } from '../../shared/models/Board';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
-import { forceFieldBlurOnPressEnter } from '../../shared/constants';
 import React, { useState, useContext, useEffect, useRef } from 'react';
+import { forceFieldBlurOnPressEnter, logToast } from '../../shared/constants';
 import { capitalizeAllWords, dev, formatDate, generateUniqueID, StateContext } from '../../pages/_app';
 
 export const addBoardScrollBars = () => {
@@ -46,14 +48,15 @@ export default function Board(props) {
         }
     }
 
-    const deleteBoard = (e, bord, initialConfirm = true) => {
+    const deleteBoard = (e, bord: BoardModel, initialConfirm = true) => {
         if (showConfirm == true) {
             if (!initialConfirm) {
                 finallyDeleteBoard(bord);
             }
             setShowConfirm(false);
         } else {
-            if (Object.values(bord?.columns).length > 0) {
+            let boardsListssLn = bord?.data?.listIDs;
+            if (boardsListssLn?.length > 0) {
                 setShowConfirm(true);
             } else {
                 finallyDeleteBoard(bord);
@@ -61,7 +64,7 @@ export default function Board(props) {
         }
     }
 
-    const deleteBoardNoDB = (bord) => {
+    const deleteBoardNoDB = (bord: BoardModel) => {
         setBoards(prevBoards => {
             let boardsWithoutDeleted = prevBoards.filter(brd => brd?.id != bord?.id);
             if (boardsWithoutDeleted.length == 1) {
@@ -72,12 +75,13 @@ export default function Board(props) {
         })
     }
 
-    const finallyDeleteBoard = (bord, useDB = true) => {
+    const finallyDeleteBoard = async (bord: BoardModel, useDB = true) => {
         if (useDB == true) {
-            // Firestore Delete Board
-            // Delete Board from Boards DB
-            // Delete Board ID from Selected Grid // Order Matters
-            // Delete Board ID from User // Order Does Not Matter
+            await deleteBoardFromDatabase(bord)?.then(brd => {
+                logToast(`Successfully Deleted Board`, brd);
+            })?.catch(deleteBrdError => {
+                logToast(`Failed to Delete Board`, deleteBrdError, true);
+            });
         } else {
             deleteBoardNoDB(bord);
         }
@@ -251,12 +255,14 @@ export default function Board(props) {
     }
 
     useEffect(() => {
-        let updatedBoard = boards.find(brd => brd.id == board.id);
-        if (updatedBoard) {
-            let updatedBoardName = updatedBoard?.name;
-            let updatedTitleWidth = getBoardTitleWidth(updatedBoardName);
-            setBoard({ ...updatedBoard, titleWidth: updatedTitleWidth });
-            setBoardName(updatedBoardName);
+        if (board?.id) {
+            let updatedBoard = boards.find(brd => brd?.id == board?.id);
+            if (updatedBoard) {
+                let updatedBoardName = updatedBoard?.name;
+                let updatedTitleWidth = getBoardTitleWidth(updatedBoardName);
+                setBoard({ ...updatedBoard, titleWidth: updatedTitleWidth });
+                setBoardName(updatedBoardName);
+            }
         }
     }, [boards])
 
@@ -388,24 +394,24 @@ export default function Board(props) {
                                             </form>
                                         </section>
                                     </>}
-                                    <div className={`itemButtons customButtons`}>
-                                        {user?.uid == board?.ownerUID && boards?.length > 1 && (
-                                            <button id={`delete_${board?.id}`} onClick={(e) => deleteBoard(e, board)} title={`Delete Board`} className={`iconButton deleteButton deleteBoardButton ${showConfirm ? `cancelBtn` : ``}`}>
-                                                <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`mainIcon fas fa-${showConfirm ? `ban` : `trash`}`} />
-                                                <span className={`iconButtonText textOverflow extended`}>
-                                                    {showConfirm ? `Cancel` : `Delete`}
-                                                </span>
-                                                {showConfirm && (
-                                                    <ConfirmAction onConfirm={(e) => deleteBoard(e, board, false)} />
-                                                )}
-                                            </button>
-                                        )}
-                                        {boards?.length > 1 && (
+                                    {boards?.length > 1 && (
+                                        <div className={`itemButtons customButtons`}>
+                                            {user?.uid == board?.ownerUID && (
+                                                <button id={`delete_${board?.id}`} onClick={(e) => deleteBoard(e, board)} title={`Delete Board`} className={`iconButton deleteButton deleteBoardButton ${showConfirm ? `cancelBtn` : ``}`}>
+                                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`mainIcon fas fa-${showConfirm ? `ban` : `trash`}`} />
+                                                    <span className={`iconButtonText textOverflow extended`}>
+                                                        {showConfirm ? `Cancel` : `Delete`}
+                                                    </span>
+                                                    {showConfirm && (
+                                                        <ConfirmAction onConfirm={(e) => deleteBoard(e, board, false)} />
+                                                    )}
+                                                </button>
+                                            )}
                                             <button onClick={(e) => expandCollapseBoard(e, board)} className={`iconButton`}>
                                                 {(board?.expanded || board?.options?.expanded) ? <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-chevron-up"></i> : <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-chevron-down"></i>}
                                             </button>
-                                        )}
-                                    </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>

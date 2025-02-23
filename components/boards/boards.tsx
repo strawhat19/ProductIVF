@@ -254,15 +254,17 @@ export default function Boards(props: any) {
                                 {(provided, snapshot) => (
                                     <div className={`all_boards_div ${snapshot.isDraggingOver ? `isDraggingOver` : ``}`} ref={provided.innerRef} {...provided.droppableProps}>
                                         {dbBoards && dbBoards?.length > 0 && dbBoards?.map((bord, bordIndex) => {
-                                            return (
-                                                <Draggable key={`${bordIndex + 1}_${bord.id}_bord_key`} draggableId={`${bordIndex + 1}_${bord.id}_draggable_bord`} index={bordIndex}>
-                                                    {(provided, snapshot) => (
-                                                        <div id={`bord_${bord?.id}`} key={bordIndex} className={`draggableDroppableBoard bord ${bord?.focused ? `focusBoard` : `unfocusedBoard`} ${bordIndex == 0 ? `firstBoard` : ``}`} {...provided.draggableProps} ref={provided.innerRef}>
-                                                            <Board board={bord} provided={provided} index={bordIndex} drag={onDragEnd} />
-                                                        </div>
-                                                    )}
-                                                </Draggable>
-                                            )
+                                            if (bord?.id) {
+                                                return (
+                                                    <Draggable key={`${bordIndex + 1}_${bord?.id}_bord_key`} draggableId={`${bordIndex + 1}_${bord?.id}_draggable_bord`} index={bordIndex}>
+                                                        {(provided, snapshot) => (
+                                                            <div id={`bord_${bord?.id}`} key={bordIndex} className={`draggableDroppableBoard bord ${bord?.focused ? `focusBoard` : `unfocusedBoard`} ${bordIndex == 0 ? `firstBoard` : ``}`} {...provided.draggableProps} ref={provided.innerRef}>
+                                                                <Board board={bord} provided={provided} index={bordIndex} drag={onDragEnd} />
+                                                            </div>
+                                                        )}
+                                                    </Draggable>
+                                                )
+                                            }
                                         })}
                                         {provided.placeholder}
                                     </div>

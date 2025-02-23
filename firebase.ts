@@ -223,6 +223,47 @@ export const deleteUserAuth = async (usr: User) => {
   }
 }
 
+export const deleteBoardFromDatabase = async (board: Board) => {
+  const deleteBoardBatchOperation = await writeBatch(db);
+  try {
+    const usersRef = await collection(db, usersTable);
+    const gridsRef = await collection(db, gridsTable);
+    const boardRef = await doc(db, boardsTable, board?.id);
+
+    const usersQuery = await query(usersRef, where(`data.boardIDs`, `array-contains`, board.id));
+    const usersSnapshot = await getDocs(usersQuery);
+
+    usersSnapshot.forEach(userDoc => {
+      const userRef = doc(db, usersTable, userDoc.id);
+      const userData = userDoc.data();
+      const updatedUsersBoardIDs = userData.data.boardIDs.filter((id: string) => id !== board.id);
+      deleteBoardBatchOperation?.update(userRef, {
+        [`data.boardIDs`]: updatedUsersBoardIDs,
+      });
+    });
+
+    const gridsQuery = query(gridsRef, where(`data.boardIDs`, `array-contains`, board.id));
+    const gridsSnapshot = await getDocs(gridsQuery);
+
+    gridsSnapshot.forEach(gridDoc => {
+      const gridRef = doc(db, gridsTable, gridDoc.id);
+      const gridData = gridDoc.data();
+      const updatedGridsBoardIDs = gridData.data.boardIDs.filter((id: string) => id !== board.id);
+      deleteBoardBatchOperation?.update(gridRef, {
+        [`data.boardIDs`]: updatedGridsBoardIDs,
+      });
+    });
+
+    await deleteBoardBatchOperation?.delete(boardRef);
+
+    await deleteBoardBatchOperation?.commit();
+
+    return board;
+  } catch (deleteBoardError) {
+    await logToast(`Error Deleting Board ${board?.name}`, deleteBoardError, true);
+  }
+}
+
 export const deleteDatabaseData = async (
   queryField: string, 
   operator: WhereFilterOp, 
@@ -261,7 +302,7 @@ export const updateDocFieldsWTimeStamp = async (
     const dataUpdate = JSON.stringify(updates)?.includes(`data.`);
     await updateDoc(docRef, {
       ...updates,
-      'meta.updated': now,
+      [`meta.updated`]: now,
       ...(dataUpdate && {
         properties: countPropertiesInObject(document),
       }),

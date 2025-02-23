@@ -69,15 +69,19 @@
     padding: 0;
     width: 100%;
     grid-gap: 0;
+    min-height: 33px;
     position: absolute;
+    align-items: center;
     background: white;
     min-width: max-content;
     border-radius: var(--borderRadius);
+    justify-content: center;
     .confirmActionOption {
         width: 100%;
         display: flex;
         grid-gap: 8px;
         margin: 0 auto;
+        min-height: 33px;
         font-weight: 700;
         flex-direction: row;
         align-items: center;

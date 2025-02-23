@@ -557,7 +557,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
   }
 
   const signInUser = (usr, navigateToLastSelectedGrid = false) => {
-    setUser(usr);
+    setUser(new User(usr));
     setAuthState(AuthStates.Sign_Out);
 
     if (navigateToLastSelectedGrid) {

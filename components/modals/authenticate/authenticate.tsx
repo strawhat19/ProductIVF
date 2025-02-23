@@ -94,13 +94,15 @@ export default function Authenticate({ actionLabel = `Delete User & All Data` }:
                 <div className={`authenticateFormField gridDetailFormField flex`}>
                     <div className={`authenticateFormFieldLabels flex`}>
                         <span className={`formFieldLabel authenticateFormLabel gridNameLabel`} style={{ paddingRight: 15, minWidth: `max-content` }}>
-                            Enter Password to Confirm
+                            Enter Password for "{user?.name}" to Confirm
                         </span>
-                        <span className={`formFieldLabel authenticateFormLabel gridNameLabel`} style={{ paddingRight: 0 }}>
-                            Attempts Remaining - {
-                                (isDisabled(false) ? 0 : ((maxAuthAttempts - user?.auth?.attempts) == 0 ? maxAuthAttempts : (maxAuthAttempts - user?.auth?.attempts)))
-                            } / {maxAuthAttempts} 
-                        </span>
+                        {!isNaN(user?.auth?.attempts) && (
+                            <span className={`formFieldLabel authenticateFormLabel gridNameLabel`} style={{ paddingRight: 0 }}>
+                                Attempts Remaining - {
+                                    (isDisabled(false) ? 0 : ((maxAuthAttempts - user?.auth?.attempts) == 0 ? maxAuthAttempts : (maxAuthAttempts - user?.auth?.attempts)))
+                                } / {maxAuthAttempts} 
+                            </span>
+                        )}
                     </div>
                     <input 
                         minLength={6} 

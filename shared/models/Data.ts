@@ -19,6 +19,8 @@ export class Data {
   meta = {
     created: undefined,
     updated: undefined,
+    createdby: undefined,
+    updatedby: undefined,
   }
 
   constructor(data: Partial<Data>) {
