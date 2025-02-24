@@ -46,8 +46,6 @@ export default function Boards(props: any) {
         grids, gridsLoading, selectedGrids, selectedGrid, 
     } = useContext<any>(StateContext);
 
-    let { dbBoards = boards } = props;
-
     const multiSelectorRef = useRef(null);
     let [updates, setUpdates] = useState(0);
     let [useSingleSelect, ] = useState(true);
@@ -143,7 +141,7 @@ export default function Boards(props: any) {
                 <div className={`formItems items`}>
                     <div className={`addListFormItem`}>
                         <h2 style={{ fontWeight: 600, fontSize: 22, minWidth: `fit-content` }}>
-                            Create Board {dbBoards && dbBoards?.length + 1}
+                            Create Board {boards && boards?.length + 1}
                         </h2>
                         <section className={`addBoardFormSection addListFormItemSection`} style={{ margin: 0, position: `relative`, overflowY: `hidden` }}>
                             <div title={`Change Board Type`} onClick={(e) => toast.info(`Board Types are In Development`)} className={`typeIcon changeBoardTypeIcon`}>
@@ -160,7 +158,7 @@ export default function Boards(props: any) {
                                             Create Board
                                         </span>
                                         <span className={`itemLength index`} style={{ fontSize: 14, fontWeight: 700, padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content` }}>
-                                            {dbBoards?.dbBoards && dbBoards?.dbBoards?.length + 1}
+                                            {boards && boards?.length + 1}
                                         </span>
                                     </span>
                                 </button>
@@ -234,7 +232,7 @@ export default function Boards(props: any) {
 
         <DragDropContext onDragEnd={onDragEnd}>
             <div id={`allBoards`} className={`boards`}>
-                <div className={`flex ${dbBoards && dbBoards?.length > 0 ? `hasBoards` : `noBoards`} ${dbBoards && dbBoards?.length == 1 ? `oneBoard` : ``}`}>
+                <div className={`flex ${boards && boards?.length > 0 ? `hasBoards` : `noBoards`} ${boards && boards?.length == 1 ? `oneBoard` : ``}`}>
                     {(boardsLoading || selectedGrid == null) ? <>
                         <div className={`flex isColumn`} style={{ paddingTop: 5 }}>
                             {generateArray(10, getLoadingLabel(`Boards`, authState, user)).map((lbl, lblIndex) => (
@@ -253,7 +251,7 @@ export default function Boards(props: any) {
                             <Droppable droppableId={`all_boards`}>
                                 {(provided, snapshot) => (
                                     <div className={`all_boards_div ${snapshot.isDraggingOver ? `isDraggingOver` : ``}`} ref={provided.innerRef} {...provided.droppableProps}>
-                                        {dbBoards && dbBoards?.length > 0 && dbBoards?.map((bord, bordIndex) => {
+                                        {boards && boards?.length > 0 && boards?.map((bord, bordIndex) => {
                                             if (bord?.id) {
                                                 return (
                                                     <Draggable key={`${bordIndex + 1}_${bord?.id}_bord_key`} draggableId={`${bordIndex + 1}_${bord?.id}_draggable_bord`} index={bordIndex}>
