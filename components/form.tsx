@@ -1,8 +1,6 @@
 'use client';
 
 import { toast } from 'react-toastify';
-import { Dialog } from '@mui/material';
-import { getIDParts } from '../shared/ID';
 import { AuthStates } from '../shared/types/types';
 import { doc, writeBatch } from 'firebase/firestore';
 import IVFSkeleton from './loaders/skeleton/ivf_skeleton';
@@ -10,10 +8,10 @@ import ConfirmAction from './context-menus/confirm-action';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { formatDate, StateContext, showAlert, dev } from '../pages/_app';
+import AuthenticationDialog from './modals/authenticate/authenticate-dialog';
 import { createUser, Roles, User, userIsMinRole } from '../shared/models/User';
-import Authenticate, { onAuthenticate } from './modals/authenticate/authenticate';
-import { findHighestNumberInArrayByKey, logToast, stringNoSpaces } from '../shared/constants';
-import { addUserToDatabase, auth, boardConverter, boardsTable, db, deleteDatabaseData, deleteUserAuth, gridConverter, gridsTable, updateDocFieldsWTimeStamp } from '../firebase';
+import { defaultAuthenticateLabel, findHighestNumberInArrayByKey, stringNoSpaces } from '../shared/constants';
+import { addUserToDatabase, auth, boardConverter, boardsTable, db, gridConverter, gridsTable, updateDocFieldsWTimeStamp } from '../firebase';
 
 export const convertHexToRGB = (HexString?:any, returnObject?: any) => {
   let r = parseInt(HexString.slice(1, 3), 16),
@@ -79,13 +77,14 @@ export default function Form(props?: any) {
     onSignOut, 
     setContent,
     signInUser, 
-    signOutReset,
     usersLoading,
     updates, setUpdates, 
+    setAuthenticateOpen,
+    setOnAuthenticateLabel,
     authState, setAuthState, 
     emailField, setEmailField,  
     user, users, seedUserData,
-    authenticateOpen, setAuthenticateOpen,
+    setOnAuthenticateFunction,
   } = useContext<any>(StateContext);
 
   const getAuthStateIcon = (authState) => {
@@ -104,27 +103,19 @@ export default function Form(props?: any) {
     }
   }
 
-  const deleteUserFromDatabases = async () => {
-    toast.info(`Deleting User ${user?.id}`);
-    signOutReset();
-    await deleteDatabaseData(`ownerID`, `==`, user?.ownerID)?.then(async deletedDocIds => {
-      await logToast(`Deleted ${user?.id} Data`, deletedDocIds, false);
-      await deleteUserAuth(user).then(async eml => {
-        await onSignOut();
-      });
-    })?.catch(async deleteUserDataError => {
-      await logToast(`Delete User Data Error`, deleteUserDataError, true, deleteUserDataError);
-    });
-  }
-
   const onDeleteOrCancelUser = (e, initialConfirm = true) => {
+    const openAuthenticationForm = () => {
+      setOnAuthenticateLabel(defaultAuthenticateLabel);
+      setOnAuthenticateFunction(`Default`);
+      setAuthenticateOpen(true);
+    }
     if (showConfirm == true) {
-      if (!initialConfirm) setAuthenticateOpen(true);
+      if (!initialConfirm) openAuthenticationForm();
       setShowConfirm(false);
     } else {
       if (user?.data?.gridIDs?.length > 0) {
         setShowConfirm(true);
-      } else setAuthenticateOpen(true);
+      } else openAuthenticationForm();
     }
   }
 
@@ -414,30 +405,5 @@ export default function Form(props?: any) {
         )
       )}
     </form>
-
-    {/* Popup which opens to Authenticate before Full Delete */}
-    <Dialog
-      open={authenticateOpen}
-      onClose={(e) => setAuthenticateOpen(!authenticateOpen)}
-      slotProps={{
-        paper: {
-          component: `form`,
-          className: `authConfirmForm`,
-          onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
-            event.preventDefault();
-            const formData = new FormData(event.currentTarget);
-            const formJson = Object.fromEntries((formData as any).entries());
-            const { password } = formJson;
-            const deleteAndCloseDialog = () => {
-              setAuthenticateOpen(false);
-              deleteUserFromDatabases();
-            }
-            onAuthenticate(user, password, deleteAndCloseDialog, event);
-          },
-        },
-      }}
-    >
-      <Authenticate />
-    </Dialog>
   </>
 }

@@ -1403,6 +1403,12 @@ textarea {
     }
 }
 
+.authStateComponent {
+    &.hasUserSignedIn {
+        font-weight: 500;
+    }
+}
+
 .alert {
     width: 450px;
     height: 450px;

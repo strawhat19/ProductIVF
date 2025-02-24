@@ -10,7 +10,7 @@ import { Item } from '../shared/models/Item';
 import { Task } from '../shared/models/Task';
 import { Board } from '../shared/models/Board';
 import { toast, ToastContainer } from 'react-toastify';
-import { isValid, logToast } from '../shared/constants';
+import { defaultAuthenticateLabel, isValid, logToast } from '../shared/constants';
 import { AnimatePresence, motion } from 'framer-motion';
 import { createContext, useRef, useState, useEffect } from 'react';
 import ContextMenu from '../components/context-menus/context-menu';
@@ -20,6 +20,7 @@ import { seedUserData as generateSeedUserData } from '../shared/database';
 import { collection, onSnapshot, query, where  } from 'firebase/firestore';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { auth, db, userConverter, gridDataCollectionNames, usersTable, gridsTable, gridConverter, updateDocFieldsWTimeStamp } from '../firebase';
+import AuthenticationDialog from '../components/modals/authenticate/authenticate-dialog';
 
 export const StateContext = createContext({});
 
@@ -418,6 +419,8 @@ export default function ProductIVF({ Component, pageProps, router }) {
 
   // State
   let [authenticateOpen, setAuthenticateOpen] = useState(false);
+  let [onAuthenticateFunction, setOnAuthenticateFunction] = useState(`Default`);
+  let [onAuthenticateLabel, setOnAuthenticateLabel] = useState(defaultAuthenticateLabel);
 
   let [user, setUser] = useState(null);
   let [users, setUsers] = useState([]);
@@ -481,6 +484,19 @@ export default function ProductIVF({ Component, pageProps, router }) {
     await setEmailField(false);
     await resetGridsBoards();
   }
+
+  const switchSelectedGrid = (usr, selectedGrd) => {
+    let usrGridURL = `/user/${usr?.rank}/grids/${selectedGrd?.rank}`;
+    if (usr?.lastSelectedGridID != selectedGrd?.id) {
+      updateDocFieldsWTimeStamp(usr, { 
+        lastSelectedGridID: selectedGrd?.id, 
+        [`data.selectedGridIDs`]: [selectedGrd?.id], 
+      });
+    }
+    router.replace(usrGridURL, undefined, {
+      shallow: true,
+    });
+}
 
   const onSignOut = async (navigateToHome = true) => {
     try {
@@ -630,7 +646,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
         let gridBoard = globalUserData?.boards?.find(brd => brd?.id == bordID);
         if (gridBoard) return new Board(gridBoard);
       })
-      if (globalUserDataLoading || globalUserData?.lastUpdateFrom == `Tasks` || globalUserData?.lastUpdateFrom == `Boards`) {
+      if (globalUserDataLoading || globalUserData?.lastUpdateFrom == `Tasks`) {
         setBoards(gridBoardsByID);
       }
       setBoardsLoading(false);
@@ -932,7 +948,10 @@ export default function ProductIVF({ Component, pageProps, router }) {
       seedUserData,
       signOutReset,
       getGridsBoards,
+      switchSelectedGrid,
       setUsersGridsState,
+      onAuthenticateLabel, setOnAuthenticateLabel,
+      onAuthenticateFunction, setOnAuthenticateFunction,
 
       // Grids & Boards
       menuRef, 
@@ -998,6 +1017,8 @@ export default function ProductIVF({ Component, pageProps, router }) {
         pauseOnFocusLoss={false}
         style={{ marginTop: 55 }}
       />
+      {/* Popup which opens to Authenticate User */}
+      <AuthenticationDialog />
       <ContextMenu menuRef={menuRef} menuPosition={menuPosition} />
     </StateContext.Provider>
   )

@@ -66,9 +66,9 @@ export const onAuthenticate = (usr: User, password: string, onAuthenticatedFunct
     }
 }
 
-export default function Authenticate({ actionLabel = `Delete User & All Data` }: any) {
+export default function Authenticate({ }: any) {
     let [password, setPassword] = useState(``);
-    let { user } = useContext<any>(StateContext);
+    let { user, onAuthenticateLabel, onAuthenticateFunction } = useContext<any>(StateContext);
 
     const isDisabled = (formSubmit = true) => {
         let disabled = false;
@@ -119,8 +119,8 @@ export default function Authenticate({ actionLabel = `Delete User & All Data` }:
                     />
                 </div>
                 <button disabled={isDisabled()} className={`authenticateFormSubmitButton gridDetailViewFormSubmit gridFormField flex gap5 ${isDisabled() ? `disabledField` : `hoverBright`}`} type={`submit`}>
-                    <i className={`modalFormButtonIcon fas fa-trash`} style={{ color: `red` }} />
-                    {actionLabel}
+                    <i className={`modalFormButtonIcon fas ${onAuthenticateFunction == `Default` ? `fa-trash` : `fa-eye`}`} style={{ color: `red` }} />
+                    {onAuthenticateLabel}
                 </button>
             {/* </form> */}
         </div>

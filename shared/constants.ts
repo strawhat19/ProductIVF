@@ -9,6 +9,7 @@ import { Board } from './models/Board';
 import { toast } from 'react-toastify';
 
 export const maxAuthAttempts = 5;
+export const defaultAuthenticateLabel = `Delete User & All Data`;
 export const userQueryFields = [`id`, `ID`, `uid`, `uuid`, `rank`, `name`, `role`, `email`, `image`, `avatar`, `phone`, `token`];
 
 export const sortDescending = (arr: (string | number)[]): number[] => {
@@ -54,7 +55,8 @@ export const forceFieldBlurOnPressEnter = (e: any) => {
 
 export const logToast = (message: string, content: any, error = false, data = null) => {
   let sendMsg = typeof content == `string` ? content : ``;
-  console.log(message, content, data);
+  if (data != null) console.log(message, content, data);
+  else console.log(message, content);
   if (error == false) {
     toast.success(message + ` ` + sendMsg);
   } else {

@@ -1,14 +1,14 @@
 import Board from './board';
 import { toast } from 'react-toastify';
-import { Types } from '../../shared/types/types';
+import { GridTypes, Types } from '../../shared/types/types';
 import MultiSelector from '../selector/multi-selector';
-import { updateDocFieldsWTimeStamp } from '../../firebase';
+import { addBoardToDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
 import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
 import { useState, useEffect, useContext, useRef } from 'react';
 import { capWords, dev, replaceAll, StateContext } from '../../pages/_app';
 import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
 import { Board as BoardModel, createBoard } from '../../shared/models/Board';
-import { extractRankFromDocId, findHighestNumberInArrayByKey, generateArray, sortDescending } from '../../shared/constants';
+import { extractRankFromDocId, findHighestNumberInArrayByKey, generateArray, logToast, sortDescending } from '../../shared/constants';
 
 export enum ItemTypes {
     Item = `Item`,
@@ -40,7 +40,11 @@ export default function Boards(props: any) {
         user, users, 
         globalUserData,
         setSystemStatus, 
-        rte, router, setRte, 
+        switchSelectedGrid,
+        rte, router, setRte,
+        setAuthenticateOpen, 
+        setOnAuthenticateLabel,
+        setOnAuthenticateFunction,
         boards, userBoards, setBoards, boardsLoading,
         grids, gridsLoading, selectedGrids, selectedGrid, 
     } = useContext<any>(StateContext);
@@ -55,17 +59,16 @@ export default function Boards(props: any) {
 
     const updateSelectedGrids = async (updatedSelectedGrids) => {
         let thisGrid = updatedSelectedGrids[0];
-        let userGridURL = `/user/${user?.rank}/grids/${thisGrid?.rank}`;
-        if (user?.lastSelectedGridID != thisGrid?.id) {
-            // Update User Selected Grids
-            updateDocFieldsWTimeStamp(user, { 
-                lastSelectedGridID: thisGrid?.id, 
-                'data.selectedGridIDs': [thisGrid?.id], 
-            });
+
+        const openAuthenticationForm = () => {
+            setOnAuthenticateLabel(`View Private Grid`);
+            setOnAuthenticateFunction(thisGrid);
+            setAuthenticateOpen(true);
         }
-        router.replace(userGridURL, undefined, {
-            shallow: true,
-        });
+
+        if (thisGrid?.options?.private == true && thisGrid?.gridType == GridTypes.Private) {
+            openAuthenticationForm();
+        } else switchSelectedGrid(user, thisGrid);
     }
 
     const onDragEnd = (dragEndEvent) => {
@@ -118,23 +121,21 @@ export default function Boards(props: any) {
         
         setSystemStatus(`Creating Board ${boardName}.`);
 
-        let newBoard = createBoard(rank, boardName, user, titleWidth, number, user?.lastSelectedGridID);
+        let newBoard = createBoard(rank, boardName, user, titleWidth, number, selectedGrid?.id);
 
         dev() && console.log(`New Board`, { newBoard, allRanks, allBoardsRanks });
 
-        // Firestore Add Board
-        // Add Board to Boards DB
-        // Add Board ID to Selected Grid // Order Matters
-        // Add Board ID to User // Order Does Not Matter
-
-        setBoards(selectedGrid?.options?.newestBoardsOnTop ? [newBoard, ...boards] : [...boards, newBoard]);
-        // setIDs([...IDs, newBoard.id]);
-
-        e.target.reset();
-        setTimeout(() => {
-            setLoading(false);
-            setSystemStatus(`Created Board ${newBoard.name}.`);
-        }, 1000);
+        setLoading(false);
+        const addBoardToast = toast.info(`Adding Board`);
+        await addBoardToDatabase(newBoard, selectedGrid?.id, user?.id, selectedGrid?.options?.newestBoardsOnTop)?.then(bord => {
+            if (bord?.type && bord?.type == Types.Board) {
+                toast.dismiss(addBoardToast);
+                logToast(`Successfully Added Board`, bord);
+                e.target.reset();
+            }
+        })?.catch(addBordError => {
+            logToast(`Failed to Add Board`, addBordError, true);
+        });
     }
     
     const createBoardComponent = () => (

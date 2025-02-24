@@ -9,8 +9,9 @@ import { Board } from './shared/models/Board';
 import { Types } from './shared/types/types';
 import { countPropertiesInObject, logToast } from './shared/constants';
 import { GoogleAuthProvider, browserLocalPersistence, deleteUser, getAuth, setPersistence } from 'firebase/auth';
-import { collection, doc, getDocs, getFirestore, query, setDoc, updateDoc, where, WhereFilterOp, writeBatch } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, getFirestore, query, setDoc, updateDoc, where, WhereFilterOp, writeBatch } from 'firebase/firestore';
 import { Feature } from './shared/admin/features';
+import { getIDParts } from './shared/ID';
 
 export enum Environments {
   beta = `beta_`,
@@ -223,7 +224,54 @@ export const deleteUserAuth = async (usr: User) => {
   }
 }
 
+export const addBoardToDatabase = async (board: Board, gridID: string, userID: string, newestBoardsOnTop: boolean = true) => {
+  const { date } = getIDParts();
+  const addBoardBatchOperation = await writeBatch(db);
+  try {
+    const boardRef = await doc(db, boardsTable, board.id);
+    const userRef = await doc(db, usersTable, userID);
+    const gridRef = await doc(db, gridsTable, gridID);
+
+    await addBoardBatchOperation.set(boardRef, { ...board });
+
+    const userDoc = await getDoc(userRef);
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      const userBoardIDsToUse = userData.data?.boardIDs ?? [];
+      const updatedUsersBoardIDs = newestBoardsOnTop
+        ? [board.id, ...userBoardIDsToUse]
+        : [...userBoardIDsToUse, board.id];
+      addBoardBatchOperation.update(userRef, {
+        [`meta.updated`]: date,
+        [`data.boardIDs`]: updatedUsersBoardIDs,
+        properties: countPropertiesInObject({ ...userData, data: { ...userData?.data, boardIDs: updatedUsersBoardIDs } }),
+      });
+    }
+
+    const gridDoc = await getDoc(gridRef);
+    if (gridDoc.exists()) {
+      const gridData = gridDoc.data();
+      const gridBoardIDsToUse = gridData.data?.boardIDs ?? [];
+      const updatedGridsBoardIDs = newestBoardsOnTop
+        ? [board.id, ...gridBoardIDsToUse]
+        : [...gridBoardIDsToUse, board.id];
+      addBoardBatchOperation.update(gridRef, {
+        [`meta.updated`]: date,
+        [`data.boardIDs`]: updatedGridsBoardIDs,
+        properties: countPropertiesInObject({ ...gridData, data: { ...gridData?.data, boardIDs: updatedGridsBoardIDs } }),
+      });
+    }
+
+    await addBoardBatchOperation.commit();
+    return board;
+  } catch (addBoardError) {
+    await logToast(`Error Adding Board ${board?.name}`, addBoardError, true);
+    return addBoardError;
+  }
+}
+
 export const deleteBoardFromDatabase = async (board: Board) => {
+  const { date } = getIDParts();
   const deleteBoardBatchOperation = await writeBatch(db);
   try {
     const usersRef = await collection(db, usersTable);
@@ -238,7 +286,9 @@ export const deleteBoardFromDatabase = async (board: Board) => {
       const userData = userDoc.data();
       const updatedUsersBoardIDs = userData.data.boardIDs.filter((id: string) => id !== board.id);
       deleteBoardBatchOperation?.update(userRef, {
+        [`meta.updated`]: date,
         [`data.boardIDs`]: updatedUsersBoardIDs,
+        properties: countPropertiesInObject({ ...userData, data: { ...userData?.data, boardIDs: updatedUsersBoardIDs } }),
       });
     });
 
@@ -250,17 +300,18 @@ export const deleteBoardFromDatabase = async (board: Board) => {
       const gridData = gridDoc.data();
       const updatedGridsBoardIDs = gridData.data.boardIDs.filter((id: string) => id !== board.id);
       deleteBoardBatchOperation?.update(gridRef, {
+        [`meta.updated`]: date,
         [`data.boardIDs`]: updatedGridsBoardIDs,
+        properties: countPropertiesInObject({ ...gridData, data: { ...gridData?.data, boardIDs: updatedGridsBoardIDs } }),
       });
     });
 
     await deleteBoardBatchOperation?.delete(boardRef);
-
     await deleteBoardBatchOperation?.commit();
-
     return board;
   } catch (deleteBoardError) {
     await logToast(`Error Deleting Board ${board?.name}`, deleteBoardError, true);
+    return deleteBoardError;
   }
 }
 

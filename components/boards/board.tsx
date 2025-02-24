@@ -2,7 +2,7 @@ import Column from './column';
 import { toast } from 'react-toastify';
 import { Types } from '../../shared/types/types';
 import { getBoardTitleWidth, ItemTypes } from './boards';
-import { deleteBoardFromDatabase } from '../../firebase';
+import { deleteBoardFromDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
 import ConfirmAction from '../context-menus/confirm-action';
 import { Board as BoardModel } from '../../shared/models/Board';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
@@ -77,7 +77,9 @@ export default function Board(props) {
 
     const finallyDeleteBoard = async (bord: BoardModel, useDB = true) => {
         if (useDB == true) {
+            const deleteBoardToast = toast.info(`Deleting Board ${bord?.name}`);
             await deleteBoardFromDatabase(bord)?.then(brd => {
+                toast.dismiss(deleteBoardToast);
                 logToast(`Successfully Deleted Board`, brd);
             })?.catch(deleteBrdError => {
                 logToast(`Failed to Delete Board`, deleteBrdError, true);
@@ -92,40 +94,23 @@ export default function Board(props) {
         toast.info(`Board Search in Development`);
     }
 
-    const expandCollapseBoard = (e, board) => {
-        setBoard(prevBoard => {
-            if (board?.type == Types.Board) {
-                return {
-                    ...prevBoard,
-                    options: {
-                        ...prevBoard?.options,
-                        expanded: !prevBoard?.options?.expanded,
-                    }
-                }
-            } else {
-                return {
-                    ...prevBoard,
-                    expanded: !prevBoard.expanded,
-                }
-            }
-        });
+    const expandCollapseBoard = (e, bord) => {
+        updateDocFieldsWTimeStamp(bord, { [`options.expanded`]: !bord?.options?.expanded });
     }
 
-    const changeLabel = (e, item, setItem) => {
-        let value = e.target.value == `` ? capitalizeAllWords(item.name) : capitalizeAllWords(e.target.value);
-        if (value?.toLowerCase() == item?.name?.toLowerCase()) return;
+    const changeLabel = (e, bord) => {
+        let value = e.target.value == `` ? capitalizeAllWords(bord.name) : capitalizeAllWords(e.target.value);
+        if (value?.toLowerCase() == bord?.name?.toLowerCase()) return;
+
         if (!e.target.value || e.target.value == ``) {
-            e.target.value = capitalizeAllWords(item.name);
+            e.target.value = capitalizeAllWords(bord.name);
             return;
-        };
+        }
+
         let newTitle = capitalizeAllWords(value);
         let titleWidth = getBoardTitleWidth(newTitle);
-        setBoardName(newTitle);
-        e.target.value = newTitle;
-        e.target.style.width = titleWidth;
-        if (item.id.includes(`board`)) {
-            setItem({ ...item, titleWidth, updated: formatDate(new Date()), name: capitalizeAllWords(value)});
-        }
+
+        updateDocFieldsWTimeStamp(bord, { titleWidth, name: newTitle, A: newTitle, title: `${bord?.type} ${bord?.rank} ${newTitle}` });
     }
 
     const addNewColumn = (e) => {
@@ -286,9 +271,9 @@ export default function Board(props) {
                                         name={`boardName`} 
                                         title={board?.name} 
                                         id={`${board.id}_change_label`} 
-                                        onBlur={(e) => changeLabel(e, board, setBoard)} 
+                                        onBlur={(e) => changeLabel(e, board)} 
+                                        onChange={(e) => changeLabel(e, board)}
                                         onKeyDown={(e) => forceFieldBlurOnPressEnter(e)}
-                                        onChange={(e) => changeLabel(e, board, setBoard)}
                                         style={{ width: (board?.expanded || board?.options?.expanded) ? (board.titleWidth ? board.titleWidth : `75px`) : `100%` }} 
                                         className={`boardNameField changeLabel textOverflow ${(board?.expanded || board?.options?.expanded) ? `expandedBoardChangeLabel` : `stretch collapsedBoardChangeLabel`}`} 
                                     />

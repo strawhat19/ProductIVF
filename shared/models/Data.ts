@@ -17,10 +17,9 @@ export class Data {
   type: Types = Types.Data;
 
   meta = {
+    updatedby: ``,
     created: undefined,
     updated: undefined,
-    createdby: undefined,
-    updatedby: undefined,
   }
 
   constructor(data: Partial<Data>) {
