@@ -1,6 +1,6 @@
 import Column from './column';
 import { toast } from 'react-toastify';
-import { Types } from '../../shared/types/types';
+import { TasksFilterStates, Types } from '../../shared/types/types';
 import { getBoardTitleWidth, ItemTypes } from './boards';
 import { deleteBoardFromDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
 import ConfirmAction from '../context-menus/confirm-action';
@@ -30,20 +30,39 @@ export default function Board(props) {
     let [showSearch, setShowSearch] = useState(false);
     let [showConfirm, setShowConfirm] = useState(false);
     let [boardName, setBoardName] = useState(board?.name ?? `Board`);
-    let { user, boards, setBoards, setLoading, selectedGrid, setSystemStatus, completeFiltered, setCompleteFiltered, IDs, setIDs } = useContext<any>(StateContext);
+
+    let [isExpanded, setIsExpanded] = useState(board?.options?.expanded);
+    let [tasksFilterState, setTasksFilterState] = useState(board?.options?.tasksFilterState);
+
+    let { 
+        user, 
+        setLoading, 
+        IDs, setIDs, 
+        selectedGrid, 
+        setSystemStatus, 
+        completeFiltered, 
+        boards, setBoards, 
+        setCompleteFiltered, 
+    } = useContext<any>(StateContext);
+
+    const setBoardFocused = () => {
+        // Empty
+    }
 
     const filterSubtasks = (e?: any) => {
-        if (board.hideAllTasks) {
-            setBoard(prevBoard => ({ ...prevBoard, hideAllTasks: false, tasksFiltered: !prevBoard.tasksFiltered }));
-        } else {
-            if (board.tasksFiltered) {
-                setBoard(prevBoard => ({ ...prevBoard, hideAllTasks: true }));
-            } else {
-                if (!board.hideAllTasks) {
-                    setBoard(prevBoard => ({ ...prevBoard, tasksFiltered: !prevBoard.tasksFiltered }));
-                } else {
-                    setBoard(prevBoard => ({ ...prevBoard, hideAllTasks: false }));
-                }
+        const bord: BoardModel = props.board;
+        if (bord) {
+            if (tasksFilterState == TasksFilterStates.All_On) {
+                setTasksFilterState(TasksFilterStates.Tasks);
+                updateDocFieldsWTimeStamp(bord, { [`options.tasksFilterState`]: TasksFilterStates.Tasks });
+            }
+            if (tasksFilterState == TasksFilterStates.Tasks) {
+                setTasksFilterState(TasksFilterStates.All_Off);
+                updateDocFieldsWTimeStamp(bord, { [`options.tasksFilterState`]: TasksFilterStates.All_Off });
+            }
+            if (tasksFilterState == TasksFilterStates.All_Off) {
+                setTasksFilterState(TasksFilterStates.All_On);
+                updateDocFieldsWTimeStamp(bord, { [`options.tasksFilterState`]: TasksFilterStates.All_On });
             }
         }
     }
@@ -55,8 +74,8 @@ export default function Board(props) {
             }
             setShowConfirm(false);
         } else {
-            let boardsListssLn = bord?.data?.listIDs;
-            if (boardsListssLn?.length > 0) {
+            let boardsListsLn = bord?.data?.listIDs;
+            if (boardsListsLn?.length > 0) {
                 setShowConfirm(true);
             } else {
                 finallyDeleteBoard(bord);
@@ -94,11 +113,12 @@ export default function Board(props) {
         toast.info(`Board Search in Development`);
     }
 
-    const expandCollapseBoard = (e, bord) => {
-        updateDocFieldsWTimeStamp(bord, { [`options.expanded`]: !bord?.options?.expanded });
+    const expandCollapseBoard = (e, bord: BoardModel) => {
+        setIsExpanded(!isExpanded);
+        updateDocFieldsWTimeStamp(bord, { [`options.expanded`]: !isExpanded });
     }
 
-    const changeLabel = (e, bord) => {
+    const changeLabel = (e, bord: BoardModel) => {
         let value = e.target.value == `` ? capitalizeAllWords(bord.name) : capitalizeAllWords(e.target.value);
         if (value?.toLowerCase() == bord?.name?.toLowerCase()) return;
 
@@ -117,11 +137,11 @@ export default function Board(props) {
         e.preventDefault();
         setLoading(true);
         setSystemStatus(`Creating Column.`);
-        let newListID = `list_${board?.data?.columnIDs.length + 1}`;
+        let newListID = `list_${board?.data?.listIDs.length + 1}`;
         let columnID = `${newListID}_${generateUniqueID(IDs)}`;
         let formFields = e.target.children;
 
-        const newColumnOrder = Array.from(board?.data?.columnIDs);
+        const newColumnOrder = Array.from(board?.data?.listIDs);
         newColumnOrder.push(columnID);
 
         const newColumn = {
@@ -142,15 +162,15 @@ export default function Board(props) {
             }),
         };
 
-        setBoard({
-            ...board,
-            columnOrder: newColumnOrder,
-            updated: formatDate(new Date()),
-            columns: {
-                ...board?.columns,
-                [columnID]: newColumn
-            }
-        });
+        // setBoard({
+        //     ...board,
+        //     columnOrder: newColumnOrder,
+        //     updated: formatDate(new Date()),
+        //     columns: {
+        //         ...board?.columns,
+        //         [columnID]: newColumn
+        //     }
+        // });
 
         setIDs([...IDs, columnID]);
 
@@ -177,17 +197,17 @@ export default function Board(props) {
        }
 
         if (type === `column`) {
-            const newColumnOrder = Array.from(board?.data?.columnIDs);
+            const newColumnOrder = Array.from(board?.data?.listIDs);
             newColumnOrder.splice(source.index, 1);
             newColumnOrder.splice(destination.index, 0, draggableId);
 
-            setBoard({
-                ...board,
-                data: {
-                    ...board.data,
-                    listIDs: newColumnOrder,
-                }
-            });
+            // setBoard({
+            //     ...board,
+            //     data: {
+            //         ...board.data,
+            //         listIDs: newColumnOrder,
+            //     }
+            // });
             return;
         }
 
@@ -204,13 +224,13 @@ export default function Board(props) {
                 itemIds: newItemIds,
             }
 
-            setBoard({
-                ...board,
-                columns: {
-                    ...board?.columns,
-                    [newColumn.id]: newColumn
-                }
-            });
+            // setBoard({
+            //     ...board,
+            //     columns: {
+            //         ...board?.columns,
+            //         [newColumn.id]: newColumn
+            //     }
+            // });
             return;
         }
 
@@ -228,15 +248,15 @@ export default function Board(props) {
             itemIds: finishItemIds,
         }
 
-        setBoard({
-            ...board,
-            updated: formatDate(new Date()),
-            columns: {
-                ...board?.columns,
-                [newStart.id]: newStart,
-                [newFinish.id]: newFinish,
-            }
-        });
+        // setBoard({
+        //     ...board,
+        //     updated: formatDate(new Date()),
+        //     columns: {
+        //         ...board?.columns,
+        //         [newStart.id]: newStart,
+        //         [newFinish.id]: newFinish,
+        //     }
+        // });
     }
 
     useEffect(() => {
@@ -256,14 +276,14 @@ export default function Board(props) {
             <section className={`boardsTitle boards ${props.index == 0 ? `isFirstBoardSection` : selectedGrid?.data?.boardIDs?.length == props.index - 1 ? `isLastBoardSection` : `isMiddleBoardSection`} ${selectedGrid?.options?.newestBoardsOnTop ? `newestBoardsOnTop` : `newestBoardsOnBottom`}`} style={{ paddingBottom: 0 }}>
                 <div className={`board boardInner boardTitle`}>
                     <div {...props.provided.dragHandleProps} className={`boardDetailsRowContainer titleRow flex row`}>
-                        <div className={`boardDetailsRow flex row innerRow ${(board?.expanded || board?.options?.expanded) ? `expandedBoardDetailsRow` : `collapsedBoardDetailsRow`}`}>
-                            <div className={`boardIndexAndTitle flex row left ${(board?.expanded || board?.options?.expanded) ? `` : `stretch`}`}>
+                        <div className={`boardDetailsRow flex row innerRow ${isExpanded ? `expandedBoardDetailsRow` : `collapsedBoardDetailsRow`}`}>
+                            <div className={`boardIndexAndTitle flex row left ${isExpanded ? `` : `stretch`}`}>
                                 <h3 className={`boardIndexBadge`}>
                                     <span className={`subscript itemOrder slashes`}>
                                         {props.index + 1}
                                     </span>
                                 </h3>
-                                <h2 className={`boardTitleField ${(board?.expanded || board?.options?.expanded) ? `` : `stretch`}`}>
+                                <h2 className={`boardTitleField ${isExpanded ? `` : `stretch`}`}>
                                     <input 
                                         type={`text`} 
                                         value={boardName} 
@@ -274,11 +294,11 @@ export default function Board(props) {
                                         onBlur={(e) => changeLabel(e, board)} 
                                         onChange={(e) => changeLabel(e, board)}
                                         onKeyDown={(e) => forceFieldBlurOnPressEnter(e)}
-                                        style={{ width: (board?.expanded || board?.options?.expanded) ? (board.titleWidth ? board.titleWidth : `75px`) : `100%` }} 
-                                        className={`boardNameField changeLabel textOverflow ${(board?.expanded || board?.options?.expanded) ? `expandedBoardChangeLabel` : `stretch collapsedBoardChangeLabel`}`} 
+                                        style={{ width: isExpanded ? (board.titleWidth ? board.titleWidth : `75px`) : `100%` }} 
+                                        className={`boardNameField changeLabel textOverflow ${isExpanded ? `expandedBoardChangeLabel` : `stretch collapsedBoardChangeLabel`}`} 
                                     />
                                 </h2>
-                                {(board?.expanded || board?.options?.expanded) && <>
+                                {isExpanded && <>
                                     <h3 className={`boardDate`}>
                                         <span className={`subscript rowDate itemDate itemName itemCreated itemUpdated textOverflow extended flex row`}>
                                             <i> - </i>
@@ -320,8 +340,8 @@ export default function Board(props) {
                                     |
                                 </span>
                             </h3>
-                            <div className={`boardOptionsRow flex row right ${(board?.expanded || board?.options?.expanded) ? `expandedBoardOptionsRow` : `collapsedBoardOptionsRow`}`}>
-                                {(board?.expanded || board?.options?.expanded) && <>
+                            <div className={`boardOptionsRow flex row right ${isExpanded ? `expandedBoardOptionsRow` : `collapsedBoardOptionsRow`}`}>
+                                {isExpanded && <>
                                     <h3 className={`boardOptions filtersSubscript`}>
                                         <span className={`boardOptionsLabel subscript`}>
                                             Options   
@@ -329,9 +349,9 @@ export default function Board(props) {
                                     </h3>
                                 </>}
                                 <div className={`filterFormDiv filterButtons itemButtons`} style={{textAlign: `center`, justifyContent: `space-between`, alignItems: `center`}}>
-                                    {(board?.expanded || board?.options?.expanded) && <>
-                                        <button onClick={(e) =>  filterSubtasks(e)} id={`filter_tasks`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Filter Tasks`} className={`iconButton deleteButton filterButton ${(board.hideAllTasks || board?.tasksFiltered) ? `filterActive` : `filterInactive`}`}>
-                                            <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${(board?.tasksFiltered && !board.hideAllTasks) ? `fa-times-circle` : board.hideAllTasks ? `fa-list-ol` : `fa-bars`}`}></i>
+                                    {isExpanded && <>
+                                        <button onClick={(e) =>  filterSubtasks(e)} id={`filter_tasks`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Filter Tasks`} className={`iconButton deleteButton filterButton ${(tasksFilterState == TasksFilterStates.Tasks || tasksFilterState == TasksFilterStates.All_Off) ? `filterActive` : `filterInactive`}`}>
+                                            <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${(tasksFilterState == TasksFilterStates.Tasks) ? `fa-times-circle` : tasksFilterState == TasksFilterStates.All_Off ? `fa-list-ol` : `fa-bars`}`}></i>
                                             <span className={`iconButtonText textOverflow extended`}>
                                                 Tasks
                                             </span>
@@ -342,7 +362,7 @@ export default function Board(props) {
                                                 Completed
                                             </span>
                                         </button>
-                                        <button onClick={(e) =>  setBoard({...board, focused: !board?.focused})} id={`focus_board`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Focus Board`} className={`iconButton deleteButton filterButton ${board?.focused ? `filterActive` : `filterInactive`}`}>
+                                        <button onClick={(e) =>  setBoardFocused()} id={`focus_board`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Focus Board`} className={`iconButton deleteButton filterButton ${board?.focused ? `filterActive` : `filterInactive`}`}>
                                             <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${board?.focused ? `fas fa-compress-arrows-alt` : `fa-expand-arrows-alt`}`}></i>
                                             <span className={`iconButtonText textOverflow extended`}>
                                                 Focus
@@ -393,7 +413,7 @@ export default function Board(props) {
                                                 </button>
                                             )}
                                             <button onClick={(e) => expandCollapseBoard(e, board)} className={`iconButton`}>
-                                                {(board?.expanded || board?.options?.expanded) ? <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-chevron-up"></i> : <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-chevron-down"></i>}
+                                                <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-chevron-${isExpanded ? `up` : `down`}`} />
                                             </button>
                                         </div>
                                     )}
@@ -403,11 +423,11 @@ export default function Board(props) {
                     </div>
                 </div>
             </section>
-            {board?.data?.columnIDs && board?.data?.columnIDs?.length > 0 && (
+            {board?.data?.listIDs && board?.data?.listIDs?.length > 0 && (
                 <Droppable droppableId={`${board.id}_boardColumns`} direction="horizontal" type="column">
                     {(provided, snapshot) => (
-                        <section id={`board_${board.id}`} className={`board lists columns container ${(board?.expanded || board?.options?.expanded) ? `expanded` : `collapsed`} ${snapshot.isDraggingOver ? `isDraggingOver` : ``} ${board?.data?.columnIDs && (board?.data?.columnIDs.length == 2 ? `clipColumns` : board?.data?.columnIDs.length == 3 ? `threeBoard overflowingBoard` : board?.data?.columnIDs.length > 3 ? `moreBoard overflowingBoard` : ``)}`} ref={provided.innerRef} {...provided.droppableProps} style={props.style}>
-                            {board?.data?.columnIDs && board?.data?.columnIDs.map((columnId, index) => {
+                        <section id={`board_${board.id}`} className={`board lists columns container ${isExpanded ? `expanded` : `collapsed`} ${snapshot.isDraggingOver ? `isDraggingOver` : ``} ${board?.data?.listIDs && (board?.data?.listIDs.length == 2 ? `clipColumns` : board?.data?.listIDs.length == 3 ? `threeBoard overflowingBoard` : board?.data?.listIDs.length > 3 ? `moreBoard overflowingBoard` : ``)}`} ref={provided.innerRef} {...provided.droppableProps} style={props.style}>
+                            {board?.data?.listIDs && board?.data?.listIDs.map((columnId, index) => {
                                 const column = board?.columns[columnId];
                                 const items = column.itemIds.map(itemId => board?.items[itemId]);
                                 if (!column.itemType) column.itemType = ItemTypes.Item;
@@ -419,7 +439,7 @@ export default function Board(props) {
                                         column={column} 
                                         key={column?.id} 
                                         setBoard={setBoard} 
-                                        hideAllTasks={board.hideAllTasks} 
+                                        hideAllTasks={tasksFilterState == TasksFilterStates.All_Off} 
                                     />
                                 );
                             })}

@@ -326,7 +326,8 @@ export default function Form(props?: any) {
               )) {
                 onSignUp(email, password, form);
               } else {
-                toast.error(`Invalid Email`);
+                const constructedUsernameFromEmail = `${email}@${email}.com`;
+                onSignUp(constructedUsernameFromEmail, password, form);
               }
             } else {
               toast.error(`Password must be 6 characters or greater`);
