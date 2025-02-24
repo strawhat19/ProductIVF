@@ -7,7 +7,7 @@ import Authenticate, { onAuthenticate } from './authenticate';
 import { deleteDatabaseData, deleteUserAuth } from '../../../firebase';
 
 export default function AuthenticationDialog({ }: any) {
-    const { user, switchSelectedGrid, signOutReset, onSignOut, onAuthenticateFunction, authenticateOpen, setAuthenticateOpen } = useContext<any>(StateContext);
+    const { user, signOutReset, onSignOut, onAuthenticateFunction, authenticateOpen, setAuthenticateOpen } = useContext<any>(StateContext);
 
     const deleteUserFromDatabases = async () => {
         toast.info(`Deleting User ${user?.id}`);
@@ -35,18 +35,28 @@ export default function AuthenticationDialog({ }: any) {
                         const formData = new FormData(event.currentTarget);
                         const formJson = Object.fromEntries((formData as any).entries());
                         const { password } = formJson;
-                        const switchGrid = () => {
-                            setAuthenticateOpen(false);
-                            switchSelectedGrid(user, onAuthenticateFunction);
-                        }
+                        // const switchGrid = () => {
+                        //     setAuthenticateOpen(false);
+                        //     switchSelectedGrid(user, upNextGrid);
+                        //     // let usrGridURL = `/user/${user?.rank}/grids/${upNextGrid?.rank}`;
+                        //     // router.replace(usrGridURL, undefined, {
+                        //     //     shallow: true,
+                        //     // });
+                        // }
+                        // const setGrid = () => {
+                        //     setAuthenticateOpen(false);
+                        //     setSelectedGrd(upNextGrid);
+                        //     // let usrGridURL = `/user/${user?.rank}/grids/${upNextGrid?.rank}`;
+                        //     // router.replace(usrGridURL, undefined, {
+                        //     //     shallow: true,
+                        //     // });
+                        // }
                         const deleteAndCloseDialog = () => {
                             setAuthenticateOpen(false);
                             deleteUserFromDatabases();
                         }
                         if (onAuthenticateFunction == `Default`) {
                             onAuthenticate(user, password, deleteAndCloseDialog, event);
-                        } else {
-                            onAuthenticate(user, password, switchGrid, event);
                         }
                     },
                 },

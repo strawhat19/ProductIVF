@@ -32,6 +32,7 @@ export const onAuthenticate = (usr: User, password: string, onAuthenticatedFunct
                 if (userCredential != null) {
                     let closeButton: any = document.querySelector(`.alertButton`);
                     if (closeButton) closeButton.click();
+                    updateDocFieldsWTimeStamp(usr, { 'auth.lastAuthenticated': date });
                     onAuthenticatedFunction(usr);
                 }
             }).catch((error) => {

@@ -17,7 +17,6 @@ export class Data {
   type: Types = Types.Data;
 
   meta = {
-    updatedby: ``,
     created: undefined,
     updated: undefined,
   }

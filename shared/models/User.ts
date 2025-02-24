@@ -79,9 +79,11 @@ export class User extends Data {
 
   auth = {
     attempts: 0,
+    lastSignIn: ``,
     verified: false,
     signedIn: false,
     anonymous: false,
+    lastAuthenticated: ``,
     lastAttempt: undefined,
     provider: Providers.Firebase,
   }

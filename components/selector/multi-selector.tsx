@@ -131,7 +131,7 @@ const MultiSelector = forwardRef((props: any, ref) => {
     placeholder = `Start Typing or Click Here`, 
   } = props;
 
-  let { selectedGrid, activeOptions, setActiveOptions } = useContext<any>(StateContext);
+  let { user, selectedGrid, activeOptions, setActiveOptions } = useContext<any>(StateContext);
 
   let [hoveringOver, setHoveringOver] = useState(false);
 
@@ -196,7 +196,7 @@ const MultiSelector = forwardRef((props: any, ref) => {
               let isFirst = index == 0;
               let isLast = index == groupedOptions.length - 1;
               return (
-                <li className={`multiSelectorOption customHookOption ${isFirst ? `isFirst` : isLast ? `isLast` : `isMiddle`}`} key={index} {...getOptionProps({ option, index })}>
+                <li className={`multiSelectorOption customHookOption ${isFirst ? `isFirst` : isLast ? `isLast` : `isMiddle`}`} key={index} {...getOptionProps({ option, index })} aria-selected={option?.id == user?.lastSelectedGridID}>
                   <div className={`listedOptionContainer`}>
                     <div className={`listedOptionIndexField`}> 
                       <i className={`listedOptionIcon selectedOptionIcon ${getGridIconOption(option)}`} style={{ fontSize: 16 }} />

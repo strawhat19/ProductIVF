@@ -1,13 +1,13 @@
 import Board from './board';
 import { toast } from 'react-toastify';
-import { GridTypes, Types } from '../../shared/types/types';
+import { Types } from '../../shared/types/types';
 import MultiSelector from '../selector/multi-selector';
-import { addBoardToDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
 import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
 import { useState, useEffect, useContext, useRef } from 'react';
 import { capWords, dev, replaceAll, StateContext } from '../../pages/_app';
 import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
 import { Board as BoardModel, createBoard } from '../../shared/models/Board';
+import { addBoardToDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
 import { extractRankFromDocId, findHighestNumberInArrayByKey, generateArray, logToast, sortDescending } from '../../shared/constants';
 
 export enum ItemTypes {
@@ -42,9 +42,6 @@ export default function Boards(props: any) {
         setSystemStatus, 
         switchSelectedGrid,
         rte, router, setRte,
-        setAuthenticateOpen, 
-        setOnAuthenticateLabel,
-        setOnAuthenticateFunction,
         boards, userBoards, setBoards, boardsLoading,
         grids, gridsLoading, selectedGrids, selectedGrid, 
     } = useContext<any>(StateContext);
@@ -60,15 +57,17 @@ export default function Boards(props: any) {
     const updateSelectedGrids = async (updatedSelectedGrids) => {
         let thisGrid = updatedSelectedGrids[0];
 
-        const openAuthenticationForm = () => {
-            setOnAuthenticateLabel(`View Private Grid`);
-            setOnAuthenticateFunction(thisGrid);
-            setAuthenticateOpen(true);
-        }
+        // const openAuthenticationForm = () => {
+        //     setOnAuthenticateLabel(`View Private Grid`);
+        //     setOnAuthenticateFunction(`Switch Grid`);
+        //     setAuthenticateOpen(true);
+        //     setUpNextGrid(thisGrid);
+        // }
 
-        if (thisGrid?.options?.private == true && thisGrid?.gridType == GridTypes.Private) {
-            openAuthenticationForm();
-        } else switchSelectedGrid(user, thisGrid);
+        switchSelectedGrid(user, thisGrid);
+        // if (thisGrid?.options?.private == true && thisGrid?.gridType == GridTypes.Private) {
+        //     openAuthenticationForm();
+        // } else switchSelectedGrid(user, thisGrid);
     }
 
     const onDragEnd = (dragEndEvent) => {

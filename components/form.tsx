@@ -78,6 +78,7 @@ export default function Form(props?: any) {
     setContent,
     signInUser, 
     usersLoading,
+    setUpNextGrid,
     updates, setUpdates, 
     setAuthenticateOpen,
     setOnAuthenticateLabel,
@@ -108,6 +109,7 @@ export default function Form(props?: any) {
       setOnAuthenticateLabel(defaultAuthenticateLabel);
       setOnAuthenticateFunction(`Default`);
       setAuthenticateOpen(true);
+      setUpNextGrid(null);
     }
     if (showConfirm == true) {
       if (!initialConfirm) openAuthenticationForm();

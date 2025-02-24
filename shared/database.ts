@@ -69,11 +69,9 @@ export const seedUserData = (user: User | any) => {
         auth: {
             ...user?.auth,
             signedIn: true,
-            lastAttempt: user?.meta?.updated,
-        },
-        meta: {
-            ...user?.meta,
             lastSignIn: user?.meta?.updated,
+            lastAttempt: user?.meta?.updated,
+            lastAuthenticated: user?.meta?.updated,
         },
         data: {
             ...user?.data,

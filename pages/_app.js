@@ -10,7 +10,7 @@ import { Item } from '../shared/models/Item';
 import { Task } from '../shared/models/Task';
 import { Board } from '../shared/models/Board';
 import { toast, ToastContainer } from 'react-toastify';
-import { defaultAuthenticateLabel, isValid, logToast } from '../shared/constants';
+import { defaultAuthenticateLabel, isValid, logToast, withinXTime } from '../shared/constants';
 import { AnimatePresence, motion } from 'framer-motion';
 import { createContext, useRef, useState, useEffect } from 'react';
 import ContextMenu from '../components/context-menus/context-menu';
@@ -418,6 +418,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let [year, setYear] = useState(new Date().getFullYear());
 
   // State
+  let [upNextGrid, setUpNextGrid] = useState(null);
   let [authenticateOpen, setAuthenticateOpen] = useState(false);
   let [onAuthenticateFunction, setOnAuthenticateFunction] = useState(`Default`);
   let [onAuthenticateLabel, setOnAuthenticateLabel] = useState(defaultAuthenticateLabel);
@@ -469,12 +470,15 @@ export default function ProductIVF({ Component, pageProps, router }) {
     setBoards([]);
     setUserGrids([]);
     setUsersGrids([]);
+    setUpNextGrid(null);
     setSelectedGrids([]);
     setActiveOptions([]);
     setSelectedGrid(null);
     setGridsLoading(true);
     setBoardsLoading(true);
     setGlobalUserDataLoading(true);
+    setOnAuthenticateFunction(`Default`);
+    setOnAuthenticateLabel(defaultAuthenticateLabel);
   }
 
   const signOutReset = async () => {
@@ -485,6 +489,12 @@ export default function ProductIVF({ Component, pageProps, router }) {
     await resetGridsBoards();
   }
 
+  const setSelectedGrd = (selectedGrd) => {
+    setSelectedGrid(selectedGrd);
+    setSelectedGrids([selectedGrd]);
+    setActiveOptions([selectedGrd]);
+  }
+
   const switchSelectedGrid = (usr, selectedGrd) => {
     let usrGridURL = `/user/${usr?.rank}/grids/${selectedGrd?.rank}`;
     if (usr?.lastSelectedGridID != selectedGrd?.id) {
@@ -493,10 +503,12 @@ export default function ProductIVF({ Component, pageProps, router }) {
         [`data.selectedGridIDs`]: [selectedGrd?.id], 
       });
     }
-    router.replace(usrGridURL, undefined, {
-      shallow: true,
-    });
-}
+    // if (navigate) {
+      router.replace(usrGridURL, undefined, {
+        shallow: true,
+      });
+    // }
+  }
 
   const onSignOut = async (navigateToHome = true) => {
     try {
@@ -610,7 +622,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
         let existingUser = users.find(eml => eml?.email?.toLowerCase() == email?.toLowerCase());
         if (existingUser) {
           const { date } = getIDParts();
-          await updateDocFieldsWTimeStamp(existingUser, { 'auth.signedIn': false, 'meta.lastSignIn': date });
+          await updateDocFieldsWTimeStamp(existingUser, { 'auth.signedIn': false, 'auth.lastSignIn': date, 'auth.lastAuthenticated': date });
           signInUser(existingUser, true);
           toast.success(`Successfully Signed In`);
         } else {
@@ -708,9 +720,17 @@ export default function ProductIVF({ Component, pageProps, router }) {
     }
     let lastSelectedGrid = usersGridsByID?.find(gr => gr?.id == lastSelectedGridID);
     if (lastSelectedGrid) {
-      setSelectedGrid(lastSelectedGrid);
-      setSelectedGrids([lastSelectedGrid]);
-      setActiveOptions([lastSelectedGrid]);
+      // const openAuthenticationForm = () => {
+      //   setOnAuthenticateLabel(`View Private Grid`);
+      //   setOnAuthenticateFunction(`Set Grid`);
+      //   setUpNextGrid(lastSelectedGrid);
+      //   setAuthenticateOpen(true);
+      // }
+      setSelectedGrd(lastSelectedGrid);
+      // let recentlyAuthenticated = withinXTime(user?.auth?.lastAuthenticated, 15, `minutes`);
+      // if (!recentlyAuthenticated && (lastSelectedGrid?.options?.private == true && lastSelectedGrid?.gridType == GridTypes.Private)) {
+      //   openAuthenticationForm();
+      // } else setSelectedGrd(lastSelectedGrid);
     }
     setGlobalUserData(prevGlobalUserData => ({
       ...prevGlobalUserData,
@@ -955,6 +975,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
 
       // Grids & Boards
       menuRef, 
+      setSelectedGrd,
       grids, setGrids,
       lists, setLists, 
       items, setItems, 
@@ -962,6 +983,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       boards, setBoards, 
       selected, setSelected, 
       userGrids, setUserGrids,
+      upNextGrid, setUpNextGrid,
       usersGrids, setUsersGrids,
       userBoards, setUserBoards,
       categories, setCategories, 
