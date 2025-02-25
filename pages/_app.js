@@ -658,7 +658,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
         let gridBoard = globalUserData?.boards?.find(brd => brd?.id == bordID);
         if (gridBoard) return new Board(gridBoard);
       })
-      if (globalUserDataLoading || globalUserData?.lastUpdateFrom == `Tasks`) {
+      if (globalUserDataLoading || globalUserData?.lastUpdateFrom == `Tasks` || globalUserData?.lastUpdateFrom == `Boards`) {
         setBoards(gridBoardsByID);
       }
       setBoardsLoading(false);
@@ -695,7 +695,17 @@ export default function ProductIVF({ Component, pageProps, router }) {
               lastUpdate: getIDParts()?.date,
               [collectionName]: modeledGridDataDocs,
               lastUpdateFrom: capWords(collectionName),
-            }))
+            }));
+            // if (modeledGridDataDocs[0]?.type == Types.Board) {
+            //   let gridBoardsByID = selectedGrid?.data?.boardIDs?.map(bordID => {
+            //     let gridBoard = modeledGridDataDocs?.find(brd => brd?.id == bordID);
+            //     if (gridBoard) return new Board(gridBoard);
+            //   })
+            //   if (gridBoardsByID != boards) {
+            //     setBoards(gridBoardsByID);
+            //   }
+            //   setBoardsLoading(false);
+            // }
           });
         } else {
           setGlobalUserData(null);

@@ -1,13 +1,13 @@
 import Column from './column';
 import { toast } from 'react-toastify';
-import { TasksFilterStates, Types } from '../../shared/types/types';
 import { getBoardTitleWidth, ItemTypes } from './boards';
-import { deleteBoardFromDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
 import ConfirmAction from '../context-menus/confirm-action';
+import React, { useState, useContext, useRef } from 'react';
+import { TasksFilterStates } from '../../shared/types/types';
 import { Board as BoardModel } from '../../shared/models/Board';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
-import React, { useState, useContext, useEffect, useRef } from 'react';
 import { forceFieldBlurOnPressEnter, logToast } from '../../shared/constants';
+import { deleteBoardFromDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
 import { capitalizeAllWords, dev, formatDate, generateUniqueID, StateContext } from '../../pages/_app';
 
 export const addBoardScrollBars = () => {
@@ -50,17 +50,20 @@ export default function Board(props) {
     }
 
     const filterSubtasks = (e?: any) => {
-        if (board?.options?.board?.options?.tasksFilterState == TasksFilterStates.All_On) {
-            // setTasksFilterState(TasksFilterStates.Tasks);
-            updateDocFieldsWTimeStamp(board, { [`options.tasksFilterState`]: TasksFilterStates.Tasks });
-        }
-        if (board?.options?.board?.options?.tasksFilterState == TasksFilterStates.Tasks) {
-            // setTasksFilterState(TasksFilterStates.All_Off);
-            updateDocFieldsWTimeStamp(board, { [`options.tasksFilterState`]: TasksFilterStates.All_Off });
-        }
-        if (board?.options?.board?.options?.tasksFilterState == TasksFilterStates.All_Off) {
-            // setTasksFilterState(TasksFilterStates.All_On);
-            updateDocFieldsWTimeStamp(board, { [`options.tasksFilterState`]: TasksFilterStates.All_On });
+        if (board) {
+            let { tasksFilterState } = board?.options;
+            if (tasksFilterState == TasksFilterStates.All_On) {
+                // setTasksFilterState(TasksFilterStates.Tasks);
+                updateDocFieldsWTimeStamp(board, { [`options.tasksFilterState`]: TasksFilterStates.Tasks });
+            }
+            if (tasksFilterState == TasksFilterStates.Tasks) {
+                // setTasksFilterState(TasksFilterStates.All_Off);
+                updateDocFieldsWTimeStamp(board, { [`options.tasksFilterState`]: TasksFilterStates.All_Off });
+            }
+            if (tasksFilterState == TasksFilterStates.All_Off) {
+                // setTasksFilterState(TasksFilterStates.All_On);
+                updateDocFieldsWTimeStamp(board, { [`options.tasksFilterState`]: TasksFilterStates.All_On });
+            }
         }
     }
 
