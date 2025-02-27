@@ -658,7 +658,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
         let gridBoard = globalUserData?.boards?.find(brd => brd?.id == bordID);
         if (gridBoard) return new Board(gridBoard);
       })
-      if (globalUserDataLoading || globalUserData?.lastUpdateFrom == `Tasks` || globalUserData?.lastUpdateFrom == `Boards`) {
+      if (globalUserDataLoading || globalUserData?.lastUpdateFrom == `Tasks`) {
         setBoards(gridBoardsByID);
       }
       setBoardsLoading(false);
