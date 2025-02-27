@@ -126,7 +126,7 @@ export default function Boards(props: any) {
         const addBoardToast = toast.info(`Adding Board`);
         await addBoardToDatabase(newBoard, selectedGrid?.id, user?.id, selectedGrid?.options?.newestBoardsOnTop)?.then(bord => {
             if (bord?.type && bord?.type == Types.Board) {
-                toast.dismiss(addBoardToast);
+                setTimeout(() => toast.dismiss(addBoardToast), 1500);
                 logToast(`Successfully Added Board`, bord);
                 e.target.reset();
             }

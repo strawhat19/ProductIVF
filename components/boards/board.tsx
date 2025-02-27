@@ -152,7 +152,7 @@ export default function Board(props) {
             if (useDB == true) {
                 const deleteBoardToast = toast.info(`Deleting Board ${board?.name}`);
                 await deleteBoardFromDatabase(board)?.then(brd => {
-                    toast.dismiss(deleteBoardToast);
+                    setTimeout(() => toast.dismiss(deleteBoardToast), 1500);
                     logToast(`Successfully Deleted Board`, brd);
                 })?.catch(deleteBrdError => {
                     logToast(`Failed to Delete Board`, deleteBrdError, true);
