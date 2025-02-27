@@ -3,8 +3,8 @@ import { Types } from '../types/types';
 export const makeTitleFromID = (id) => id && typeof id != `number` && id.includes(`_`) ? id.replaceAll(`_`, ` `) : id;
 
 export enum FeatureIDs {
-    Light_Mode = `Light Mode`,
-    Delete_Self = `Delete Self`,
+    Light_Mode = `Light_Mode`,
+    Delete_Self = `Delete_Self`,
 }
 
 export class Feature {

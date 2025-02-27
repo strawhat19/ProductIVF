@@ -3,12 +3,12 @@
 import { toast } from 'react-toastify';
 import { AuthStates } from '../shared/types/types';
 import { doc, writeBatch } from 'firebase/firestore';
+import { FeatureIDs } from '../shared/admin/features';
 import IVFSkeleton from './loaders/skeleton/ivf_skeleton';
 import ConfirmAction from './context-menus/confirm-action';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { formatDate, StateContext, showAlert, dev } from '../pages/_app';
-import AuthenticationDialog from './modals/authenticate/authenticate-dialog';
 import { createUser, Roles, User, userIsMinRole } from '../shared/models/User';
 import { defaultAuthenticateLabel, findHighestNumberInArrayByKey, stringNoSpaces } from '../shared/constants';
 import { addUserToDatabase, auth, boardConverter, boardsTable, db, gridConverter, gridsTable, updateDocFieldsWTimeStamp } from '../firebase';
@@ -76,6 +76,7 @@ export default function Form(props?: any) {
     onSignIn,
     onSignOut, 
     setContent,
+    getFeature,
     signInUser, 
     usersLoading,
     setUpNextGrid,
@@ -376,7 +377,7 @@ export default function Form(props?: any) {
       </> : <></>}
 
       {/* Delete User */}
-      {user != null && userIsMinRole(user, Roles.Moderator) && (
+      {getFeature(FeatureIDs.Delete_Self)?.status?.public == true && (user != null && userIsMinRole(user, Roles.Moderator)) && (
         <div className={`formFieldWithConfirm`} style={{ position: `relative` }}>
           {formButtonField(
             `Users Loading`, 

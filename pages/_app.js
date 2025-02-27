@@ -9,8 +9,8 @@ import { List } from '../shared/models/List';
 import { Item } from '../shared/models/Item';
 import { Task } from '../shared/models/Task';
 import { Board } from '../shared/models/Board';
+import { Feature } from '../shared/admin/features';
 import { toast, ToastContainer } from 'react-toastify';
-import { defaultAuthenticateLabel, isValid, logToast, withinXTime } from '../shared/constants';
 import { AnimatePresence, motion } from 'framer-motion';
 import { createContext, useRef, useState, useEffect } from 'react';
 import ContextMenu from '../components/context-menus/context-menu';
@@ -18,9 +18,10 @@ import { renderFirebaseAuthErrorMessage } from '../components/form';
 import { AuthStates, GridTypes, Types } from '../shared/types/types';
 import { seedUserData as generateSeedUserData } from '../shared/database';
 import { collection, onSnapshot, query, where  } from 'firebase/firestore';
+import { defaultAuthenticateLabel, isValid, logToast } from '../shared/constants';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import { auth, db, userConverter, gridDataCollectionNames, usersTable, gridsTable, gridConverter, updateDocFieldsWTimeStamp } from '../firebase';
 import AuthenticationDialog from '../components/modals/authenticate/authenticate-dialog';
+import { auth, db, userConverter, gridDataCollectionNames, usersTable, gridsTable, gridConverter, updateDocFieldsWTimeStamp, featuresTable, featureConverter } from '../firebase';
 
 export const StateContext = createContext({});
 
@@ -418,7 +419,9 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let [year, setYear] = useState(new Date().getFullYear());
 
   // State
+  let [features, setFeatures] = useState([]);
   let [upNextGrid, setUpNextGrid] = useState(null);
+  let [featuresLoading, setFeaturesLoading] = useState(true);
   let [authenticateOpen, setAuthenticateOpen] = useState(false);
   let [onAuthenticateFunction, setOnAuthenticateFunction] = useState(`Default`);
   let [onAuthenticateLabel, setOnAuthenticateLabel] = useState(defaultAuthenticateLabel);
@@ -463,6 +466,16 @@ export default function ProductIVF({ Component, pageProps, router }) {
     let userClasses = `${user != null ? `signed_in` : `signed_out`} ${usersLoading ? `users_loading` : `users_loaded`}`;
     let classes = `pageWrapContainer ${route} ${pageName} ${userClasses}`;
     return classes;
+  }
+
+  const getFeature = (featureID) => {
+    if (features && features?.length > 0) {
+      let thisFeature = features?.find(feat => feat?.id == featureID);
+      console.log(`getFeat`, {thisFeature, featureID, features});
+      if (thisFeature) {
+        return thisFeature;
+      }
+    }
   }
 
   const resetGridsBoards = () => {
@@ -831,6 +844,26 @@ export default function ProductIVF({ Component, pageProps, router }) {
     }, error => logToast(`Error on Get Users from Database`, error, true));
     return () => usersDatabaseRealtimeListener();
   }, [])
+
+  useEffect(() => {
+    const featuresDatabase = collection(db, featuresTable)?.withConverter(featureConverter);
+    const featuresDatabaseRealtimeListener = onSnapshot(featuresDatabase, async featuresUpdates => {
+      // On Features Database Update
+      setFeaturesLoading(true);
+      let featuresFromDB = [];
+      featuresUpdates.forEach((doc) => featuresFromDB.push(new Feature({ ...doc.data() })));
+      // featuresFromDB = featuresFromDB?.sort((a, b) => a?.rank - b?.rank);
+      setFeatures(featuresFromDB);
+      setGlobalUserData(prevGlobalUserData => ({
+        ...prevGlobalUserData,
+        features: featuresFromDB,
+      }))
+      setFeaturesLoading(false);
+      dev() && console.log(`Features`, featuresFromDB);
+      // Finish Features Database Update
+    }, error => logToast(`Error on Get Features from Database`, error, true));
+    return () => featuresDatabaseRealtimeListener();
+  }, [])
   
   useEffect(() => {
     setLoading(true);
@@ -964,17 +997,20 @@ export default function ProductIVF({ Component, pageProps, router }) {
       content, setContent, 
       updates, setUpdates, 
       anim, setAnimComplete, 
+      features, setFeatures,
       alertOpen, setAlertOpen, 
       highScore, setHighScore, 
       rearranging, setRearranging, 
       showLeaders, setShowLeaders, 
       systemStatus, setSystemStatus, 
+      featuresLoading, setFeaturesLoading,
       authenticateOpen, setAuthenticateOpen,
 
       // Functions
       onSignIn,
       onSignOut,
       signInUser,
+      getFeature,
       seedUserData,
       signOutReset,
       getGridsBoards,
