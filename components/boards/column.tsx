@@ -15,10 +15,6 @@ export default function Column(props) {
     let [itemTypeMenuOpen, setItemTypeMenuOpen] = useState(false);
     let { user, boards, setBoards, setLoading, setSystemStatus, completeFiltered, IDs, setIDs, selected, menuPosition } = useContext<any>(StateContext);
 
-    // const updateBoards = (user) => {
-    
-    // }
-
     const itemActiveFilters = (itm) => {
         if (completeFiltered) {
             if (!itm.complete) {
