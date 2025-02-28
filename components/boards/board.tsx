@@ -341,17 +341,19 @@ export default function Board(props) {
                                 <h3 className={`boardCount boardColumnCount`}>
                                     {board?.data?.listIDs && board?.data?.listIDs?.length} {(
                                         <span className={`boardCountLabel boardColumnCountLabel subscript`}>
-                                            Column(s)
+                                            List(s)
                                         </span>
                                     )}
                                 </h3>
-                                <h3 className={`boardCount boardItemCount`}>
-                                    {board?.data?.itemIDs && board?.data?.itemIDs?.length} {(
-                                        <span className={`boardCountLabel boardItemCountLabel subscript`}>
-                                            Items(s)
-                                        </span>
-                                    )}
-                                </h3>
+                                {board?.data?.listIDs && board?.data?.listIDs?.length > 0 && (
+                                    <h3 className={`boardCount boardItemCount`}>
+                                        {board?.data?.itemIDs && board?.data?.itemIDs?.length} {(
+                                            <span className={`boardCountLabel boardItemCountLabel subscript`}>
+                                                Items(s)
+                                            </span>
+                                        )}
+                                    </h3>
+                                )}
                             </div>
                             <h3 className={`divSep`}>
                                 <span className={`subscript`} style={{color: `var(--gameBlue)`}}>
@@ -375,7 +377,7 @@ export default function Board(props) {
                                             </span>
                                         </button>
                                         <button onClick={(e) =>  setBoardHideCompleted()} id={`filter_completed`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Filter Completed`} className={`iconButton deleteButton filterButton ${board?.options?.hideCompleted ? `filterActive` : `filterInactive`}`}>
-                                            <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${board?.options?.hideCompleted ? `fa-times-circle` : `fa-check-circle`}`}></i>
+                                            <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-check-circle`} />
                                             <span className={`iconButtonText textOverflow extended`}>
                                                 Completed
                                             </span>
