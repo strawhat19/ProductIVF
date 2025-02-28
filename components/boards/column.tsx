@@ -8,13 +8,14 @@ import { Droppable, Draggable } from 'react-beautiful-dnd';
 import ConfirmAction from '../context-menus/confirm-action';
 import { formatDate, generateUniqueID, StateContext, capitalizeAllWords, dev } from '../../pages/_app';
 import { forceFieldBlurOnPressEnter, logToast, removeExtraSpacesFromString } from '../../shared/constants';
+import { Board } from '../../shared/models/Board';
 
 export default function Column(props) {
     let count = 0;
     let [hoverItemForm, ] = useState(false);
-    let { board, column, hideAllTasks } = props;
     let [showConfirm, setShowConfirm] = useState(false);
     let [itemTypeMenuOpen, setItemTypeMenuOpen] = useState(false);
+    let { board, column, hideAllTasks, updateBoardInState } = props;
     let { user, boards, setBoards, globalUserData, setLoading, setSystemStatus, completeFiltered, IDs, setIDs, selected, menuPosition } = useContext<any>(StateContext);
 
     const itemActiveFilters = (itm) => {
@@ -95,6 +96,9 @@ export default function Column(props) {
 
     const finallyDeleteColumn = async (columnId, index, useDB = true) => {
         if (useDB == true) {
+            const brd: Board = new Board({ ...board });
+            brd.data.listIDs = brd.data.listIDs?.filter(lstid => lstid != columnId);
+            updateBoardInState(brd);
             const deleteListToast = toast.info(`Deleting List ${column?.name}`);
             await deleteListFromDatabase(column)?.then(lst => {
                 setTimeout(() => toast.dismiss(deleteListToast), 1500);

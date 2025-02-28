@@ -175,13 +175,18 @@ export default function Board(props) {
 
         const addListToast = toast.info(`Adding List`);
 
-        setGlobalUserData(prevGlobalUserData => ({
-            ...prevGlobalUserData,
-            lists: [...prevGlobalUserData?.lists, newList],
-            boards: prevGlobalUserData?.boards?.map(brd => brd?.id == board?.id ? ({ 
-                ...brd, data: { ...brd?.data, listIDs: [...brd?.data?.listIDs, newList?.id] } 
-            }) : brd),
-        }))
+        // setGlobalUserData(prevGlobalUserData => ({
+        //     ...prevGlobalUserData,
+        //     lists: [...prevGlobalUserData?.lists, newList],
+        //     boards: prevGlobalUserData?.boards?.map(brd => brd?.id == board?.id ? ({ 
+        //         ...brd, data: { ...brd?.data, listIDs: [...brd?.data?.listIDs, newList?.id] } 
+        //     }) : brd),
+        // }))
+
+        const brd: BoardModel = new BoardModel({ ...board });
+        brd.data.listIDs = [...brd.data.listIDs, newList?.id];
+
+        await updateBoardInState(brd);
 
         await addListToDatabase(newList, board?.id, selectedGrid?.id, user?.id)?.then(lst => {
             if (lst?.type && lst?.type == Types.List) {
@@ -436,18 +441,18 @@ export default function Board(props) {
                             {board?.data?.listIDs && board?.data?.listIDs.map((listId, listIndex) => {
                                 const list = globalUserData?.lists?.find(lst => lst?.id == listId);
                                 if (list) {
-                                    const items = list?.data?.itemIDs.map(itemId => globalUserData?.items?.find(itm => itm?.id == itemId));
                                     return (
                                         <Column 
-                                            items={items} 
+                                            items={[]} 
                                             board={board} 
                                             column={list} 
                                             key={list?.id} 
-                                            index={listIndex} 
+                                            index={listIndex}
+                                            updateBoardInState={updateBoardInState} 
                                             hideAllTasks={board?.options?.tasksFilterState == TasksFilterStates.All_Off} 
                                         />
                                     );
-                                }
+                                } else console.log(`no list`, globalUserData?.lists, listId, board?.data?.listIDs);
                             })}
                             {provided.placeholder}
                         </section>
