@@ -3,12 +3,13 @@ import { toast } from 'react-toastify';
 import { getBoardTitleWidth, ItemTypes } from './boards';
 import ConfirmAction from '../context-menus/confirm-action';
 import React, { useState, useContext, useRef } from 'react';
-import { TasksFilterStates } from '../../shared/types/types';
+import { createList, List } from '../../shared/models/List';
 import { Board as BoardModel } from '../../shared/models/Board';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
-import { forceFieldBlurOnPressEnter, logToast } from '../../shared/constants';
+import { TasksFilterStates, Types } from '../../shared/types/types';
+import { capitalizeAllWords, dev, StateContext } from '../../pages/_app';
 import { deleteBoardFromDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
-import { capitalizeAllWords, dev, formatDate, generateUniqueID, StateContext } from '../../pages/_app';
+import { forceFieldBlurOnPressEnter, getRankAndNumber, logToast } from '../../shared/constants';
 
 export const addBoardScrollBars = () => {
     let boardColumnItems = document.querySelectorAll(`.boardColumnItems`);
@@ -24,16 +25,16 @@ export const addBoardScrollBars = () => {
 }
 
 export default function Board(props) {
-    let { board } = props;
+    let { board, globalUserData } = props;
     let boardNameRef = useRef();
     
     let [showSearch, setShowSearch] = useState(false);
     let [showConfirm, setShowConfirm] = useState(false);
 
     let { 
-        user, 
         setLoading, 
         IDs, setIDs, 
+        user, users, 
         selectedGrid, 
         setSystemStatus, 
         boards, setBoards, 
@@ -163,34 +164,38 @@ export default function Board(props) {
         }
     }
 
-    const addNewColumn = (e) => {
+    const addNewList = async (e) => {
         e.preventDefault();
         setLoading(true);
         setSystemStatus(`Creating Column.`);
-        let newListID = `list_${board?.data?.listIDs.length + 1}`;
-        let columnID = `${newListID}_${generateUniqueID(IDs)}`;
+
+        // let newListID = `list_${board?.data?.listIDs.length + 1}`;
+        // let columnID = `${newListID}_${generateUniqueID(IDs)}`;
         let formFields = e.target.children;
+        let name = formFields[0].value;
 
-        const newColumnOrder = Array.from(board?.data?.listIDs);
-        newColumnOrder.push(columnID);
+        // const newColumnOrder = Array.from(board?.data?.listIDs);
+        // newColumnOrder.push(columnID);
 
-        const newColumn = {
-            itemIds: [],
-            id: columnID,
-            boardID: board?.id,
-            itemType: ItemTypes.Item,
-            title: formFields[0].value,
-            created: formatDate(new Date()),
-            updated: formatDate(new Date()),
-            ...(user != null && {
-                creator: {
-                    id: user?.id,
-                    uid: user?.uid,
-                    name: user?.name,
-                    email: user?.email,
-                }
-            }),
-        };
+        const { rank, number } = await getRankAndNumber(Types.List, globalUserData?.lists, board?.data?.listIDs, users, user);
+        const newList = createList(rank, name, user, number, selectedGrid?.id, board?.id) as List;
+
+        //     itemIds: [],
+        //     id: columnID,
+        //     boardID: board?.id,
+        //     itemType: ItemTypes.Item,
+        //     title: formFields[0].value,
+        //     created: formatDate(new Date()),
+        //     updated: formatDate(new Date()),
+        //     ...(user != null && {
+        //         creator: {
+        //             id: user?.id,
+        //             uid: user?.uid,
+        //             name: user?.name,
+        //             email: user?.email,
+        //         }
+        //     }),
+        // };
 
         // setBoard({
         //     ...board,
@@ -202,13 +207,17 @@ export default function Board(props) {
         //     }
         // });
 
-        setIDs([...IDs, columnID]);
+        // setIDs([...IDs, columnID]);
+
+        dev() && console.log(`New List`, newList);
 
         e.target.reset();
-        setTimeout(() => {
-            let newListFormInput: any = document.querySelector(`#add_item_form_${newColumn.id} input`);
-            if (newListFormInput) newListFormInput.focus();
-        }, 500);
+        // setTimeout(() => {
+        //     if (document) {
+        //         let newListFormInput: any = document?.querySelector(`#add_item_form_${newList?.id} input`);
+        //         if (newListFormInput) newListFormInput.focus();
+        //     }
+        // }, 500);
         setTimeout(() => {
             setLoading(false);
             setSystemStatus(`Created Column.`);
@@ -398,7 +407,7 @@ export default function Board(props) {
                                             <div title={`Change Column Type`} onClick={(e) => toast.info(`Column Types are In Development`)} className={`typeIcon changeColumnTypeIcon ${showSearch ? `disabledIconBtn` : ``}`}>
                                                 {showSearch ? <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-search`} /> : `+`}
                                             </div>
-                                            <form onSubmit={addNewColumn} title={`Add Column`} id={`addListForm_${board?.id}`} className={`flex addListForm itemButtons addForm`} style={{ width: `100%`, flexDirection: `row` }}>
+                                            <form onSubmit={addNewList} title={`Add Column`} id={`addListForm_${board?.id}`} className={`flex addListForm itemButtons addForm`} style={{ width: `100%`, flexDirection: `row` }}>
                                                 {showSearch && (
                                                     <input autoComplete={`off`} placeholder={`Search Board...`} type={`search`} name={`searchBoard`} />
                                                 )}
@@ -447,17 +456,17 @@ export default function Board(props) {
                 <Droppable droppableId={`${board.id}_boardColumns`} direction="horizontal" type="column">
                     {(provided, snapshot) => (
                         <section id={`board_${board.id}`} className={`board lists columns container ${(boards?.length == 1 || board?.options?.expanded == true) ? `expanded` : `collapsed`} ${snapshot.isDraggingOver ? `isDraggingOver` : ``} ${board?.data?.listIDs && (board?.data?.listIDs.length == 2 ? `clipColumns` : board?.data?.listIDs.length == 3 ? `threeBoard overflowingBoard` : board?.data?.listIDs.length > 3 ? `moreBoard overflowingBoard` : ``)}`} ref={provided.innerRef} {...provided.droppableProps} style={props.style}>
-                            {board?.data?.listIDs && board?.data?.listIDs.map((columnId, index) => {
-                                const column = board?.columns[columnId];
-                                const items = column.itemIds.map(itemId => board?.items[itemId]);
-                                if (!column.itemType) column.itemType = ItemTypes.Item;
+                            {board?.data?.listIDs && board?.data?.listIDs.map((listId, listIndex) => {
+                                const list = globalUserData?.lists?.find(lst => lst?.id == listId);
+                                const items = list?.data?.itemIDs.map(itemId => globalUserData?.items?.find(itm => itm?.id == itemId));
+                                if (!list.itemType) list.itemType = ItemTypes.Item;
                                 return (
                                     <Column 
                                         items={items} 
-                                        index={index} 
                                         board={board} 
-                                        column={column} 
-                                        key={column?.id} 
+                                        column={list} 
+                                        key={list?.id} 
+                                        index={listIndex} 
                                         hideAllTasks={board?.options?.tasksFilterState == TasksFilterStates.All_Off} 
                                     />
                                 );

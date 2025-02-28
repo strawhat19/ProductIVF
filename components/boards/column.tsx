@@ -170,13 +170,13 @@ export default function Column(props) {
             updated: formatDate(new Date()),
             items: {
                 ...props.board.items,
-                [itemID]: newItem
+                [itemID]: newItem,
             },
             columns: {
                 ...props.board.columns,
                 [column.id]: {
                     ...props.board.columns[column.id],
-                    itemIds: newItemIds
+                    itemIds: newItemIds,
                 }
             }
         });

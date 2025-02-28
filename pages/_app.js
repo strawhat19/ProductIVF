@@ -731,16 +731,6 @@ export default function ProductIVF({ Component, pageProps, router }) {
               [collectionName]: modeledGridDataDocs,
               lastUpdateFrom: capWords(collectionName),
             }));
-            // if (modeledGridDataDocs[0]?.type == Types.Board) {
-            //   let gridBoardsByID = selectedGrid?.data?.boardIDs?.map(bordID => {
-            //     let gridBoard = modeledGridDataDocs?.find(brd => brd?.id == bordID);
-            //     if (gridBoard) return new Board(gridBoard);
-            //   })
-            //   if (gridBoardsByID != boards) {
-            //     setBoards(gridBoardsByID);
-            //   }
-            //   setBoardsLoading(false);
-            // }
           });
         } else {
           setGlobalUserData(null);

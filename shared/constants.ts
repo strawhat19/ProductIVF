@@ -172,3 +172,35 @@ export const countPropertiesInObject = (obj) => {
   }
   return count;
 }
+
+export const getRankAndNumber = async (type: Types, docs: any[], docIDs: string[], users, user) => {
+  let docsLn = docs?.length;
+  let docsRank = (docsLn > 0 && docs[0]?.rank) ? await findHighestNumberInArrayByKey(docs, `rank`) : 1;
+
+  let userDocsLength = docIDs?.length;
+  let docsIDX = docsRank > docsLn ? docsRank : docsLn;
+  let docsRanks = docIDs?.map(dcID => extractRankFromDocId(dcID, user?.email, type));
+
+  let allBoardsRanks = [];
+
+  if (users && users?.length > 0) {
+    users.forEach(usr => {
+      let usrBoardsRanks = usr?.data?.boardIDs?.map(brdID => extractRankFromDocId(brdID, usr?.email, type));
+      usrBoardsRanks?.forEach(brdRank => allBoardsRanks?.push(brdRank));
+    })
+    allBoardsRanks = sortDescending(allBoardsRanks);
+  }
+
+  let allBoardsRanksLn = allBoardsRanks?.length;
+  
+  let allRanks = [docsIDX, userDocsLength, ...docsRanks];
+  let maxRank = sortDescending(allRanks)[0];
+
+  let rank = maxRank + 1;
+  let number = allBoardsRanksLn + 1;
+
+  return {
+    rank,
+    number,
+  }
+}

@@ -3,9 +3,11 @@ import { genID } from '../ID';
 import { User } from './User';
 import { Types } from '../types/types';
 import { countPropertiesInObject, isValid, stringNoSpaces } from '../constants';
+import { ItemTypes } from '../../components/boards/boards';
 
 export class List extends Data {
     ID: any;
+    number: number;
     gridID: string;
     boardID: string;
 
@@ -17,6 +19,7 @@ export class List extends Data {
 
     type: Types = Types.List;
     listType: any = `Vertical`;
+    itemType?: ItemTypes = ItemTypes.Item;
 
     items?: any;
     tasks?: any;
@@ -57,6 +60,7 @@ export const createList = (
     rank: number, 
     name: string, 
     user: User | any, 
+    number: number = 1,
     gridID = ``, 
     boardID = ``, 
     listType = `Vertical`,
@@ -71,6 +75,7 @@ export const createList = (
         name,
         type,
         rank,
+        number,
         gridID,
         boardID,
         listType,
