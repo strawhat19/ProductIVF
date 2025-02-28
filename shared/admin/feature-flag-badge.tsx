@@ -14,6 +14,10 @@ export default function FeatureFlagBadge({ featureID, considerBeta = true }) {
     }, [features])
 
     useEffect(() => {
+        if (!feature?.status?.public) {
+            setIsNew(false);
+            return;
+        }
         const checkIsNew = () => {
             if (feature?.status?.public) {
                 setIsNew(withinXTime(feature?.meta?.lastMadePublic, 5, `minutes`));
@@ -22,7 +26,7 @@ export default function FeatureFlagBadge({ featureID, considerBeta = true }) {
         checkIsNew();
         const interval = setInterval(checkIsNew, 15_000);
         return () => clearInterval(interval);
-    }, [feature]);
+    }, [feature?.status?.public, feature?.meta?.lastMadePublic]);
 
     return <>
         {feature?.status?.public == true ? (
