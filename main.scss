@@ -5,6 +5,7 @@
 @use './styles/utility';
 @use './styles/columns';
 @use './styles/contextmenu';
+@use './shared/admin/features';
 @use './styles/itemsoverwrite';
 @use './styles/finaloverwrite';
 @use './components/boards/kanban/kanban';

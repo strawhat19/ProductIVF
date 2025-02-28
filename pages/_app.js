@@ -3,7 +3,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import ReactDOM from 'react-dom/client';
 import { getIDParts } from '../shared/ID';
-import { User } from '../shared/models/User';
+import { Roles, User, userIsMinRole } from '../shared/models/User';
 import { Grid } from '../shared/models/Grid';
 import { List } from '../shared/models/List';
 import { Item } from '../shared/models/Item';
@@ -471,11 +471,33 @@ export default function ProductIVF({ Component, pageProps, router }) {
   const getFeature = (featureID) => {
     if (features && features?.length > 0) {
       let thisFeature = features?.find(feat => feat?.id == featureID);
-      console.log(`getFeat`, {thisFeature, featureID, features});
       if (thisFeature) {
         return thisFeature;
       }
     }
+  }
+
+  const isFeatureEnabled = (featureID, considerBeta = true) => {
+    let featureEnabled = false;
+    let thisFeature = getFeature(featureID);
+
+    if (thisFeature) {
+      let isPubliclyAvailable = thisFeature?.status?.public == true;
+      let userHasPermission = userIsMinRole(user, thisFeature?.roles[0]);
+
+      let generalAvailability = isPubliclyAvailable && userHasPermission
+      featureEnabled = generalAvailability;
+      
+      if (considerBeta) {
+        if (user && user != null) {
+          let isInBetaTesting = thisFeature?.status?.beta == true;
+          let isBetaAvailable = isInBetaTesting && user?.beta == true;
+          featureEnabled = generalAvailability || isBetaAvailable;
+        }
+      }
+    }
+
+    return featureEnabled;
   }
 
   const resetGridsBoards = () => {
@@ -859,7 +881,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
         features: featuresFromDB,
       }))
       setFeaturesLoading(false);
-      dev() && console.log(`Features`, featuresFromDB);
+      // dev() && console.log(`Features`, featuresFromDB);
       // Finish Features Database Update
     }, error => logToast(`Error on Get Features from Database`, error, true));
     return () => featuresDatabaseRealtimeListener();
@@ -1014,6 +1036,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       seedUserData,
       signOutReset,
       getGridsBoards,
+      isFeatureEnabled,
       switchSelectedGrid,
       setUsersGridsState,
       onAuthenticateLabel, setOnAuthenticateLabel,

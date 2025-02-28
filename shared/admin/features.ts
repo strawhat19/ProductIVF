@@ -8,6 +8,7 @@ export enum FeatureIDs {
 }
 
 export class Feature {
+    roles?: string[];
     id: FeatureIDs | string | any = FeatureIDs.Light_Mode;
     name: string = makeTitleFromID(this.id);
     description: string = `Feature Flag / Toggle for Feature ID ${this.id}`;

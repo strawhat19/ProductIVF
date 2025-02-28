@@ -1,0 +1,16 @@
+.featureFlag {
+    position: relative;
+    .featureFlagBadge {
+        top: -13px;
+        right: -8px;
+        width: 100%;
+        height: 100%;
+        padding: 5px;
+        font-size: 12px;
+        font-weight: 600;
+        max-height: 25px;
+        position: absolute;
+        max-width: fit-content;
+        border-radius: var(--borderRadius);
+    }
+}

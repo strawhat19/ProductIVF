@@ -12,6 +12,7 @@ import { formatDate, StateContext, showAlert, dev } from '../pages/_app';
 import { createUser, Roles, User, userIsMinRole } from '../shared/models/User';
 import { defaultAuthenticateLabel, findHighestNumberInArrayByKey, stringNoSpaces } from '../shared/constants';
 import { addUserToDatabase, auth, boardConverter, boardsTable, db, gridConverter, gridsTable, updateDocFieldsWTimeStamp } from '../firebase';
+import FeatureFlagBadge from '../shared/admin/feature-flag-badge';
 
 export const convertHexToRGB = (HexString?:any, returnObject?: any) => {
   let r = parseInt(HexString.slice(1, 3), 16),
@@ -76,10 +77,11 @@ export default function Form(props?: any) {
     onSignIn,
     onSignOut, 
     setContent,
-    getFeature,
     signInUser, 
+    getFeature,
     usersLoading,
     setUpNextGrid,
+    isFeatureEnabled,
     updates, setUpdates, 
     setAuthenticateOpen,
     setOnAuthenticateLabel,
@@ -377,8 +379,9 @@ export default function Form(props?: any) {
       </> : <></>}
 
       {/* Delete User */}
-      {getFeature(FeatureIDs.Delete_Self)?.status?.public == true && (user != null && userIsMinRole(user, Roles.Moderator)) && (
-        <div className={`formFieldWithConfirm`} style={{ position: `relative` }}>
+      {isFeatureEnabled(FeatureIDs.Delete_Self) && (
+        <div className={`formFieldWithConfirm featureFlag`} style={{ position: `relative` }}>
+          <FeatureFlagBadge featureID={FeatureIDs.Delete_Self} />
           {formButtonField(
             `Users Loading`, 
             `usersSkeleton`, 
