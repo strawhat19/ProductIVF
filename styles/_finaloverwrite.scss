@@ -49,3 +49,19 @@ button {
         }
     }
 }
+
+// * {
+//     --main: var(--grass);
+//     --gameBlue: var(--main);
+//     --gameBlueSoft: var(--main);
+//     transition: var(--transition);
+//     --selectorMainIcon: var(--main);
+//     --mainDark: rgba(3, 48, 24, 1);
+//     --piratechsBlue: var(--mainDark);
+//     --navAndFooterBG: var(--mainDark);
+//     &.logo {
+//         path {
+//             fill: var(--main);
+//         }
+//     }
+// }
