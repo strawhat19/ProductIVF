@@ -674,7 +674,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
         console.log(`Error Signing In`, {
           error,
           errorCode,
-          errorMessage
+          errorMessage,
         });
       }
       return;

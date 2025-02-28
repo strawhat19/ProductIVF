@@ -1,3 +1,4 @@
+import { getIDParts } from './shared/ID';
 import { formatDate } from './pages/_app';
 import { User } from './shared/models/User';
 import { Grid } from './shared/models/Grid';
@@ -5,13 +6,12 @@ import { List } from './shared/models/List';
 import { Item } from './shared/models/Item';
 import { Task } from './shared/models/Task';
 import { initializeApp } from 'firebase/app';
-import { Board } from './shared/models/Board';
 import { Types } from './shared/types/types';
+import { Board } from './shared/models/Board';
+import { Feature } from './shared/admin/features';
 import { countPropertiesInObject, logToast } from './shared/constants';
 import { GoogleAuthProvider, browserLocalPersistence, deleteUser, getAuth, setPersistence } from 'firebase/auth';
 import { collection, doc, getDoc, getDocs, getFirestore, query, setDoc, updateDoc, where, WhereFilterOp, writeBatch } from 'firebase/firestore';
-import { Feature } from './shared/admin/features';
-import { getIDParts } from './shared/ID';
 
 export enum Environments {
   beta = `beta_`,
@@ -312,6 +312,121 @@ export const deleteBoardFromDatabase = async (board: Board) => {
   } catch (deleteBoardError) {
     await logToast(`Error Deleting Board ${board?.name}`, deleteBoardError, true);
     return deleteBoardError;
+  }
+}
+
+export const addListToDatabase = async (list: List, boardID: string, gridID: string, userID: string) => {
+  const { date } = getIDParts();
+  const addListBatchOperation = await writeBatch(db);
+  try {
+    // const userRef = await doc(db, usersTable, userID);
+    // const gridRef = await doc(db, gridsTable, gridID);
+    const listRef = await doc(db, listsTable, list?.id);
+    const boardRef = await doc(db, boardsTable, boardID);
+
+    await addListBatchOperation.set(listRef, { ...list });
+
+    // const userDoc = await getDoc(userRef);
+    // if (userDoc.exists()) {
+    //   const userData = userDoc.data();
+    //   const userListIDsToUse = userData.data?.listIDs ?? [];
+    //   const updatedUsersListIDs = [...userListIDsToUse, list.id];
+    //   addListBatchOperation.update(userRef, {
+    //     [`meta.updated`]: date,
+    //     [`data.listIDs`]: updatedUsersListIDs,
+    //     properties: countPropertiesInObject({ ...userData, data: { ...userData?.data, listIDs: updatedUsersListIDs } }),
+    //   });
+    // }
+
+    // const gridDoc = await getDoc(gridRef);
+    // if (gridDoc.exists()) {
+    //   const gridData = gridDoc.data();
+    //   const gridListIDsToUse = gridData.data?.listIDs ?? [];
+    //   const updatedGridsListIDs = [...gridListIDsToUse, list.id];
+    //   addListBatchOperation.update(gridRef, {
+    //     [`meta.updated`]: date,
+    //     [`data.listIDs`]: updatedGridsListIDs,
+    //     properties: countPropertiesInObject({ ...gridData, data: { ...gridData?.data, listIDs: updatedGridsListIDs } }),
+    //   });
+    // }
+    
+    const boardDoc = await getDoc(boardRef);
+    if (boardDoc.exists()) {
+      const boardData = boardDoc.data();
+      const boardListIDsToUse = boardData.data?.listIDs ?? [];
+      const updatedBoardsListIDs = [...boardListIDsToUse, list.id];
+      addListBatchOperation.update(boardRef, {
+        [`meta.updated`]: date,
+        [`data.listIDs`]: updatedBoardsListIDs,
+        properties: countPropertiesInObject({ ...boardData, data: { ...boardData?.data, listIDs: updatedBoardsListIDs } }),
+      });
+    }
+
+    await addListBatchOperation.commit();
+    return list;
+  } catch (addListError) {
+    await logToast(`Error Adding List ${list?.name}`, addListError, true);
+    return addListError;
+  }
+}
+
+export const deleteListFromDatabase = async (list: List) => {
+  const { date } = getIDParts();
+  const deleteListBatchOperation = await writeBatch(db);
+  try {
+    // const usersRef = await collection(db, usersTable);
+    // const gridsRef = await collection(db, gridsTable);
+    const boardsRef = await collection(db, boardsTable);
+    const listRef = await doc(db, listsTable, list?.id);
+
+    // const usersQuery = query(usersRef, where(`data.listIDs`, `array-contains`, list.id));
+    // const usersSnapshot = await getDocs(usersQuery);
+
+    // usersSnapshot.forEach(userDoc => {
+    //   const userRef = doc(db, usersTable, userDoc.id);
+    //   const userData = userDoc.data();
+    //   const updatedUsersListIDs = userData.data.listIDs.filter((id: string) => id !== list.id);
+    //   deleteListBatchOperation.update(userRef, {
+    //     [`meta.updated`]: date,
+    //     [`data.listIDs`]: updatedUsersListIDs,
+    //     properties: countPropertiesInObject({ ...userData, data: { ...userData?.data, listIDs: updatedUsersListIDs } }),
+    //   });
+    // });
+
+    // const gridsQuery = query(gridsRef, where(`data.listIDs`, `array-contains`, list.id));
+    // const gridsSnapshot = await getDocs(gridsQuery);
+
+    // gridsSnapshot.forEach(gridDoc => {
+    //   const gridRef = doc(db, gridsTable, gridDoc.id);
+    //   const gridData = gridDoc.data();
+    //   const updatedGridsListIDs = gridData.data.listIDs.filter((id: string) => id !== list.id);
+    //   deleteListBatchOperation.update(gridRef, {
+    //     [`meta.updated`]: date,
+    //     [`data.listIDs`]: updatedGridsListIDs,
+    //     properties: countPropertiesInObject({ ...gridData, data: { ...gridData?.data, listIDs: updatedGridsListIDs } }),
+    //   });
+    // });
+
+    const boardsQuery = query(boardsRef, where(`data.listIDs`, `array-contains`, list.id));
+    const boardsSnapshot = await getDocs(boardsQuery);
+
+    boardsSnapshot.forEach(boardDoc => {
+      const boardRef = doc(db, boardsTable, boardDoc.id);
+      const boardData = boardDoc.data();
+      const updatedBoardsListIDs = boardData.data.listIDs.filter((id: string) => id !== list.id);
+      deleteListBatchOperation.update(boardRef, {
+        [`meta.updated`]: date,
+        [`data.listIDs`]: updatedBoardsListIDs,
+        properties: countPropertiesInObject({ ...boardData, data: { ...boardData?.data, listIDs: updatedBoardsListIDs } }),
+      });
+    });
+
+    await deleteListBatchOperation.delete(listRef);
+    await deleteListBatchOperation.commit();
+    return list;
+  } catch (deleteListError) {
+    await logToast(`Error Deleting List ${list?.name}`, deleteListError, true);
+    return deleteListError;
   }
 }
 

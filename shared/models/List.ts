@@ -2,8 +2,8 @@ import { Data } from './Data';
 import { genID } from '../ID';
 import { User } from './User';
 import { Types } from '../types/types';
-import { countPropertiesInObject, isValid, stringNoSpaces } from '../constants';
 import { ItemTypes } from '../../components/boards/boards';
+import { countPropertiesInObject, isValid, stringNoSpaces } from '../constants';
 
 export class List extends Data {
     ID: any;
@@ -64,7 +64,7 @@ export const createList = (
     gridID = ``, 
     boardID = ``, 
     listType = `Vertical`,
-    itemIDs = [`Item 1`, `Item 2`], 
+    itemIDs = [], 
     color = `Default`,
     description = ``,
     image = ``,

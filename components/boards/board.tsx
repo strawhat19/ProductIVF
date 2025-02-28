@@ -1,6 +1,6 @@
 import Column from './column';
 import { toast } from 'react-toastify';
-import { getBoardTitleWidth, ItemTypes } from './boards';
+import { getBoardTitleWidth } from './boards';
 import ConfirmAction from '../context-menus/confirm-action';
 import React, { useState, useContext, useRef } from 'react';
 import { createList, List } from '../../shared/models/List';
@@ -8,8 +8,8 @@ import { Board as BoardModel } from '../../shared/models/Board';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { TasksFilterStates, Types } from '../../shared/types/types';
 import { capitalizeAllWords, dev, StateContext } from '../../pages/_app';
-import { deleteBoardFromDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
 import { forceFieldBlurOnPressEnter, getRankAndNumber, logToast } from '../../shared/constants';
+import { addListToDatabase, deleteBoardFromDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
 
 export const addBoardScrollBars = () => {
     let boardColumnItems = document.querySelectorAll(`.boardColumnItems`);
@@ -25,7 +25,7 @@ export const addBoardScrollBars = () => {
 }
 
 export default function Board(props) {
-    let { board, globalUserData } = props;
+    let { board } = props;
     let boardNameRef = useRef();
     
     let [showSearch, setShowSearch] = useState(false);
@@ -33,11 +33,11 @@ export default function Board(props) {
 
     let { 
         setLoading, 
-        IDs, setIDs, 
         user, users, 
         selectedGrid, 
         setSystemStatus, 
         boards, setBoards, 
+        globalUserData, setGlobalUserData,
     } = useContext<any>(StateContext);
 
     const updateBoardInState = (updatedBoardData: Partial<BoardModel>) => {
@@ -158,73 +158,73 @@ export default function Board(props) {
                 })?.catch(deleteBrdError => {
                     logToast(`Failed to Delete Board`, deleteBrdError, true);
                 });
-            } else {
-                deleteBoardNoDB();
-            }
+            } else deleteBoardNoDB();
         }
     }
 
     const addNewList = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setSystemStatus(`Creating Column.`);
+        setSystemStatus(`Creating List.`);
 
-        // let newListID = `list_${board?.data?.listIDs.length + 1}`;
-        // let columnID = `${newListID}_${generateUniqueID(IDs)}`;
         let formFields = e.target.children;
         let name = formFields[0].value;
 
-        // const newColumnOrder = Array.from(board?.data?.listIDs);
-        // newColumnOrder.push(columnID);
-
         const { rank, number } = await getRankAndNumber(Types.List, globalUserData?.lists, board?.data?.listIDs, users, user);
-        const newList = createList(rank, name, user, number, selectedGrid?.id, board?.id) as List;
+        const newList = createList(number, name, user, rank, selectedGrid?.id, board?.id) as List;
 
-        //     itemIds: [],
-        //     id: columnID,
-        //     boardID: board?.id,
-        //     itemType: ItemTypes.Item,
-        //     title: formFields[0].value,
-        //     created: formatDate(new Date()),
-        //     updated: formatDate(new Date()),
-        //     ...(user != null && {
-        //         creator: {
-        //             id: user?.id,
-        //             uid: user?.uid,
-        //             name: user?.name,
-        //             email: user?.email,
-        //         }
-        //     }),
-        // };
+        const addListToast = toast.info(`Adding List`);
 
-        // setBoard({
-        //     ...board,
-        //     columnOrder: newColumnOrder,
-        //     updated: formatDate(new Date()),
-        //     columns: {
-        //         ...board?.columns,
-        //         [columnID]: newColumn
-        //     }
-        // });
+        setGlobalUserData(prevGlobalUserData => ({
+            ...prevGlobalUserData,
+            lists: [...prevGlobalUserData?.lists, newList],
+            boards: prevGlobalUserData?.boards?.map(brd => brd?.id == board?.id ? ({ 
+                ...brd, data: { ...brd?.data, listIDs: [...brd?.data?.listIDs, newList?.id] } 
+            }) : brd),
+        }))
 
-        // setIDs([...IDs, columnID]);
+        await addListToDatabase(newList, board?.id, selectedGrid?.id, user?.id)?.then(lst => {
+            if (lst?.type && lst?.type == Types.List) {
+                setTimeout(() => toast.dismiss(addListToast), 1500);
+                logToast(`Successfully Added List`, lst);
+                e.target.reset();
+                // setTimeout(() => {
+                //     if (document) {
+                //         let newListFormInput: any = document?.querySelector(`#add_item_form_${newList?.id} input`);
+                //         if (newListFormInput) newListFormInput.focus();
+                //     }
+                // }, 500);
+            }
+        })?.catch(addListError => {
+            logToast(`Failed to Add List`, addListError, true);
+        });
 
-        dev() && console.log(`New List`, newList);
-
-        e.target.reset();
-        // setTimeout(() => {
-        //     if (document) {
-        //         let newListFormInput: any = document?.querySelector(`#add_item_form_${newList?.id} input`);
-        //         if (newListFormInput) newListFormInput.focus();
-        //     }
-        // }, 500);
         setTimeout(() => {
             setLoading(false);
-            setSystemStatus(`Created Column.`);
+            setSystemStatus(`Created List.`);
         }, 1000);
     }
 
-    const onDragEnd = (dragEndEvent) => {
+    // let [lists, setLists] = useState([]);
+
+    // const refreshBoards = () => {
+    //     let thisBoard = boards?.find(brd => brd?.id == board?.id);
+    //     if (thisBoard) {
+    //         let boardLists = [];
+    //         let listIDs = thisBoard?.data?.listIDs;
+    //         listIDs?.forEach(lstID => {
+    //             let thisList = globalUserData?.lists?.find(lst => lst?.id == lstID);
+    //             if (thisList) boardLists?.push(thisList);
+    //         })
+    //         setLists(boardLists);
+    //     }
+    // }
+
+    // useEffect(() => {
+    //     refreshBoards();
+    // }, [])
+
+    const onDragEnd = async (dragEndEvent) => {
         const { destination, source, draggableId, type } = dragEndEvent;
 
         if (!destination) return;
@@ -235,67 +235,34 @@ export default function Board(props) {
            setSystemStatus(`Rearranged.`);
        }
 
-        if (type === `column`) {
-            const newColumnOrder = Array.from(board?.data?.listIDs);
-            newColumnOrder.splice(source.index, 1);
-            newColumnOrder.splice(destination.index, 0, draggableId);
+        if (type == Types.List) {
+            const listIDs = board?.data?.listIDs;
+            const updatedListIDs = [...listIDs];
+            updatedListIDs.splice(source.index, 1);
+            updatedListIDs.splice(destination.index, 0, draggableId);
 
-            // setBoard({
-            //     ...board,
-            //     data: {
-            //         ...board.data,
-            //         listIDs: newColumnOrder,
-            //     }
-            // });
-            return;
-        }
+            // let boardLists = [];
+            // updatedListIDs?.forEach(lstID => {
+            //     let thisList = globalUserData?.lists?.find(lst => lst?.id == lstID);
+            //     if (thisList) boardLists?.push(thisList);
+            // })
 
-        const start = board?.columns[source.droppableId];
-        const finish = board?.columns[destination.droppableId];
+            // setLists(boardLists);
 
-        if (start === finish) {
-            const newItemIds = Array.from(start.itemIds);
-            newItemIds.splice(source.index, 1);
-            newItemIds.splice(destination.index, 0, draggableId);
-
-            const newColumn = {
-                ...start,
-                itemIds: newItemIds,
+            if (board) {
+                const brd: BoardModel = new BoardModel({ ...board });
+                brd.data.listIDs = updatedListIDs;
+                updateBoardInState(brd);
             }
 
-            // setBoard({
-            //     ...board,
-            //     columns: {
-            //         ...board?.columns,
-            //         [newColumn.id]: newColumn
-            //     }
+            await updateDocFieldsWTimeStamp(board, { [`data.listIDs`]: updatedListIDs });
+            // await updateDocFieldsWTimeStamp(board, { [`data.listIDs`]: updatedListIDs })?.then(updatedData => {
+            //     refreshBoards();
+            // })?.catch(updatedBoardsListsDragError => {
+            //     logToast(`Drag Boards Lists Error`, updatedBoardsListsDragError, true);
             // });
             return;
         }
-
-        const startItemIds = Array.from(start.itemIds);
-        startItemIds.splice(source.index, 1);
-        const newStart = {
-            ...start,
-            itemIds: startItemIds,
-        }
-
-        const finishItemIds = Array.from(finish.itemIds);
-        finishItemIds.splice(destination.index, 0, draggableId);
-        const newFinish = {
-            ...finish,
-            itemIds: finishItemIds,
-        }
-
-        // setBoard({
-        //     ...board,
-        //     updated: formatDate(new Date()),
-        //     columns: {
-        //         ...board?.columns,
-        //         [newStart.id]: newStart,
-        //         [newFinish.id]: newFinish,
-        //     }
-        // });
     }
 
     return (
@@ -453,23 +420,34 @@ export default function Board(props) {
                 </div>
             </section>
             {board?.data?.listIDs && board?.data?.listIDs?.length > 0 && (
-                <Droppable droppableId={`${board.id}_boardColumns`} direction="horizontal" type="column">
+                <Droppable droppableId={`${board.id}_boardColumns`} direction={`horizontal`} type={Types.List}>
                     {(provided, snapshot) => (
                         <section id={`board_${board.id}`} className={`board lists columns container ${(boards?.length == 1 || board?.options?.expanded == true) ? `expanded` : `collapsed`} ${snapshot.isDraggingOver ? `isDraggingOver` : ``} ${board?.data?.listIDs && (board?.data?.listIDs.length == 2 ? `clipColumns` : board?.data?.listIDs.length == 3 ? `threeBoard overflowingBoard` : board?.data?.listIDs.length > 3 ? `moreBoard overflowingBoard` : ``)}`} ref={provided.innerRef} {...provided.droppableProps} style={props.style}>
+                            {/* {lists && lists?.length > 0 ? lists.map((lst, lstIndex) => (
+                                <Column 
+                                    items={[]} 
+                                    column={lst} 
+                                    board={board} 
+                                    key={lst?.id} 
+                                    index={lstIndex} 
+                                    hideAllTasks={board?.options?.tasksFilterState == TasksFilterStates.All_Off} 
+                                />
+                            )) : <></>} */}
                             {board?.data?.listIDs && board?.data?.listIDs.map((listId, listIndex) => {
                                 const list = globalUserData?.lists?.find(lst => lst?.id == listId);
-                                const items = list?.data?.itemIDs.map(itemId => globalUserData?.items?.find(itm => itm?.id == itemId));
-                                if (!list.itemType) list.itemType = ItemTypes.Item;
-                                return (
-                                    <Column 
-                                        items={items} 
-                                        board={board} 
-                                        column={list} 
-                                        key={list?.id} 
-                                        index={listIndex} 
-                                        hideAllTasks={board?.options?.tasksFilterState == TasksFilterStates.All_Off} 
-                                    />
-                                );
+                                if (list) {
+                                    const items = list?.data?.itemIDs.map(itemId => globalUserData?.items?.find(itm => itm?.id == itemId));
+                                    return (
+                                        <Column 
+                                            items={items} 
+                                            board={board} 
+                                            column={list} 
+                                            key={list?.id} 
+                                            index={listIndex} 
+                                            hideAllTasks={board?.options?.tasksFilterState == TasksFilterStates.All_Off} 
+                                        />
+                                    );
+                                }
                             })}
                             {provided.placeholder}
                         </section>

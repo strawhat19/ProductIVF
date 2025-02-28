@@ -1,11 +1,13 @@
 import Tasks from './tasks';
 import { ItemTypes } from './boards';
+import { toast } from 'react-toastify';
 import React, { useContext, useState } from 'react';
 import Item, { getTypeIcon, manageItem } from './item';
+import { deleteListFromDatabase } from '../../firebase';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import ConfirmAction from '../context-menus/confirm-action';
-import { forceFieldBlurOnPressEnter, removeExtraSpacesFromString } from '../../shared/constants';
 import { formatDate, generateUniqueID, StateContext, capitalizeAllWords, dev } from '../../pages/_app';
+import { forceFieldBlurOnPressEnter, logToast, removeExtraSpacesFromString } from '../../shared/constants';
 
 export default function Column(props) {
     let count = 0;
@@ -13,7 +15,7 @@ export default function Column(props) {
     let { board, column, hideAllTasks } = props;
     let [showConfirm, setShowConfirm] = useState(false);
     let [itemTypeMenuOpen, setItemTypeMenuOpen] = useState(false);
-    let { user, boards, setBoards, setLoading, setSystemStatus, completeFiltered, IDs, setIDs, selected, menuPosition } = useContext<any>(StateContext);
+    let { user, boards, setBoards, globalUserData, setLoading, setSystemStatus, completeFiltered, IDs, setIDs, selected, menuPosition } = useContext<any>(StateContext);
 
     const itemActiveFilters = (itm) => {
         if (completeFiltered) {
@@ -83,7 +85,7 @@ export default function Column(props) {
             }
             setShowConfirm(false);
         } else {
-            if (column?.itemIds?.length > 0) {
+            if (column?.data?.itemIDs?.length > 0) {
                 setShowConfirm(true);
             } else {
                 finallyDeleteColumn(columnId, index);
@@ -91,7 +93,19 @@ export default function Column(props) {
         }
     }
 
-    const finallyDeleteColumn = (columnId, index) => {
+    const finallyDeleteColumn = async (columnId, index, useDB = true) => {
+        if (useDB == true) {
+            const deleteListToast = toast.info(`Deleting List ${column?.name}`);
+            await deleteListFromDatabase(column)?.then(lst => {
+                setTimeout(() => toast.dismiss(deleteListToast), 1500);
+                logToast(`Successfully Deleted List`, lst);
+            })?.catch(deleteLstError => {
+                logToast(`Failed to Delete List`, deleteLstError, true);
+            });
+        } else deleteListNoDB(columnId, index);
+    }
+
+    const deleteListNoDB = (columnId, index) => {
         setLoading(true);
         setSystemStatus(`Deleting Column.`);
         const columnItems = props.board.columns[columnId].itemIds;
@@ -201,14 +215,22 @@ export default function Column(props) {
         }
     }
 
+    const getListsLength = () => {
+        let boardsLists = globalUserData?.lists;
+        if (boardsLists && boardsLists?.length > 0) {
+            boardsLists = boardsLists?.filter(lst => lst?.boardID == column?.boardID);
+        }
+        return boardsLists?.length;
+    }
+
     return (
         <Draggable draggableId={props.column.id} index={props.index}>
             {(provided, snapshot) => (
-                <div id={props.column.id} className={`container column list columns_${board?.columnOrder && board?.columnOrder?.length} ${(board?.columnOrder && board?.columnOrder?.length > 2 || !dev()) ? `multiCol` : ``} ${board?.columnOrder && board?.columnOrder?.length >= 4 ? `multiColExtended` : ``} layoutCols_${props?.column?.layoutCols ? props?.column?.layoutCols : ``} ${snapshot.isDragging ? `dragging` : ``}`} {...provided.draggableProps} ref={provided.innerRef}>
+                <div id={props.column.id} className={`container column list columns_${getListsLength()} ${(getListsLength() > 2 || !dev()) ? `multiCol` : ``} ${getListsLength() >= 4 ? `multiColExtended` : ``} layoutCols_${props?.column?.layoutCols ? props?.column?.layoutCols : ``} ${snapshot.isDragging ? `dragging` : ``}`} {...provided.draggableProps} ref={provided.innerRef}>
                     <div className={`columnItemsContainer outerColumn`}>
                         <div style={{ position: `relative` }} id={`name_of_${props.column.id}`} title={`${props.column.title}`} className={`columnTitle flex row iconButton item listTitleButton`} {...provided.dragHandleProps}>
                             <div className={`itemOrder listOrder`} style={{ maxWidth: `fit-content` }}>
-                                <i style={{ color: `var(--gameBlue)`, fontSize: 15, padding: `0 9px`, maxWidth: `fit-content` }} className={`fas fa-list`}></i>
+                                <i style={{ color: `var(--gameBlue)`, fontSize: 15, padding: `0 9px`, maxWidth: `fit-content` }} className={`fas fa-list`} />
                             </div>
                             <h3 className={`listNameRow nx-tracking-light ${props.column.title.length > 25 ? `longName` : ``}`} id={`list_name_of_${props.column.id}`} style={{ position: `relative`, fontStyle: `italic` }}>
                                 <div className={`listName textOverflow extended flex row`} style={{ fontSize: 13, fontWeight: 600 }}>
@@ -220,7 +242,7 @@ export default function Column(props) {
                                         onBlur={(e) => changeColumnLabel(e, props.column)} 
                                         className={`columnName changeLabel stretchEditable`} 
                                     >
-                                        {props.column.title}    
+                                        {props.column.name}    
                                     </div>
                                     <div className={`columnStats flex row end`}>
                                         <span className={`subscript`} style={{display: `contents`,}}>
