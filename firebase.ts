@@ -319,12 +319,14 @@ export const addListToDatabase = async (list: List, boardID: string, gridID: str
   const { date } = getIDParts();
   const addListBatchOperation = await writeBatch(db);
   try {
-    // const userRef = await doc(db, usersTable, userID);
-    // const gridRef = await doc(db, gridsTable, gridID);
+    const listsRef = await collection(db, listsTable);
     const listRef = await doc(db, listsTable, list?.id);
     const boardRef = await doc(db, boardsTable, boardID);
 
-    await addListBatchOperation.set(listRef, { ...list });
+    const listsSnapshot = await getDocs(listsRef);
+    const listsCount = listsSnapshot.size;
+
+    await addListBatchOperation.set(listRef, { ...list, number: listsCount + 1 });
 
     // const userDoc = await getDoc(userRef);
     // if (userDoc.exists()) {

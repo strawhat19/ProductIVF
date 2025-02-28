@@ -6,6 +6,7 @@ import { countPropertiesInObject, isValid, stringNoSpaces } from '../constants';
 
 export class Grid extends Data {
     ID: any;
+    number: number;
     
     creator: string;
 
@@ -64,7 +65,8 @@ export const createGrid = (
     name: string, 
     user: User, 
     gridType = GridTypes.Personal,
-    boardIDs = [`Daily Tasks`], 
+    boardIDs = [],
+    number: number = 1, 
     color = `Default`,
     description = ``,
     image = ``,
@@ -75,6 +77,7 @@ export const createGrid = (
         name,
         type,
         rank,
+        number,
         gridType,
 
         image,

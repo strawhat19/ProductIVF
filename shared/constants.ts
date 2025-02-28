@@ -173,7 +173,7 @@ export const countPropertiesInObject = (obj) => {
   return count;
 }
 
-export const getRankAndNumber = async (type: Types, docs: any[], docIDs: string[], users, user) => {
+export const getRankAndNumber = async (type: Types, docs: any[], docIDs: string[], users, user, IDs?) => {
   let docsLn = docs?.length;
   let docsRank = (docsLn > 0 && docs[0]?.rank) ? await findHighestNumberInArrayByKey(docs, `rank`) : 0;
 
@@ -182,10 +182,11 @@ export const getRankAndNumber = async (type: Types, docs: any[], docIDs: string[
   let docsRanks = docIDs?.map(dcID => extractRankFromDocId(dcID, user?.email, type));
 
   let allDocsRanks = [];
-
+  
   if (users && users?.length > 0) {
     users.forEach(usr => {
-      let usrDocsRanks = usr?.data?.[`${type?.toLowerCase()}IDs`]?.map(dcID => extractRankFromDocId(dcID, usr?.email, type));
+      if (!IDs) IDs = usr?.data?.[`${type?.toLowerCase()}IDs`];
+      let usrDocsRanks = IDs?.map(dcID => extractRankFromDocId(dcID, usr?.email, type));
       usrDocsRanks?.forEach(dcRank => allDocsRanks?.push(dcRank));
     })
     allDocsRanks = sortDescending(allDocsRanks);
@@ -195,9 +196,11 @@ export const getRankAndNumber = async (type: Types, docs: any[], docIDs: string[
   
   let allRanks = [docsIDX, userDocsLength, ...docsRanks];
   let maxRank = sortDescending(allRanks)[0];
-
+  
   let rank = maxRank + 1;
   let number = allDocsRanksLn + 1;
+
+  number = number > rank ? number : rank;
 
   return {
     rank,

@@ -15,37 +15,37 @@ export const seedUserData = (user: User | any) => {
         ID: user?.ID + `_${uuid}`,
     }
 
-    let board1 = createBoard(1, `Daily Tasks`, user, `135px`);
-    let board2 = createBoard(2, `Goals`, user, `85px`);
+    let board1 = createBoard(1, `Daily Tasks`, user, `135px`, 1);
+    let board2 = createBoard(2, `Goals`, user, `85px`, 2);
 
-    let board3 = createBoard(3, GridTypes.Work, user, `80px`);
-    let board4 = createBoard(4, `Reminders`, user, `145px`);
+    let board3 = createBoard(3, GridTypes.Work, user, `80px`, 3);
+    let board4 = createBoard(4, `Reminders`, user, `145px`, 4);
 
-    let board5 = createBoard(5, `Bills`, user, `80px`);
-    let board6 = createBoard(6, `Passwords`, user, `132.5px`);
+    let board5 = createBoard(5, `Bills`, user, `80px`, 5);
+    let board6 = createBoard(6, `Passwords`, user, `132.5px`, 6);
 
-    let board7 = createBoard(7, GridTypes.Archived, user, `115px`);
-    let board8 = createBoard(8, `Deprecated`, user, `144px`);
+    let board7 = createBoard(7, GridTypes.Archived, user, `115px`, 7);
+    let board8 = createBoard(8, `Deprecated`, user, `144px`, 8);
 
     let grid1 = createGrid(1, GridTypes.Personal, user, GridTypes.Personal, [
         board1?.id, 
         board2?.id,
-    ]);
+    ], 1);
 
     let grid2 = createGrid(2, GridTypes.Work, user, GridTypes.Work, [
         board3?.id,
         board4?.id,
-    ]);
+    ], 2);
 
     let grid3 = createGrid(3, GridTypes.Private, user, GridTypes.Private, [
         board5?.id, 
         board6?.id,
-    ]);
+    ], 3);
 
     let grid4 = createGrid(4, GridTypes.Archived, user, GridTypes.Archived, [
         board7?.id,
         board8?.id,
-    ]);
+    ], 4);
 
     board1 = new Board({ ...board1, gridID: grid1?.id });
     board2 = new Board({ ...board2, gridID: grid1?.id });

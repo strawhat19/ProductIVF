@@ -175,14 +175,6 @@ export default function Board(props) {
 
         const addListToast = toast.info(`Adding List`);
 
-        // setGlobalUserData(prevGlobalUserData => ({
-        //     ...prevGlobalUserData,
-        //     lists: [...prevGlobalUserData?.lists, newList],
-        //     boards: prevGlobalUserData?.boards?.map(brd => brd?.id == board?.id ? ({ 
-        //         ...brd, data: { ...brd?.data, listIDs: [...brd?.data?.listIDs, newList?.id] } 
-        //     }) : brd),
-        // }))
-
         const brd: BoardModel = new BoardModel({ ...board });
         brd.data.listIDs = [...brd.data.listIDs, newList?.id];
 
@@ -193,12 +185,15 @@ export default function Board(props) {
                 setTimeout(() => toast.dismiss(addListToast), 1500);
                 logToast(`Successfully Added List`, lst);
                 e.target.reset();
-                // setTimeout(() => {
-                //     if (document) {
-                //         let newListFormInput: any = document?.querySelector(`#add_item_form_${newList?.id} input`);
-                //         if (newListFormInput) newListFormInput.focus();
-                //     }
-                // }, 500);
+                let focusInput = false;
+                if (focusInput) {
+                    setTimeout(() => {
+                        if (document) {
+                            let newListFormInput: any = document?.querySelector(`#add_item_form_${newList?.id} input`);
+                            if (newListFormInput) newListFormInput.focus();
+                        }
+                    }, 500);
+                }
             }
         })?.catch(addListError => {
             logToast(`Failed to Add List`, addListError, true);
@@ -452,7 +447,7 @@ export default function Board(props) {
                                             hideAllTasks={board?.options?.tasksFilterState == TasksFilterStates.All_Off} 
                                         />
                                     );
-                                } else console.log(`no list`, globalUserData?.lists, listId, board?.data?.listIDs);
+                                }
                             })}
                             {provided.placeholder}
                         </section>
