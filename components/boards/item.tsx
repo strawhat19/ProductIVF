@@ -2,14 +2,16 @@ import Progress from '../progress';
 import { ItemTypes } from './boards';
 import ItemDetail from './itemdetail';
 import CustomImage from '../custom-image';
+import { addBoardScrollBars } from './board';
 import ConfirmAction from '../context-menus/confirm-action';
 import React, { useContext, useEffect, useState } from 'react';
+import { deleteItemFromDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
 import { showAlert, formatDate, dev, StateContext, capitalizeAllWords } from '../../pages/_app';
 import { forceFieldBlurOnPressEnter, removeExtraSpacesFromString } from '../../shared/constants';
 
 export const getTaskPercentage = (tasks: any[]) => {
     let tasksProgress = 0;
-    let completeTasks = tasks.filter(task => task.complete);
+    let completeTasks = tasks.filter(task => task?.options?.complete);
     tasksProgress = parseFloat(((completeTasks.length / tasks.length) * 100).toFixed(1));
     return tasksProgress;
 }
@@ -102,30 +104,19 @@ export default function Item({ item, count, column, itemIndex, board, setBoard, 
         // updateBoards(updatedBoards);
     }
 
-    const completeActions = (item, itemId, isButton) => {
+    const completeActions = async (item, isButton) => {
         if (count == 0) {
             setLoading(true);
             setSystemStatus(`Marking Item as Complete.`);
 
-            board.items[itemId].updated = formatDate(new Date());
-            board.items[itemId].complete = !board.items[itemId].complete;
-
-            let updatedBoard = {
-                ...board,
-                updated: formatDate(new Date()),
-                items: {
-                    ...board.items
-                },
-            };
-
-            setBoard(updatedBoard);
-
-            // setBoards(prevBoards => prevBoards.map(brd => brd?.id == board?.id ? updatedBoard : brd));
+            let isComplete = item?.options?.complete == true;
+            await updateDocFieldsWTimeStamp(item, { [`options.complete`]: !isComplete });
 
             setTimeout(() => {
-                setSystemStatus(item.complete ? `Marked Item as Complete.` : `Reopened Item.`);
+                setSystemStatus(!isComplete ? `Marked Item as Complete.` : `Reopened Item.`);
                 setLoading(false);
             }, 1000);
+
             if (isButton) count = count + 1;
         }
     }
@@ -138,39 +129,22 @@ export default function Item({ item, count, column, itemIndex, board, setBoard, 
             if (!completeButton) return;
         }
         if (!e.target.classList.contains(`changeLabel`)) {
-            completeActions(item, item?.id, isButton);
+            completeActions(item, isButton);
         }
     }
 
-    const deleteItemLogic = (columnId, index, itemId) => {
-        const column = board.columns[columnId];
-        const newItemIds = Array.from(column.itemIds);
-        newItemIds.splice(index, 1);
-
-        const items = board.items;
-        const { [itemId]: oldItem, ...newItems } = items;
-
-        setBoard({
-            ...board,
-            updated: formatDate(new Date()),
-            items: {
-                ...newItems
-            },
-            columns: {
-                ...board.columns,
-                [columnId]: {
-                    ...column,
-                    itemIds: newItemIds
-                }
-            }
-        });
+    const deleteItemLogic = async () => {
+        if (column?.data?.itemIDs?.length < 5) {
+            await addBoardScrollBars();
+        }
+        await deleteItemFromDatabase(item);
     }
 
-    const finallyDeleteItem = (columnId, index, itemId) => {
+    const finallyDeleteItem = () => {
         setLoading(true);
         setSystemStatus(`Deleting Item.`);
         
-        deleteItemLogic(columnId, index, itemId);
+        deleteItemLogic();
 
         setTimeout(() => {
             setSystemStatus(`Deleted Item ${item.content}.`);
@@ -178,28 +152,28 @@ export default function Item({ item, count, column, itemIndex, board, setBoard, 
         }, 1000);  
     }
 
-    const deleteItem = (e, item, columnId, index, itemId, initialConfirm = true) => {
+    const deleteItem = (e, item, initialConfirm = true) => {
         let allowedDeletionSelectors = [`iconButton`, `confirmActionOption`, `customContextMenuOption`];
         let isButton = allowedDeletionSelectors.some(className => e?.target?.classList.contains(className));
         if (isButton) {
             e.preventDefault();
             if (showConfirm == true) {
                 if (!initialConfirm) {
-                    finallyDeleteItem(columnId, index, itemId);
+                    finallyDeleteItem();
                 }
                 setShowConfirm(false);
             } else {
-                if (item?.subtasks?.length > 0) {
+                if (item?.data?.taskIDs?.length > 0) {
                     setShowConfirm(true);
                 } else {
-                    finallyDeleteItem(columnId, index, itemId);
+                    finallyDeleteItem();
                 }
             }
         }
     }
 
     const onDeleteItem = (e) => {
-        deleteItem(e, item, column.id, itemIndex, item.id);
+        deleteItem(e, item);
     }
     
     const onCompleteItem = (e) => {
@@ -313,7 +287,7 @@ export default function Item({ item, count, column, itemIndex, board, setBoard, 
                         <ConfirmAction 
                             clickableStyle={{ height: `100%`, paddingRight: 7 }}
                             style={{ right: 40, bottom: 0, height: `100%`, justifyContent: `center` }} 
-                            onConfirm={(e) => deleteItem(e, item, column.id, itemIndex, item.id, false)} 
+                            onConfirm={(e) => deleteItem(e, item, false)} 
                         />
                     )}
                 </button>

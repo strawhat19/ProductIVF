@@ -1,15 +1,16 @@
 import Tasks from './tasks';
 import { ItemTypes } from './boards';
 import { toast } from 'react-toastify';
-import { TasksFilterStates, Types } from '../../shared/types/types';
+import { addBoardScrollBars } from './board';
 import { Board } from '../../shared/models/Board';
 import React, { useContext, useState } from 'react';
 import Item, { getTypeIcon, manageItem } from './item';
-import { addItemToDatabase, deleteListFromDatabase } from '../../firebase';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import ConfirmAction from '../context-menus/confirm-action';
+import { TasksFilterStates, Types } from '../../shared/types/types';
 import { createItem, Item as ItemModel } from '../../shared/models/Item';
 import { formatDate, StateContext, capitalizeAllWords, dev } from '../../pages/_app';
+import { addItemToDatabase, deleteListFromDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
 import { forceFieldBlurOnPressEnter, getRankAndNumber, logToast, removeExtraSpacesFromString } from '../../shared/constants';
 
 export default function Column(props) {
@@ -93,21 +94,8 @@ export default function Column(props) {
     }
 
     const adjustColumnsDetails = (column) => {
-        let showDetails = column?.details && column?.details == true;
-        column.details = !showDetails;
-
-        props.setBoard(prevBoard => {
-            return {
-                ...prevBoard,
-                updated: formatDate(new Date()),
-                columns: {
-                    ...prevBoard?.columns,
-                    [column?.id]: column,
-                },
-            }
-        });
-
-        localStorage.setItem(`boards`, JSON.stringify(boards));
+        let showingDetails = column?.options?.details && column?.options?.details == true;
+        updateDocFieldsWTimeStamp(column, { [`options.details`]: !showingDetails });
     }
 
     const deleteColumn = (columnId, index, initialConfirm = true) => {
@@ -203,6 +191,8 @@ export default function Column(props) {
             brd.data.itemIDs = [...brd.data.itemIDs, newItem?.id];
 
             await updateBoardInState(brd);
+
+            if (newItemIDs?.length > 5) addBoardScrollBars();
 
             await addItemToDatabase(newItem, column?.id, board?.id, newItemIDs);
 

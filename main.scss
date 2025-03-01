@@ -539,16 +539,6 @@ input {
     padding: 0 0 0 10px;
 }
 
-.threeBoard, .moreBoard {
-    .list {
-        &:has(.lTitle), &:has(.xlTitle) {
-            .columnStats {
-                display: none !important;
-            }
-        }
-    }
-}
-
 @media (max-width: 437px) {
     .itemButtons {
         button {
@@ -843,6 +833,18 @@ input {
     .threeBoard, .moreBoard {
         .columnStats {
             display: none !important;
+        }
+    }
+}
+
+@media (max-width: 1800px) {
+    .threeBoard, .moreBoard {
+        .list {
+            &:has(.lTitle), &:has(.xlTitle) {
+                .columnStats {
+                    display: none !important;
+                }
+            }
         }
     }
 }
@@ -2634,6 +2636,7 @@ footer {
             min-height: 350px;
             padding: 0 !important;
             .item {
+                overflow: hidden;
                 min-height: min-content;
                 background: transparent !important;
                 .itemRow {

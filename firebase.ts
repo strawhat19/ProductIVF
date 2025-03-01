@@ -423,6 +423,51 @@ export const addItemToDatabase = async (item: Item, listID: string, boardID: str
   }
 }
 
+export const deleteItemFromDatabase = async (item: Item) => {
+  const { date } = getIDParts();
+  const deleteItemBatchOperation = await writeBatch(db);
+  try {
+    const listsRef = await collection(db, listsTable);
+    const boardsRef = await collection(db, boardsTable);
+    const itemRef = await doc(db, itemsTable, item?.id);
+
+    const listsQuery = query(listsRef, where(`data.itemIDs`, `array-contains`, item.id));
+    const listsSnapshot = await getDocs(listsQuery);
+
+    listsSnapshot.forEach(listDoc => {
+      const listRef = doc(db, listsTable, listDoc.id);
+      const listData = listDoc.data();
+      const updatedListItemIDs = listData.data.itemIDs.filter((id: string) => id !== item.id);
+      deleteItemBatchOperation.update(listRef, {
+        [`meta.updated`]: date,
+        [`data.itemIDs`]: updatedListItemIDs,
+        properties: countPropertiesInObject({ ...listData, data: { ...listData?.data, itemIDs: updatedListItemIDs } }),
+      });
+    });
+
+    const boardsQuery = query(boardsRef, where(`data.itemIDs`, `array-contains`, item.id));
+    const boardsSnapshot = await getDocs(boardsQuery);
+
+    boardsSnapshot.forEach(boardDoc => {
+      const boardRef = doc(db, boardsTable, boardDoc.id);
+      const boardData = boardDoc.data();
+      const updatedBoardItemIDs = boardData.data.itemIDs.filter((id: string) => id !== item.id);
+      deleteItemBatchOperation.update(boardRef, {
+        [`meta.updated`]: date,
+        [`data.itemIDs`]: updatedBoardItemIDs,
+        properties: countPropertiesInObject({ ...boardData, data: { ...boardData?.data, itemIDs: updatedBoardItemIDs } }),
+      });
+    });
+
+    await deleteItemBatchOperation.delete(itemRef);
+    await deleteItemBatchOperation.commit();
+    return item;
+  } catch (deleteItemError) {
+    await logToast(`Error Deleting Item ${item?.name}`, deleteItemError, true);
+    return deleteItemError;
+  }
+}
+
 export const deleteDatabaseData = async (
   queryField: string, 
   operator: WhereFilterOp, 

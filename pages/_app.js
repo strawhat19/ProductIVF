@@ -3,7 +3,6 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import ReactDOM from 'react-dom/client';
 import { getIDParts } from '../shared/ID';
-import { Roles, User, userIsMinRole } from '../shared/models/User';
 import { Grid } from '../shared/models/Grid';
 import { List } from '../shared/models/List';
 import { Item } from '../shared/models/Item';
@@ -12,6 +11,8 @@ import { Board } from '../shared/models/Board';
 import { Feature } from '../shared/admin/features';
 import { toast, ToastContainer } from 'react-toastify';
 import { AnimatePresence, motion } from 'framer-motion';
+import { User, userIsMinRole } from '../shared/models/User';
+import { addBoardScrollBars } from '../components/boards/board';
 import { createContext, useRef, useState, useEffect } from 'react';
 import ContextMenu from '../components/context-menus/context-menu';
 import { renderFirebaseAuthErrorMessage } from '../components/form';
@@ -697,6 +698,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
         setBoards(gridBoardsByID);
       }
       setBoardsLoading(false);
+      setTimeout(() => addBoardScrollBars(), 0);
     }
   }, [globalUserData]);
 

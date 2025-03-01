@@ -1,5 +1,6 @@
 import Column from './column';
 import { toast } from 'react-toastify';
+import { getIDParts } from '../../shared/ID';
 import { getBoardTitleWidth } from './boards';
 import ConfirmAction from '../context-menus/confirm-action';
 import React, { useState, useContext, useRef } from 'react';
@@ -10,7 +11,6 @@ import { TasksFilterStates, Types } from '../../shared/types/types';
 import { capitalizeAllWords, dev, StateContext } from '../../pages/_app';
 import { forceFieldBlurOnPressEnter, getRankAndNumber, logToast } from '../../shared/constants';
 import { addListToDatabase, deleteBoardFromDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
-import { getIDParts } from '../../shared/ID';
 
 export const addBoardScrollBars = () => {
     let boardColumnItems = document.querySelectorAll(`.boardColumnItems`);

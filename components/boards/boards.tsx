@@ -4,11 +4,11 @@ import { Types } from '../../shared/types/types';
 import MultiSelector from '../selector/multi-selector';
 import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
 import { useState, useEffect, useContext, useRef } from 'react';
-import { capWords, dev, replaceAll, StateContext } from '../../pages/_app';
+import { capWords, replaceAll, StateContext } from '../../pages/_app';
 import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
 import { Board as BoardModel, createBoard } from '../../shared/models/Board';
 import { addBoardToDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
-import { extractRankFromDocId, findHighestNumberInArrayByKey, generateArray, getRankAndNumber, logToast, sortDescending } from '../../shared/constants';
+import { generateArray, getRankAndNumber, logToast } from '../../shared/constants';
 
 export enum ItemTypes {
     Item = `Item`,
@@ -42,7 +42,7 @@ export default function Boards(props: any) {
         setSystemStatus, 
         switchSelectedGrid,
         rte, router, setRte,
-        boards, userBoards, setBoards, boardsLoading,
+        boards, setBoards, boardsLoading,
         grids, gridsLoading, selectedGrids, selectedGrid, 
     } = useContext<any>(StateContext);
 
