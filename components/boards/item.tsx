@@ -51,7 +51,7 @@ export const manageItem = (e, item, index, board, boards, setBoards) => {
     }
 }
 
-export default function Item({ item, count, column, itemIndex, board, setBoard }: any) {
+export default function Item({ item, count, column, itemIndex, board, setBoard, tasks }: any) {
     let [showConfirm, setShowConfirm] = useState(false);
     let { 
         user,
@@ -280,38 +280,41 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
                         {wordOfCategory(item)}
                     </span>
                 </span>} */}
-                {(item?.image || column?.details && column?.details == true) ? <>
+                {(item?.image || column?.options?.details && column?.options?.details == true) ? <>
                     <hr className={`itemSep`} style={{height: 1, borderColor: `var(--gameBlue)`}} />
                     <div className={`itemFooter flex row`}>
-                        {item.created && !item.updated ? (
-                        <span className={`itemDate itemName itemCreated textOverflow extended flex row`}>
-                            <i className={`status`}>Cre.</i> 
-                            <span className={`itemDateTime`}>
-                                {formatDate(new Date(item.created))}
+                        {item?.meta?.created && !item?.meta?.updated ? (
+                            <span className={`itemDate itemName itemCreated textOverflow extended flex row`}>
+                                <i className={`status`}>
+                                    Cre.
+                                </i> 
+                                <span className={`itemDateTime`}>
+                                    {formatDate(new Date(item?.meta?.created))}
+                                </span>
                             </span>
-                        </span>
-                        ) : item.updated ? (
-                        <span className={`itemDate itemName itemCreated itemUpdated textOverflow extended flex row`}>
-                            <i className={`status`}>Upd.</i> 
-                            <span className={`itemDateTime`}>
-                                {/* {getLatestUpdateDate(item)} */}
-                                {formatDate(new Date(item?.updated))}
+                        ) : item?.meta?.updated ? (
+                            <span className={`itemDate itemName itemCreated itemUpdated textOverflow extended flex row`}>
+                                <i className={`status`}>
+                                    Upd.
+                                </i> 
+                                <span className={`itemDateTime`}>
+                                    {formatDate(new Date(item?.meta?.updated))}
+                                </span>
                             </span>
-                        </span>
                         ) : null}
-                        {item.subtasks && item.subtasks.length > 0 && <>
+                        {item?.data?.taskIDs && item?.data?.taskIDs.length > 0 && <>
                             <span className={`taskProgressCount subtaskIndex subscript flex row gap5`}>
                                 <span className={`slashes`}>
                                     ✔
-                                </span> {item?.complete ? item.subtasks.length : item.subtasks.filter(subtask => subtask.complete).length} <span className={`slashes`}>
+                                </span> {item?.complete ? item?.data?.taskIDs.length : item?.data?.taskIDs.filter(subtask => subtask.complete).length} <span className={`slashes`}>
                                     //
-                                </span> {item.subtasks.length}
+                                </span> {item?.data?.taskIDs.length}
                             </span>
                         </>}
                     </div>
                 </> : <></>}
             </div>
-            <Progress item={item} tasks={item?.subtasks} />
+            <Progress item={item} tasks={item?.tasks} />
             <div className={`itemOptions itemButtons customButtons`}>
                 {/* <button id={`copy_${item.id}`} onClick={(e) => copyItem(e, item)} title={`Copy Item`} className={`iconButton ${ItemActions.Copy} copyButton wordIconButton`}>
                     <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-copy`}></i>

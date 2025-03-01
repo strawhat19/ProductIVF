@@ -1,5 +1,4 @@
 import { CSS } from '@dnd-kit/utilities';
-import { addBoardScrollBars } from './board';
 import React, { useState, useContext } from 'react';
 import { capWords, formatDate, generateUniqueID, StateContext } from '../../pages/_app';
 import { DndContext, PointerSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core';
@@ -96,8 +95,8 @@ const SortableSubtaskItem = ({ item, subtask, isLast, column, index, changeLabel
 }
 
 export default function Tasks(props) {
-  let { item, column, board, showForm = true } = props;
-  let { user, boards, setBoards, setLoading, setSystemStatus } = useContext<any>(StateContext);
+  let { item, column, board, tasks, showForm = true } = props;
+  let { user, boards, setLoading, setSystemStatus } = useContext<any>(StateContext);
 
   let [deletedTaskIDs, setDeletedTaskIDs] = useState<string[]>([]);
   let [subtasks, setSubtasks] = useState(item?.subtasks?.length ? item.subtasks : []);

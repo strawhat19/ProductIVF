@@ -20,7 +20,7 @@ export default function Column(props) {
 
     const itemActiveFilters = (itm) => {
         if (completeFiltered) {
-            if (!itm.complete) {
+            if (!itm?.options?.complete) {
                 return true;
             } else {
                 return false;
@@ -259,16 +259,16 @@ export default function Column(props) {
                                     <div className={`columnStats flex row end`}>
                                         <span className={`subscript`} style={{display: `contents`,}}>
                                             <span className={`slashes`}>
-                                                {props.items.filter(itm => itemActiveFilters(itm) && itm?.complete).length}
+                                                {props.items.filter(itm => itemActiveFilters(itm) && itm?.options?.complete).length}
                                             </span> ✔ <div className={`slashes`} style={{display: `contents`}}> // </div> <span className={`slashes`}>
                                                 {props.items.filter(itm => itemActiveFilters(itm)).length}
                                             </span> ☰</span>
                                             <span className={`subscript`} style={{display: `contents`,}}> <span className={`slashes`}>
-                                                {[].concat(...props.items.filter(itm => itemActiveFilters(itm)).filter(itm => itm?.complete).map(itm => itm?.subtasks)).length 
-                                                + [].concat(...props.items.filter(itm => itemActiveFilters(itm)).filter(itm => !itm?.complete).map(itm => itm?.subtasks)).filter(tsk => tsk?.complete).length}
+                                                {[].concat(...props.items.filter(itm => itemActiveFilters(itm)).filter(itm => itm?.options?.complete).map(itm => itm?.tasks)).length 
+                                                + [].concat(...props.items.filter(itm => itemActiveFilters(itm)).filter(itm => !itm?.options?.complete).map(itm => itm?.tasks)).filter(tsk => tsk?.options?.complete).length}
                                                 {/* {[].concat(...props.items.filter(itm => itemActiveFilters(itm)).map(itm => itm?.subtasks)).filter(tsk => tsk?.complete).length} */}
                                             </span> ✔ <div className={`slashes`} style={{display: `contents`}}> // </div> <span className={`slashes`}>
-                                                {[].concat(...props.items.filter(itm => itemActiveFilters(itm)).map(itm => itm?.subtasks)).length}
+                                                {[].concat(...props.items.filter(itm => itemActiveFilters(itm)).map(itm => itm?.tasks)).length}
                                             </span> ☰</span>
                                     </div>
                                 </div>
@@ -295,14 +295,22 @@ export default function Column(props) {
                             {provided => (
                                 <div id={`items_of_${props.column.id}`} className={`items boardColumnItems listItems`} {...provided.droppableProps} ref={provided.innerRef}>
                                     {props.items.filter(itm => itemActiveFilters(itm)).map((item, itemIndex) => {
-                                        if (!item.subtasks) item.subtasks = [];
+                                        const tasks = [];
+                                        if (!item.tasks) {
+                                            item?.data?.taskIDs?.forEach(tskID => {
+                                                const task = globalUserData?.tasks?.find(tsk => tsk?.id == tskID);
+                                                if (task) tasks.push(task);
+                                            })
+                                            item.tasks = tasks;
+                                        }
                                         return (
                                             <Draggable key={item.id} draggableId={item.id} index={itemIndex}>
                                                 {provided => (
                                                     <div id={item.id} className={`item boardItem ${hoverItemForm ? `itemHoverToExpand` : ``} completeItem ${item.complete ? `complete completeBoardItem` : `activeBoardItem`} container ${snapshot.isDragging ? `dragging` : ``} ${(itemTypeMenuOpen || selected != null) ? `unfocus` : ``}`} title={item.content} {...provided.draggableProps} ref={provided.innerRef}>
-                                                        <div onClick={(e) => manageItem(e, item, itemIndex, board, boards, setBoards)} {...provided.dragHandleProps} className={`itemRow flex row ${item?.complete ? `completed` : `incomplete`} ${item.subtasks.length > 0 ? `hasTasksRow` : `noTasksRow`}`}>
+                                                        <div onClick={(e) => manageItem(e, item, itemIndex, board, boards, setBoards)} {...provided.dragHandleProps} className={`itemRow flex row ${item?.complete ? `completed` : `incomplete`} ${item.tasks.length > 0 ? `hasTasksRow` : `noTasksRow`}`}>
                                                             <Item 
                                                                 item={item} 
+                                                                tasks={tasks}
                                                                 count={count} 
                                                                 board={board} 
                                                                 column={props.column} 
@@ -310,9 +318,10 @@ export default function Column(props) {
                                                                 setBoard={props.setBoard} 
                                                             />
                                                         </div>
-                                                        {!hideAllTasks && item.subtasks && (
+                                                        {!hideAllTasks && item.tasks && (
                                                             <Tasks 
                                                                 item={item} 
+                                                                tasks={tasks}
                                                                 board={board}
                                                                 column={props.column} 
                                                                 showForm={!board?.tasksFiltered} 
