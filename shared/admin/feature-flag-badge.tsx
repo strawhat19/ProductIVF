@@ -37,7 +37,7 @@ export default function FeatureFlagBadge({ featureID, considerBeta = true }) {
             ) : <></>
         ) : (
             considerBeta && feature?.status?.beta == true && (
-                <div className={`featureFlagBadge`} style={{ background: `var(--toastify-color-success)` }}>
+                <div className={`featureFlagBadge`} style={{ background: `var(--success)` }}>
                     Beta
                 </div>
             )
