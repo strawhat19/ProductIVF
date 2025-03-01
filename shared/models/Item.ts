@@ -21,6 +21,7 @@ export class Item extends Data {
     itemType: ItemTypes = ItemTypes.Item;
 
     image = ``;
+    video = ``;
     description = ``;
     color = `Default`;
 
@@ -75,6 +76,7 @@ export const createItem = (
     color = `Default`,
     description = ``,
     image = ``,
+    video = ``,
     type = Types.Item, 
 ) => {
 
@@ -83,11 +85,12 @@ export const createItem = (
         type,
         rank,
         gridID,
-        boardID,
         listID,
+        boardID,
         itemType,
 
         image,
+        video,
         color,
         description,
 

@@ -539,6 +539,16 @@ input {
     padding: 0 0 0 10px;
 }
 
+.threeBoard, .moreBoard {
+    .list {
+        &:has(.lTitle), &:has(.xlTitle) {
+            .columnStats {
+                display: none !important;
+            }
+        }
+    }
+}
+
 @media (max-width: 437px) {
     .itemButtons {
         button {
@@ -2524,6 +2534,7 @@ footer {
 
 .board {
     width: 100%;
+    grid-gap: 0;
     display: flex;
     font-size: 1.05em;
     align-items: flex-start;
