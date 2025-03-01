@@ -24,6 +24,15 @@
                     }
                 }
             }
+            @media (max-width: 1300px) {
+                .listTitleButtonLabel {
+                    &.lTitle {
+                        &.firstTitle {
+                            display: none !important;
+                        }
+                    }
+                }
+            }
         }
         &.columns_4 { 
             --columnWidth: calc(95.5% / 4) !important;
@@ -47,6 +56,19 @@
                 .deleteListButton {
                     &.deleteListButton {
                         --width: auto !important;  
+                    }
+                }
+            }
+            @media (max-width: 1300px) {
+                .changeLabel {
+                    &.columnName {
+                        font-size: 14px;
+                        &.lTitle {
+                            font-size: 14px;
+                        }
+                        &.xlTitle {
+                            font-size: 12px;
+                        }
                     }
                 }
             }

@@ -172,59 +172,42 @@ export default function Board(props) {
         let formFields = e.target.children;
         let name = formFields[0].value;
 
-        const { rank, number } = await getRankAndNumber(Types.List, globalUserData?.lists, board?.data?.listIDs, users, user);
-        const newList = createList(number, name, user, rank, selectedGrid?.id, board?.id) as List;
+        if (board) {
+            const { rank, number } = await getRankAndNumber(Types.List, globalUserData?.lists, board?.data?.listIDs, users, user);
+            const newList = createList(number, name, user, rank, selectedGrid?.id, board?.id) as List;
 
-        const addListToast = toast.info(`Adding List`);
+            const addListToast = toast.info(`Adding List`);
 
-        const brd: BoardModel = new BoardModel({ ...board });
-        brd.data.listIDs = [...brd.data.listIDs, newList?.id];
+            const brd: BoardModel = new BoardModel({ ...board });
+            brd.data.listIDs = [...brd.data.listIDs, newList?.id];
 
-        await updateBoardInState(brd);
+            await updateBoardInState(brd);
 
-        await addListToDatabase(newList, board?.id, selectedGrid?.id, user?.id)?.then(lst => {
-            if (lst?.type && lst?.type == Types.List) {
-                setTimeout(() => toast.dismiss(addListToast), 1500);
-                logToast(`Successfully Added List`, lst);
-                e.target.reset();
-                let focusInput = false;
-                if (focusInput) {
-                    setTimeout(() => {
-                        if (document) {
-                            let newListFormInput: any = document?.querySelector(`#add_item_form_${newList?.id} input`);
-                            if (newListFormInput) newListFormInput.focus();
-                        }
-                    }, 500);
+            await addListToDatabase(newList, board?.id)?.then(lst => {
+                if (lst?.type && lst?.type == Types.List) {
+                    setTimeout(() => toast.dismiss(addListToast), 1500);
+                    logToast(`Successfully Added List`, lst);
+                    e.target.reset();
+                    let focusInput = false;
+                    if (focusInput) {
+                        setTimeout(() => {
+                            if (document) {
+                                let newListFormInput: any = document?.querySelector(`#add_item_form_${newList?.id} input`);
+                                if (newListFormInput) newListFormInput.focus();
+                            }
+                        }, 500);
+                    }
                 }
-            }
-        })?.catch(addListError => {
-            logToast(`Failed to Add List`, addListError, true);
-        });
+            })?.catch(addListError => {
+                logToast(`Failed to Add List`, addListError, true);
+            });
+        }
 
         setTimeout(() => {
             setLoading(false);
             setSystemStatus(`Created List.`);
         }, 1000);
     }
-
-    // let [lists, setLists] = useState([]);
-
-    // const refreshBoards = () => {
-    //     let thisBoard = boards?.find(brd => brd?.id == board?.id);
-    //     if (thisBoard) {
-    //         let boardLists = [];
-    //         let listIDs = thisBoard?.data?.listIDs;
-    //         listIDs?.forEach(lstID => {
-    //             let thisList = globalUserData?.lists?.find(lst => lst?.id == lstID);
-    //             if (thisList) boardLists?.push(thisList);
-    //         })
-    //         setLists(boardLists);
-    //     }
-    // }
-
-    // useEffect(() => {
-    //     refreshBoards();
-    // }, [])
 
     const onDragEnd = async (dragEndEvent) => {
         const { destination, source, draggableId, type } = dragEndEvent;
@@ -243,14 +226,6 @@ export default function Board(props) {
             updatedListIDs.splice(source.index, 1);
             updatedListIDs.splice(destination.index, 0, draggableId);
 
-            // let boardLists = [];
-            // updatedListIDs?.forEach(lstID => {
-            //     let thisList = globalUserData?.lists?.find(lst => lst?.id == lstID);
-            //     if (thisList) boardLists?.push(thisList);
-            // })
-
-            // setLists(boardLists);
-
             if (board) {
                 const brd: BoardModel = new BoardModel({ ...board });
                 brd.data.listIDs = updatedListIDs;
@@ -258,11 +233,6 @@ export default function Board(props) {
             }
 
             await updateDocFieldsWTimeStamp(board, { [`data.listIDs`]: updatedListIDs });
-            // await updateDocFieldsWTimeStamp(board, { [`data.listIDs`]: updatedListIDs })?.then(updatedData => {
-            //     refreshBoards();
-            // })?.catch(updatedBoardsListsDragError => {
-            //     logToast(`Drag Boards Lists Error`, updatedBoardsListsDragError, true);
-            // });
             return;
         }
     }

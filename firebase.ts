@@ -315,7 +315,7 @@ export const deleteBoardFromDatabase = async (board: Board) => {
   }
 }
 
-export const addListToDatabase = async (list: List, boardID: string, gridID: string, userID: string) => {
+export const addListToDatabase = async (list: List, boardID: string) => {
   const { date } = getIDParts();
   const addListBatchOperation = await writeBatch(db);
   try {
