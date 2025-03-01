@@ -887,6 +887,9 @@ body {
             }
             .board {
                 --boardColumnHeight: 661px;
+                @media (min-width: 1400px) {
+                    --boardColumnHeight: 675px;
+                }
                 @media (max-width: 1300px) {
                     --boardColumnHeight: 597px;
                 }

@@ -378,6 +378,51 @@ export const deleteListFromDatabase = async (list: List) => {
   }
 }
 
+export const addItemToDatabase = async (item: Item, listID: string, boardID: string, updatedIDs: string[]) => {
+  const { date } = getIDParts();
+  const addItemBatchOperation = await writeBatch(db);
+  try {
+    const itemRef = await doc(db, itemsTable, item?.id);
+    const itemsRef = await collection(db, itemsTable);
+    const listRef = await doc(db, listsTable, listID);
+    const boardRef = doc(db, boardsTable, boardID);
+
+    const itemsSnapshot = await getDocs(itemsRef);
+    const itemsCount = itemsSnapshot.size;
+
+    await addItemBatchOperation.set(itemRef, { ...item, number: itemsCount + 1 });
+
+    const boardDoc = await getDoc(boardRef);
+    if (boardDoc.exists()) {
+      const boardData = boardDoc.data();
+      const boardItemIDsToUse = boardData.data?.itemIDs ?? [];
+      const updatedBoardsItemIDs = [...boardItemIDsToUse, item?.id];
+      addItemBatchOperation.update(boardRef, {
+        [`meta.updated`]: date,
+        [`data.itemIDs`]: updatedBoardsItemIDs,
+        properties: countPropertiesInObject({ ...boardData, data: { ...boardData?.data, itemIDs: updatedBoardsItemIDs } }),
+      });
+    }
+    
+    const listDoc = await getDoc(listRef);
+    if (listDoc.exists()) {
+      const listData = listDoc.data();
+      const updatedListItemIDs = updatedIDs;
+      addItemBatchOperation.update(listRef, {
+        [`meta.updated`]: date,
+        [`data.itemIDs`]: updatedListItemIDs,
+        properties: countPropertiesInObject({ ...listData, data: { ...listData?.data, itemIDs: updatedListItemIDs } }),
+      });
+    }
+
+    await addItemBatchOperation.commit();
+    return item;
+  } catch (addItemError) {
+    await logToast(`Error Adding Item ${item?.name}`, addItemError, true);
+    return addItemError;
+  }
+}
+
 export const deleteDatabaseData = async (
   queryField: string, 
   operator: WhereFilterOp, 

@@ -1,14 +1,16 @@
 import Tasks from './tasks';
 import { ItemTypes } from './boards';
 import { toast } from 'react-toastify';
+import { TasksFilterStates, Types } from '../../shared/types/types';
 import { Board } from '../../shared/models/Board';
 import React, { useContext, useState } from 'react';
 import Item, { getTypeIcon, manageItem } from './item';
-import { deleteListFromDatabase } from '../../firebase';
+import { addItemToDatabase, deleteListFromDatabase } from '../../firebase';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import ConfirmAction from '../context-menus/confirm-action';
-import { formatDate, generateUniqueID, StateContext, capitalizeAllWords, dev } from '../../pages/_app';
-import { forceFieldBlurOnPressEnter, logToast, removeExtraSpacesFromString } from '../../shared/constants';
+import { createItem, Item as ItemModel } from '../../shared/models/Item';
+import { formatDate, StateContext, capitalizeAllWords, dev } from '../../pages/_app';
+import { forceFieldBlurOnPressEnter, getRankAndNumber, logToast, removeExtraSpacesFromString } from '../../shared/constants';
 
 export default function Column(props) {
     let count = 0;
@@ -16,7 +18,36 @@ export default function Column(props) {
     let [showConfirm, setShowConfirm] = useState(false);
     let [itemTypeMenuOpen, setItemTypeMenuOpen] = useState(false);
     let { board, column, hideAllTasks, updateBoardInState } = props;
-    let { user, boards, setBoards, globalUserData, setLoading, setSystemStatus, completeFiltered, IDs, setIDs, selected, menuPosition } = useContext<any>(StateContext);
+
+    let { 
+        user,
+        users,
+        boards,
+        selected,
+        setBoards,
+        setLoading,
+        menuPosition, 
+        selectedGrid,
+        globalUserData,
+        setSystemStatus,
+        completeFiltered,
+    } = useContext<any>(StateContext);
+
+    const getListsLength = () => {
+        let boardsLists = globalUserData?.lists;
+        if (boardsLists && boardsLists?.length > 0) {
+            boardsLists = boardsLists?.filter(lst => lst?.boardID == column?.boardID);
+        }
+        return boardsLists?.length;
+    }
+
+    const renderTitleSizeClass = (name) => {
+        let nameClasses = ``;
+        if (name?.length >= 5) nameClasses = `mTitle`;
+        if (name?.length >= 15) nameClasses = `lTitle`;
+        if (name?.length >= 20) nameClasses = `xlTitle`;
+        return nameClasses;
+    }
 
     const itemActiveFilters = (itm) => {
         if (completeFiltered) {
@@ -141,98 +172,50 @@ export default function Column(props) {
         }, 1000);
     }
 
-    const addNewItem = (e) => {
+    const addNewItem = async (e) => {
         e.preventDefault();
-        let formFields = e.target.children;
+
         setLoading(true);
-        const column = props.board.columns[props.column.id];
-        let nextIndex = column.itemIds.length + 1;
         setSystemStatus(`Creating Item.`);
+
+        let formFields = e.target.children;
         let video = formFields.itemVideo && formFields.itemVideo.value ? formFields.itemVideo.value : ``;
         let image = formFields.itemImage && formFields.itemImage.value ? formFields.itemImage.value : ``;
-        let newItemID = `item_${nextIndex}`;
-        let itemID = `${newItemID}_${generateUniqueID(IDs)}`;
-        let content = formFields.createItem.value;
-        let rank = formFields.rank.value;
-        if (!rank || rank == ``) rank = nextIndex;
-        rank = parseInt(rank);
-        rank = rank > nextIndex ? nextIndex : rank; 
-        const newItemIds = Array.from(column.itemIds);
-        newItemIds.splice(rank - 1,0,itemID);
 
-        const newItem = {
-            image,
-            video,
-            id: itemID,
-            subtasks: [],
-            complete: false,
-            description: ``,
-            boardID: props?.board?.id,
-            listID: props?.column?.id,
-            type: props?.column?.itemType,
-            created: formatDate(new Date()),
-            updated: formatDate(new Date()),
-            content: capitalizeAllWords(content),
-            ...(user != null && {
-                creator: {
-                    id: user?.id,
-                    uid: user?.uid,
-                    name: user?.name,
-                    email: user?.email,
-                }
-            }),
-        }
+        let nextIndex = column?.data?.itemIDs?.length + 1;
+        
+        let name = capitalizeAllWords(formFields.createItem.value);
 
-        props.setBoard({
-            ...props.board,
-            updated: formatDate(new Date()),
-            items: {
-                ...props.board.items,
-                [itemID]: newItem,
-            },
-            columns: {
-                ...props.board.columns,
-                [column.id]: {
-                    ...props.board.columns[column.id],
-                    itemIds: newItemIds,
-                }
+        let position = formFields.rank.value;
+        if (!position || position == ``) position = nextIndex;
+        position = parseInt(position);
+        position = position > nextIndex ? nextIndex : position; 
+
+        if (board) {
+            const { rank, number } = await getRankAndNumber(Types.Item, globalUserData?.items, column?.data?.itemIDs, users, user);
+            const newItem = createItem(number, name, user, rank, selectedGrid?.id, board?.id, column?.id, image, video) as ItemModel;
+
+            const prevItmIDs = [...column?.data?.itemIDs];
+            const newItemIDs = Array.from(prevItmIDs);
+            newItemIDs.splice(position - 1, 0, newItem?.id);
+
+            const brd: Board = new Board({ ...board });
+            brd.data.itemIDs = [...brd.data.itemIDs, newItem?.id];
+
+            await updateBoardInState(brd);
+
+            await addItemToDatabase(newItem, column?.id, board?.id, newItemIDs);
+
+            e.target.reset();
+            if (e.target.children && e.target.children?.length > 0) {
+                e.target.children[0].focus();
             }
-        });
-
-        setIDs([...IDs, newItem?.id]);
-
-        e.target.reset();
-        e.target.children[0].focus();
+        }
 
         setTimeout(() => {
             setSystemStatus(`Created Item.`);
             setLoading(false);
         }, 1000);
-
-        let itemsElement = document.querySelector(`#items_of_${props.column.id}`);
-        if (itemsElement) {
-            if (rank > 7) {
-                setTimeout(() => {
-                    itemsElement.scrollTop = itemsElement.scrollHeight;
-                }, 0);
-            }
-        }
-    }
-
-    const getListsLength = () => {
-        let boardsLists = globalUserData?.lists;
-        if (boardsLists && boardsLists?.length > 0) {
-            boardsLists = boardsLists?.filter(lst => lst?.boardID == column?.boardID);
-        }
-        return boardsLists?.length;
-    }
-
-    const renderTitleSizeClass = (name) => {
-        let nameClasses = ``;
-        if (name?.length >= 5) nameClasses = `mTitle`;
-        if (name?.length >= 15) nameClasses = `lTitle`;
-        if (name?.length >= 20) nameClasses = `xlTitle`;
-        return nameClasses;
     }
 
     return (
@@ -304,10 +287,10 @@ export default function Column(props) {
                                             item.tasks = tasks;
                                         }
                                         return (
-                                            <Draggable key={item.id} draggableId={item.id} index={itemIndex}>
+                                            <Draggable key={item?.id} draggableId={item?.id} index={itemIndex}>
                                                 {provided => (
-                                                    <div id={item.id} className={`item boardItem ${hoverItemForm ? `itemHoverToExpand` : ``} completeItem ${item.complete ? `complete completeBoardItem` : `activeBoardItem`} container ${snapshot.isDragging ? `dragging` : ``} ${(itemTypeMenuOpen || selected != null) ? `unfocus` : ``}`} title={item.content} {...provided.draggableProps} ref={provided.innerRef}>
-                                                        <div onClick={(e) => manageItem(e, item, itemIndex, board, boards, setBoards)} {...provided.dragHandleProps} className={`itemRow flex row ${item?.complete ? `completed` : `incomplete`} ${item.tasks.length > 0 ? `hasTasksRow` : `noTasksRow`}`}>
+                                                    <div id={item?.id} className={`item boardItem ${hoverItemForm ? `itemHoverToExpand` : ``} completeItem ${item?.options?.complete ? `complete completeBoardItem` : `activeBoardItem`} container ${snapshot.isDragging ? `dragging` : ``} ${(itemTypeMenuOpen || selected != null) ? `unfocus` : ``}`} title={item?.name} {...provided.draggableProps} ref={provided.innerRef}>
+                                                        <div onClick={(e) => manageItem(e, item, itemIndex, board, boards, setBoards)} {...provided.dragHandleProps} className={`itemRow flex row ${item?.options?.complete ? `completed` : `incomplete`} ${item?.tasks.length > 0 ? `hasTasksRow` : `noTasksRow`}`}>
                                                             <Item 
                                                                 item={item} 
                                                                 tasks={tasks}
@@ -324,7 +307,7 @@ export default function Column(props) {
                                                                 tasks={tasks}
                                                                 board={board}
                                                                 column={props.column} 
-                                                                showForm={!board?.tasksFiltered} 
+                                                                showForm={board?.options?.tasksFilterState != TasksFilterStates.All_Off} 
                                                             />
                                                         )}
                                                     </div>

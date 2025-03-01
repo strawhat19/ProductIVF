@@ -7,6 +7,7 @@ import { countPropertiesInObject, isValid, stringNoSpaces } from '../constants';
 
 export class Item extends Data {
     ID: any;
+    number: number;
     listID: string;
     gridID: string;
     boardID: string;
@@ -28,7 +29,7 @@ export class Item extends Data {
     tasks?: any;
     
     options = {
-        private: false,
+        private: true,
         complete: false,
         archived: false,
         recurring: false,
@@ -68,15 +69,16 @@ export const createItem = (
     rank: number, 
     name: string, 
     user: User | any, 
+    number: number,
     gridID = ``, 
     boardID = ``, 
     listID = ``, 
+    image = ``,
+    video = ``,
     itemType = ItemTypes.Item,
     taskIDs = [], 
     color = `Default`,
     description = ``,
-    image = ``,
-    video = ``,
     type = Types.Item, 
 ) => {
 
@@ -84,6 +86,7 @@ export const createItem = (
         name,
         type,
         rank,
+        number,
         gridID,
         listID,
         boardID,
