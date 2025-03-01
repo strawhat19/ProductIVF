@@ -1,6 +1,7 @@
 import Tasks from './tasks';
 import { ItemTypes } from './boards';
 import { toast } from 'react-toastify';
+import { Board } from '../../shared/models/Board';
 import React, { useContext, useState } from 'react';
 import Item, { getTypeIcon, manageItem } from './item';
 import { deleteListFromDatabase } from '../../firebase';
@@ -8,7 +9,6 @@ import { Droppable, Draggable } from 'react-beautiful-dnd';
 import ConfirmAction from '../context-menus/confirm-action';
 import { formatDate, generateUniqueID, StateContext, capitalizeAllWords, dev } from '../../pages/_app';
 import { forceFieldBlurOnPressEnter, logToast, removeExtraSpacesFromString } from '../../shared/constants';
-import { Board } from '../../shared/models/Board';
 
 export default function Column(props) {
     let count = 0;
@@ -273,15 +273,15 @@ export default function Column(props) {
                                     </div>
                                 </div>
                             </h3>
-                            <div className={`itemButtons customButtons`}>
+                            <div className={`listButtonOptions itemButtons customButtons`}>
                                 <button id={`details_Columns_${props.column.id}`} style={{ pointerEvents: `all` }} onClick={(e) => adjustColumnsDetails(props.column)} title={`Details`} className={`columnIconButton iconButton detailsButton`}>
-                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-bars`}></i>
+                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-bars`} />
                                     <span className={`iconButtonText listTitleButtonLabel firstTitle ${renderTitleSizeClass(props.column.name)} textOverflow extended`}>
                                         Details
                                     </span>
                                 </button>
                                 <button id={`delete_${props.column.id}`} style={{ pointerEvents: `all` }} onClick={(e) => deleteColumn(props.column.id, props.index)} title={`Delete List`} className={`columnIconButton iconButton deleteButton deleteListButton ${showConfirm ? `cancelBtnList` : ``}`}>
-                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`mainIcon fas fa-${showConfirm ? `ban` : `trash`}`}></i>
+                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`mainIcon fas fa-${showConfirm ? `ban` : `trash`}`} />
                                     <span className={`iconButtonText listTitleButtonLabel ${renderTitleSizeClass(props.column.name)} textOverflow extended`}>
                                         {showConfirm ? `Cancel` : `Delete`}
                                     </span>

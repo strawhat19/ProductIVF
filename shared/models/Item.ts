@@ -7,9 +7,9 @@ import { countPropertiesInObject, isValid, stringNoSpaces } from '../constants';
 
 export class Item extends Data {
     ID: any;
+    listID: string;
     gridID: string;
     boardID: string;
-    listID: string;
 
     creator: string;
 
@@ -28,9 +28,9 @@ export class Item extends Data {
     
     options = {
         private: false,
+        complete: false,
         archived: false,
         recurring: false,
-        completed: false,
         hideCoverImage: false,
         tasksFilterState: TasksFilterStates.All_On,
     }
@@ -71,7 +71,7 @@ export const createItem = (
     boardID = ``, 
     listID = ``, 
     itemType = ItemTypes.Item,
-    taskIDs = [`Item 1`, `Item 2`], 
+    taskIDs = [], 
     color = `Default`,
     description = ``,
     image = ``,

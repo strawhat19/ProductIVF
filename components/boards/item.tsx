@@ -245,8 +245,8 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
     return <>
         <div id={`itemElement_${item.id}`} className={`itemComponent itemInnerRow flex row`} onContextMenu={(e) => onRightClick(e, item, column)}>
             <span className={`itemOrder rowIndexOrder`}>
-                <i className={`itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>
-                    <span className={`itemIconType ${item?.type}`}>
+                <i className={`itemIndex ${item?.options?.complete ? `completedIndex` : `activeIndex`}`}>
+                    <span className={`itemIconType ${item?.itemType}`}>
                         +
                     </span> 
                     {itemIndex + 1}
@@ -266,7 +266,7 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
                         className={`changeLabel stretchEditable`}
                         onKeyDown={(e) => forceFieldBlurOnPressEnter(e)}
                     >
-                        {item.content}
+                        {item.name}
                     </span>
                     {/* {item.subtasks.length > 0 && (
                         <div className="progress">
