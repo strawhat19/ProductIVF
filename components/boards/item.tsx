@@ -15,13 +15,14 @@ export const getTaskPercentage = (tasks: any[]) => {
 }
 
 export const getSubTaskPercentage = (subtasks: any[], item, isActive = null) => {
-    if (item?.complete) return 100;
+    let itemIsComplete = item?.options?.complete;
+    if (itemIsComplete) return 100;
     if (subtasks.length == 0) {
-        if (isActive != null) return item?.complete ? 100 : (isActive == true ? 0 : 100);
-        else return item?.complete ? 100 : 0;
+        if (isActive != null) return itemIsComplete ? 100 : (isActive == true ? 0 : 100);
+        else return itemIsComplete ? 100 : 0;
     };
     let subtasksProgress = 0;
-    let completeTasks = subtasks.filter(task => task.complete);
+    let completeTasks = subtasks.filter(task => task?.options?.complete);
     subtasksProgress = parseFloat(((completeTasks.length / subtasks.length) * 100).toFixed(1));
     return subtasksProgress;
 }
@@ -65,9 +66,9 @@ export default function Item({ item, count, column, itemIndex, board, setBoard, 
         setItemTypeMenuOpen, 
     } = useContext<any>(StateContext);
 
-    const updateBoards = (updatedBoards) => {
-        setBoards(updatedBoards);
-    }
+    // const updateBoards = (updatedBoards) => {
+    //     setBoards(updatedBoards);
+    // }
 
     const changeLabel = (e, item) => {
         let elemValue = e.target.textContent;
@@ -98,20 +99,7 @@ export default function Item({ item, count, column, itemIndex, board, setBoard, 
             }
         }) : brd);
 
-        updateBoards(updatedBoards);
-
-        // setBoards(prevBoards => prevBoards.map(brd => brd?.id == board?.id ? ({
-        //     ...board,
-        //     items: {
-        //         ...board?.items,
-        //         [board?.items[item?.id]]: {
-        //             ...board?.items[item?.id],
-        //             title: elemValue,
-        //             content: elemValue,
-        //             updated: formatDate(new Date()),
-        //         }
-        //     }
-        // }) : brd));
+        // updateBoards(updatedBoards);
     }
 
     const completeActions = (item, itemId, isButton) => {
@@ -306,7 +294,7 @@ export default function Item({ item, count, column, itemIndex, board, setBoard, 
                             <span className={`taskProgressCount subtaskIndex subscript flex row gap5`}>
                                 <span className={`slashes`}>
                                     ✔
-                                </span> {item?.complete ? item?.data?.taskIDs.length : item?.data?.taskIDs.filter(subtask => subtask.complete).length} <span className={`slashes`}>
+                                </span> {item?.complete ? item?.data?.taskIDs.length : item?.data?.taskIDs.filter(subtask => subtask?.options?.complete).length} <span className={`slashes`}>
                                     //
                                 </span> {item?.data?.taskIDs.length}
                             </span>
@@ -319,7 +307,7 @@ export default function Item({ item, count, column, itemIndex, board, setBoard, 
                 {/* <button id={`copy_${item.id}`} onClick={(e) => copyItem(e, item)} title={`Copy Item`} className={`iconButton ${ItemActions.Copy} copyButton wordIconButton`}>
                     <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-copy`}></i>
                 </button> */}
-                <button id={`delete_${item.id}`} onClick={(e) => onDeleteItem(e)} title={`Delete Item`} className={`deleteItemButton iconButton deleteButton wordIconButton`}>
+                <button id={`delete_${item?.id}`} onClick={(e) => onDeleteItem(e)} title={`Delete Item`} className={`deleteItemButton iconButton deleteButton wordIconButton`}>
                     <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-${showConfirm ? `ban` : `trash`}`} />
                     {showConfirm && (
                         <ConfirmAction 
@@ -329,8 +317,8 @@ export default function Item({ item, count, column, itemIndex, board, setBoard, 
                         />
                     )}
                 </button>
-                <button id={`complete_${item.id}`} onClick={(e) => onCompleteItem(e)} title={`Complete Item`} className={`iconButton wordIconButton completeButton`}>
-                    <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas ${item.complete ? `fa-history` : `fa-check-circle`}`} />
+                <button id={`complete_${item?.id}`} onClick={(e) => onCompleteItem(e)} title={`Complete Item`} className={`iconButton wordIconButton completeButton`}>
+                    <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas ${item?.options?.complete ? `fa-history` : `fa-check-circle`}`} />
                 </button>
                 {/* <button id={`manage_${item.id}`} onClick={(e) => onManageItem(e)} title={`Manage Item`} className={`iconButton wordIconButton manageButton`}>
                     <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-bars`} />

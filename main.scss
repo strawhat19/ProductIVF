@@ -877,6 +877,9 @@ body {
             }
             .board {
                 --boardColumnHeight: 661px;
+                @media (max-width: 1300px) {
+                    --boardColumnHeight: 597px;
+                }
                 @media (min-aspect-ratio: 18/9) {
                     --boardColumnHeight: 533px;
                 }
@@ -1407,7 +1410,7 @@ textarea {
 
 .authStateComponent {
     &.hasUserSignedIn {
-        font-weight: 500;
+        font-weight: 600;
     }
 }
 
