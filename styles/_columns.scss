@@ -4,6 +4,56 @@
     --whiteGlassInvert: rgba(191, 230, 244, 1);
 }
 
+.board {
+    .column {
+        &.columns_1 { --columnWidth: 100% !important; }
+        &.columns_2 { --columnWidth: calc(98.5% / 2) !important; }
+        &.columns_3 { 
+            --columnWidth: calc(97.5% / 3) !important;
+            @media (max-width: 1366px) {
+                .changeLabel {
+                    &.columnName {
+                        font-size: 16px;
+                    }
+                }
+                .listTitleButtonLabel {
+                    &.xlTitle {
+                        &.firstTitle {
+                            display: none !important;
+                        }
+                    }
+                }
+            }
+        }
+        &.columns_4 { 
+            --columnWidth: calc(95.5% / 4) !important;
+            @media (max-width: 1366px) {
+                .changeLabel {
+                    &.columnName {
+                        font-size: 16px;
+                        &.xlTitle {
+                            font-size: 14px;
+                        }
+                    }
+                }
+                .listTitleButtonLabel {
+                    &.mTitle, &.lTitle, &.xlTitle {
+                        display: none !important;
+                    }
+                    &.firstTitle {
+                        display: none !important;
+                    }
+                }
+                .deleteListButton {
+                    &.deleteListButton {
+                        --width: auto !important;  
+                    }
+                }
+            }
+        }
+    }
+}
+
 .deleteBoardButton, .deleteListButton, .deleteItemButton {
     position: relative;
     &.deleteListButton {
@@ -245,15 +295,6 @@
         }
         background: black;
         color: white !important;
-    }
-}
-
-.board {
-    .column {
-        &.columns_1 { --columnWidth: 100% !important; }
-        &.columns_2 { --columnWidth: calc(99.5% / 2) !important; }
-        &.columns_3 { --columnWidth: calc(98.5% / 3) !important; }
-        // &.columns_4 { --columnWidth: calc(97.5% / 4) !important; }
     }
 }
 

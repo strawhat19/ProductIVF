@@ -227,6 +227,14 @@ export default function Column(props) {
         return boardsLists?.length;
     }
 
+    const renderTitleSizeClass = (name) => {
+        let nameClasses = ``;
+        if (name?.length >= 5) nameClasses = `mTitle`;
+        if (name?.length >= 15) nameClasses = `lTitle`;
+        if (name?.length >= 20) nameClasses = `xlTitle`;
+        return nameClasses;
+    }
+
     return (
         <Draggable draggableId={props.column.id} index={props.index}>
             {(provided, snapshot) => (
@@ -244,7 +252,7 @@ export default function Column(props) {
                                         suppressContentEditableWarning
                                         onKeyDown={(e) => forceFieldBlurOnPressEnter(e)}
                                         onBlur={(e) => changeColumnLabel(e, props.column)} 
-                                        className={`columnName changeLabel stretchEditable`} 
+                                        className={`columnName changeLabel stretchEditable ${renderTitleSizeClass(props.column.name)}`} 
                                     >
                                         {props.column.name}    
                                     </div>
@@ -268,27 +276,13 @@ export default function Column(props) {
                             <div className={`itemButtons customButtons`}>
                                 <button id={`details_Columns_${props.column.id}`} style={{ pointerEvents: `all` }} onClick={(e) => adjustColumnsDetails(props.column)} title={`Details`} className={`columnIconButton iconButton detailsButton`}>
                                     <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-bars`}></i>
-                                    <span className={`iconButtonText textOverflow extended`}>
+                                    <span className={`iconButtonText listTitleButtonLabel firstTitle ${renderTitleSizeClass(props.column.name)} textOverflow extended`}>
                                         Details
                                     </span>
                                 </button>
-                                {/* {dev() ? <>
-                                    <button id={`layout_3Columns_${props.column.id}`} style={{ pointerEvents: `all` }} onClick={(e) => adjustColumnsLayout(props.column, 3)} title={`3 Columns`} className={`iconButton layoutButton column3Layout ${props?.column?.layoutCols ? (props?.column?.layoutCols == 3 ? `activeLayout` : `inactive`) : ``}`}>
-                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-th`}></i>
-                                        <span className={`iconButtonText textOverflow extended`}>
-                                            3 Columns
-                                        </span>
-                                    </button>
-                                    <button id={`layout_2Columns_${props.column.id}`} style={{ pointerEvents: `all` }} onClick={(e) => adjustColumnsLayout(props.column, 2)} title={`2 Columns`} className={`iconButton layoutButton column2Layout ${props?.column?.layoutCols ? (props?.column?.layoutCols == 2 ? `activeLayout` : `inactive`) : ``}`}>
-                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-th-large`}></i>
-                                        <span className={`iconButtonText textOverflow extended`}>
-                                            2 Columns
-                                        </span>
-                                    </button>
-                                </> : <></>} */}
                                 <button id={`delete_${props.column.id}`} style={{ pointerEvents: `all` }} onClick={(e) => deleteColumn(props.column.id, props.index)} title={`Delete List`} className={`columnIconButton iconButton deleteButton deleteListButton ${showConfirm ? `cancelBtnList` : ``}`}>
                                     <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`mainIcon fas fa-${showConfirm ? `ban` : `trash`}`}></i>
-                                    <span className={`iconButtonText textOverflow extended`}>
+                                    <span className={`iconButtonText listTitleButtonLabel ${renderTitleSizeClass(props.column.name)} textOverflow extended`}>
                                         {showConfirm ? `Cancel` : `Delete`}
                                     </span>
                                     {showConfirm && (

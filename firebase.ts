@@ -327,30 +327,6 @@ export const addListToDatabase = async (list: List, boardID: string, gridID: str
     const listsCount = listsSnapshot.size;
 
     await addListBatchOperation.set(listRef, { ...list, number: listsCount + 1 });
-
-    // const userDoc = await getDoc(userRef);
-    // if (userDoc.exists()) {
-    //   const userData = userDoc.data();
-    //   const userListIDsToUse = userData.data?.listIDs ?? [];
-    //   const updatedUsersListIDs = [...userListIDsToUse, list.id];
-    //   addListBatchOperation.update(userRef, {
-    //     [`meta.updated`]: date,
-    //     [`data.listIDs`]: updatedUsersListIDs,
-    //     properties: countPropertiesInObject({ ...userData, data: { ...userData?.data, listIDs: updatedUsersListIDs } }),
-    //   });
-    // }
-
-    // const gridDoc = await getDoc(gridRef);
-    // if (gridDoc.exists()) {
-    //   const gridData = gridDoc.data();
-    //   const gridListIDsToUse = gridData.data?.listIDs ?? [];
-    //   const updatedGridsListIDs = [...gridListIDsToUse, list.id];
-    //   addListBatchOperation.update(gridRef, {
-    //     [`meta.updated`]: date,
-    //     [`data.listIDs`]: updatedGridsListIDs,
-    //     properties: countPropertiesInObject({ ...gridData, data: { ...gridData?.data, listIDs: updatedGridsListIDs } }),
-    //   });
-    // }
     
     const boardDoc = await getDoc(boardRef);
     if (boardDoc.exists()) {
@@ -376,38 +352,8 @@ export const deleteListFromDatabase = async (list: List) => {
   const { date } = getIDParts();
   const deleteListBatchOperation = await writeBatch(db);
   try {
-    // const usersRef = await collection(db, usersTable);
-    // const gridsRef = await collection(db, gridsTable);
     const boardsRef = await collection(db, boardsTable);
     const listRef = await doc(db, listsTable, list?.id);
-
-    // const usersQuery = query(usersRef, where(`data.listIDs`, `array-contains`, list.id));
-    // const usersSnapshot = await getDocs(usersQuery);
-
-    // usersSnapshot.forEach(userDoc => {
-    //   const userRef = doc(db, usersTable, userDoc.id);
-    //   const userData = userDoc.data();
-    //   const updatedUsersListIDs = userData.data.listIDs.filter((id: string) => id !== list.id);
-    //   deleteListBatchOperation.update(userRef, {
-    //     [`meta.updated`]: date,
-    //     [`data.listIDs`]: updatedUsersListIDs,
-    //     properties: countPropertiesInObject({ ...userData, data: { ...userData?.data, listIDs: updatedUsersListIDs } }),
-    //   });
-    // });
-
-    // const gridsQuery = query(gridsRef, where(`data.listIDs`, `array-contains`, list.id));
-    // const gridsSnapshot = await getDocs(gridsQuery);
-
-    // gridsSnapshot.forEach(gridDoc => {
-    //   const gridRef = doc(db, gridsTable, gridDoc.id);
-    //   const gridData = gridDoc.data();
-    //   const updatedGridsListIDs = gridData.data.listIDs.filter((id: string) => id !== list.id);
-    //   deleteListBatchOperation.update(gridRef, {
-    //     [`meta.updated`]: date,
-    //     [`data.listIDs`]: updatedGridsListIDs,
-    //     properties: countPropertiesInObject({ ...gridData, data: { ...gridData?.data, listIDs: updatedGridsListIDs } }),
-    //   });
-    // });
 
     const boardsQuery = query(boardsRef, where(`data.listIDs`, `array-contains`, list.id));
     const boardsSnapshot = await getDocs(boardsQuery);
