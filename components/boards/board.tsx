@@ -10,6 +10,7 @@ import { TasksFilterStates, Types } from '../../shared/types/types';
 import { capitalizeAllWords, dev, StateContext } from '../../pages/_app';
 import { forceFieldBlurOnPressEnter, getRankAndNumber, logToast } from '../../shared/constants';
 import { addListToDatabase, deleteBoardFromDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
+import { getIDParts } from '../../shared/ID';
 
 export const addBoardScrollBars = () => {
     let boardColumnItems = document.querySelectorAll(`.boardColumnItems`);
@@ -35,15 +36,16 @@ export default function Board(props) {
         setLoading, 
         user, users, 
         selectedGrid, 
+        globalUserData,
         setSystemStatus, 
         boards, setBoards, 
-        globalUserData, setGlobalUserData,
     } = useContext<any>(StateContext);
 
     const updateBoardInState = (updatedBoardData: Partial<BoardModel>) => {
+        let { date } = getIDParts();
         setBoards(prevBoards =>
           prevBoards.map(prevBrd =>
-            prevBrd.id === board?.id ? new BoardModel({ ...prevBrd, ...updatedBoardData }) : new BoardModel(prevBrd)
+            prevBrd.id === board?.id ? new BoardModel({ ...prevBrd, ...updatedBoardData, meta: { ...board?.meta, updated: date } }) : new BoardModel(prevBrd)
           )
         )
     }
@@ -297,11 +299,11 @@ export default function Board(props) {
                                         <span className={`subscript rowDate itemDate itemName itemCreated itemUpdated textOverflow extended flex row`}>
                                             <i> - </i>
                                             <i className={`status`}>
-                                                {board && board?.created && !board?.updated ? `Cre.` : `Upd.` }
+                                                {board && board?.meta?.created && !board?.meta?.updated ? `Cre.` : `Upd.` }
                                             </i> 
                                             <i>
                                                 <span className={`itemDateTime`}>
-                                                    {board?.updated ?? board?.created}
+                                                    {board?.meta?.updated ?? board?.meta?.created}
                                                 </span>
                                             </i>
                                         </span>
