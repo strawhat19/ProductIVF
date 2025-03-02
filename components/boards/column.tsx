@@ -282,7 +282,6 @@ export default function Column(props) {
                                                         <div onClick={(e) => manageItem(e, item, itemIndex, board, boards, setBoards)} {...provided.dragHandleProps} className={`itemRow flex row ${item?.options?.complete ? `completed` : `incomplete`} ${item?.tasks.length > 0 ? `hasTasksRow` : `noTasksRow`}`}>
                                                             <Item 
                                                                 item={item} 
-                                                                tasks={tasks}
                                                                 count={count} 
                                                                 board={board} 
                                                                 column={props.column} 
