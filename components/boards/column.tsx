@@ -9,7 +9,7 @@ import { Droppable, Draggable } from 'react-beautiful-dnd';
 import ConfirmAction from '../context-menus/confirm-action';
 import { TasksFilterStates, Types } from '../../shared/types/types';
 import { createItem, Item as ItemModel } from '../../shared/models/Item';
-import { formatDate, StateContext, capitalizeAllWords, dev } from '../../pages/_app';
+import { formatDate, StateContext, capitalizeAllWords, dev, capWords } from '../../pages/_app';
 import { addItemToDatabase, deleteListFromDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
 import { forceFieldBlurOnPressEnter, getRankAndNumber, logToast, removeExtraSpacesFromString } from '../../shared/constants';
 
@@ -172,7 +172,7 @@ export default function Column(props) {
 
         let nextIndex = column?.data?.itemIDs?.length + 1;
         
-        let name = capitalizeAllWords(formFields.createItem.value);
+        let name = capWords(formFields.createItem.value);
 
         let position = formFields.rank.value;
         if (!position || position == ``) position = nextIndex;

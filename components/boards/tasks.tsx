@@ -20,15 +20,15 @@ const SortableSubtaskItem = ({ item, subtask, isLast, column, index, changeLabel
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners} className={`boardTaskDraggableWrap`}>
-      <div className={`task_${subtask.id} boardTask subTaskItem ${(item?.complete || subtask?.complete) ? `complete` : `activeTask`} ${isLast ? `dndLast` : ``}`}>
-        <div className={`boardTaskHandle cursorGrab draggableItem item subtaskHandle ${(item?.complete || subtask?.complete) ? `complete` : `activeTask`}`}>
+      <div className={`task_${subtask?.id} boardTask subTaskItem ${(item?.options?.complete || subtask?.options?.complete) ? `complete` : `activeTask`} ${isLast ? `dndLast` : ``}`}>
+        <div className={`boardTaskHandle cursorGrab draggableItem item subtaskHandle ${(item?.options?.complete || subtask?.options?.complete) ? `complete` : `activeTask`}`}>
           <span className={`itemOrder taskComponentBG`}>
-            <i className={`itemIndex ${(item?.complete || subtask?.complete) ? `completedIndex` : `activeIndex`}`}>
+            <i className={`itemIndex ${(item?.options?.complete || subtask?.options?.complete) ? `completedIndex` : `activeIndex`}`}>
               {index + 1}
             </i>
           </span>
 
-          <div className={`subtaskActions flex row taskComponentBG ${(item?.complete || subtask?.complete) ? `complete` : `activeTask`}`}>
+          <div className={`subtaskActions flex row taskComponentBG ${(item?.options?.complete || subtask?.options?.complete) ? `complete` : `activeTask`}`}>
             <span
               contentEditable
               spellCheck={false}
@@ -38,35 +38,35 @@ const SortableSubtaskItem = ({ item, subtask, isLast, column, index, changeLabel
               onPointerDown={(e) => e.stopPropagation()}
               onKeyDown={(e) => forceFieldBlurOnPressEnter(e)}
               onInput={(e) => setMaxLengthOnField(e, nameFields.task.max)}
-              className={`changeLabel taskChangeLabel stretchEditable ${(item?.complete || subtask?.complete) ? `complete` : `activeTask`}`}
+              className={`changeLabel taskChangeLabel stretchEditable ${(item?.options?.complete || subtask?.options?.complete) ? `complete` : `activeTask`}`}
             >
-              {subtask.task}
+              {subtask.name}
             </span>
 
-            {column?.details && column?.details == true ? (
-              subtask.created && !subtask.updated ? (
-                <span className={`itemDate ${(item?.complete || subtask?.complete) ? `taskCompleteDate` : `taskActiveDate`} itemName itemCreated textOverflow extended flex row taskDate`}>
+            {column?.options?.details && column?.options?.details == true ? (
+              subtask?.meta?.created && !subtask?.meta?.updated ? (
+                <span className={`itemDate ${(item?.options?.complete || subtask?.options?.complete) ? `taskCompleteDate` : `taskActiveDate`} itemName itemCreated textOverflow extended flex row taskDate`}>
                   <i className={`status`}>
                     Cre.
                   </i>
                   <span className={`itemDateTime`}>
-                    {formatDate(new Date(subtask.created))}
+                    {subtask?.meta?.created}
                   </span>
                 </span>
-              ) : subtask.updated ? (
-                <span className={`itemDate ${(item?.complete || subtask?.complete) ? `taskCompleteDate` : `taskActiveDate`} itemName itemCreated itemUpdated textOverflow extended flex row taskDate`}>
+              ) : subtask?.meta?.updated ? (
+                <span className={`itemDate ${(item?.options?.complete || subtask?.options?.complete) ? `taskCompleteDate` : `taskActiveDate`} itemName itemCreated itemUpdated textOverflow extended flex row taskDate`}>
                   <i className={`status`}>
                     Upd.
                   </i>
                   <span className={`itemDateTime`}>
-                    {formatDate(new Date(subtask.updated))}
+                    {subtask?.meta?.updated}
                   </span>
                 </span>
               ) : null
             ) : <></>}
           </div>
 
-          <div className={`taskOptions itemOptions itemButtons customButtons taskComponentBG taskButtons ${subtask?.complete ? `taskComplete` : `taskActive`} ${item?.complete ? `itemComplete` : `itemActive`} ${(item?.complete || subtask?.complete) ? `taskButtonsComplete` : `taskButtonsActive`}`}>
+          <div className={`taskOptions itemOptions itemButtons customButtons taskComponentBG taskButtons ${subtask?.options?.complete ? `taskComplete` : `taskActive`} ${item?.options?.complete ? `itemComplete` : `itemActive`} ${(item?.options?.complete || subtask?.options?.complete) ? `taskButtonsComplete` : `taskButtonsActive`}`}>
             <button
               title={`Delete Task`}
               onMouseDown={(e) => e.stopPropagation()}
@@ -84,8 +84,8 @@ const SortableSubtaskItem = ({ item, subtask, isLast, column, index, changeLabel
               onMouseDown={(e) => e.stopPropagation()}
               onPointerDown={(e) => e.stopPropagation()}
               onChange={(e) => completeSubtask(e, subtask)}
-              checked={item?.complete || subtask?.complete}
-              className={`task_check_box taskCheckbox ${(item?.complete || subtask?.complete) ? `complete` : `activeTask`}`}
+              checked={item?.options?.complete || subtask?.options?.complete}
+              className={`task_check_box taskCheckbox ${(item?.options?.complete || subtask?.options?.complete) ? `complete` : `activeTask`}`}
             />
           </div>
         </div>
@@ -99,7 +99,7 @@ export default function Tasks(props) {
   let { user, boards, setLoading, setSystemStatus } = useContext<any>(StateContext);
 
   let [deletedTaskIDs, setDeletedTaskIDs] = useState<string[]>([]);
-  let [subtasks, setSubtasks] = useState(item?.subtasks?.length ? item.subtasks : []);
+  let [subtasks, setSubtasks] = useState(tasks);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -125,16 +125,16 @@ export default function Tasks(props) {
   // Toggle complete
   const completeSubtask = (e, subtask) => {
     setLoading(true);
-    setSystemStatus(`Marking Task as ${subtask?.complete ? `Reopened` : `Complete`}.`);
+    setSystemStatus(`Marking Task as ${subtask?.options?.complete ? `Reopened` : `Complete`}.`);
 
-    subtask.complete = !subtask?.complete;
-    subtask.updated = formatDate(new Date());
-    item.updated = formatDate(new Date());
+    subtask.options.complete = !subtask?.options?.complete;
+    subtask.meta.updated = formatDate(new Date());
+    item.meta.updated = formatDate(new Date());
 
     // updateBoards(user);
 
     setTimeout(() => {
-      setSystemStatus(`Marked Task as ${subtask?.complete ? `Complete` : `Reopened`}.`);
+      setSystemStatus(`Marked Task as ${subtask?.options?.complete ? `Complete` : `Reopened`}.`);
       setLoading(false);
     }, 1000);
   };
@@ -254,10 +254,10 @@ export default function Tasks(props) {
   };
 
   return (
-    <div id={`${item.id}_subTasks`} className={`rowSubtasks subTasks dndkitTasks  ${showForm ? `showForm` : `hideForm`}`}>
+    <div id={`${item?.id}_subTasks`} className={`rowSubtasks subTasks dndkitTasks  ${showForm ? `showForm` : `hideForm`}`}>
       <div className={`subTaskElement flex ${subtasks.length > 0 ? `hasTasks` : `noTasks`} ${showForm ? `hasForm` : `noForm`}`}>
         {/* The scrollable container for tasks */}
-        <div style={{ marginTop: -1 }} className={`subTaskItems taskItems ${item?.complete ? `completedTasks` : `activeTasks`}`}>
+        <div style={{ marginTop: -1 }} className={`subTaskItems taskItems ${item?.options?.complete ? `completedTasks` : `activeTasks`}`}>
           {/* DndContext wraps the entire area that can be dragged */}
           <DndContext
             sensors={sensors}
@@ -269,7 +269,7 @@ export default function Tasks(props) {
           >
             {/* SortableContext defines which items we can reorder, and how */}
             <SortableContext
-              items={subtasks.map((t) => t.id)}
+              items={subtasks.map((t) => t?.id)}
               strategy={verticalListSortingStrategy}
             >
               {subtasks.map((subtask, index) => {
@@ -301,7 +301,7 @@ export default function Tasks(props) {
               type={`text`}
               autoComplete={`off`}
               placeholder={`Create Task +`}
-              id={`${item.id}_createSubtask`}
+              id={`${item?.id}_createSubtask`}
               name={`createSubtask changeLabel`}
             />
             <input
@@ -310,7 +310,7 @@ export default function Tasks(props) {
               autoComplete={`off`}
               defaultValue={subtasks.length + 1}
               className={`rankField taskRankField`}
-              id={`${item.id}_createSubtask_rank`}
+              id={`${item?.id}_createSubtask_rank`}
             />
             <button
               type={`submit`}
