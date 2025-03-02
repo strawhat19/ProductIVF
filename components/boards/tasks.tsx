@@ -1,10 +1,14 @@
 import { CSS } from '@dnd-kit/utilities';
-import React, { useState, useContext } from 'react';
-import { capWords, formatDate, generateUniqueID, StateContext } from '../../pages/_app';
+import React, { useState, useContext, useEffect } from 'react';
+import { capWords, formatDate, StateContext } from '../../pages/_app';
 import { DndContext, PointerSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { restrictToFirstScrollableAncestor, restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers';
-import { forceFieldBlurOnPressEnter, nameFields, removeExtraSpacesFromString, setMaxLengthOnField } from '../../shared/constants';
+import { forceFieldBlurOnPressEnter, getRankAndNumber, nameFields, removeExtraSpacesFromString, setMaxLengthOnField } from '../../shared/constants';
+import { Types } from '../../shared/types/types';
+import { createTask, Task } from '../../shared/models/Task';
+import { addBoardScrollBars } from './board';
+import { addTaskToDatabase } from '../../firebase';
 
 const reorder = (list, oldIndex, newIndex) => arrayMove(list, oldIndex, newIndex);
 
@@ -95,8 +99,8 @@ const SortableSubtaskItem = ({ item, subtask, isLast, column, index, changeLabel
 }
 
 export default function Tasks(props) {
-  let { item, column, board, tasks, showForm = true } = props;
-  let { user, boards, setLoading, setSystemStatus } = useContext<any>(StateContext);
+  let { item, column, tasks, showForm = true } = props;
+  let { user, users, selectedGrid, globalUserData, setLoading, setSystemStatus } = useContext<any>(StateContext);
 
   let [deletedTaskIDs, setDeletedTaskIDs] = useState<string[]>([]);
   let [subtasks, setSubtasks] = useState(tasks);
@@ -140,72 +144,58 @@ export default function Tasks(props) {
   };
 
   // Add subtask with rank insertion
-  const addSubtask = (e) => {
+  const addSubtask = async (e) => {
     e.preventDefault();
+    
     setLoading(true);
     setSystemStatus(`Creating Task.`);
 
     const formFields = e.target.children;
-    const newTaskText = formFields[0].value.trim();
-    let rank = formFields.rank.value;
+    const taskName = formFields[0].value.trim();
+    const name = capWords(taskName);
 
+    let position = formFields.rank.value;
     const nextIndex = subtasks.length + 1;
-    if (!rank) rank = nextIndex;
-    rank = Math.min(parseInt(rank, 10), nextIndex);
+    if (!position) position = nextIndex;
+    position = Math.min(parseInt(position, 10), nextIndex);
 
-    const subtaskID = `subtask_${nextIndex}_${generateUniqueID()}`;
-    const newSubtask = {
-      id: subtaskID,
-      complete: false,
-      itemID: item?.id,
-      listID: column?.id,
-      boardID: board?.id,
-      created: formatDate(new Date()),
-      updated: formatDate(new Date()),
-      task: capitalizeAllWords(newTaskText),
-      ...(user != null && {
-        creator: {
-          id: user?.id,
-          uid: user?.uid,
-          name: user?.name,
-          email: user?.email,
-        }
-      }),
-    };
+    if (column) {
+      const { rank, number } = await getRankAndNumber(Types.Task, globalUserData?.tasks, column?.data?.taskIDs, users, user);
+      const newTask = createTask(number, name, user, selectedGrid?.id, item?.boardID, column?.id, item?.id, rank) as Task;
 
-    const updatedTasks = [
-      ...subtasks.slice(0, rank - 1),
-      newSubtask,
-      ...subtasks.slice(rank - 1),
-    ];
+      const prevTskIDs = [...item?.data?.taskIDs];
+      const newTskIDs = Array.from(prevTskIDs);
+      newTskIDs.splice(position - 1, 0, newTask?.id);
 
-    setSubtasks(updatedTasks);
-    item.subtasks = updatedTasks;
-    item.updated = formatDate(new Date());
-    board.items[item?.id] = item;
-    let updatedBoards = boards.map(brd => brd.id == board?.id ? board : brd);
+      if (newTskIDs?.length > 5) addBoardScrollBars();
 
-    // updateBoards(user, true, updatedBoards);
+      await addTaskToDatabase(newTask, item?.id, column?.id, newTskIDs);
 
-    // Reset form
-    e.target.reset();
-    formFields[0].focus();
+      e.target.reset();
+      if (formFields && formFields?.length > 0) {
+        formFields[0].focus();
+      }
+    }
 
     setTimeout(() => {
-      setSystemStatus('Created Task.');
+      setSystemStatus(`Created Task.`);
       setLoading(false);
     }, 1000);
 
     // Scroll new subtask into view
     const subtasksList = e.target.previousSibling;
     window.requestAnimationFrame(() => {
-      if (rank <= 5) {
+      if (position <= 5) {
         subtasksList.scrollTop = 0;
       } else {
         subtasksList.scrollTop = subtasksList.scrollHeight;
       }
     });
   };
+
+  useEffect(() => {
+    setSubtasks(item?.tasks);
+  }, [item])
 
   // Delete subtask
   const deleteSubtask = (e, subtask) => {
@@ -273,7 +263,7 @@ export default function Tasks(props) {
               strategy={verticalListSortingStrategy}
             >
               {subtasks.map((subtask, index) => {
-                if (deletedTaskIDs.includes(subtask.id)) return null;
+                if (deletedTaskIDs.includes(subtask?.id)) return null;
                 let isLast = index == subtasks.length - 1; 
 
                 return (

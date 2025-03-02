@@ -468,6 +468,93 @@ export const deleteItemFromDatabase = async (item: Item) => {
   }
 }
 
+export const addTaskToDatabase = async (task: Task, itemID: string, listID: string, updatedTaskIDs: string[]) => {
+  const { date } = getIDParts();
+  const addTaskBatchOperation = await writeBatch(db);
+  try {
+    const tasksRef = await collection(db, tasksTable);
+    const taskRef = await doc(db, tasksTable, task?.id);
+    const itemRef = await doc(db, itemsTable, itemID);
+    const listRef = await doc(db, listsTable, listID);
+
+    const tasksSnapshot = await getDocs(tasksRef);
+    const tasksCount = tasksSnapshot.size;
+
+    await addTaskBatchOperation.set(taskRef, { ...task, number: tasksCount + 1 });
+
+    const listDoc = await getDoc(listRef);
+    if (listDoc.exists()) {
+      const listData = listDoc.data();
+      addTaskBatchOperation.update(listRef, {
+        [`meta.updated`]: date,
+        [`data.taskIDs`]: updatedTaskIDs,
+        properties: countPropertiesInObject({ ...listData, data: { ...listData?.data, taskIDs: updatedTaskIDs } }),
+      });
+    }
+
+    const itemDoc = await getDoc(itemRef);
+    if (itemDoc.exists()) {
+      const itemData = itemDoc.data();
+      addTaskBatchOperation.update(itemRef, {
+        [`meta.updated`]: date,
+        [`data.taskIDs`]: updatedTaskIDs,
+        properties: countPropertiesInObject({ ...itemData, data: { ...itemData?.data, taskIDs: updatedTaskIDs } }),
+      });
+    }
+
+    await addTaskBatchOperation.commit();
+    return task;
+  } catch (addTaskError) {
+    await logToast(`Error Adding Task ${task?.name}`, addTaskError, true);
+    return addTaskError;
+  }
+}
+
+export const deleteTaskFromDatabase = async (task: Task) => {
+  const { date } = getIDParts();
+  const deleteTaskBatchOperation = await writeBatch(db);
+  try {
+    const itemsRef = await collection(db, itemsTable);
+    const listsRef = await collection(db, listsTable);
+    const taskRef = await doc(db, tasksTable, task?.id);
+
+    const listsQuery = query(listsRef, where(`data.taskIDs`, `array-contains`, task?.id));
+    const listsSnapshot = await getDocs(listsQuery);
+
+    listsSnapshot.forEach(listDoc => {
+      const listRef = doc(db, listsTable, listDoc.id);
+      const listData = listDoc.data();
+      const updatedListTaskIDs = listData.data.taskIDs.filter((id: string) => id !== task?.id);
+      deleteTaskBatchOperation.update(listRef, {
+        [`meta.updated`]: date,
+        [`data.taskIDs`]: updatedListTaskIDs,
+        properties: countPropertiesInObject({ ...listData, data: { ...listData?.data, taskIDs: updatedListTaskIDs } }),
+      });
+    });
+
+    const itemsQuery = query(itemsRef, where(`data.taskIDs`, `array-contains`, task?.id));
+    const itemsSnapshot = await getDocs(itemsQuery);
+
+    itemsSnapshot.forEach(itemDoc => {
+      const itemRef = doc(db, itemsTable, itemDoc.id);
+      const itemData = itemDoc.data();
+      const updatedItemTaskIDs = itemData.data.taskIDs.filter((id: string) => id !== task?.id);
+      deleteTaskBatchOperation.update(itemRef, {
+        [`meta.updated`]: date,
+        [`data.taskIDs`]: updatedItemTaskIDs,
+        properties: countPropertiesInObject({ ...itemData, data: { ...itemData?.data, taskIDs: updatedItemTaskIDs } }),
+      });
+    });
+
+    await deleteTaskBatchOperation.delete(taskRef);
+    await deleteTaskBatchOperation.commit();
+    return task;
+  } catch (deleteTaskError) {
+    await logToast(`Error Deleting Task ${task?.name}`, deleteTaskError, true);
+    return deleteTaskError;
+  }
+}
+
 export const deleteDatabaseData = async (
   queryField: string, 
   operator: WhereFilterOp, 

@@ -6,6 +6,7 @@ import { countPropertiesInObject, isValid, stringNoSpaces } from '../constants';
 
 export class Task extends Data {
     ID: any;
+    number: number;
     gridID: string;
     boardID: string;
     listID: string;
@@ -25,9 +26,10 @@ export class Task extends Data {
     color = `Default`;
     
     options = {
+        private: true,
+        complete: false,
         archived: false,
         recurring: false,
-        completed: false,
     }
 
     data?: { [key: string]: string[] } = {
@@ -60,6 +62,7 @@ export const createTask = (
     boardID = ``, 
     listID = ``, 
     itemID = ``, 
+    number: number = 1,
     taskType = `To Do`,
     color = `Default`,
     description = ``,
@@ -71,6 +74,7 @@ export const createTask = (
         name,
         type,
         rank,
+        number,
         gridID,
         boardID,
         listID,

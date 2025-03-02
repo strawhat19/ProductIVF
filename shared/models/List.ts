@@ -29,7 +29,10 @@ export class List extends Data {
     color = `Default`;
     
     options = {
+        private: true,
         details: true,
+        archived: false,
+        recurring: false,
     }
 
     data?: { [key: string]: string[] } = {

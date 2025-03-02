@@ -54,10 +54,9 @@ export const manageItem = (e, item, index, board, boards, setBoards) => {
     }
 }
 
-export default function Item({ item, count, column, itemIndex, board, setBoard, tasks }: any) {
+export default function Item({ item, count, column, itemIndex, board, tasks }: any) {
     let [showConfirm, setShowConfirm] = useState(false);
     let { 
-        user,
         boards, 
         menuRef, 
         setBoards, 
