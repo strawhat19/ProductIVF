@@ -458,7 +458,6 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let [globalUserData, setGlobalUserData] = useState(null);
   let [profilesLoading, setProfilesLoading] = useState(true);
   let [itemTypeMenuOpen, setItemTypeMenuOpen] = useState(false);
-  let [completeFiltered, setCompleteFiltered] = useState(false);
   let [globalUserDataLoading, setGlobalUserDataLoading] = useState(true);
 
   const getPageContainerClasses = () => {
@@ -689,6 +688,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
     let gridDataLoaded = globalUserData?.boards && globalUserData?.lists && globalUserData?.items && globalUserData?.tasks;
     if (userLoaded && gridsLoaded && gridDataLoaded) {
       setGlobalUserDataLoading(false);
+      setSystemStatus(`Data Loaded`);
       dev() && console.log(`Application State Data Update`, globalUserData);
       let gridBoardsByID = globalUserData?.grid?.data?.boardIDs?.map(bordID => {
         let gridBoard = globalUserData?.boards?.find(brd => brd?.id == bordID);
@@ -1059,7 +1059,6 @@ export default function ProductIVF({ Component, pageProps, router }) {
       tasksFiltered, setTasksFiltered, 
       globalUserData, setGlobalUserData,
       boardCategories, setBoardCategories, 
-      completeFiltered, setCompleteFiltered, 
       itemTypeMenuOpen, setItemTypeMenuOpen, 
       globalUserDataLoading, setGlobalUserDataLoading,
     }}>

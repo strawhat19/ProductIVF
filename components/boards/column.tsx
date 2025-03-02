@@ -31,7 +31,6 @@ export default function Column(props) {
         selectedGrid,
         globalUserData,
         setSystemStatus,
-        completeFiltered,
     } = useContext<any>(StateContext);
 
     const getListsLength = () => {
@@ -51,7 +50,7 @@ export default function Column(props) {
     }
 
     const itemActiveFilters = (itm) => {
-        if (completeFiltered) {
+        if (board?.options?.hideCompleted) {
             if (!itm?.options?.complete) {
                 return true;
             } else {
@@ -294,10 +293,9 @@ export default function Column(props) {
                                                         {!hideAllTasks && item.tasks && (
                                                             <Tasks 
                                                                 item={item} 
-                                                                tasks={tasks}
                                                                 board={board}
                                                                 column={props.column} 
-                                                                showForm={board?.options?.tasksFilterState != TasksFilterStates.All_Off} 
+                                                                showForm={board?.options?.tasksFilterState == TasksFilterStates.All_On} 
                                                             />
                                                         )}
                                                     </div>

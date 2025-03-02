@@ -62,14 +62,11 @@ export default function Item({ item, count, column, itemIndex, board, tasks }: a
         setBoards, 
         setLoading, 
         setSelected, 
+        globalUserData,
         setSystemStatus, 
         setMenuPosition, 
         setItemTypeMenuOpen, 
     } = useContext<any>(StateContext);
-
-    // const updateBoards = (updatedBoards) => {
-    //     setBoards(updatedBoards);
-    // }
 
     const changeLabel = (e, item) => {
         let elemValue = e.target.textContent;
@@ -250,7 +247,7 @@ export default function Item({ item, count, column, itemIndex, board, tasks }: a
                                     Cre.
                                 </i> 
                                 <span className={`itemDateTime`}>
-                                    {formatDate(new Date(item?.meta?.created))}
+                                    {item?.meta?.created}
                                 </span>
                             </span>
                         ) : item?.meta?.updated ? (
@@ -259,7 +256,7 @@ export default function Item({ item, count, column, itemIndex, board, tasks }: a
                                     Upd.
                                 </i> 
                                 <span className={`itemDateTime`}>
-                                    {formatDate(new Date(item?.meta?.updated))}
+                                    {item?.meta?.updated}
                                 </span>
                             </span>
                         ) : null}
@@ -267,7 +264,7 @@ export default function Item({ item, count, column, itemIndex, board, tasks }: a
                             <span className={`taskProgressCount subtaskIndex subscript flex row gap5`}>
                                 <span className={`slashes`}>
                                     ✔
-                                </span> {item?.complete ? item?.data?.taskIDs.length : item?.data?.taskIDs.filter(subtask => subtask?.options?.complete).length} <span className={`slashes`}>
+                                </span> {item?.options?.complete ? item?.data?.taskIDs.length : globalUserData?.tasks?.filter(task => task?.itemID == item?.id && task?.options?.complete).length} <span className={`slashes`}>
                                     //
                                 </span> {item?.data?.taskIDs.length}
                             </span>
@@ -275,7 +272,7 @@ export default function Item({ item, count, column, itemIndex, board, tasks }: a
                     </div>
                 </> : <></>}
             </div>
-            <Progress item={item} tasks={item?.tasks} />
+            <Progress item={item} tasks={globalUserData?.tasks?.filter(tsk => tsk?.itemID == item?.id)} />
             <div className={`itemOptions itemButtons customButtons`}>
                 {/* <button id={`copy_${item.id}`} onClick={(e) => copyItem(e, item)} title={`Copy Item`} className={`iconButton ${ItemActions.Copy} copyButton wordIconButton`}>
                     <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-copy`}></i>
@@ -284,9 +281,9 @@ export default function Item({ item, count, column, itemIndex, board, tasks }: a
                     <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-${showConfirm ? `ban` : `trash`}`} />
                     {showConfirm && (
                         <ConfirmAction 
+                            onConfirm={(e) => deleteItem(e, item, false)} 
                             clickableStyle={{ height: `100%`, paddingRight: 7 }}
                             style={{ right: 40, bottom: 0, height: `100%`, justifyContent: `center` }} 
-                            onConfirm={(e) => deleteItem(e, item, false)} 
                         />
                     )}
                 </button>

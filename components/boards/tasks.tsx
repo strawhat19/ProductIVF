@@ -1,19 +1,19 @@
 import { CSS } from '@dnd-kit/utilities';
-import React, { useState, useContext, useEffect } from 'react';
-import { capWords, formatDate, StateContext } from '../../pages/_app';
+import React, { useContext, useState } from 'react';
+import { addBoardScrollBars } from './board';
+import { Types } from '../../shared/types/types';
+import { addTaskToDatabase, deleteTaskFromDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
+import { createTask, Task } from '../../shared/models/Task';
+import { capWords, dev, StateContext } from '../../pages/_app';
 import { DndContext, PointerSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { restrictToFirstScrollableAncestor, restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers';
 import { forceFieldBlurOnPressEnter, getRankAndNumber, nameFields, removeExtraSpacesFromString, setMaxLengthOnField } from '../../shared/constants';
-import { Types } from '../../shared/types/types';
-import { createTask, Task } from '../../shared/models/Task';
-import { addBoardScrollBars } from './board';
-import { addTaskToDatabase } from '../../firebase';
 
 const reorder = (list, oldIndex, newIndex) => arrayMove(list, oldIndex, newIndex);
 
-const SortableSubtaskItem = ({ item, subtask, isLast, column, index, changeLabel, completeSubtask, deleteSubtask }) => {
-  let { listeners, transform, attributes, setNodeRef, transition, isDragging } = useSortable({ id: subtask.id });
+const SortableSubtaskItem = ({ item, task, isLast, column, index, changeLabel, completeSubtask, deleteSubtask }) => {
+  let { listeners, transform, attributes, setNodeRef, transition, isDragging } = useSortable({ id: task.id });
 
   const style = {
     transition,
@@ -24,58 +24,58 @@ const SortableSubtaskItem = ({ item, subtask, isLast, column, index, changeLabel
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners} className={`boardTaskDraggableWrap`}>
-      <div className={`task_${subtask?.id} boardTask subTaskItem ${(item?.options?.complete || subtask?.options?.complete) ? `complete` : `activeTask`} ${isLast ? `dndLast` : ``}`}>
-        <div className={`boardTaskHandle cursorGrab draggableItem item subtaskHandle ${(item?.options?.complete || subtask?.options?.complete) ? `complete` : `activeTask`}`}>
+      <div className={`task_${task?.id} boardTask subTaskItem ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`} ${isLast ? `dndLast` : ``}`}>
+        <div className={`boardTaskHandle cursorGrab draggableItem item subtaskHandle ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`}`}>
           <span className={`itemOrder taskComponentBG`}>
-            <i className={`itemIndex ${(item?.options?.complete || subtask?.options?.complete) ? `completedIndex` : `activeIndex`}`}>
+            <i className={`itemIndex ${(item?.options?.complete || task?.options?.complete) ? `completedIndex` : `activeIndex`}`}>
               {index + 1}
             </i>
           </span>
 
-          <div className={`subtaskActions flex row taskComponentBG ${(item?.options?.complete || subtask?.options?.complete) ? `complete` : `activeTask`}`}>
+          <div className={`subtaskActions flex row taskComponentBG ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`}`}>
             <span
               contentEditable
               spellCheck={false}
               suppressContentEditableWarning
-              onBlur={(e) => changeLabel(e, subtask)}
+              onBlur={(e) => changeLabel(e, task)}
               onMouseDown={(e) => e.stopPropagation()}
               onPointerDown={(e) => e.stopPropagation()}
               onKeyDown={(e) => forceFieldBlurOnPressEnter(e)}
               onInput={(e) => setMaxLengthOnField(e, nameFields.task.max)}
-              className={`changeLabel taskChangeLabel stretchEditable ${(item?.options?.complete || subtask?.options?.complete) ? `complete` : `activeTask`}`}
+              className={`changeLabel taskChangeLabel stretchEditable ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`}`}
             >
-              {subtask.name}
+              {task.name}
             </span>
 
             {column?.options?.details && column?.options?.details == true ? (
-              subtask?.meta?.created && !subtask?.meta?.updated ? (
-                <span className={`itemDate ${(item?.options?.complete || subtask?.options?.complete) ? `taskCompleteDate` : `taskActiveDate`} itemName itemCreated textOverflow extended flex row taskDate`}>
+              task?.meta?.created && !task?.meta?.updated ? (
+                <span className={`itemDate ${(item?.options?.complete || task?.options?.complete) ? `taskCompleteDate` : `taskActiveDate`} itemName itemCreated textOverflow extended flex row taskDate`}>
                   <i className={`status`}>
                     Cre.
                   </i>
                   <span className={`itemDateTime`}>
-                    {subtask?.meta?.created}
+                    {task?.meta?.created}
                   </span>
                 </span>
-              ) : subtask?.meta?.updated ? (
-                <span className={`itemDate ${(item?.options?.complete || subtask?.options?.complete) ? `taskCompleteDate` : `taskActiveDate`} itemName itemCreated itemUpdated textOverflow extended flex row taskDate`}>
+              ) : task?.meta?.updated ? (
+                <span className={`itemDate ${(item?.options?.complete || task?.options?.complete) ? `taskCompleteDate` : `taskActiveDate`} itemName itemCreated itemUpdated textOverflow extended flex row taskDate`}>
                   <i className={`status`}>
                     Upd.
                   </i>
                   <span className={`itemDateTime`}>
-                    {subtask?.meta?.updated}
+                    {task?.meta?.updated}
                   </span>
                 </span>
               ) : null
             ) : <></>}
           </div>
 
-          <div className={`taskOptions itemOptions itemButtons customButtons taskComponentBG taskButtons ${subtask?.options?.complete ? `taskComplete` : `taskActive`} ${item?.options?.complete ? `itemComplete` : `itemActive`} ${(item?.options?.complete || subtask?.options?.complete) ? `taskButtonsComplete` : `taskButtonsActive`}`}>
+          <div className={`taskOptions itemOptions itemButtons customButtons taskComponentBG taskButtons ${task?.options?.complete ? `taskComplete` : `taskActive`} ${item?.options?.complete ? `itemComplete` : `itemActive`} ${(item?.options?.complete || task?.options?.complete) ? `taskButtonsComplete` : `taskButtonsActive`}`}>
             <button
               title={`Delete Task`}
               onMouseDown={(e) => e.stopPropagation()}
               onPointerDown={(e) => e.stopPropagation()}
-              onClick={(e) => deleteSubtask(e, subtask)}
+              onClick={(e) => deleteSubtask(e, task)}
               className={`iconButton deleteButton deleteTaskButton wordIconButton`}
             >
               <i className={`fas fa-trash`} style={{ color: `var(--gameBlue)`, fontSize: 9 }} />
@@ -87,9 +87,9 @@ const SortableSubtaskItem = ({ item, subtask, isLast, column, index, changeLabel
               disabled={item?.complete}
               onMouseDown={(e) => e.stopPropagation()}
               onPointerDown={(e) => e.stopPropagation()}
-              onChange={(e) => completeSubtask(e, subtask)}
-              checked={item?.options?.complete || subtask?.options?.complete}
-              className={`task_check_box taskCheckbox ${(item?.options?.complete || subtask?.options?.complete) ? `complete` : `activeTask`}`}
+              onChange={(e) => completeSubtask(e, task)}
+              checked={item?.options?.complete || task?.options?.complete}
+              className={`task_check_box taskCheckbox ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`}`}
             />
           </div>
         </div>
@@ -99,11 +99,10 @@ const SortableSubtaskItem = ({ item, subtask, isLast, column, index, changeLabel
 }
 
 export default function Tasks(props) {
-  let { item, column, tasks, showForm = true } = props;
+  let { item, column, showForm = true } = props;
   let { user, users, selectedGrid, globalUserData, setLoading, setSystemStatus } = useContext<any>(StateContext);
 
-  let [deletedTaskIDs, setDeletedTaskIDs] = useState<string[]>([]);
-  let [subtasks, setSubtasks] = useState(tasks);
+  let [tasks, setTasks] = useState(item?.tasks);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -111,40 +110,78 @@ export default function Tasks(props) {
     })
   );
 
-  const capitalizeAllWords = capWords;
+  const updateTaskInState = (task: Task, updates: Partial<Task>) => {
+    setTasks(prevTasks => prevTasks?.map(tsk => tsk?.id == task?.id ? ({
+      ...task,
+      ...updates,
+    }) : tsk));
+  }
 
   // Called when user edits label
   const changeLabel = (e, taskItem) => {
     let elemValue = e.target.textContent || ``;
-    const newValue = capitalizeAllWords(elemValue || taskItem.task);
+    const newValue = capWords(elemValue || taskItem.task);
     const cleanedValue = removeExtraSpacesFromString(newValue);
     
     e.target.innerHTML = cleanedValue;
-    taskItem.task = cleanedValue;
-    taskItem.updated = formatDate(new Date());
+    // taskItem.task = cleanedValue;
+    // taskItem.updated = formatDate(new Date());
 
     // updateBoards(user);
-  };
+  }
 
-  // Toggle complete
-  const completeSubtask = (e, subtask) => {
+  const completeTask = async (e, task) => {
     setLoading(true);
-    setSystemStatus(`Marking Task as ${subtask?.options?.complete ? `Reopened` : `Complete`}.`);
+    const isTaskComplete = task?.options?.complete;
+    setSystemStatus(`Marking Task as ${isTaskComplete ? `Reopened` : `Complete`}.`);
 
-    subtask.options.complete = !subtask?.options?.complete;
-    subtask.meta.updated = formatDate(new Date());
-    item.meta.updated = formatDate(new Date());
+    updateTaskInState(task, {
+      options: {
+        ...task?.options,
+        complete: !isTaskComplete,
+      }
+    })
 
-    // updateBoards(user);
+    await updateDocFieldsWTimeStamp(task, { [`options.complete`]: !isTaskComplete });
 
     setTimeout(() => {
-      setSystemStatus(`Marked Task as ${subtask?.options?.complete ? `Complete` : `Reopened`}.`);
+      setSystemStatus(`Marked Task as ${isTaskComplete ? `Complete` : `Reopened`}.`);
       setLoading(false);
     }, 1000);
-  };
+  }
 
-  // Add subtask with rank insertion
-  const addSubtask = async (e) => {
+  const deleteTask = async (e, task) => {
+    setLoading(true);
+    setSystemStatus(`Deleting Task.`);
+
+    setTasks(prevTasks => prevTasks?.filter(tsk => tsk?.id != task?.id));
+    if (item?.data?.taskIDs?.length < 5) {
+      await addBoardScrollBars();
+    }
+    await deleteTaskFromDatabase(task);
+
+    setTimeout(() => {
+      setSystemStatus(`Deleted Task.`);
+      setLoading(false);
+    }, 1000);
+  }
+
+  const handleDragEnd = async ({ active, over }) => {
+    if (!over || active.id === over.id) return;
+
+    const newIndex = tasks.findIndex((tsk) => tsk.id === over.id);
+    const oldIndex = tasks.findIndex((tsk) => tsk.id === active.id);
+    
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const updatedTasks = reorder(tasks, oldIndex, newIndex);
+    setTasks(updatedTasks);
+
+    const updatedTaskIDs = updatedTasks?.map((tsk: Task) => tsk?.id);
+    await updateDocFieldsWTimeStamp(item, { [`data.taskIDs`]: updatedTaskIDs });
+  }
+
+  const addTask = async (e) => {
     e.preventDefault();
     
     setLoading(true);
@@ -155,7 +192,7 @@ export default function Tasks(props) {
     const name = capWords(taskName);
 
     let position = formFields.rank.value;
-    const nextIndex = subtasks.length + 1;
+    const nextIndex = tasks.length + 1;
     if (!position) position = nextIndex;
     position = Math.min(parseInt(position, 10), nextIndex);
 
@@ -163,15 +200,18 @@ export default function Tasks(props) {
       const { rank, number } = await getRankAndNumber(Types.Task, globalUserData?.tasks, column?.data?.taskIDs, users, user);
       const newTask = createTask(number, name, user, selectedGrid?.id, item?.boardID, column?.id, item?.id, rank) as Task;
 
-      const prevTskIDs = [...item?.data?.taskIDs];
-      const newTskIDs = Array.from(prevTskIDs);
-      newTskIDs.splice(position - 1, 0, newTask?.id);
-
-      if (newTskIDs?.length > 5) addBoardScrollBars();
-
-      await addTaskToDatabase(newTask, item?.id, column?.id, newTskIDs);
-
+      const prevTasks = [...tasks];
+      const updatedTasks = Array.from(prevTasks);
+      updatedTasks.splice(position - 1, 0, newTask);
+      
+      setTasks(updatedTasks);
       e.target.reset();
+
+      const updatedTaskIDs = updatedTasks?.map(tsk => tsk?.id);
+      if (updatedTaskIDs?.length > 5) addBoardScrollBars();
+
+      await addTaskToDatabase(newTask, item?.id, column?.id, updatedTaskIDs);
+
       if (formFields && formFields?.length > 0) {
         formFields[0].focus();
       }
@@ -182,72 +222,22 @@ export default function Tasks(props) {
       setLoading(false);
     }, 1000);
 
-    // Scroll new subtask into view
-    const subtasksList = e.target.previousSibling;
+    
+    const tasksList = e.target.previousSibling;
     window.requestAnimationFrame(() => {
       if (position <= 5) {
-        subtasksList.scrollTop = 0;
+        tasksList.scrollTop = 0;
       } else {
-        subtasksList.scrollTop = subtasksList.scrollHeight;
+        tasksList.scrollTop = tasksList.scrollHeight;
       }
     });
-  };
-
-  useEffect(() => {
-    setSubtasks(item?.tasks);
-  }, [item])
-
-  // Delete subtask
-  const deleteSubtask = (e, subtask) => {
-    setLoading(true);
-    setSystemStatus(`Deleting Task.`);
-
-    const subtaskIDToDelete = subtask.id;
-    setDeletedTaskIDs((prev) => [...prev, subtaskIDToDelete]);
-
-    const updatedTasks = subtasks.filter(
-      (tsk) => tsk.id !== subtaskIDToDelete && !deletedTaskIDs.includes(tsk.id)
-    );
-
-    setSubtasks(updatedTasks);
-    item.subtasks = updatedTasks;
-    item.updated = formatDate(new Date());
-
-    // updateBoards(user, true);
-
-    setTimeout(() => {
-      setSystemStatus('Deleted Task.');
-      setLoading(false);
-    }, 1000);
-  };
-
-  const handleDragEnd = ({ active, over }) => {
-    if (!over || active.id === over.id) return;
-
-    const newIndex = subtasks.findIndex((tsk) => tsk.id === over.id);
-    const oldIndex = subtasks.findIndex((tsk) => tsk.id === active.id);
-    
-    if (oldIndex === -1 || newIndex === -1) return;
-    
-    const now = formatDate(new Date());
-    const tasks = subtasks.map(tsk => tsk.id == over.id || tsk.id == active.id ? ({ ...tsk, updated: now }) : tsk);
-
-    let updated = reorder(tasks, oldIndex, newIndex);
-    setSubtasks(updated);
-
-    item.updated = now;
-    item.subtasks = updated;
-
-    // updateBoards(user, true);
-
-    // dev() && console.log(`Dragged & Reordered`, updated);
-  };
+  }
 
   return (
     <div id={`${item?.id}_subTasks`} className={`rowSubtasks subTasks dndkitTasks  ${showForm ? `showForm` : `hideForm`}`}>
-      <div className={`subTaskElement flex ${subtasks.length > 0 ? `hasTasks` : `noTasks`} ${showForm ? `hasForm` : `noForm`}`}>
+      <div className={`subTaskElement flex ${tasks.length > 0 ? `hasTasks` : `noTasks`} ${showForm ? `hasForm` : `noForm`}`}>
         {/* The scrollable container for tasks */}
-        <div style={{ marginTop: -1 }} className={`subTaskItems taskItems ${item?.options?.complete ? `completedTasks` : `activeTasks`}`}>
+        <div style={{ marginTop: -1 }} className={`subTaskItems tasks_${tasks?.length} taskItems ${item?.options?.complete ? `completedTasks` : `activeTasks`}`}>
           {/* DndContext wraps the entire area that can be dragged */}
           <DndContext
             sensors={sensors}
@@ -259,24 +249,22 @@ export default function Tasks(props) {
           >
             {/* SortableContext defines which items we can reorder, and how */}
             <SortableContext
-              items={subtasks.map((t) => t?.id)}
+              items={tasks.map((t) => t?.id)}
               strategy={verticalListSortingStrategy}
             >
-              {subtasks.map((subtask, index) => {
-                if (deletedTaskIDs.includes(subtask?.id)) return null;
-                let isLast = index == subtasks.length - 1; 
-
+              {tasks.map((task, index) => {
+                let isLast = index == tasks.length - 1; 
                 return (
                   <SortableSubtaskItem
+                    task={task}
                     item={item}
                     index={index}
+                    key={task.id}
                     isLast={isLast}
                     column={column}
-                    key={subtask.id}
-                    subtask={subtask}
                     changeLabel={changeLabel}
-                    deleteSubtask={(e) => deleteSubtask(e, subtask)}
-                    completeSubtask={(e) => completeSubtask(e, subtask)}
+                    deleteSubtask={(e) => deleteTask(e, task)}
+                    completeSubtask={(e) => completeTask(e, task)}
                   />
                 );
               })}
@@ -284,8 +272,8 @@ export default function Tasks(props) {
           </DndContext>
         </div>
 
-        {(
-          <form onSubmit={addSubtask} className={`subtaskAddForm addForm flex row`}>
+        {showForm && (
+          <form onSubmit={addTask} className={`subtaskAddForm addForm flex row`}>
             <input
               required
               type={`text`}
@@ -298,7 +286,7 @@ export default function Tasks(props) {
               name={`rank`}
               type={`number`}
               autoComplete={`off`}
-              defaultValue={subtasks.length + 1}
+              defaultValue={tasks.length + 1}
               className={`rankField taskRankField`}
               id={`${item?.id}_createSubtask_rank`}
             />
@@ -318,7 +306,8 @@ export default function Tasks(props) {
             </button>
           </form>
         )}
+
       </div>
     </div>
-  );
+  )
 }

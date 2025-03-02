@@ -73,11 +73,15 @@ export const itemsTable = environment + Tables.items;
 export const tasksTable = environment + Tables.tasks;
 export const featuresTable = environment + Tables.features;
 
-export const gridDataCollections = {
-  boards: boardsTable,
+export const boardDataCollections = {
   lists: listsTable,
   items: itemsTable,
   tasks: tasksTable,
+}
+
+export const gridDataCollections = {
+  boards: boardsTable,
+  ...boardDataCollections,
 }
 
 export const userDataCollections = {
@@ -274,9 +278,34 @@ export const deleteBoardFromDatabase = async (board: Board) => {
   const { date } = getIDParts();
   const deleteBoardBatchOperation = await writeBatch(db);
   try {
+    const boardRef = await doc(db, boardsTable, board?.id);
+
+    const listsQuery = query(collection(db, listsTable), where(`boardID`, `==`, board.id));
+    const listsSnapshot = await getDocs(listsQuery);
+
+    for (const listDoc of listsSnapshot.docs) {
+      const listRef = doc(db, listsTable, listDoc.id);
+      deleteBoardBatchOperation.delete(listRef);
+    }
+    
+    const itemsQuery = query(collection(db, itemsTable), where(`boardID`, `==`, board.id));
+    const itemsSnapshot = await getDocs(itemsQuery);
+
+    for (const itemDoc of itemsSnapshot.docs) {
+      const itemRef = doc(db, itemsTable, itemDoc.id);
+      deleteBoardBatchOperation.delete(itemRef);
+    }
+
+    const tasksQuery = query(collection(db, tasksTable), where(`boardID`, `==`, board.id));
+    const tasksSnapshot = await getDocs(tasksQuery);
+
+    for (const taskDoc of tasksSnapshot.docs) {
+      const taskRef = doc(db, tasksTable, taskDoc.id);
+      deleteBoardBatchOperation.delete(taskRef);
+    }
+
     const usersRef = await collection(db, usersTable);
     const gridsRef = await collection(db, gridsTable);
-    const boardRef = await doc(db, boardsTable, board?.id);
 
     const usersQuery = await query(usersRef, where(`data.boardIDs`, `array-contains`, board.id));
     const usersSnapshot = await getDocs(usersQuery);
@@ -355,6 +384,22 @@ export const deleteListFromDatabase = async (list: List) => {
     const boardsRef = await collection(db, boardsTable);
     const listRef = await doc(db, listsTable, list?.id);
 
+    const itemsQuery = query(collection(db, itemsTable), where(`listID`, `==`, list.id));
+    const itemsSnapshot = await getDocs(itemsQuery);
+
+    for (const itemDoc of itemsSnapshot.docs) {
+      const itemRef = doc(db, itemsTable, itemDoc.id);
+      deleteListBatchOperation.delete(itemRef);
+    }
+
+    const tasksQuery = query(collection(db, tasksTable), where(`listID`, `==`, list.id));
+    const tasksSnapshot = await getDocs(tasksQuery);
+
+    for (const taskDoc of tasksSnapshot.docs) {
+      const taskRef = doc(db, tasksTable, taskDoc.id);
+      deleteListBatchOperation.delete(taskRef);
+    }
+
     const boardsQuery = query(boardsRef, where(`data.listIDs`, `array-contains`, list.id));
     const boardsSnapshot = await getDocs(boardsQuery);
 
@@ -430,6 +475,14 @@ export const deleteItemFromDatabase = async (item: Item) => {
     const listsRef = await collection(db, listsTable);
     const boardsRef = await collection(db, boardsTable);
     const itemRef = await doc(db, itemsTable, item?.id);
+
+    const tasksQuery = query(collection(db, tasksTable), where(`itemID`, `==`, item.id));
+    const tasksSnapshot = await getDocs(tasksQuery);
+
+    for (const taskDoc of tasksSnapshot.docs) {
+      const taskRef = doc(db, tasksTable, taskDoc.id);
+      deleteItemBatchOperation.delete(taskRef);
+    }
 
     const listsQuery = query(listsRef, where(`data.itemIDs`, `array-contains`, item.id));
     const listsSnapshot = await getDocs(listsQuery);

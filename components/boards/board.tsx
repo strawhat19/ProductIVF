@@ -12,6 +12,18 @@ import { capitalizeAllWords, dev, StateContext } from '../../pages/_app';
 import { forceFieldBlurOnPressEnter, getRankAndNumber, logToast } from '../../shared/constants';
 import { addListToDatabase, deleteBoardFromDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
 
+export const taskFilterStateTransitions = {
+    [TasksFilterStates.All_On]: TasksFilterStates.Tasks,
+    [TasksFilterStates.Tasks]: TasksFilterStates.All_Off,
+    [TasksFilterStates.All_Off]: TasksFilterStates.All_On,
+}
+
+export const tasksFilterStateLabels = {
+    [TasksFilterStates.All_On]: `Hide Form`,
+    [TasksFilterStates.Tasks]: `Hide All`,
+    [TasksFilterStates.All_Off]: `Show w/ Form`,
+}
+
 export const addBoardScrollBars = () => {
     let boardColumnItems = document.querySelectorAll(`.boardColumnItems`);
     boardColumnItems.forEach(columnItems => {
@@ -102,12 +114,6 @@ export default function Board(props) {
         if (board) {
             let { tasksFilterState } = board?.options;
             let taskFilterStateToSet = tasksFilterState;
-
-            let taskFilterStateTransitions = {
-                [TasksFilterStates.All_On]: TasksFilterStates.Tasks,
-                [TasksFilterStates.Tasks]: TasksFilterStates.All_Off,
-                [TasksFilterStates.All_Off]: TasksFilterStates.All_On,
-            }
 
             taskFilterStateToSet = taskFilterStateTransitions[tasksFilterState];
 
@@ -318,8 +324,8 @@ export default function Board(props) {
                                 </>}
                                 <div className={`filterFormDiv filterButtons itemButtons`} style={{textAlign: `center`, justifyContent: `space-between`, alignItems: `center`}}>
                                     {(boards?.length == 1 || board?.options?.expanded == true) && <>
-                                        <button onClick={(e) =>  setBoardTasksFilterState(e)} id={`filter_tasks`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Filter Tasks`} className={`iconButton deleteButton filterButton ${(board?.options?.tasksFilterState == TasksFilterStates.Tasks || board?.options?.tasksFilterState == TasksFilterStates.All_Off) ? `filterActive` : `filterInactive`}`}>
-                                            <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${(board?.options?.tasksFilterState == TasksFilterStates.Tasks) ? `fa-times-circle` : board?.options?.tasksFilterState == TasksFilterStates.All_Off ? `fa-list-ol` : `fa-bars`}`}></i>
+                                        <button onClick={(e) =>  setBoardTasksFilterState(e)} id={`filter_tasks`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Click to Set Tasks ${tasksFilterStateLabels[board?.options?.tasksFilterState]}`} className={`iconButton deleteButton filterButton ${(board?.options?.tasksFilterState == TasksFilterStates.Tasks || board?.options?.tasksFilterState == TasksFilterStates.All_Off) ? `filterActive` : `filterInactive`}`}>
+                                            <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${(board?.options?.tasksFilterState == TasksFilterStates.Tasks) ? `fa-list-ol` : board?.options?.tasksFilterState == TasksFilterStates.All_Off ? `fa-times-circle` : `fa-bars`}`}></i>
                                             <span className={`iconButtonText textOverflow extended`}>
                                                 Tasks
                                             </span>
@@ -330,8 +336,8 @@ export default function Board(props) {
                                                 Completed
                                             </span>
                                         </button>
-                                        <button onClick={(e) =>  setBoardFocused()} id={`focus_board`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Focus Board`} disabled={boards?.length == 1} className={`iconButton deleteButton filterButton ${(boards?.length == 1 || board?.options?.focused) ? `filterActive` : `filterInactive`} ${boards?.length == 1 ? `disabledField` : ``}`}>
-                                            <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${(boards?.length == 1 || board?.options?.focused) ? `fas fa-compress-arrows-alt` : `fa-expand-arrows-alt`}`}></i>
+                                        <button onClick={(e) =>  setBoardFocused()} id={`focus_board`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Focus Board`} disabled={boards?.length == 1} className={`iconButton deleteButton filterButton ${(boards?.length == 1 || board?.options?.focused == true) ? `filterActive` : `filterInactive`} ${boards?.length == 1 ? `disabledField` : ``}`}>
+                                            <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${(boards?.length == 1 || board?.options?.focused == true) ? `fas fa-compress-arrows-alt` : `fa-expand-arrows-alt`}`}></i>
                                             <span className={`iconButtonText textOverflow extended`}>
                                                 Focus
                                             </span>
