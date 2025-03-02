@@ -267,6 +267,11 @@ export default function Board(props) {
         
                         if (thisItem) {
                             // Enhance by Fixing Item Drag to New List & Set State?
+                            // if (board) {
+                            //     const brd: BoardModel = new BoardModel({ ...board });
+                            //     brd.data.listIDs = updatedListIDs;
+                            //     updateBoardInState(brd);
+                            // }
                             await dragItemToNewList(thisItem, thisList, newList, updatedNewListItemIDs);
                             return;
                         }
