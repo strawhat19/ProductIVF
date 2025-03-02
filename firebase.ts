@@ -468,6 +468,52 @@ export const addItemToDatabase = async (item: Item, listID: string, boardID: str
   }
 }
 
+export const dragItemToNewList = async (item: Item, sourceList: List, destinationList: List, updatedDestinationListItemIDs: string[]) => {
+  const { date } = getIDParts();
+  const dragItemToNewListBatchOperation = await writeBatch(db);
+  try {
+    const itemRef = await doc(db, itemsTable, item?.id);
+    const sourceListRef = await doc(db, listsTable, sourceList?.id);
+    const destinationListRef = await doc(db, listsTable, destinationList?.id);
+
+    const sourceListDoc = await getDoc(sourceListRef);
+    if (sourceListDoc.exists()) {
+      const sourceListData = sourceListDoc.data();
+      const sourceListItemIDs = [...sourceListData?.data?.itemIDs];
+      const updatedSourceListItemIDs = sourceListItemIDs?.filter(itmID => itmID != item?.id);
+      dragItemToNewListBatchOperation.update(sourceListRef, {
+        [`meta.updated`]: date,
+        [`data.itemIDs`]: updatedSourceListItemIDs,
+        properties: countPropertiesInObject({ ...sourceListData, data: { ...sourceListData?.data, itemIDs: updatedSourceListItemIDs } }),
+      });
+    }
+    
+    const destinationListDoc = await getDoc(destinationListRef);
+    if (destinationListDoc.exists()) {
+      const destinationListData = destinationListDoc.data();
+      dragItemToNewListBatchOperation.update(destinationListRef, {
+        [`meta.updated`]: date,
+        [`data.itemIDs`]: updatedDestinationListItemIDs,
+        properties: countPropertiesInObject({ ...destinationListData, data: { ...destinationListData?.data, itemIDs: updatedDestinationListItemIDs } }),
+      });
+    }
+
+    const itemDoc = await getDoc(itemRef);
+    if (itemDoc.exists()) {
+      dragItemToNewListBatchOperation.update(itemRef, {
+        [`meta.updated`]: date,
+        listID: destinationList?.id,
+      })
+    }
+
+    await dragItemToNewListBatchOperation.commit();
+    return item;
+  } catch (dragItemToNewListError) {
+    await logToast(`Error Dragging Item ${item?.name}`, dragItemToNewListError, true);
+    return dragItemToNewListError;
+  }
+}
+
 export const deleteItemFromDatabase = async (item: Item) => {
   const { date } = getIDParts();
   const deleteItemBatchOperation = await writeBatch(db);

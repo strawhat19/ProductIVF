@@ -263,7 +263,7 @@ export default function Column(props) {
                                 </button>
                             </div>
                         </div>
-                        <Droppable droppableId={props.column.id} type="task">
+                        <Droppable droppableId={props.column.id} type={Types.Item}>
                             {provided => (
                                 <div id={`items_of_${props.column.id}`} className={`items boardColumnItems listItems`} {...provided.droppableProps} ref={provided.innerRef}>
                                     {props.items.filter(itm => itemActiveFilters(itm)).map((item, itemIndex) => {

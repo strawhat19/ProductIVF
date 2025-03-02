@@ -10,7 +10,7 @@ import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { TasksFilterStates, Types } from '../../shared/types/types';
 import { capitalizeAllWords, dev, StateContext } from '../../pages/_app';
 import { forceFieldBlurOnPressEnter, getRankAndNumber, logToast } from '../../shared/constants';
-import { addListToDatabase, deleteBoardFromDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
+import { addListToDatabase, deleteBoardFromDatabase, dragItemToNewList, updateDocFieldsWTimeStamp } from '../../firebase';
 
 export const taskFilterStateTransitions = {
     [TasksFilterStates.All_On]: TasksFilterStates.Tasks,
@@ -216,6 +216,7 @@ export default function Board(props) {
     }
 
     const onDragEnd = async (dragEndEvent) => {
+        const { date } = getIDParts();
         const { destination, source, draggableId, type } = dragEndEvent;
 
         if (!destination) return;
@@ -240,6 +241,38 @@ export default function Board(props) {
 
             await updateDocFieldsWTimeStamp(board, { [`data.listIDs`]: updatedListIDs });
             return;
+        } else {
+            const thisList = globalUserData?.lists?.find(lst => lst?.id == source?.droppableId);
+            const sameListDrop = thisList?.id == destination?.droppableId;
+
+            if (thisList) {
+                const sameListItemIDs = thisList?.data?.itemIDs;
+                const updatedSameListItemIDs = [...sameListItemIDs];
+
+                if (sameListDrop) {
+                    updatedSameListItemIDs.splice(source.index, 1);
+                    updatedSameListItemIDs.splice(destination.index, 0, draggableId);
+    
+                    await updateDocFieldsWTimeStamp(thisList, { [`data.itemIDs`]: updatedSameListItemIDs });
+                    return;
+                } else {
+                    const newList = globalUserData?.lists?.find(lst => lst?.id == destination?.droppableId);
+                    if (newList) {
+                        const newListItemIDs = newList?.data?.itemIDs;
+                        const updatedNewListItemIDs = [...newListItemIDs];
+
+                        updatedNewListItemIDs.splice(destination.index, 0, draggableId);
+        
+                        const thisItem = globalUserData?.items?.find(itm => itm?.id == draggableId);
+        
+                        if (thisItem) {
+                            // Enhance by Fixing Item Drag to New List & Set State?
+                            await dragItemToNewList(thisItem, thisList, newList, updatedNewListItemIDs);
+                            return;
+                        }
+                    }
+                }
+            }
         }
     }
 
