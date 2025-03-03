@@ -121,9 +121,9 @@ export default function Column(props) {
             const deleteListToast = toast.info(`Deleting List ${column?.name}`);
             await deleteListFromDatabase(column)?.then(lst => {
                 setTimeout(() => toast.dismiss(deleteListToast), 1500);
-                logToast(`Successfully Deleted List`, lst);
+                logToast(`Successfully Deleted List #${lst?.number}`, lst);
             })?.catch(deleteLstError => {
-                logToast(`Failed to Delete List`, deleteLstError, true);
+                logToast(`Failed to Delete List #${column?.number}`, deleteLstError, true);
             });
         } else deleteListNoDB(columnId, index);
     }
@@ -155,7 +155,7 @@ export default function Column(props) {
         });
 
         setTimeout(() => {
-            setSystemStatus(`Deleted Column.`);
+            setSystemStatus(`Deleted Column`);
             setLoading(false);
         }, 1000);
     }

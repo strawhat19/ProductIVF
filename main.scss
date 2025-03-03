@@ -328,9 +328,9 @@ nav {
     .systemStatusComponent {
         display: flex;
         grid-gap: 10px;
-        min-width: 300px;
         align-items: center;
         justify-content: center;
+        min-width: 300px !important;
         .actualQuote {
             min-width: fit-content;
         }

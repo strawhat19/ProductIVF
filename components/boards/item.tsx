@@ -140,12 +140,12 @@ export default function Item({ item, count, column, itemIndex, board }: any) {
 
     const finallyDeleteItem = () => {
         setLoading(true);
-        setSystemStatus(`Deleting Item.`);
+        setSystemStatus(`Deleting Item`);
         
         deleteItemLogic();
 
         setTimeout(() => {
-            setSystemStatus(`Deleted Item ${item.name}.`);
+            setSystemStatus(`Deleted Item #${item?.number}`);
             setLoading(false);
         }, 1000);  
     }

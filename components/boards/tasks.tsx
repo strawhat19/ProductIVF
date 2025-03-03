@@ -151,7 +151,7 @@ export default function Tasks(props) {
     await updateDocFieldsWTimeStamp(task, { [`options.complete`]: !isTaskComplete });
 
     setTimeout(() => {
-      setSystemStatus(`Marked Task as ${isTaskComplete ? `Complete` : `Reopened`}.`);
+      setSystemStatus(`Marked Task #${task?.number} as ${!isTaskComplete ? `Complete` : `Reopened`}.`);
       setLoading(false);
     }, 1000);
   }
@@ -167,7 +167,7 @@ export default function Tasks(props) {
     await deleteTaskFromDatabase(task);
 
     setTimeout(() => {
-      setSystemStatus(`Deleted Task.`);
+      setSystemStatus(`Deleted Task ${task?.number}`);
       setLoading(false);
     }, 1000);
   }
