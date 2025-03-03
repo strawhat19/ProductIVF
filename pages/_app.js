@@ -504,6 +504,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
     setGrids([]);
     setBoards([]);
     setUserGrids([]);
+    setLoading(false);
     setUsersGrids([]);
     setUpNextGrid(null);
     setSelectedGrids([]);
@@ -884,7 +885,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
   useEffect(() => {
     setLoading(true);
     setAnimComplete(false);
-    setSystemStatus(`Page Loading!`);
+    setSystemStatus(`Page Loading`);
 
     if (loaded.current) return;
 
@@ -957,7 +958,12 @@ export default function ProductIVF({ Component, pageProps, router }) {
       setBrowser(`opera`);
     }
 
-    setSystemStatus(`${getPage()} Loaded.`);
+    setSystemStatus(`${getPage()} Loaded`);
+    setLoading(false);
+    setTimeout(() => {
+      setLoading(false);
+      setSystemStatus(`${getPage()} Loaded`);
+    }, 1500)
 
     // if (dev()) {
     //   console.log(`brwser`, brwser);
