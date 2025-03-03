@@ -76,7 +76,7 @@
 
 .MuiSkeleton-root {
     transform: none !important;
-    background: var(--skeletonColor);
+    background: var(--skeletonColor) !important;
     &::after {
         content: "";
         animation-delay: var(--animation-delay, 0s);
@@ -85,8 +85,8 @@
 }
 
 .MuiLinearProgress-root {
-    height: 1px;
-    background: var(--gameBlue);
+    height: 1px !important;
+    background: var(--gameBlue) !important;
 }
 
 .MuiToggleButtonGroup-root {

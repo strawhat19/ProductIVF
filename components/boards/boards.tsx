@@ -217,7 +217,7 @@ export default function Boards(props: any) {
                 <div className={`flex ${boards && boards?.length > 0 ? `hasBoards` : `noBoards`} ${boards && boards?.length == 1 ? `oneBoard` : ``}`}>
                     {(boardsLoading || selectedGrid == null) ? <>
                         <div className={`flex isColumn`} style={{ paddingTop: 5 }}>
-                            {generateArray(10, getLoadingLabel(`Boards`, authState, user)).map((lbl, lblIndex) => (
+                            {generateArray(9, getLoadingLabel(`Boards`, authState, user)).map((lbl, lblIndex) => (
                                 <IVFSkeleton 
                                     height={65} 
                                     label={lbl} 
