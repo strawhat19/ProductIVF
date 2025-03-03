@@ -2940,11 +2940,11 @@ footer {
                 display: none;
               }
               &.active {
-                  background: var(--gameBlue);
-                  color: #fff;
-                  &:hover {
-                      background: var(--gameBlueInverse);
-                  }
+                background: var(--gameBlue);
+                color: #fff;
+                &:hover {
+                    background: var(--gameBlueInverse);
+                }
               }
             }
         }
