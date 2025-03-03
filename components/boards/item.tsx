@@ -82,24 +82,9 @@ export default function Item({ item, count, column, itemIndex, board }: any) {
         elemValue = capitalizeAllWords(elemValue);
 
         e.target.innerHTML = elemValue;
-        item.title = elemValue;
-        item.content = elemValue;
-        item.updated = formatDate(new Date());
 
-        // let updatedBoards = boards.map(brd => brd?.id == board?.id ? ({
-        //     ...board,
-        //     items: {
-        //         ...board?.items,
-        //         [board?.items[item?.id]]: {
-        //             ...board?.items[item?.id],
-        //             title: elemValue,
-        //             content: elemValue,
-        //             updated: formatDate(new Date()),
-        //         }
-        //     }
-        // }) : brd);
-
-        // updateBoards(updatedBoards);
+        const name = elemValue;
+        updateDocFieldsWTimeStamp(item, { name, A: name, title: `${item?.type} ${item?.rank} ${name}` });
     }
 
     const completeActions = async (item, isButton) => {

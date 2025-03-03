@@ -118,17 +118,15 @@ export default function Tasks(props) {
     }) : tsk));
   }
 
-  // Called when user edits label
-  const changeLabel = (e, taskItem) => {
+  const changeLabel = (e, task: Task) => {
     let elemValue = e.target.textContent || ``;
-    const newValue = capWords(elemValue || taskItem.task);
+    const newValue = capWords(elemValue || task.name);
     const cleanedValue = removeExtraSpacesFromString(newValue);
     
     e.target.innerHTML = cleanedValue;
-    // taskItem.task = cleanedValue;
-    // taskItem.updated = formatDate(new Date());
-
-    // updateBoards(user);
+    
+    const name = cleanedValue;
+    updateDocFieldsWTimeStamp(task, { name, A: name, title: `${task?.type} ${task?.rank} ${name}` });
   }
 
   const completeTask = async (e, task) => {

@@ -74,11 +74,11 @@ export default function Column(props) {
         }
     }
 
-    const changeColumnLabel = (e, item) => {
+    const changeColumnLabel = (e, list) => {
         let elemValue = e.target.textContent;
-        let value = elemValue == `` ? capitalizeAllWords(item.task) : capitalizeAllWords(elemValue);
+        let value = elemValue == `` ? capitalizeAllWords(list.name) : capitalizeAllWords(elemValue);
         if (!elemValue || elemValue == ``) {
-            elemValue = capitalizeAllWords(item.task);
+            elemValue = capitalizeAllWords(list.name);
             return;
         };
 
@@ -86,11 +86,9 @@ export default function Column(props) {
         elemValue = capitalizeAllWords(elemValue);
 
         e.target.innerHTML = elemValue;
-        item.title = elemValue;
-        item.content = elemValue;
-        item.updated = formatDate(new Date());
         
-        // updateBoards(user);
+        const name = elemValue;
+        updateDocFieldsWTimeStamp(list, { name, A: name, title: `${list?.type} ${list?.rank} ${name}` });
     }
 
     const adjustColumnsDetails = (column) => {
