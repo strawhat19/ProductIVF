@@ -654,7 +654,6 @@ export default function ProductIVF({ Component, pageProps, router }) {
   const onSignIn = async (email, password) => {
     signInWithEmailAndPassword(auth, email, password).then(async (userCredential) => {
       if (userCredential != null) {
-        console.log(`User Credential`, userCredential);
         let existingUser = users.find(eml => eml?.email?.toLowerCase() == email?.toLowerCase());
         if (existingUser) {
           const { date } = getIDParts();
