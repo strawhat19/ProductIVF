@@ -8,8 +8,8 @@ import IVFSkeleton from './loaders/skeleton/ivf_skeleton';
 import ConfirmAction from './context-menus/confirm-action';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useContext, useEffect, useRef, useState } from 'react';
+import { createUser, Roles, User } from '../shared/models/User';
 import { formatDate, StateContext, showAlert, dev } from '../pages/_app';
-import { createUser, Roles, User, userIsMinRole } from '../shared/models/User';
 import { defaultAuthenticateLabel, findHighestNumberInArrayByKey, stringNoSpaces } from '../shared/constants';
 import { addUserToDatabase, auth, boardConverter, boardsTable, db, gridConverter, gridsTable, updateDocFieldsWTimeStamp } from '../firebase';
 import FeatureFlagBadge from '../shared/admin/feature-flag-badge';
@@ -68,7 +68,7 @@ export default function Form(props?: any) {
   const loadedRef = useRef(false);
   const passwordRef = useRef<HTMLInputElement | null>(null);
 
-  const [loaded, setLoaded] = useState(false);
+  const [, setLoaded] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   
   const { id, navForm, className, style } = props;
@@ -78,7 +78,6 @@ export default function Form(props?: any) {
     onSignOut, 
     setContent,
     signInUser, 
-    getFeature,
     usersLoading,
     setUpNextGrid,
     isFeatureEnabled,
