@@ -50,6 +50,14 @@ button {
     }
 }
 
+.optionActive {
+    background: black !important;
+    transition: var(--transition) !important;
+    span {
+        color: white !important;
+    }
+}
+
 // * {
 //     --main: var(--grass);
 //     --gameBlue: var(--main);

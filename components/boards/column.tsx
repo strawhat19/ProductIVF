@@ -68,7 +68,6 @@ export default function Column(props) {
         } else {
             if (type && type != column?.itemType) {
                 column.itemType = type;
-                // updateBoards(user);
                 setItemTypeMenuOpen(!itemTypeMenuOpen);
             }
         }
@@ -249,8 +248,8 @@ export default function Column(props) {
                                 </div>
                             </h3>
                             <div className={`listButtonOptions itemButtons customButtons`}>
-                                <button id={`details_Columns_${props.column.id}`} style={{ pointerEvents: `all` }} onClick={(e) => adjustColumnsDetails(props.column)} title={`Details`} className={`columnIconButton iconButton detailsButton`}>
-                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-bars`} />
+                                <button id={`details_Columns_${props.column.id}`} style={{ pointerEvents: `all` }} onClick={(e) => adjustColumnsDetails(props.column)} title={`Details`} className={`columnIconButton iconButton detailsButton ${props.column?.options?.details == true ? `optionActive` : ``}`}>
+                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${props?.column?.options?.details == true ? `fa-times` : `fa-bars`}`} />
                                     <span className={`iconButtonText listTitleButtonLabel firstTitle ${renderTitleSizeClass(props.column.name)} textOverflow extended`}>
                                         Details
                                     </span>
