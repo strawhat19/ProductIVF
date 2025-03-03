@@ -2897,6 +2897,7 @@ footer {
 }
 
 .detailView {
+    --gameBlueInverse: var(--gameBlue);
     .detailViewImage {
         max-height: 675px;
     }
@@ -2968,6 +2969,11 @@ footer {
         button {
             &:disabled {
                 opacity: 0.35;
+            }
+            &.saveButton {
+                &:hover {
+                    color: white;
+                }
             }
         }
     }

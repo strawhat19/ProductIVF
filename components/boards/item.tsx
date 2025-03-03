@@ -7,8 +7,8 @@ import { List } from '../../shared/models/List';
 import ConfirmAction from '../context-menus/confirm-action';
 import { Item as ItemModel } from '../../shared/models/Item';
 import React, { useContext, useEffect, useState } from 'react';
+import { showAlert, StateContext, capitalizeAllWords } from '../../pages/_app';
 import { deleteItemFromDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
-import { showAlert, formatDate, dev, StateContext, capitalizeAllWords } from '../../pages/_app';
 import { forceFieldBlurOnPressEnter, removeExtraSpacesFromString } from '../../shared/constants';
 
 export const getTaskPercentage = (tasks: any[]) => {
@@ -46,11 +46,11 @@ export const manageItem = (e, item, index, tasks) => {
         if (isButton) {
             let isManageButton = e.target.classList.contains(`manageButton`);
             if (isManageButton) {
-                dev() && console.log(`On Manage Button Click Item ${index + 1}`, item);
+                // dev() && console.log(`On Manage Button Click Item ${index + 1}`, item);
                 showAlert(item?.name, <ItemDetail item={item} index={index} tasks={tasks} />, `95%`, `85%`, `30px`);
             };
         } else {
-            dev() && console.log(`On Click Item ${index + 1}`, {item, tasks});
+            // dev() && console.log(`On Click Item ${index + 1}`, {item, tasks});
             showAlert(item?.name, <ItemDetail item={item} index={index} tasks={tasks} />, `95%`, `85%`, `30px`);
         }
     }
@@ -59,9 +59,7 @@ export const manageItem = (e, item, index, tasks) => {
 export default function Item({ item, count, column, itemIndex, board }: any) {
     let [showConfirm, setShowConfirm] = useState(false);
     let { 
-        boards, 
-        menuRef, 
-        setBoards, 
+        menuRef,  
         setLoading, 
         setSelected, 
         globalUserData,
