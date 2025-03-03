@@ -5,13 +5,14 @@ import { addBoardScrollBars } from './board';
 import { Board } from '../../shared/models/Board';
 import React, { useContext, useState } from 'react';
 import Item, { getTypeIcon, manageItem } from './item';
+import { collection, getDocs } from 'firebase/firestore';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import ConfirmAction from '../context-menus/confirm-action';
 import { TasksFilterStates, Types } from '../../shared/types/types';
 import { createItem, Item as ItemModel } from '../../shared/models/Item';
 import { formatDate, StateContext, capitalizeAllWords, dev, capWords } from '../../pages/_app';
-import { addItemToDatabase, deleteListFromDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
-import { forceFieldBlurOnPressEnter, getRankAndNumber, logToast, removeExtraSpacesFromString } from '../../shared/constants';
+import { forceFieldBlurOnPressEnter, logToast, removeExtraSpacesFromString } from '../../shared/constants';
+import { addItemToDatabase, db, deleteListFromDatabase, itemsTable, updateDocFieldsWTimeStamp } from '../../firebase';
 
 export default function Column(props) {
     let count = 0;
@@ -179,8 +180,12 @@ export default function Column(props) {
         position = position > nextIndex ? nextIndex : position; 
 
         if (board) {
-            const { rank, number } = await getRankAndNumber(Types.Item, globalUserData?.items, column?.data?.itemIDs, users, user);
-            const newItem = createItem(number, name, user, rank, selectedGrid?.id, board?.id, column?.id, image, video) as ItemModel;
+            // const { rank, number } = await getRankAndNumber(Types.Item, globalUserData?.items, column?.data?.itemIDs, users, user);
+            const itemsRef = await collection(db, itemsTable);
+            const itemsSnapshot = await getDocs(itemsRef);
+            const itemsCount = itemsSnapshot.size;
+            const itemRank = itemsCount + 1;
+            const newItem = createItem(itemRank, name, user, itemRank, selectedGrid?.id, board?.id, column?.id, image, video) as ItemModel;
 
             const prevItmIDs = [...column?.data?.itemIDs];
             const newItemIDs = Array.from(prevItmIDs);

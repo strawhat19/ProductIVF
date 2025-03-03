@@ -1,12 +1,8 @@
+import { useState } from 'react';
 import Progress from '../progress';
 import CustomImage from '../custom-image';
-import { getTaskPercentage } from './item';
-import { useContext, useState } from 'react';
-import { StateContext } from '../../pages/_app';
 
 export default function ItemDetail(props) {
-    let { globalUserData } = useContext<any>(StateContext);
-
     let { item, index, tasks } = props;
 
     let [disabled, setDisabled] = useState(false);

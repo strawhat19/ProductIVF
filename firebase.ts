@@ -348,14 +348,10 @@ export const addListToDatabase = async (list: List, boardID: string) => {
   const { date } = getIDParts();
   const addListBatchOperation = await writeBatch(db);
   try {
-    const listsRef = await collection(db, listsTable);
     const listRef = await doc(db, listsTable, list?.id);
     const boardRef = await doc(db, boardsTable, boardID);
 
-    const listsSnapshot = await getDocs(listsRef);
-    const listsCount = listsSnapshot.size;
-
-    await addListBatchOperation.set(listRef, { ...list, number: listsCount + 1 });
+    await addListBatchOperation.set(listRef, { ...list });
     
     const boardDoc = await getDoc(boardRef);
     if (boardDoc.exists()) {
@@ -428,14 +424,10 @@ export const addItemToDatabase = async (item: Item, listID: string, boardID: str
   const addItemBatchOperation = await writeBatch(db);
   try {
     const itemRef = await doc(db, itemsTable, item?.id);
-    const itemsRef = await collection(db, itemsTable);
     const listRef = await doc(db, listsTable, listID);
     const boardRef = doc(db, boardsTable, boardID);
 
-    const itemsSnapshot = await getDocs(itemsRef);
-    const itemsCount = itemsSnapshot.size;
-
-    await addItemBatchOperation.set(itemRef, { ...item, number: itemsCount + 1 });
+    await addItemBatchOperation.set(itemRef, { ...item });
 
     const boardDoc = await getDoc(boardRef);
     if (boardDoc.exists()) {
@@ -580,15 +572,11 @@ export const addTaskToDatabase = async (task: Task, itemID: string, listID: stri
   const { date } = getIDParts();
   const addTaskBatchOperation = await writeBatch(db);
   try {
-    const tasksRef = await collection(db, tasksTable);
     const taskRef = await doc(db, tasksTable, task?.id);
     const itemRef = await doc(db, itemsTable, itemID);
     const listRef = await doc(db, listsTable, listID);
 
-    const tasksSnapshot = await getDocs(tasksRef);
-    const tasksCount = tasksSnapshot.size;
-
-    await addTaskBatchOperation.set(taskRef, { ...task, number: tasksCount + 1 });
+    await addTaskBatchOperation.set(taskRef, { ...task });
 
     const listDoc = await getDoc(listRef);
     if (listDoc.exists()) {

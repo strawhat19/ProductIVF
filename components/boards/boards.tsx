@@ -2,13 +2,14 @@ import Board from './board';
 import { toast } from 'react-toastify';
 import { Types } from '../../shared/types/types';
 import MultiSelector from '../selector/multi-selector';
+import { collection, getDocs } from 'firebase/firestore';
 import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
 import { useState, useEffect, useContext, useRef } from 'react';
+import { generateArray, logToast } from '../../shared/constants';
 import { capWords, replaceAll, StateContext } from '../../pages/_app';
 import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
 import { Board as BoardModel, createBoard } from '../../shared/models/Board';
-import { addBoardToDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
-import { generateArray, getRankAndNumber, logToast } from '../../shared/constants';
+import { addBoardToDatabase, boardsTable, db, updateDocFieldsWTimeStamp } from '../../firebase';
 
 export enum ItemTypes {
     Item = `Item`,
@@ -95,8 +96,12 @@ export default function Boards(props: any) {
         
         setSystemStatus(`Creating Board ${boardName}.`);
 
-        const { rank, number } = await getRankAndNumber(Types.Board, boards, selectedGrid?.data?.boardIDs, users, user);
-        const newBoard = createBoard(number, boardName, user, titleWidth, rank, selectedGrid?.id);
+        // const { rank, number } = await getRankAndNumber(Types.Board, boards, selectedGrid?.data?.boardIDs, users, user);
+        const boardsRef = await collection(db, boardsTable);
+        const boardsSnapshot = await getDocs(boardsRef);
+        const boardsCount = boardsSnapshot.size;
+        const boardRank = boardsCount + 1;
+        const newBoard = createBoard(boardRank, boardName, user, titleWidth, boardRank, selectedGrid?.id);
 
         setLoading(false);
         const addBoardToast = toast.info(`Adding Board`);

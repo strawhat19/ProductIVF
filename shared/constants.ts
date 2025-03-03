@@ -176,6 +176,7 @@ export const countPropertiesInObject = (obj) => {
 export const getRankAndNumber = async (type: Types, docs: any[], docIDs: string[], users, user, IDs?) => {
   let docsLn = docs?.length;
   let docsRank = (docsLn > 0 && docs[0]?.rank) ? await findHighestNumberInArrayByKey(docs, `rank`) : 0;
+  let docsNumber = (docsLn > 0 && docs[0]?.number) ? await findHighestNumberInArrayByKey(docs, `number`) : 0;
 
   let userDocsLength = docIDs?.length;
   let docsIDX = docsRank > docsLn ? docsRank : docsLn;
@@ -194,7 +195,7 @@ export const getRankAndNumber = async (type: Types, docs: any[], docIDs: string[
 
   let allDocsRanksLn = allDocsRanks?.length;
   
-  let allRanks = [docsIDX, userDocsLength, ...docsRanks];
+  let allRanks = [docsIDX, userDocsLength, docsNumber, ...docsRanks];
   let maxRank = sortDescending(allRanks)[0];
   
   let rank = maxRank + 1;

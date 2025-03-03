@@ -2,6 +2,8 @@ import Column from './column';
 import { toast } from 'react-toastify';
 import { getIDParts } from '../../shared/ID';
 import { getBoardTitleWidth } from './boards';
+import { Item } from '../../shared/models/Item';
+import { collection, getDocs } from 'firebase/firestore';
 import ConfirmAction from '../context-menus/confirm-action';
 import React, { useState, useContext, useRef } from 'react';
 import { createList, List } from '../../shared/models/List';
@@ -9,9 +11,8 @@ import { Board as BoardModel } from '../../shared/models/Board';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { TasksFilterStates, Types } from '../../shared/types/types';
 import { capitalizeAllWords, dev, StateContext } from '../../pages/_app';
-import { forceFieldBlurOnPressEnter, getRankAndNumber, logToast } from '../../shared/constants';
-import { addListToDatabase, deleteBoardFromDatabase, dragItemToNewList, updateDocFieldsWTimeStamp } from '../../firebase';
-import { Item } from '../../shared/models/Item';
+import { forceFieldBlurOnPressEnter, logToast } from '../../shared/constants';
+import { addListToDatabase, db, deleteBoardFromDatabase, dragItemToNewList, listsTable, updateDocFieldsWTimeStamp } from '../../firebase';
 
 export const taskFilterStateTransitions = {
     [TasksFilterStates.All_On]: TasksFilterStates.Tasks,
@@ -185,8 +186,12 @@ export default function Board(props) {
         let name = formFields[0].value;
 
         if (board) {
-            const { rank, number } = await getRankAndNumber(Types.List, globalUserData?.lists, board?.data?.listIDs, users, user);
-            const newList = createList(number, name, user, rank, selectedGrid?.id, board?.id) as List;
+            // const { rank, number } = await getRankAndNumber(Types.List, globalUserData?.lists, board?.data?.listIDs, users, user);
+            const listsRef = await collection(db, listsTable);
+            const listsSnapshot = await getDocs(listsRef);
+            const listsCount = listsSnapshot.size;
+            const listRank = listsCount + 1;
+            const newList = createList(listRank, name, user, listRank, selectedGrid?.id, board?.id) as List;
 
             const addListToast = toast.info(`Adding List`);
 

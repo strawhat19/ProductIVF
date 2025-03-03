@@ -909,8 +909,8 @@ body {
                 @media (max-width: 1300px) {
                     --boardColumnHeight: 597px;
                 }
-                @media (min-aspect-ratio: 18/9) {
-                    --boardColumnHeight: 533px;
+                @media (max-height: 935px) {
+                    --boardColumnHeight: 595px;
                 }
                 .column {
                     align-items: flex-start;
