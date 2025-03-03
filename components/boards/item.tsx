@@ -145,7 +145,7 @@ export default function Item({ item, count, column, itemIndex, board }: any) {
         deleteItemLogic();
 
         setTimeout(() => {
-            setSystemStatus(`Deleted Item ${item.content}.`);
+            setSystemStatus(`Deleted Item ${item.name}.`);
             setLoading(false);
         }, 1000);  
     }

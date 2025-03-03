@@ -166,6 +166,11 @@ export default function Board(props) {
                     logToast(`Successfully Deleted Board`, brd);
                 })?.catch(deleteBrdError => {
                     logToast(`Failed to Delete Board`, deleteBrdError, true);
+                })?.finally(() => {
+                    setTimeout(() => {
+                        setLoading(false);
+                        setSystemStatus(`Deleted Board.`);
+                    }, 1000);
                 });
             } else deleteBoardNoDB();
         }
