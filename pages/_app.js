@@ -687,6 +687,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
     let gridsLoaded = globalUserData?.grids && globalUserData?.grid;
     let gridDataLoaded = globalUserData?.boards && globalUserData?.lists && globalUserData?.items && globalUserData?.tasks;
     if (userLoaded && gridsLoaded && gridDataLoaded) {
+      setLoading(false);
       setGlobalUserDataLoading(false);
       setSystemStatus(`Data Loaded`);
       dev() && console.log(`Application State Data Update`, globalUserData);
@@ -853,6 +854,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
         lastUpdate: getIDParts()?.date,
       }))
       setUsersLoading(false);
+      setLoading(false);
       // dev() && console.log(`Users`, usersFromDB);
       // Finish Users Database Update
     }, error => logToast(`Error on Get Users from Database`, error, true));
@@ -955,9 +957,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       setBrowser(`opera`);
     }
 
-    setLoading(false);
     setSystemStatus(`${getPage()} Loaded.`);
-    setTimeout(() => setLoading(false), 1500);
 
     // if (dev()) {
     //   console.log(`brwser`, brwser);
