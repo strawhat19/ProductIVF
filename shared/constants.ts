@@ -56,8 +56,10 @@ export const forceFieldBlurOnPressEnter = (e: any) => {
 
 export const logToast = (message: string, content: any, error = false, data = null) => {
   let sendMsg = typeof content == `string` ? content : ``;
-  if (data != null) dev() && console.log(message, content, data);
-  else console.log(message, content);
+  if (dev()) {
+    if (data != null) console.log(message, content, data);
+    else console.log(message, content);
+  }
   if (error == false) {
     toast.success(message + ` ` + sendMsg);
   } else {
