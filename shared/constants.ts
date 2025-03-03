@@ -1,3 +1,4 @@
+import { dev } from '../pages/_app';
 import moment from 'moment-timezone';
 import { User } from './models/User';
 import { Grid } from './models/Grid';
@@ -55,7 +56,7 @@ export const forceFieldBlurOnPressEnter = (e: any) => {
 
 export const logToast = (message: string, content: any, error = false, data = null) => {
   let sendMsg = typeof content == `string` ? content : ``;
-  if (data != null) console.log(message, content, data);
+  if (data != null) dev() && console.log(message, content, data);
   else console.log(message, content);
   if (error == false) {
     toast.success(message + ` ` + sendMsg);

@@ -80,7 +80,7 @@ export default function Profile(props: any) {
                 const onFoundUser = () => {
                     setProfileLoading(false);
                     setProfileToRender(profQuery);
-                    console.log(`Found User for Query "${quer}"`, profQuery);
+                    dev() && console.log(`Found User for Query "${quer}"`, profQuery);
                 }
 
                 if (profQuery) {
