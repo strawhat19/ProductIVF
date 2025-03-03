@@ -1,12 +1,18 @@
 'use client';
 
 import { toast } from 'react-toastify';
-import { User } from '../shared/models/User';
-import { addUserToDatabase, auth } from '../firebase';
+import { AuthStates } from '../shared/types/types';
+import { doc, writeBatch } from 'firebase/firestore';
+import { FeatureIDs } from '../shared/admin/features';
+import IVFSkeleton from './loaders/skeleton/ivf_skeleton';
+import ConfirmAction from './context-menus/confirm-action';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useContext, useEffect, useRef, useState } from 'react';
-import { formatDate, StateContext, showAlert } from '../pages/_app';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
-import { findHighestNumberInArrayByKey, isValid, removeNullAndUndefinedProperties } from '../shared/constants';
+import { createUser, Roles, User } from '../shared/models/User';
+import { formatDate, StateContext, showAlert, dev } from '../pages/_app';
+import { defaultAuthenticateLabel, findHighestNumberInArrayByKey, stringNoSpaces } from '../shared/constants';
+import { addUserToDatabase, auth, boardConverter, boardsTable, db, gridConverter, gridsTable, updateDocFieldsWTimeStamp } from '../firebase';
+import FeatureFlagBadge from '../shared/admin/feature-flag-badge';
 
 export const convertHexToRGB = (HexString?:any, returnObject?: any) => {
   let r = parseInt(HexString.slice(1, 3), 16),
@@ -27,28 +33,95 @@ export const isShadeOfBlack = (HexString?:any) => {
   return (rgb?.r < darkColorBias) && (rgb?.g < darkColorBias) && (rgb?.b < darkColorBias);
 }
 
-export const renderErrorMessage = (erMsg: string) => {
+export const getMatchingUsersToEmail = (query, usrs: User[]) => {
+  let matchingEmails = usrs.filter((usr: any) => {
+    let usrNam = usr?.name.toLowerCase();
+    let usrEml = usr?.email.toLowerCase();
+    let emlFieldValue = query.toLowerCase();
+    let queryFields = [usrNam, usrEml];
+    return queryFields?.includes(emlFieldValue);
+  });
+  return matchingEmails;
+}
+
+export const renderFirebaseAuthErrorMessage = (erMsg: string) => {
   let erMsgQuery = erMsg?.toLowerCase();
   if (erMsgQuery.includes(`invalid-email`)) {
     return `Please use a valid email.`;
   } else if (erMsgQuery?.includes(`email-already-in-use`)) {
-    return `Email is already in use.`;
+    return `Existing Email or Username, Switching to Sign In`;
   } else if (erMsgQuery?.includes(`weak-password`)) {
     return `Password should be at least 6 characters`;
   } else if (erMsgQuery?.includes(`wrong-password`) || erMsgQuery?.includes(`invalid-login-credentials`)) {
     return `Incorrect Password`;
   } else if (erMsgQuery?.includes(`user-not-found`)) {
     return `User Not Found`;
+  } else if (erMsgQuery?.includes(`too-many-requests`)) {
+    return `Too Many Requests, Try Again Later`;
   } else {
     return erMsg;
   }
 }
 
 export default function Form(props?: any) {
+  const formRef = useRef(null);
   const loadedRef = useRef(false);
-  const [loaded, setLoaded] = useState(false);
+  const passwordRef = useRef<HTMLInputElement | null>(null);
+
+  const [, setLoaded] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  
   const { id, navForm, className, style } = props;
-  const { user, setUser, setBoards, updates, setUpdates, setContent, authState, setAuthState, emailField, setEmailField, users } = useContext<any>(StateContext);
+
+  const { 
+    onSignIn,
+    onSignOut, 
+    setContent,
+    signInUser, 
+    usersLoading,
+    setUpNextGrid,
+    isFeatureEnabled,
+    updates, setUpdates, 
+    setAuthenticateOpen,
+    setOnAuthenticateLabel,
+    authState, setAuthState, 
+    emailField, setEmailField,  
+    user, users, seedUserData,
+    setOnAuthenticateFunction,
+  } = useContext<any>(StateContext);
+
+  const getAuthStateIcon = (authState) => {
+    let cancelIcon = `fas fa-ban`;
+    let trashIcon = `fas fa-trash`;
+    let signoutIcon = `fas fa-sign-out-alt`;
+    let icon = authState == AuthStates.Delete ? trashIcon : authState == AuthStates.Cancel ? cancelIcon : signoutIcon;
+    return icon;
+  }
+
+  const submitFormProgrammatically = (e?: any, auth_state?) => {
+    e?.preventDefault();
+    let form = formRef?.current;
+    if (form != null) {
+      authForm(e, form, auth_state);
+    }
+  }
+
+  const onDeleteOrCancelUser = (e, initialConfirm = true) => {
+    const openAuthenticationForm = () => {
+      setOnAuthenticateLabel(defaultAuthenticateLabel);
+      setOnAuthenticateFunction(`Default`);
+      setAuthenticateOpen(true);
+      setUpNextGrid(null);
+    }
+    if (showConfirm == true) {
+      if (!initialConfirm) openAuthenticationForm();
+      setShowConfirm(false);
+    } else {
+      if (user?.data?.gridIDs?.length > 0) {
+        setShowConfirm(true);
+      } else openAuthenticationForm();
+    }
+  }
 
   // const changeColor = (colorRangePickerEvent?: any) => {
   //   let currentColor: any = colorRangePickerEvent.target.value;
@@ -67,140 +140,140 @@ export default function Form(props?: any) {
   //   }    
   // }
 
-  const authForm = (e?: any) => {
+  const formButtonField = (label, className, auth_state, input) => <>
+    {usersLoading ? (
+      <IVFSkeleton 
+        label={label} 
+        labelSize={14}
+        showLoading={true}
+        className={className} 
+        skeletonContainerGap={15}
+        skeletonContainerWidth={`100%`}
+        skeletonContainerPadding={`5px 12px`}
+      />
+    ) : (
+      <div className={`formButtonsField ${stringNoSpaces(auth_state)}_AuthState`} onClick={(e) => formRef != null ? submitFormProgrammatically(e, auth_state) : undefined}>
+        <i style={{ color: `var(--gameBlue)` }} className={`formButtonsFieldIcon ${getAuthStateIcon(auth_state)}`} />
+        {input}
+      </div>
+    )}
+  </>
+
+  const switchToSignIn = (email, password) => {
+    if (password && (password != `` && password?.length >= 6)) {
+      onSignIn(email, password);
+    } else {
+      toast.warn(renderFirebaseAuthErrorMessage(`email-already-in-use`));
+      setAuthState(AuthStates.Sign_In);
+    }
+  }
+
+  const onSignUp = async (email, password, form) => {
+    createUserWithEmailAndPassword(auth, email, password).then(async (userCredential: any) => {
+      if (userCredential != null) {
+        let { 
+          uid, 
+          photoURL: avatar, 
+          displayName: name, 
+          accessToken: token, 
+          phoneNumber: phone, 
+          isAnonymous: anonymous, 
+          emailVerified: verified, 
+        } = userCredential?.user;
+
+        let highestRank = await findHighestNumberInArrayByKey(users, `rank`);
+        let rank = highestRank + 1;
+      
+        let default_Role_On_Create = dev() ? Roles.Developer : Roles.Subscriber;
+        let newUser = await createUser(uid, rank, email, name, phone, avatar, token, verified, anonymous, default_Role_On_Create);
+
+        const setUserStartingData = async (userToSeed) => {
+          let {
+            seeded_User,
+            seeded_Grids,
+            seeded_Boards,
+          } = await seedUserData(userToSeed);
+
+          const batchFirestore_InitialUserData = writeBatch(db);
+          for (const grd of seeded_Grids) {
+            const gridRef = await doc(db, gridsTable, grd?.id)?.withConverter(gridConverter);
+            batchFirestore_InitialUserData.set(gridRef, grd);
+          }
+          for (const brd of seeded_Boards) {
+            const boardRef = await doc(db, boardsTable, brd?.id)?.withConverter(boardConverter);
+            batchFirestore_InitialUserData.set(boardRef, brd);
+          }
+          return await {seeded_User, batchFirestore_InitialUserData};
+        }
+
+        let { seeded_User, batchFirestore_InitialUserData } = await setUserStartingData(newUser);
+        
+        await addUserToDatabase(seeded_User).then(async () => {
+          toast.success(`Signed Up & In as: ${seeded_User?.name}`);
+          signInUser(seeded_User);
+          form.reset();
+          await batchFirestore_InitialUserData.commit();
+          await toast.success(`Set Default Grids & Boards for: ${seeded_User?.name}`);
+        }).catch(signUpAndSeedError => {
+          let errorMessage = `Error on Sign Up & Set Default Data`;
+          console.log(errorMessage, signUpAndSeedError);
+          toast.error(errorMessage);
+          return;
+        });
+
+      } else {
+        toast.error(`Error on Sign Up`);
+        return;
+      }
+    }).catch((error) => {
+      console.log(`Error Signing Up`, error);
+      const errorMessage = error.message;
+      if (errorMessage) {
+        if (errorMessage?.includes(`email-already-in-use`)) {
+          switchToSignIn(email, password);
+        } else {
+          toast.error(renderFirebaseAuthErrorMessage(errorMessage));  
+        }         
+      } else {
+        toast.error(`Error Signing Up`);
+      }
+      return;
+    });
+  }
+
+  const authForm = (e?: any, frm?, value?) => {
     e.preventDefault();
     
-    let form = e?.target;
+    let form = frm ? frm : e?.target;
     let formFields = form?.children;
     let clicked = e?.nativeEvent?.submitter;
     let email = formFields?.email?.value ?? `email`;
+    let clickedValue = value ? value : clicked?.value;
     let password = formFields?.password?.value ?? `pass`;
 
-    const signInUser = (usr: User) => {
-      localStorage.setItem(`user`, JSON.stringify(usr));
-      setAuthState(`Sign Out`);
-      setUser(usr);
-      if (isValid(usr?.boards)) {
-        setBoards(usr?.boards);
-      }
-    }
+    let matchingUsers = getMatchingUsersToEmail(email, users);
 
-    const onSignOut = () => {
-      setUser(null);
-      setAuthState(`Next`);
-      setEmailField(false);
-      setUpdates(updates + 1);
-      localStorage.removeItem(`user`);
-      let hasLocalBoards = localStorage.getItem(`local_boards`);
-      if (hasLocalBoards) {
-        let localBoards = JSON.parse(hasLocalBoards);
-        setBoards(localBoards);
-      } else {
-        setBoards([]);
-      }
-    }
-
-    const onSignIn = (email, password) => {
-      signInWithEmailAndPassword(auth, email, password).then((userCredential: any) => {
-        if (userCredential != null) {
-          let existingUser = users.find(usr => usr?.email?.toLowerCase() == email?.toLowerCase());
-          if (existingUser != null) {
-            signInUser(existingUser);
-            toast.success(`Successfully Signed In`);
-          } else {
-            setEmailField(true);
-            setAuthState(`Sign Up`);
-          }
-        }
-      }).catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        if (errorMessage) {
-          toast.error(renderErrorMessage(errorMessage));
-          console.log(`Error Signing In`, {
-            error,
-            errorCode,
-            errorMessage
-          });
-        }
-        return;
-      });
-    }
-
-    const onSignUp = (email, password) => {
-      createUserWithEmailAndPassword(auth, email, password).then(async (userCredential: any) => {
-        if (userCredential != null) {
-          let { 
-            uid, 
-            photoURL: avatar, 
-            displayName: name, 
-            accessToken: token, 
-            phoneNumber: phone, 
-            isAnonymous: anonymous, 
-            emailVerified: verified, 
-          } = userCredential?.user;
-
-          let highestRank = await findHighestNumberInArrayByKey(users, `rank`);
-          let userData = {
-            uid,
-            name,
-            email,
-            phone,
-            avatar,
-            rank: highestRank + 1,
-            auth: {
-              token,
-              verified,
-              anonymous,
-            }
-          }
-
-          let cleanedUser = removeNullAndUndefinedProperties(userData);
-          let newUser = new User(cleanedUser);
-
-          await addUserToDatabase(newUser).then(() => {
-            toast.success(`Signed Up & In as: ${newUser?.name}`);
-            console.log(`New User`, newUser);
-            signInUser(newUser);
-            form.reset();
-          });
-        } else {
-          toast.error(`Error on Sign Up`);
-        }
-      }).catch((error) => {
-        console.log(`Error Signing Up`, error);
-        const errorMessage = error.message;
-        if (errorMessage) {
-          toast.error(renderErrorMessage(errorMessage));             
-        } else {
-          toast.error(`Error Signing Up`);
-        }
-        return;
-      });
-    }
-
-    switch(clicked?.value) {
+    switch(clickedValue) {
       default:
-        console.log(`Clicked Value`, clicked?.value);
+        dev() && console.log(`Clicked Value`, clickedValue);
         break;
-      case `Next`:
-        let macthingEmails = users.filter((usr: any) => usr?.email.toLowerCase() == email.toLowerCase());
-        if (macthingEmails?.length > 0) {
-          setAuthState(`Sign In`);
+      case AuthStates.Next:
+        if (matchingUsers?.length > 0) {
+          setAuthState(AuthStates.Sign_In);
         } else {
-          setAuthState(`Sign Up`);
+          setAuthState(AuthStates.Sign_Up);
         }
         setEmailField(true);
         break;
-      case `Back`:
+      case AuthStates.Back:
         setUpdates(updates + 1);
-        setAuthState(`Next`);
+        setAuthState(AuthStates.Next);
         setEmailField(false);
         break;
-      case `Sign Out`:
-        onSignOut();
+      case AuthStates.Sign_Out:
+        updateDocFieldsWTimeStamp(user, { 'auth.signedIn': false })?.then(() => onSignOut());
         break;
-      case `Save`:
+      case AuthStates.Save:
         let emptyFields = [];
         let fieldsToUpdate = [];
 
@@ -227,27 +300,46 @@ export default function Form(props?: any) {
           })));
         }
         break;
-      case `Sign In`:
+      case AuthStates.Sign_In:
         if (password == ``) {
           toast.error(`Password Required`);
         } else {
           if (password?.length >= 6) {
-            onSignIn(email, password);
+            if (matchingUsers?.length > 0) {
+              let emailToUse = matchingUsers[0]?.email;
+              onSignIn(emailToUse, password);
+            }
           } else {
             toast.error(`Password must be 6 characters or greater`);
           }
         }
         break;
-      case `Sign Up`:
-        if (password == ``) {
-          toast.error(`Password Required`);
+      case AuthStates.Sign_Up:
+        if (matchingUsers?.length > 0) {
+          switchToSignIn(matchingUsers[0]?.email, password);
         } else {
-          if (password?.length >= 6) {
-            onSignUp(email, password);
+          if (password == ``) {
+            toast.error(`Password Required`);
           } else {
-            toast.error(`Password must be 6 characters or greater`);
+            if (password?.length >= 6) {
+              if (email?.includes(`@`) && (
+                email?.includes(`.com`) || email?.includes(`.net`) || email?.includes(`.org`) || email?.includes(`.gov`)
+                || email?.includes(`.app`) || email?.includes(`.io`) || email?.includes(`.ai`) || email?.includes(`.eu`)
+              )) {
+                onSignUp(email, password, form);
+              } else {
+                const constructedUsernameFromEmail = `${email}@${email}.com`;
+                onSignUp(constructedUsernameFromEmail, password, form);
+              }
+            } else {
+              toast.error(`Password must be 6 characters or greater`);
+            }
           }
         }
+        break;
+      case AuthStates.Cancel:
+      case AuthStates.Delete:
+        onDeleteOrCancelUser(e);
         break;
     };
   }
@@ -258,28 +350,66 @@ export default function Form(props?: any) {
     setLoaded(true);
   }, [user, users, authState]);
 
+  useEffect(() => {
+    if (emailField && passwordRef.current) {
+      passwordRef.current.focus();
+    }
+  }, [emailField]);
+
   return <>
-    <form {...id && { id }} onSubmit={authForm} className={`flex authForm customButtons ${className}`} style={style}>
+    <form ref={formRef} {...id && { id }} onSubmit={authForm} className={`flex authForm customButtons ${className} ${stringNoSpaces(authState)}_formButton`} style={style}>
+      {/* Sign In // Sign Up */}
+      {usersLoading ? <></> : <>
+        {!user && <input placeholder={`Email or Username`} type={`email`} name={`email`} autoComplete={`off`} required />}
+        {!user && emailField && <input ref={passwordRef} placeholder={`Password`} type={`password`} minLength={6} name={`password`} autoComplete={`off`} />}
+      </>}
 
-      {!user && <input placeholder="Email" type="email" name="email" autoComplete={`email`} required />}
-      {!user && emailField && <input placeholder="Password" type="password" minLength={6} name="password" autoComplete={`current-password`} />}
-
+      {/* Profile Edit Form */}
       {(!navForm && user != null) ? <>
         {window?.location?.href?.includes(`profile`) ? <>
-          <input id="name" className={`name userData`} placeholder="Name" type="text" name="status" />
-          <input id="status" className={`status userData`} placeholder="Status" type="text" name="status" />
-          <input id="bio" className={`bio userData`} placeholder="About You" type="text" name="bio" />
-          <input id="number" className={`number userData`} placeholder="Favorite Number" type="number" name="number" />
-          <input id="password" className={`editPassword userData`} placeholder="Edit Password" type="password" name="editPassword" autoComplete={`current-password`} />
-          {/* <input type="color" id="color" name="color" placeholder="color" className={dark ? `dark` : `light`} data-color={`Color: ${convertHexToRGB(color)} // Hex: ${color}`} onInput={(e?: any) => changeColor(e)} defaultValue={color} /> */}
-          <input id={`save_${user?.id}`} className={`save`} type="submit" name="authFormSave" style={{padding: 0}} value={`Save`} />
+          <input className={`name userData`} placeholder={`Name`} type={`text`} name={`status`} />
+          <input className={`status userData`} placeholder={`Status`} type={`text`} name={`status`} />
+          <input className={`bio userData`} placeholder={`About You`} type={`text`} name={`bio`} />
+          <input className={`number userData`} placeholder={`Favorite Number`} type={`number`} name={`number`} />
+          <input className={`editPassword userData`} placeholder={`Edit Password`} type={`password`} name={`editPassword`} autoComplete={`off`} />
+          {/* <input type={`color`} name={`color`} placeholder={`color`} className={dark ? `dark` : `light`} data-color={`Color: ${convertHexToRGB(color)} // Hex: ${color}`} onInput={(e?: any) => changeColor(e)} defaultValue={color} /> */}
+          <input className={`save`} type={`submit`} name={`authFormSave`} style={{padding: 0}} value={`Save`} />
         </> : <></>}
       </> : <></>}
 
-      <input className={(user && window?.location?.href?.includes(`profile`) || (authState == `Sign In` || authState == `Sign Up`)) ? `submit half` : `submit full`} type="submit" name="authFormSubmit" value={user ? `Sign Out` : authState} />
+      {/* Delete User */}
+      {isFeatureEnabled(FeatureIDs.Delete_Self) && (
+        <div className={`formFieldWithConfirm featureFlag`} style={{ position: `relative` }}>
+          <FeatureFlagBadge featureID={FeatureIDs.Delete_Self} />
+          {formButtonField(
+            `Users Loading`, 
+            `usersSkeleton`, 
+            showConfirm ? AuthStates.Cancel : AuthStates.Delete,
+            <input className={`authFormDelete`} type={`submit`} name={`authFormSubmit`} value={showConfirm ? AuthStates.Cancel : AuthStates.Delete} />
+          )}
+          {showConfirm && (
+            <ConfirmAction className={`formUserConfirmAction`} onConfirm={(e) => onDeleteOrCancelUser(e, false)} style={{ right: 0, top: 40 }} />
+          )}
+        </div>
+      )}
 
-      {(authState == `Sign In` || authState == `Sign Up`) && <input className={`back authFormBack`} type="submit" name="authFormBack" value={`Back`} />}
-      
+      {/* Sign In // Sign Up // Sign Out */}
+      {formButtonField(
+        `Users Loading`, 
+        `usersSkeleton`, 
+        user ? `Sign Out` : authState,
+        <input className={(user && window?.location?.href?.includes(`profile`) || (authState == `Sign In` || authState == `Sign Up`)) ? `submit half` : `submit full`} type="submit" name="authFormSubmit" value={user ? `Sign Out` : authState} />,
+      )}
+
+      {/* Back */}
+      {(authState == `Sign In` || authState == `Sign Up`) && (
+        formButtonField(
+          `Users Loading`, 
+          `usersSkeleton`, 
+          `Back`,
+          <input className={`back authFormBack`} type="submit" name="authFormBack" value={`Back`} />
+        )
+      )}
     </form>
   </>
 }

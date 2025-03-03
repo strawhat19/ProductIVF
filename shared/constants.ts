@@ -1,10 +1,47 @@
+import moment from 'moment-timezone';
+import { User } from './models/User';
+import { Grid } from './models/Grid';
+import { List } from './models/List';
+import { Item } from './models/Item';
+import { Task } from './models/Task';
+import { Types } from './types/types';
+import { Board } from './models/Board';
+import { toast } from 'react-toastify';
+
+export const maxAuthAttempts = 5;
+export const defaultAuthenticateLabel = `Delete User & All Data`;
+export const userQueryFields = [`id`, `ID`, `uid`, `uuid`, `rank`, `name`, `role`, `email`, `image`, `avatar`, `phone`, `token`];
+
+export const sortDescending = (arr: (string | number)[]): number[] => {
+  return arr.map(item => (typeof item === `number` ? item : parseFloat(item))).filter(item => !isNaN(item)).sort((a, b) => b - a);
+}
+
 export const removeExtraSpacesFromString = (string: string) => string.trim().replace(/\s+/g, ` `);
+export const generateArray = (length: number, itemData: any) => Array.from({ length }, () => itemData);
 export const stringMatch = (string: string, check: string): boolean => string?.toLowerCase()?.includes(check?.toLowerCase());
 export const stringNoSpaces = (string: string) => string?.replaceAll(/[\s,:/]/g, `_`)?.replaceAll(/[\s,:/]/g, `-`).replaceAll(/-/g, `_`);
 
+export const extractRankFromDocId = (doc_id: string, doc_email: string, doc_type: Types) => {
+  let fromFirstNumberInId = doc_id?.split(`${doc_email}_${doc_type}_`)[1];
+  let rank = fromFirstNumberInId?.split(`_`)[0];
+  return parseFloat(rank);
+}
+
+export const extractRankFromDoc = (doc: Partial<User> | Partial<Grid> | Partial<Board> | Partial<List> | Partial<Item> | Partial<Task>) => {
+  let fromFirstNumberInId = doc?.id?.split(`${doc?.email}_${doc?.type}_`)[1];
+  let rank = fromFirstNumberInId?.split(`_`)[0];
+  return parseFloat(rank);
+}
+
+export const momentFormats = {
+  default: `h:mm A M/D/YYYY`,
+}
+
 export const nameFields = {
+  grid: { min: 1, max: 10 },
   board: { min: 1, max: 30 },
   column: { min: 1, max: 15 },
+  list: { min: 1, max: 15 },
   item: { min: 1, max: 25 },
   task: { min: 1, max: 30 },
 }
@@ -13,6 +50,17 @@ export const forceFieldBlurOnPressEnter = (e: any) => {
   if (e.key === `Enter`) {
     e.preventDefault();
     (e.target as any).blur();
+  }
+}
+
+export const logToast = (message: string, content: any, error = false, data = null) => {
+  let sendMsg = typeof content == `string` ? content : ``;
+  if (data != null) console.log(message, content, data);
+  else console.log(message, content);
+  if (error == false) {
+    toast.success(message + ` ` + sendMsg);
+  } else {
+    toast.error(message + ` ` + sendMsg);
   }
 }
 
@@ -33,6 +81,23 @@ export const combineArraysByKey = <T>(data: T[], key: keyof T): any[] => {
     }
     return combined;
   }, [] as any[]);
+}
+
+export const withinXTime = (formattedDate: string, time: number, interval = `hours`) => {
+  const nowMoment = moment();
+  const xMoment = moment()?.subtract(time, interval as any);
+  const dateMoment = moment(new Date(Date.parse(formattedDate)));
+  const dateWithinTime = dateMoment?.isBetween(xMoment, nowMoment);
+  return dateWithinTime;
+}
+
+export const withinXHours = (hours: number, formattedDate: string) => {
+  const currentTime = new Date();
+  const parsedDate = new Date(Date.parse(formattedDate));
+  const timeDifference = Math.abs(currentTime.getTime() - parsedDate.getTime());
+  const hourDifference = timeDifference / (1000 * 60 * 60);
+  const isWithinXHours = hourDifference <= hours;
+  return isWithinXHours;
 }
 
 export const findHighestNumberInArrayByKey = async ( arrayOfObjects: any[], key: string ): Promise<number | null> => {
@@ -106,4 +171,40 @@ export const countPropertiesInObject = (obj) => {
     }
   }
   return count;
+}
+
+export const getRankAndNumber = async (type: Types, docs: any[], docIDs: string[], users, user, IDs?) => {
+  let docsLn = docs?.length;
+  let docsRank = (docsLn > 0 && docs[0]?.rank) ? await findHighestNumberInArrayByKey(docs, `rank`) : 0;
+  let docsNumber = (docsLn > 0 && docs[0]?.number) ? await findHighestNumberInArrayByKey(docs, `number`) : 0;
+
+  let userDocsLength = docIDs?.length;
+  let docsIDX = docsRank > docsLn ? docsRank : docsLn;
+  let docsRanks = docIDs?.map(dcID => extractRankFromDocId(dcID, user?.email, type));
+
+  let allDocsRanks = [];
+  
+  if (users && users?.length > 0) {
+    users.forEach(usr => {
+      if (!IDs) IDs = usr?.data?.[`${type?.toLowerCase()}IDs`];
+      let usrDocsRanks = IDs?.map(dcID => extractRankFromDocId(dcID, usr?.email, type));
+      usrDocsRanks?.forEach(dcRank => allDocsRanks?.push(dcRank));
+    })
+    allDocsRanks = sortDescending(allDocsRanks);
+  }
+
+  let allDocsRanksLn = allDocsRanks?.length;
+  
+  let allRanks = [docsIDX, userDocsLength, docsNumber, ...docsRanks];
+  let maxRank = sortDescending(allRanks)[0];
+  
+  let rank = maxRank + 1;
+  let number = allDocsRanksLn + 1;
+
+  number = number > rank ? number : rank;
+
+  return {
+    rank,
+    number,
+  }
 }

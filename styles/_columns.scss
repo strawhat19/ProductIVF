@@ -4,6 +4,78 @@
     --whiteGlassInvert: rgba(191, 230, 244, 1);
 }
 
+.board {
+    .column {
+        &.columns_1 { --columnWidth: 100% !important; }
+        &.columns_2 { --columnWidth: calc(98.5% / 2) !important; }
+        &.columns_3 { 
+            --columnWidth: calc(97.5% / 3) !important;
+            @media (max-width: 1500px) {
+                .changeLabel {
+                    &.columnName {
+                        font-size: 16px;
+                    }
+                }
+                .listTitleButtonLabel {
+                    &.xlTitle {
+                        &.firstTitle {
+                            display: none !important;
+                        }
+                    }
+                }
+            }
+            @media (max-width: 1400px) {
+                .listTitleButtonLabel {
+                    &.lTitle {
+                        &.firstTitle {
+                            display: none !important;
+                        }
+                    }
+                }
+            }
+        }
+        &.columns_4 { 
+            --columnWidth: calc(95.5% / 4) !important;
+            @media (max-width: 1500px) {
+                .changeLabel {
+                    &.columnName {
+                        font-size: 16px;
+                        &.xlTitle {
+                            font-size: 14px;
+                        }
+                    }
+                }
+                .listTitleButtonLabel {
+                    &.mTitle, &.lTitle, &.xlTitle {
+                        display: none !important;
+                    }
+                    &.firstTitle {
+                        display: none !important;
+                    }
+                }
+                .deleteListButton {
+                    &.deleteListButton {
+                        --width: auto !important;  
+                    }
+                }
+            }
+            @media (max-width: 1400px) {
+                .changeLabel {
+                    &.columnName {
+                        font-size: 14px;
+                        &.lTitle {
+                            font-size: 14px;
+                        }
+                        &.xlTitle {
+                            font-size: 12px;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 .deleteBoardButton, .deleteListButton, .deleteItemButton {
     position: relative;
     &.deleteListButton {
@@ -43,19 +115,45 @@
     }
 }
 
+.formUserConfirmAction {
+    cursor: pointer;
+    min-height: var(--buttonSize);
+    &:hover {
+        background: transparent !important;
+    }
+    .confirmActionOption {
+        color: black;
+        font-size: 14px;
+        grid-gap: 10px !important;
+        font-weight: 600 !important;
+        min-height: var(--buttonSize);
+        justify-content: center !important;
+        i, span {
+            max-width: fit-content;
+        }
+        i {
+            font-size: 18px !important;
+        }
+    }
+}
+
 .confirmAction {
     padding: 0;
     width: 100%;
     grid-gap: 0;
-    border-radius: 3px;
+    min-height: 33px;
     position: absolute;
+    align-items: center;
     background: white;
     min-width: max-content;
+    border-radius: var(--borderRadius);
+    justify-content: center;
     .confirmActionOption {
         width: 100%;
         display: flex;
         grid-gap: 8px;
         margin: 0 auto;
+        min-height: 33px;
         font-weight: 700;
         flex-direction: row;
         align-items: center;
@@ -124,7 +222,7 @@
                     .boardTask {
                         &.complete {
                             color: black;
-                            background: linear-gradient(90deg, var(--blackGlass) 35px, var(--whiteGlassInvert) 35px) !important;
+                            background: linear-gradient(90deg, var(--blackGlass) var(--buttonSize), var(--whiteGlassInvert) var(--buttonSize)) !important;
                             .itemButtons {
                                 input {
                                     &.task_check_box {

@@ -1,32 +1,58 @@
 import Tasks from './tasks';
 import { ItemTypes } from './boards';
-import { updateUserFields } from '../../firebase';
+import { toast } from 'react-toastify';
+import { addBoardScrollBars } from './board';
+import { Board } from '../../shared/models/Board';
 import React, { useContext, useState } from 'react';
 import Item, { getTypeIcon, manageItem } from './item';
+import { collection, getDocs } from 'firebase/firestore';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import ConfirmAction from '../context-menus/confirm-action';
-import { forceFieldBlurOnPressEnter, removeExtraSpacesFromString } from '../../shared/constants';
-import { formatDate, generateUniqueID, StateContext, capitalizeAllWords, dev } from '../../pages/_app';
+import { TasksFilterStates, Types } from '../../shared/types/types';
+import { createItem, Item as ItemModel } from '../../shared/models/Item';
+import { formatDate, StateContext, capitalizeAllWords, dev, capWords } from '../../pages/_app';
+import { forceFieldBlurOnPressEnter, logToast, removeExtraSpacesFromString } from '../../shared/constants';
+import { addItemToDatabase, db, deleteListFromDatabase, itemsTable, updateDocFieldsWTimeStamp } from '../../firebase';
 
 export default function Column(props) {
     let count = 0;
     let [hoverItemForm, ] = useState(false);
-    let { board, column, hideAllTasks } = props;
     let [showConfirm, setShowConfirm] = useState(false);
     let [itemTypeMenuOpen, setItemTypeMenuOpen] = useState(false);
-    let { user, boards, setBoards, setLoading, setSystemStatus, completeFiltered, IDs, setIDs, selected, menuPosition } = useContext<any>(StateContext);
+    let { board, column, hideAllTasks, updateBoardInState } = props;
 
-    const updateBoards = (user) => {
-        localStorage.setItem(`boards`, JSON.stringify(boards));
-        if (user != null) {
-            updateUserFields(user?.id, { boards });
-            localStorage.setItem(`user`, JSON.stringify({ ...user, boards }));
+    let { 
+        user,
+        users,
+        boards,
+        selected,
+        setBoards,
+        setLoading,
+        menuPosition, 
+        selectedGrid,
+        globalUserData,
+        setSystemStatus,
+    } = useContext<any>(StateContext);
+
+    const getListsLength = () => {
+        let boardsLists = globalUserData?.lists;
+        if (boardsLists && boardsLists?.length > 0) {
+            boardsLists = boardsLists?.filter(lst => lst?.boardID == column?.boardID);
         }
+        return boardsLists?.length;
+    }
+
+    const renderTitleSizeClass = (name) => {
+        let nameClasses = ``;
+        if (name?.length >= 5) nameClasses = `mTitle`;
+        if (name?.length >= 15) nameClasses = `lTitle`;
+        if (name?.length >= 20) nameClasses = `xlTitle`;
+        return nameClasses;
     }
 
     const itemActiveFilters = (itm) => {
-        if (completeFiltered) {
-            if (!itm.complete) {
+        if (board?.options?.hideCompleted) {
+            if (!itm?.options?.complete) {
                 return true;
             } else {
                 return false;
@@ -42,17 +68,16 @@ export default function Column(props) {
         } else {
             if (type && type != column?.itemType) {
                 column.itemType = type;
-                updateBoards(user);
                 setItemTypeMenuOpen(!itemTypeMenuOpen);
             }
         }
     }
 
-    const changeColumnLabel = (e, item) => {
+    const changeColumnLabel = (e, list) => {
         let elemValue = e.target.textContent;
-        let value = elemValue == `` ? capitalizeAllWords(item.task) : capitalizeAllWords(elemValue);
+        let value = elemValue == `` ? capitalizeAllWords(list.name) : capitalizeAllWords(elemValue);
         if (!elemValue || elemValue == ``) {
-            elemValue = capitalizeAllWords(item.task);
+            elemValue = capitalizeAllWords(list.name);
             return;
         };
 
@@ -60,29 +85,14 @@ export default function Column(props) {
         elemValue = capitalizeAllWords(elemValue);
 
         e.target.innerHTML = elemValue;
-        item.title = elemValue;
-        item.content = elemValue;
-        item.updated = formatDate(new Date());
         
-        updateBoards(user);
+        const name = elemValue;
+        updateDocFieldsWTimeStamp(list, { name, A: name, title: `${list?.type} ${list?.rank} ${name}` });
     }
 
     const adjustColumnsDetails = (column) => {
-        let showDetails = column?.details && column?.details == true;
-        column.details = !showDetails;
-
-        props.setBoard(prevBoard => {
-            return {
-                ...prevBoard,
-                updated: formatDate(new Date()),
-                columns: {
-                    ...prevBoard?.columns,
-                    [column?.id]: column,
-                },
-            }
-        });
-
-        localStorage.setItem(`boards`, JSON.stringify(boards));
+        let showingDetails = column?.options?.details && column?.options?.details == true;
+        updateDocFieldsWTimeStamp(column, { [`options.details`]: !showingDetails });
     }
 
     const deleteColumn = (columnId, index, initialConfirm = true) => {
@@ -92,7 +102,7 @@ export default function Column(props) {
             }
             setShowConfirm(false);
         } else {
-            if (column?.itemIds?.length > 0) {
+            if (column?.data?.itemIDs?.length > 0) {
                 setShowConfirm(true);
             } else {
                 finallyDeleteColumn(columnId, index);
@@ -100,7 +110,22 @@ export default function Column(props) {
         }
     }
 
-    const finallyDeleteColumn = (columnId, index) => {
+    const finallyDeleteColumn = async (columnId, index, useDB = true) => {
+        if (useDB == true) {
+            const brd: Board = new Board({ ...board });
+            brd.data.listIDs = brd.data.listIDs?.filter(lstid => lstid != columnId);
+            updateBoardInState(brd);
+            const deleteListToast = toast.info(`Deleting List ${column?.name}`);
+            await deleteListFromDatabase(column)?.then(lst => {
+                setTimeout(() => toast.dismiss(deleteListToast), 1500);
+                logToast(`Successfully Deleted List #${lst?.number}`, lst);
+            })?.catch(deleteLstError => {
+                logToast(`Failed to Delete List #${column?.number}`, deleteLstError, true);
+            });
+        } else deleteListNoDB(columnId, index);
+    }
+
+    const deleteListNoDB = (columnId, index) => {
         setLoading(true);
         setSystemStatus(`Deleting Column.`);
         const columnItems = props.board.columns[columnId].itemIds;
@@ -127,97 +152,71 @@ export default function Column(props) {
         });
 
         setTimeout(() => {
-            setSystemStatus(`Deleted Column.`);
+            setSystemStatus(`Deleted Column`);
             setLoading(false);
         }, 1000);
     }
 
-    const addNewItem = (e) => {
+    const addNewItem = async (e) => {
         e.preventDefault();
-        let formFields = e.target.children;
+
         setLoading(true);
-        const column = props.board.columns[props.column.id];
-        let nextIndex = column.itemIds.length + 1;
         setSystemStatus(`Creating Item.`);
+
+        let formFields = e.target.children;
         let video = formFields.itemVideo && formFields.itemVideo.value ? formFields.itemVideo.value : ``;
         let image = formFields.itemImage && formFields.itemImage.value ? formFields.itemImage.value : ``;
-        let newItemID = `item_${nextIndex}`;
-        let itemID = `${newItemID}_${generateUniqueID(IDs)}`;
-        let content = formFields.createItem.value;
-        let rank = formFields.rank.value;
-        if (!rank || rank == ``) rank = nextIndex;
-        rank = parseInt(rank);
-        rank = rank > nextIndex ? nextIndex : rank; 
-        const newItemIds = Array.from(column.itemIds);
-        newItemIds.splice(rank - 1,0,itemID);
 
-        const newItem = {
-            image,
-            video,
-            id: itemID,
-            subtasks: [],
-            complete: false,
-            description: ``,
-            boardID: props?.board?.id,
-            listID: props?.column?.id,
-            type: props?.column?.itemType,
-            created: formatDate(new Date()),
-            updated: formatDate(new Date()),
-            content: capitalizeAllWords(content),
-            ...(user != null && {
-                creator: {
-                    id: user?.id,
-                    uid: user?.uid,
-                    name: user?.name,
-                    email: user?.email,
-                }
-            }),
-        }
+        let nextIndex = column?.data?.itemIDs?.length + 1;
+        
+        let name = capWords(formFields.createItem.value);
 
-        props.setBoard({
-            ...props.board,
-            updated: formatDate(new Date()),
-            items: {
-                ...props.board.items,
-                [itemID]: newItem
-            },
-            columns: {
-                ...props.board.columns,
-                [column.id]: {
-                    ...props.board.columns[column.id],
-                    itemIds: newItemIds
-                }
+        let position = formFields.rank.value;
+        if (!position || position == ``) position = nextIndex;
+        position = parseInt(position);
+        position = position > nextIndex ? nextIndex : position; 
+
+        if (board) {
+            // const { rank, number } = await getRankAndNumber(Types.Item, globalUserData?.items, column?.data?.itemIDs, users, user);
+            const itemsRef = await collection(db, itemsTable);
+            const itemsSnapshot = await getDocs(itemsRef);
+            const itemsCount = itemsSnapshot.size;
+            const itemRank = itemsCount + 1;
+            const newItem = createItem(itemRank, name, user, itemRank, selectedGrid?.id, board?.id, column?.id, image, video) as ItemModel;
+
+            const prevItmIDs = [...column?.data?.itemIDs];
+            const newItemIDs = Array.from(prevItmIDs);
+            newItemIDs.splice(position - 1, 0, newItem?.id);
+
+            const brd: Board = new Board({ ...board });
+            brd.data.itemIDs = [...brd.data.itemIDs, newItem?.id];
+
+            await updateBoardInState(brd);
+
+            if (newItemIDs?.length > 5) addBoardScrollBars();
+
+            await addItemToDatabase(newItem, column?.id, board?.id, newItemIDs);
+
+            e.target.reset();
+            if (e.target.children && e.target.children?.length > 0) {
+                e.target.children[0].focus();
             }
-        });
-
-        setIDs([...IDs, newItem?.id]);
-
-        e.target.reset();
-        e.target.children[0].focus();
+        }
 
         setTimeout(() => {
             setSystemStatus(`Created Item.`);
             setLoading(false);
         }, 1000);
-
-        let itemsElement = document.querySelector(`#items_of_${props.column.id}`);
-        if (itemsElement) {
-            if (rank > 7) {
-                setTimeout(() => {
-                    itemsElement.scrollTop = itemsElement.scrollHeight;
-                }, 0);
-            }
-        }
     }
 
     return (
         <Draggable draggableId={props.column.id} index={props.index}>
             {(provided, snapshot) => (
-                <div id={props.column.id} className={`container column list columns_${board?.columnOrder && board?.columnOrder?.length} ${(board?.columnOrder && board?.columnOrder?.length > 2 || !dev()) ? `multiCol` : ``} layoutCols_${props?.column?.layoutCols ? props?.column?.layoutCols : ``} ${snapshot.isDragging ? `dragging` : ``}`} {...provided.draggableProps} ref={provided.innerRef}>
+                <div id={props.column.id} className={`container column list columns_${getListsLength()} ${(getListsLength() > 2 || !dev()) ? `multiCol` : ``} ${getListsLength() >= 4 ? `multiColExtended` : ``} layoutCols_${props?.column?.layoutCols ? props?.column?.layoutCols : ``} ${snapshot.isDragging ? `dragging` : ``}`} {...provided.draggableProps} ref={provided.innerRef}>
                     <div className={`columnItemsContainer outerColumn`}>
                         <div style={{ position: `relative` }} id={`name_of_${props.column.id}`} title={`${props.column.title}`} className={`columnTitle flex row iconButton item listTitleButton`} {...provided.dragHandleProps}>
                             <div className={`itemOrder listOrder`} style={{ maxWidth: `fit-content` }}>
-                                <i style={{ color: `var(--gameBlue)`, fontSize: 15, padding: `0 9px`, maxWidth: `fit-content` }} className={`fas fa-list`}></i>
+                                <i style={{ color: `var(--gameBlue)`, fontSize: 15, padding: `0 9px`, maxWidth: `fit-content` }} className={`fas fa-list`} />
                             </div>
                             <h3 className={`listNameRow nx-tracking-light ${props.column.title.length > 25 ? `longName` : ``}`} id={`list_name_of_${props.column.id}`} style={{ position: `relative`, fontStyle: `italic` }}>
                                 <div className={`listName textOverflow extended flex row`} style={{ fontSize: 13, fontWeight: 600 }}>
@@ -227,51 +226,37 @@ export default function Column(props) {
                                         suppressContentEditableWarning
                                         onKeyDown={(e) => forceFieldBlurOnPressEnter(e)}
                                         onBlur={(e) => changeColumnLabel(e, props.column)} 
-                                        className={`columnName changeLabel stretchEditable`} 
+                                        className={`columnName changeLabel stretchEditable ${renderTitleSizeClass(props.column.name)}`} 
                                     >
-                                        {props.column.title}    
+                                        {props.column.name}    
                                     </div>
                                     <div className={`columnStats flex row end`}>
                                         <span className={`subscript`} style={{display: `contents`,}}>
                                             <span className={`slashes`}>
-                                                {props.items.filter(itm => itemActiveFilters(itm) && itm?.complete).length}
+                                                {props.items.filter(itm => itemActiveFilters(itm) && itm?.options?.complete).length}
                                             </span> ✔ <div className={`slashes`} style={{display: `contents`}}> // </div> <span className={`slashes`}>
                                                 {props.items.filter(itm => itemActiveFilters(itm)).length}
                                             </span> ☰</span>
                                             <span className={`subscript`} style={{display: `contents`,}}> <span className={`slashes`}>
-                                                {[].concat(...props.items.filter(itm => itemActiveFilters(itm)).filter(itm => itm?.complete).map(itm => itm?.subtasks)).length 
-                                                + [].concat(...props.items.filter(itm => itemActiveFilters(itm)).filter(itm => !itm?.complete).map(itm => itm?.subtasks)).filter(tsk => tsk?.complete).length}
+                                                {[].concat(...props.items.filter(itm => itemActiveFilters(itm)).filter(itm => itm?.options?.complete).map(itm => itm?.tasks)).length 
+                                                + [].concat(...props.items.filter(itm => itemActiveFilters(itm)).filter(itm => !itm?.options?.complete).map(itm => itm?.tasks)).filter(tsk => tsk?.options?.complete).length}
                                                 {/* {[].concat(...props.items.filter(itm => itemActiveFilters(itm)).map(itm => itm?.subtasks)).filter(tsk => tsk?.complete).length} */}
                                             </span> ✔ <div className={`slashes`} style={{display: `contents`}}> // </div> <span className={`slashes`}>
-                                                {[].concat(...props.items.filter(itm => itemActiveFilters(itm)).map(itm => itm?.subtasks)).length}
+                                                {[].concat(...props.items.filter(itm => itemActiveFilters(itm)).map(itm => itm?.tasks)).length}
                                             </span> ☰</span>
                                     </div>
                                 </div>
                             </h3>
-                            <div className={`itemButtons customButtons`}>
-                                <button id={`details_Columns_${props.column.id}`} style={{ pointerEvents: `all` }} onClick={(e) => adjustColumnsDetails(props.column)} title={`Details`} className={`columnIconButton iconButton detailsButton`}>
-                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-bars`}></i>
-                                    <span className={`iconButtonText textOverflow extended`}>
+                            <div className={`listButtonOptions itemButtons customButtons`}>
+                                <button id={`details_Columns_${props.column.id}`} style={{ pointerEvents: `all` }} onClick={(e) => adjustColumnsDetails(props.column)} title={`Details`} className={`columnIconButton iconButton detailsButton ${props.column?.options?.details == true ? `optionActive` : ``}`}>
+                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${props?.column?.options?.details == true ? `fa-times` : `fa-bars`}`} />
+                                    <span className={`iconButtonText listTitleButtonLabel firstTitle ${renderTitleSizeClass(props.column.name)} textOverflow extended`}>
                                         Details
                                     </span>
                                 </button>
-                                {/* {dev() ? <>
-                                    <button id={`layout_3Columns_${props.column.id}`} style={{ pointerEvents: `all` }} onClick={(e) => adjustColumnsLayout(props.column, 3)} title={`3 Columns`} className={`iconButton layoutButton column3Layout ${props?.column?.layoutCols ? (props?.column?.layoutCols == 3 ? `activeLayout` : `inactive`) : ``}`}>
-                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-th`}></i>
-                                        <span className={`iconButtonText textOverflow extended`}>
-                                            3 Columns
-                                        </span>
-                                    </button>
-                                    <button id={`layout_2Columns_${props.column.id}`} style={{ pointerEvents: `all` }} onClick={(e) => adjustColumnsLayout(props.column, 2)} title={`2 Columns`} className={`iconButton layoutButton column2Layout ${props?.column?.layoutCols ? (props?.column?.layoutCols == 2 ? `activeLayout` : `inactive`) : ``}`}>
-                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-th-large`}></i>
-                                        <span className={`iconButtonText textOverflow extended`}>
-                                            2 Columns
-                                        </span>
-                                    </button>
-                                </> : <></>} */}
                                 <button id={`delete_${props.column.id}`} style={{ pointerEvents: `all` }} onClick={(e) => deleteColumn(props.column.id, props.index)} title={`Delete List`} className={`columnIconButton iconButton deleteButton deleteListButton ${showConfirm ? `cancelBtnList` : ``}`}>
-                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`mainIcon fas fa-${showConfirm ? `ban` : `trash`}`}></i>
-                                    <span className={`iconButtonText textOverflow extended`}>
+                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`mainIcon fas fa-${showConfirm ? `ban` : `trash`}`} />
+                                    <span className={`iconButtonText listTitleButtonLabel ${renderTitleSizeClass(props.column.name)} textOverflow extended`}>
                                         {showConfirm ? `Cancel` : `Delete`}
                                     </span>
                                     {showConfirm && (
@@ -280,36 +265,43 @@ export default function Column(props) {
                                 </button>
                             </div>
                         </div>
-                        <Droppable droppableId={props.column.id} type="task">
+                        <Droppable droppableId={props.column.id} type={Types.Item}>
                             {provided => (
                                 <div id={`items_of_${props.column.id}`} className={`items boardColumnItems listItems`} {...provided.droppableProps} ref={provided.innerRef}>
                                     {props.items.filter(itm => itemActiveFilters(itm)).map((item, itemIndex) => {
-                                        if (!item.subtasks) item.subtasks = [];
+                                        const tasks = [];
+                                        if (!item.tasks) {
+                                            item?.data?.taskIDs?.forEach(tskID => {
+                                                const task = globalUserData?.tasks?.find(tsk => tsk?.id == tskID);
+                                                if (task) tasks.push(task);
+                                            })
+                                            item.tasks = tasks;
+                                        }
                                         return (
-                                        <Draggable key={item.id} draggableId={item.id} index={itemIndex}>
-                                            {provided => (
-                                                <div id={item.id} className={`item boardItem ${hoverItemForm ? `itemHoverToExpand` : ``} completeItem ${item.complete ? `complete completeBoardItem` : `activeBoardItem`} container ${snapshot.isDragging ? `dragging` : ``} ${(itemTypeMenuOpen || selected != null) ? `unfocus` : ``}`} title={item.content} {...provided.draggableProps} ref={provided.innerRef}>
-                                                    <div onClick={(e) => manageItem(e, item, itemIndex, board, boards, setBoards)} {...provided.dragHandleProps} className={`itemRow flex row ${item?.complete ? `completed` : `incomplete`} ${item.subtasks.length > 0 ? `hasTasksRow` : `noTasksRow`}`}>
-                                                        <Item 
-                                                            item={item} 
-                                                            count={count} 
-                                                            board={board} 
-                                                            column={props.column} 
-                                                            itemIndex={itemIndex} 
-                                                            setBoard={props.setBoard} 
-                                                        />
+                                            <Draggable key={item?.id} draggableId={item?.id} index={itemIndex}>
+                                                {provided => (
+                                                    <div id={item?.id} className={`item boardItem ${hoverItemForm ? `itemHoverToExpand` : ``} completeItem ${item?.options?.complete ? `complete completeBoardItem` : `activeBoardItem`} container ${snapshot.isDragging ? `dragging` : ``} ${(itemTypeMenuOpen || selected != null) ? `unfocus` : ``}`} title={item?.name} {...provided.draggableProps} ref={provided.innerRef}>
+                                                        <div onClick={(e) => manageItem(e, item, itemIndex, globalUserData?.tasks?.filter(tsk => tsk?.itemID == item?.id))} {...provided.dragHandleProps} className={`itemRow flex row ${item?.options?.complete ? `completed` : `incomplete`} ${item?.tasks.length > 0 ? `hasTasksRow` : `noTasksRow`}`}>
+                                                            <Item 
+                                                                item={item} 
+                                                                count={count} 
+                                                                board={board} 
+                                                                column={props.column} 
+                                                                itemIndex={itemIndex} 
+                                                                setBoard={props.setBoard} 
+                                                            />
+                                                        </div>
+                                                        {!hideAllTasks && item.tasks && (
+                                                            <Tasks 
+                                                                item={item} 
+                                                                board={board}
+                                                                column={props.column} 
+                                                                showForm={board?.options?.tasksFilterState == TasksFilterStates.All_On} 
+                                                            />
+                                                        )}
                                                     </div>
-                                                    {!hideAllTasks && item.subtasks && (
-                                                        <Tasks 
-                                                            item={item} 
-                                                            board={board}
-                                                            column={props.column} 
-                                                            showForm={!board?.tasksFiltered} 
-                                                        />
-                                                    )}
-                                                </div>
-                                            )}
-                                        </Draggable>
+                                                )}
+                                            </Draggable>
                                         )}
                                     )}
                                     {provided.placeholder}
@@ -320,7 +312,7 @@ export default function Column(props) {
                     <form title={`Add Item`} id={`add_item_form_${props.column.id}`} className={`flex addItemForm itemButtons unset addForm`} style={{ width: `100%`, flexDirection: `row` }} onSubmit={(e) => addNewItem(e)}>
                         <div className={`itemTypesMenu ${(itemTypeMenuOpen && menuPosition == null) ? `show` : ``}`}>
                             {Object.values(ItemTypes).filter(type => type !== props?.column?.itemType).map((type, typeIndex) => (
-                                <div key={typeIndex} title={type} onClick={(e) => changeItemType(e, type, props.column)} className={`typeIcon itemTypeIconRow menuTypeIcon hoverGlowButton`}>
+                                <div key={typeIndex} title={type} onClick={(e) => changeItemType(e, type, props.column)} className={`typeIcon itemTypeIconRow menuTypeIcon`}>
                                     <div className={`typeIconIcon`}>
                                         {getTypeIcon(type)}
                                     </div>
@@ -330,7 +322,7 @@ export default function Column(props) {
                                 </div>
                             ))}
                         </div>
-                        <div title={`Change ${props?.column?.itemType} Type`} onClick={(e) => changeItemType(e)} className={`typeIcon changeItemTypeIcon hoverGlowButton`}>
+                        <div title={`Change ${props?.column?.itemType} Type`} onClick={(e) => changeItemType(e)} className={`typeIcon changeItemTypeIcon`}>
                             {getTypeIcon(props?.column?.itemType)}
                         </div>
                         <input autoComplete={`off`} placeholder={`Create Item +`} type="text" name="createItem" required />
@@ -340,7 +332,7 @@ export default function Column(props) {
                         {/* {props?.column?.itemType == ItemTypes.Video && (
                             <input autoComplete={`off`} style={{padding: `10px 0px 10px 15px`, minWidth: `100px`, maxWidth: `75px`}} placeholder={`Youtube Url`} type="text" name="itemVideo" />
                         )} */}
-                        <input autoComplete={`off`} name={`rank`} placeholder={props.items.filter(itm => itemActiveFilters(itm)).length + 1} defaultValue={props.items.filter(itm => itemActiveFilters(itm)).length + 1} type={`number`} min={1} />
+                        <input className={`rankField itemRankField`} autoComplete={`off`} name={`rank`} placeholder={props.items.filter(itm => itemActiveFilters(itm)).length + 1} defaultValue={props.items.filter(itm => itemActiveFilters(itm)).length + 1} type={`number`} min={1} />
                         <button type={`submit`} title={`Add Item`} className={`iconButton createList wordIconButton createItemButton`}>
                             <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-plus"></i>
                             <span className={`iconButtonText textOverflow extended`}>

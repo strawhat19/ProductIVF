@@ -1,0 +1,11 @@
+{
+    "index": {
+        "title": "Grid",
+        "type": "page",
+        "display": "hidden",
+        "theme": {
+            "pagination": false,
+            "layout": "full"
+        }
+    }
+}

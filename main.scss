@@ -1,9 +1,15 @@
+@use './styles/mui';
 @use './styles/toast';
 @use './styles/image';
+@use './styles/grids';
 @use './styles/utility';
 @use './styles/columns';
 @use './styles/contextmenu';
+@use './shared/admin/features';
 @use './styles/itemsoverwrite';
+@use './styles/finaloverwrite';
+@use './components/boards/kanban/kanban';
+@use './components/selector/multiselector';
 
 /* Montserrat */
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
@@ -39,21 +45,25 @@
     --lightNavAndFooterBG: var(--lightBG);
     --darkNavAndFooterBG: var(--piratechsBlue);
     --navAndFooterBG: var(--darkNavAndFooterBG);
+    --darkInputLightBG: rgba(249, 250, 251, .1);
     
     --bg: #010000;
     --posterH: 250px;
     --posterW: 165px;
+    --buttonSize: 35px;
     --steel: #7a7a7a;
     --react: #0fccce;
     --grass: #00b900;
     --silver: #f2f2f2;
     --borderRadius: 4px;
+    --success: #07d90d;
     --containerWidth: 95%;
     --gameBlue: #00c2ff;
     --softBlack: #1a1a1a;
     --secondary: #3c3c3c;
     --piratechs: #2b4261;
     --softBlack2: #636363;
+    --authFormFontSize: 14px;
     --piratechsDark: #10141d;
     --main: rgb(0, 216, 255);
     --nextraColor: var(--nextra);
@@ -76,6 +86,23 @@
     --softSkyBlue: rgba(132, 169, 177, 1) !important;
     --delayedTransition: cubic-bezier(0.77, 0.2, 0.05, 1);
     --transition: 0.24s cubic-bezier(0.77, 0.2, 0.05, 1) !important;
+}
+
+.profileForm {
+    width: 100%;
+    grid-gap: 5px;
+    flex-direction: column;
+    .formFieldWithConfirm {
+        width: 100%;
+    }
+    input, .formButtonsField {
+        width: 100%;
+        max-width: unset;
+        justify-content: center;
+        input {
+            max-width: fit-content;
+        }
+    }
 }
 
 ::selection {
@@ -208,9 +235,9 @@ article {
     padding: 8px 0 1em;
     min-height: calc(94vh - var(--nextra-navbar-height)) !important;
     main {
-        max-width: 92rem !important;
-        width: 100% !important;
         padding: 0;
+        width: 100% !important;
+        max-width: 92rem !important;
     }
 }
 
@@ -298,6 +325,20 @@ nav {
             order: -1;
         }
     }
+    .systemStatusComponent {
+        display: flex;
+        grid-gap: 10px;
+        align-items: center;
+        justify-content: center;
+        min-width: 300px !important;
+        .actualQuote {
+            min-width: fit-content;
+        }
+        .spinnerEl {
+            grid-gap: 5px;
+            align-items: center;
+        }
+    }
 }
 
 .textOverflow {
@@ -336,23 +377,17 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
     padding: 0em;
 }
 
-.authForm {
-    input {
-        border-radius: 8px !important;
-    }
-}
-
 .dark {
     .authForm {
         input {
-            background: rgba(249, 250, 251, .1) !important;
+            background: var(--darkInputLightBG) !important;
         }
     }
 }
 
 .boardsZeroState {
     width: 100%;
-    padding: 35px;
+    padding: var(--buttonSize);
     display: flex;
     font-size: 16px;
     color: silver;
@@ -364,7 +399,7 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
 }
 
 .addForm {
-    max-height: 35px;
+    max-height: var(--buttonSize);
     position: relative;
     border-radius: var(--borderRadius);
     .inputGroup {
@@ -415,8 +450,8 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
     }
     &.addBoardForm {
         input {
-            border-top-right-radius: 8px;
-            border-bottom-right-radius: 8px;
+            border-top-right-radius: var(--borderRadius);
+            border-bottom-right-radius: var(--borderRadius);
         }
     }
     &.addItemForm {
@@ -447,10 +482,10 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
     top: 0;
     left: 0;
     z-index: 1;
-    width: 35px;
+    width: var(--buttonSize);
     height: 100%;
     display: flex;
-    font-size: 35px;
+    font-size: var(--buttonSize);
     cursor: pointer;
     min-height: 33px;
     max-height: 33px;
@@ -462,7 +497,7 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
     border-top-left-radius: 4px;
     transition: var(--transition);
     border-bottom-left-radius: 4px;
-    &:not(.menuTypeIcon) {
+    &:not(.menuTypeIcon):not(.gridTypeIconButton) {
         position: absolute;
     }
     span {
@@ -485,9 +520,9 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
 }
 
 .formItems {
-    height: 35px;
-    min-height: 35px;
-    max-height: 35px;
+    height: var(--buttonSize);
+    min-height: var(--buttonSize);
+    max-height: var(--buttonSize);
     form {
         &.addListForm {
             &::before { 
@@ -816,6 +851,18 @@ input {
     }
 }
 
+@media (max-width: 1800px) {
+    .threeBoard, .moreBoard {
+        .list {
+            &:has(.lTitle), &:has(.xlTitle) {
+                .columnStats {
+                    display: none !important;
+                }
+            }
+        }
+    }
+}
+
 footer {
     div {
         padding: 1em !important;
@@ -856,8 +903,14 @@ body {
             }
             .board {
                 --boardColumnHeight: 661px;
-                @media (min-aspect-ratio: 18/9) {
-                    --boardColumnHeight: 533px;
+                @media (min-width: 1400px) {
+                    --boardColumnHeight: 675px;
+                }
+                @media (max-width: 1300px) {
+                    --boardColumnHeight: 597px;
+                }
+                @media (max-height: 935px) {
+                    --boardColumnHeight: 595px;
                 }
                 .column {
                     align-items: flex-start;
@@ -914,6 +967,9 @@ section {
             max-height: 33px !important;
             padding: 10.5px 25px !important;
             background: var(--gameBlueSoft) !important;
+            &[name="authFormSubmit"] {
+                font-weight: 500;
+            }
             &:hover {
                 color: black !important;
                 background: white !important;
@@ -943,25 +999,13 @@ section {
 
 ::-webkit-scrollbar {
     position: relative;
-    width: 4px !important;
-    background: black !important;
+    width: 1px !important;
     border-radius: var(--borderRadius);
+    background: var(--gameBlue) !important;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--gameBlue);
-    border-radius: var(--borderRadius);
-}
-
-::-webkit-scrollbar {
-    position: relative;
-    width: 4px !important;
-    border-radius: var(--borderRadius);
-    background: var(--blackGlass) !important;
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--softWhite);
+    background: var(--navAndFooterBG);
     border-radius: var(--borderRadius);
 }
 
@@ -1000,7 +1044,6 @@ form {
         }
     }
     input, textarea {
-        font-size: 12px;
         font-weight: 400;
         padding: 10px 15px;
         outline: none !important;
@@ -1008,6 +1051,7 @@ form {
         font-family: "Montserrat";
         max-height: 33px !important;
         transition: var(--transition);
+        font-size: var(--authFormFontSize);
         border-radius: var(--borderRadius);
         background: var(--blackGlass) !important;
         // box-shadow: 0 0 10px var(--gameBlueSoft),0 0 20px var(--gameBlueSoft);
@@ -1365,7 +1409,7 @@ textarea {
     position: fixed;
     align-items: center;
     justify-content: center;
-    backdrop-filter: blur(5px);
+    backdrop-filter: blur(9px);
     background: rgba(0, 40, 46, 0.5);
 }
 
@@ -1393,6 +1437,12 @@ textarea {
     }
 }
 
+.authStateComponent {
+    &.hasUserSignedIn {
+        font-weight: 600;
+    }
+}
+
 .alert {
     width: 450px;
     height: 450px;
@@ -1413,13 +1463,23 @@ textarea {
     // background: rgba(1, 47, 74, 0.75);
     // background: rgba(0, 194, 255, 0.4);
 
-    .alertTitle {
+    .alertTitleRow {
         width: 95%;
-        color: white;
-        font-weight: 600;
-        font-size: 2.5em;
-        border-radius: 3px 3px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-radius: var(--borderRadius);
         border-bottom: 4px solid var(--gameBlue);
+        .alertTitle {
+            width: 100%;
+            color: white;
+            font-weight: 600;
+            font-size: 2.5em;
+        }
+        .rightTitleField {
+            text-align: right;
+            max-width: fit-content;
+        }
     }
 
     .inner {
@@ -1482,7 +1542,7 @@ textarea {
         color: var(--gameBlue);
         right: 15px;
         top: 15px;
-        width: 35px;
+        width: var(--buttonSize);
         display: flex;
         justify-content: center;
         align-items: center;
@@ -1557,22 +1617,18 @@ textarea {
     grid-gap: 1em;
     display: flex;
     flex-direction: row;
-    // flex-direction: column;
     .addListFormItemSection {
         padding: 0;
         max-width: 100%;
         .addListForm {
-            // display: grid;
+            grid-gap: 10px;
             overflow: hidden;
-            // display: flex;
             align-items: center;
             padding: 0 !important;
             width: 100% !important;
-            // flex-direction: row;
             max-width: 100% !important;
-            border-radius: var(--borderRadius) !important;
-            // grid-template-columns: 75% 25%;
             justify-content: space-between;
+            border-radius: var(--borderRadius) !important;
             .submit {
                 border: 0 !important;
                 &:hover {
@@ -1581,6 +1637,10 @@ textarea {
             }
         }
     }
+}
+
+.addListDiv {
+    width: 100%;
 }
 
 .lists {
@@ -1619,10 +1679,7 @@ textarea {
 
     .list {
         position: relative;
-        width: 100% !important;
         padding: 10px !important;
-        min-width: 100% !important;
-        // max-height: 550px !important;
         border-radius: var(--borderRadius);
         background: var(--gameBlueSoft) !important;
 
@@ -1705,7 +1762,7 @@ textarea {
                 display: flex;
                 grid-gap: 0px;
                 font-size: 0.8em;
-                min-height: 35px;
+                min-height: var(--buttonSize);
                 position: relative;
                 align-items: center;
                 padding: 0em !important;
@@ -1743,7 +1800,7 @@ textarea {
 
                 &:hover {
                     .itemRow {
-                        background: linear-gradient(90deg, var(--whiteGlass) 35px, var(--blackGlass) 35px);
+                        background: linear-gradient(90deg, var(--whiteGlass) var(--buttonSize), var(--blackGlass) var(--buttonSize));
                         img {
                             filter: invert(1);
                         }
@@ -1920,8 +1977,8 @@ textarea {
                     }
                     .subTaskElement {
                         grid-gap: 0;
-                        margin: 0 0 0 35px;
-                        width: calc(100% - 35px);
+                        margin: 0 0 0 var(--buttonSize);
+                        width: calc(100% - var(--buttonSize));
                         background: transparent !important;
                         box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.2);
 
@@ -1944,9 +2001,9 @@ textarea {
                                 border-bottom-right-radius: var(--borderRadius);
                             }
                             .subTaskItem {
-                                background: linear-gradient(90deg, var(--whiteGlass) 35px, var(--blackGlass) 35px);
+                                background: linear-gradient(90deg, var(--whiteGlass) var(--buttonSize), var(--blackGlass) var(--buttonSize));
                                 &.complete {
-                                    background: linear-gradient(90deg, var(--blackGlass) 35px, var(--whiteGlass) 35px);
+                                    background: linear-gradient(90deg, var(--blackGlass) var(--buttonSize), var(--whiteGlass) var(--buttonSize));
                                     .taskDate {
                                         color: var(--dark);
                                     }
@@ -1964,7 +2021,7 @@ textarea {
                                     margin: 5px 15px 5px 0 !important;
                                 }
                                 &:hover {
-                                    background: linear-gradient(90deg, var(--blackGlass) 35px, var(--whiteGlass) 35px);
+                                    background: linear-gradient(90deg, var(--blackGlass) var(--buttonSize), var(--whiteGlass) var(--buttonSize));
                                     .subtaskActions {
                                         input[type="checkbox"] {
                                             filter: invert(1);
@@ -2245,7 +2302,7 @@ textarea {
     padding: 0;
     width: 100%;
     display: flex;
-    min-height: 35px;
+    min-height: var(--buttonSize);
     font-size: 0.75em;
     align-items: center;
     font-weight: 700 !important;
@@ -2277,13 +2334,17 @@ textarea {
 }
 
 footer {
-    height: 40px;
+    height: 68px;
     display: flex;
     grid-gap: 10px;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     background: var(--navAndFooterBG);
+
+    @media (max-width: 1369px) {
+        height: 58px;
+    }
 
     .hoverLink {
         &::before {
@@ -2439,7 +2500,7 @@ footer {
                     .innerRow {
                         padding: 0;
                         .listOrder {
-                            max-width: 35px !important;
+                            max-width: var(--buttonSize) !important;
                             min-width: max-content;
                             padding: 9px 0;
                         }
@@ -2487,43 +2548,28 @@ footer {
         margin: -8px 0;
         max-height: 0px;
         pointer-events: none;
-        // animation: fadeOutThenRemove 0.24s ease-in-out;
-        // * {
-        //     opacity: 0;
-        //     max-height: 0px;
-        //     pointer-events: none;
-        // }
     }
 }
 
-// @keyframes fadeOutThenRemove {
-//     0% {
-//         display: flex;
-//     }
-//     99% {
-//         opacity: 0.1;
-//     }
-//     100% {
-//         opacity: 0;
-//         display: none;
-//     }
-// }
-
 .board {
     width: 100%;
+    grid-gap: 0;
     display: flex;
     font-size: 1.05em;
     align-items: flex-start;
-    // &.clipColumns {
-    //     .column {
-    //         &.dragging {
-    //             max-width: 1% !important;
-    //         }
-    //     }
-    // }
     &.overflowingBoard {
         &.moreBoard {
             overflow-x: scroll;
+            padding-bottom: 15px;
+
+            &::-webkit-scrollbar {
+                height: 7px !important;
+                background: black !important;
+            }
+            
+            &::-webkit-scrollbar-thumb {
+                background: var(--gameBlueSoft);
+            }
         }
         *:not(.dragging) {
             @media (max-width: 1390px) and (min-width: 933px) {
@@ -2537,15 +2583,17 @@ footer {
         &.dragging {
             max-width: 25px !important;
         }
-        // user-select: none;
+        --columnWidth: 32.35% !important; 
         min-height: 455px;
         position: relative;
         align-items: center;
         padding: 10px !important;
         grid-gap: 10px !important;
-        min-width: 32.25% !important;
         justify-content: space-between;
         border-radius: var(--borderRadius);
+        width: var(--columnWidth) !important;
+        max-width: var(--columnWidth) !important;
+        min-width: var(--columnWidth) !important;
         background: var(--gameBlueSoft) !important;
         box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.2);
         box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1), 0px 0px 20px rgba(0, 0, 0, 0.05);
@@ -2576,10 +2624,10 @@ footer {
                 }
             }
             .listOrder {
-                width: 35px;
+                width: var(--buttonSize);
                 padding: 9px 0;
-                min-width: 35px;
-                max-width: 35px;
+                min-width: var(--buttonSize);
+                max-width: var(--buttonSize);
                 min-height: 33px !important;
                 max-height: 33px !important;
             }
@@ -2602,10 +2650,11 @@ footer {
             min-height: 350px;
             padding: 0 !important;
             .item {
+                overflow: hidden;
                 min-height: min-content;
                 background: transparent !important;
                 .itemRow {
-                    background: linear-gradient(90deg, var(--whiteGlass) 35px, var(--blackGlass) 35px);
+                    background: linear-gradient(90deg, var(--whiteGlass) var(--buttonSize), var(--blackGlass) var(--buttonSize));
                 }
                 .itemDate {
                     font-size: 9px;
@@ -2644,7 +2693,7 @@ footer {
                         &.hasTasksRow {
                             border-bottom-right-radius: 0 !important;
                         }
-                        background: linear-gradient(90deg, var(--whiteGlass) 35px, var(--blackGlass) 35px) !important;
+                        background: linear-gradient(90deg, var(--whiteGlass) var(--buttonSize), var(--blackGlass) var(--buttonSize)) !important;
                     }
                     .subtaskAddForm {
                         display: none;
@@ -2668,9 +2717,9 @@ footer {
                     }
                 }
                 .itemOrder {
-                    width: 35px;
-                    min-width: 35px;
-                    max-width: 35px;
+                    width: var(--buttonSize);
+                    min-width: var(--buttonSize);
+                    max-width: var(--buttonSize);
                     background: transparent;
                 }
                 .itemContents {
@@ -2725,7 +2774,7 @@ footer {
                     max-height: 33px !important;
                 }
                 &::before {
-                    width: 35px;
+                    width: var(--buttonSize);
                 }
             }
         }
@@ -2848,6 +2897,7 @@ footer {
 }
 
 .detailView {
+    --gameBlueInverse: var(--gameBlue);
     .detailViewImage {
         max-height: 675px;
     }
@@ -2891,34 +2941,39 @@ footer {
                 display: none;
               }
               &.active {
-                  background: var(--gameBlue);
-                  color: #fff;
-                  &:hover {
-                      background: var(--gameBlueInverse);
-                  }
+                background: var(--gameBlue);
+                color: #fff;
+                &:hover {
+                    background: var(--gameBlueInverse);
+                }
               }
             }
         }
         &::before {
-            content: attr(data-index);
-            position: absolute;
-            height: 100%;
-            width: 35px;
-            left: 0;
             top: 0;
-            font-weight: 600;
-            font-size: 30px;
+            left: 0;
+            height: 100%;
             display: flex;
-            justify-content: center;
+            font-size: 30px;
+            font-weight: 600;
+            position: absolute;
             align-items: center;
             background: black;
             color: var(--gameBlue);
+            justify-content: center;
+            content: attr(data-index);
             border-top-left-radius: 4px;
             border-bottom-left-radius: 4px;
+            width: calc(var(--buttonSize) + 15px);
         }
         button {
             &:disabled {
                 opacity: 0.35;
+            }
+            &.saveButton {
+                &:hover {
+                    color: white;
+                }
             }
         }
     }

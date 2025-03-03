@@ -5,17 +5,9 @@
     --lightInverse: black !important;
     --primary: var(--gameBlue) !important;
     --detailViewBG: rgba(21, 90, 130, 0.85);
-    --primarySoft: var(--gameBlueSoft) !important;
-    --darkGradient: linear-gradient(90deg, var(--whiteGlass) 35px, var(--blackGlass) 35px) !important;
-    --lightGradient: linear-gradient(90deg, var(--blackGlass) 35px, var(--whiteGlass) 35px) !important;
-
-    // Themes
-    // Green
-    // --gameBlue: #38cf38 !important;
-    // --gameBlueSoft: #087308 !important;
-    // Red
-    // --gameBlue: #ff0000 !important;
-    // --gameBlueSoft: #820000 !important;
+    --primarySoft: var(--gameBlue) !important;
+    --darkGradient: linear-gradient(90deg, var(--whiteGlass) var(--buttonSize), var(--blackGlass) var(--buttonSize)) !important;
+    --lightGradient: linear-gradient(90deg, var(--blackGlass) var(--buttonSize), var(--whiteGlass) var(--buttonSize)) !important;
 }
 
 .authFormBack {
@@ -59,6 +51,8 @@
             --gameBlueInverse: var(--primary);
         }
         .items {
+            // --blackGlass: rgba(0, 0, 0, 0.95);
+            --whiteGlass: rgba(255, 255, 255, 0.95);
             * {
                 filter: invert(0) !important;
             }

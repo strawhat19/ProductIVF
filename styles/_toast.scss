@@ -1,5 +1,6 @@
 .Toastify__toast-container {
-    --toastify-container-width: 500px;
+    --toastify-color-dark: var(--blackGlass);
+    --toastify-container-width: calc(auto + 20px);
     --toastify-toast-min-height: auto;
     .Toastify__toast {
         width: 100%;
@@ -7,6 +8,7 @@
         font-weight: 600;
         flex-direction: row;
         font-family: "Montserrat";
+        backdrop-filter: blur(5px);
         .Toastify__close-button {
             display: none;
         }

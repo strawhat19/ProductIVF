@@ -1,7 +1,8 @@
-import { genID } from '../ID';
+import { Data } from './Data';
 import { Types } from '../types/types';
+import { generateID, genID } from '../ID';
 import { capWords } from '../../pages/_app';
-import { countPropertiesInObject, isValid } from '../constants';
+import { countPropertiesInObject, isValid, removeNullAndUndefinedProperties, stringNoSpaces } from '../constants';
 
 export enum Providers { 
   Google = `Google` ,
@@ -47,56 +48,69 @@ export const ROLES = {
   Owner: new Role(7, Roles.Owner),
 }
 
-export class User {
-  A?: any;
+export const userIsMinRole = (usr: User, role: Roles) => {
+  return parseFloat(RolesMap[usr?.role]) >= ROLES[role]?.level;
+}
 
-  id!: string;
-  uuid?: string;
-  uid: string = ``;
+export class User extends Data {
+  ID: any;
 
-  title?: string;
-  password?: string;
+  creator: string;
 
-  phone: any;
-  avatar: any;
-  name!: string;
-  rank: number = 1;
+  owner: string;
+  ownerID: string;
+  ownerUID: string;
+  
+  token: string;
+  phone: any = ``;
+  avatar: any = ``;
   email: string = ``;
-  properties: number;
-
+  lastSelectedGridID: string = ``;
+  
+  beta: boolean = false;
   type: Types = Types.User;
+  showBeta: boolean = false;
   role = ROLES.Subscriber.name;
+  
+  color = `Default`;
+  description = ``;
+  theme = `dark`;
+  image = ``;
 
-  boards?: any[];
-
-  data = {
-    taskIDs: [],
-    itemIDs: [],
-    listIDs: [],
-    boardIDs: [],
-    gridIDs: [],
-    friendIDs: [],
-    sharedIDs: [],
-  }
-
-  meta = {
-    created: undefined,
-    updated: undefined,
+  auth = {
+    attempts: 0,
+    lastSignIn: ``,
+    verified: false,
+    signedIn: false,
+    anonymous: false,
+    lastAuthenticated: ``,
+    lastAttempt: undefined,
     provider: Providers.Firebase,
   }
 
-  auth = {
-    token: undefined,
-    verified: undefined,
-    anonymous: undefined,
+  data?: { [key: string]: string[] } = {
+    users: [],
+    gridIDs: [],
+    itemIDs: [],
+    listIDs: [],
+    taskIDs: [],
+    boardIDs: [],
+    friendIDs: [],
+    selectedGridIDs: [],
   }
 
   constructor(data: Partial<User>) {
+    super(data);
     Object.assign(this, data);
+
     if (isValid(this.email) && !isValid(this.name)) this.name = capWords(this.email.split(`@`)[0]);
+
     this.A = this.name;
-    let ID = genID(Types.User, this.rank, this.name, this.uid);
-    let { id, date, title, uuid } = ID;
+
+    let ID = genID(this.type, this.rank, this.name, this.uid);
+    let { id, date, title } = ID;
+    let uuid = generateID();
+
     if (!isValid(this.id)) this.id = id;
     if (!isValid(this.uuid)) this.uuid = uuid;
     if (!isValid(this.title)) this.title = title;
@@ -104,4 +118,59 @@ export class User {
     if (!isValid(this.meta.updated)) this.meta.updated = date;
     if (!isValid(this.properties)) this.properties = countPropertiesInObject(this) + 1;
   }
+}
+
+export const createUser = (
+  uid: string, 
+  rank: number, 
+  email: string, 
+  name: string, 
+  phone = ``, 
+  avatar = ``, 
+  token = ``, 
+  verified = false, 
+  anonymous = false, 
+  role = Roles.Subscriber,
+  color = `Default`,
+  description = ``,
+  image = ``,
+  type = Types.User,
+) => {
+
+  let user: User = new User({
+    uid,
+    role,
+    rank,
+    type,
+    email,
+    token,
+    phone,
+    avatar,
+
+    image,
+    color,
+    description,
+
+    owner: email,
+    ownerUID: uid,
+    creator: email,
+
+    name: isValid(name) ? name : capWords(email.split(`@`)[0]),
+  }) as User;
+
+  let cleanedUser: any = removeNullAndUndefinedProperties(user);
+  let cleanedID = `${stringNoSpaces(cleanedUser?.title)}_${uid}`;
+
+  user = new User({ 
+    ...cleanedUser, 
+    ID: cleanedID, 
+    ownerID: cleanedUser?.id, 
+    auth: {
+      ...cleanedUser?.auth,
+      verified,
+      anonymous,
+    },
+  }) as User;
+
+  return user;
 }

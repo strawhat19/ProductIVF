@@ -1,0 +1,75 @@
+i {
+    &.fa-trash {
+        color: red !important;
+    }
+}
+
+@mixin hoverGlow {
+    height: 100%;
+    min-height: 33px;
+    max-height: 33px;
+    background: white;
+    color: var(--gameBlue);
+    width: var(--buttonSize);
+    font-weight: 400 !important;
+    transition: var(--transition);
+    font-size: var(--buttonSize) !important;
+    &:hover {
+        box-shadow: 0 0 10px white;
+    }
+}
+
+input {
+    &.boardNameField {
+        margin-right: 0 !important;
+        margin-left: -3px !important;
+    }
+}
+
+button {
+    &.hoverGlow {
+        @include hoverGlow;
+    }
+}
+
+.hoverBright {
+    transition: var(--transition);
+    &:hover {
+        cursor: pointer;
+        box-shadow: 0 0 10px white;
+    }
+}
+
+.pageWrapContainer {
+    &.signed_out {
+        &.users_loading {
+            .nav_Form {
+                width: 100%;
+            }
+        }
+    }
+}
+
+.optionActive {
+    background: black !important;
+    transition: var(--transition) !important;
+    span {
+        color: white !important;
+    }
+}
+
+// * {
+//     --main: var(--grass);
+//     --gameBlue: var(--main);
+//     --gameBlueSoft: var(--main);
+//     transition: var(--transition);
+//     --selectorMainIcon: var(--main);
+//     --mainDark: rgba(3, 48, 24, 1);
+//     --piratechsBlue: var(--mainDark);
+//     --navAndFooterBG: var(--mainDark);
+//     &.logo {
+//         path {
+//             fill: var(--main);
+//         }
+//     }
+// }

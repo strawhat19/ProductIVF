@@ -2,14 +2,27 @@ import '../main.scss';
 import 'react-toastify/dist/ReactToastify.css';
 
 import ReactDOM from 'react-dom/client';
-import { User } from '../shared/models/User';
-import { db, usersTable } from '../firebase';
-import { isValid } from '../shared/constants';
-import { ToastContainer } from 'react-toastify';
+import { getIDParts } from '../shared/ID';
+import { Grid } from '../shared/models/Grid';
+import { List } from '../shared/models/List';
+import { Item } from '../shared/models/Item';
+import { Task } from '../shared/models/Task';
+import { Board } from '../shared/models/Board';
+import { Feature } from '../shared/admin/features';
+import { toast, ToastContainer } from 'react-toastify';
 import { AnimatePresence, motion } from 'framer-motion';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { User, userIsMinRole } from '../shared/models/User';
+import { addBoardScrollBars } from '../components/boards/board';
 import { createContext, useRef, useState, useEffect } from 'react';
 import ContextMenu from '../components/context-menus/context-menu';
+import { renderFirebaseAuthErrorMessage } from '../components/form';
+import { AuthStates, GridTypes, Types } from '../shared/types/types';
+import { seedUserData as generateSeedUserData } from '../shared/database';
+import { collection, onSnapshot, query, where  } from 'firebase/firestore';
+import { defaultAuthenticateLabel, isValid, logToast } from '../shared/constants';
+import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import AuthenticationDialog from '../components/modals/authenticate/authenticate-dialog';
+import { auth, db, userConverter, gridDataCollectionNames, usersTable, gridsTable, gridConverter, updateDocFieldsWTimeStamp, featuresTable, featureConverter } from '../firebase';
 
 export const StateContext = createContext({});
 
@@ -293,7 +306,7 @@ export const defaultLists = [
   ]},
 ];
 
-export const showAlert = async (title, component, width, height, top = `0px`) => {
+export const showAlert = async (title, component, width, height, top = `0px`, rightComponent = <></>) => {
   let isAlertOpen = JSON.parse(localStorage.getItem(`alertOpen`)) == true;
   if (isAlertOpen) return;
   let overlay = document.createElement(`div`);
@@ -316,7 +329,14 @@ export const showAlert = async (title, component, width, height, top = `0px`) =>
   alertDialog.style.transition = `opacity 0.3s ease-out, transform 0.3s ease-out`;
 
   ReactDOM.createRoot(alertDialog).render(<>
-    <h2 className={`alertTitle`}>{title}</h2>
+    <div className={`alertTitleRow`}>
+      <h2 className={`alertTitle`}>
+        {title}
+      </h2>
+      <div className={`rightTitleField`}>
+        {rightComponent}
+      </div>
+    </div>
     <div className={`inner`}>
       {component}
     </div>
@@ -370,17 +390,15 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let loaded = useRef(false);
   let mobileMenuBreakPoint = 697;
 
+  let { id, gridid } = router.query;
+
   let [IDs, setIDs] = useState([]);
   let [rte, setRte] = useState(``);
   let [page, setPage] = useState(``);
   let [qotd, setQotd] = useState(``);
   let [width, setWidth] = useState(0);
   let [color, setColor] = useState(``);
-  let [lists, setLists] = useState([]);
-  let [items, setItems] = useState([]);
-  let [board, setBoard] = useState({});
   let [dark, setDark] = useState(false);
-  let [boards, setBoards] = useState([]);
   let [updates, setUpdates] = useState(0);
   let [onMac, setOnMac] = useState(false);
   let [focus, setFocus] = useState(false);
@@ -390,75 +408,484 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let [loading, setLoading] = useState(true);
   let [highScore, setHighScore] = useState(0);
   let [platform, setPlatform] = useState(null);
-  let [selected, setSelected] = useState(null);
   let [anim, setAnimComplete] = useState(false);
   let [categories, setCategories] = useState([]);
   let [colorPref, setColorPref] = useState(null);
-  let [alertOpen, setAlertOpen] = useState(false);
   let [authState, setAuthState] = useState(`Next`);
   let [mobileMenu, setMobileMenu] = useState(false);
   let [emailField, setEmailField] = useState(false);
   let [systemStatus, setSystemStatus] = useState(``);
+  let [showLeaders, setShowLeaders] = useState(false);
+  let [content, setContent] = useState(`defaultContent`);
+  let [year, setYear] = useState(new Date().getFullYear());
+
+  // State
+  let [features, setFeatures] = useState([]);
+  let [upNextGrid, setUpNextGrid] = useState(null);
+  let [featuresLoading, setFeaturesLoading] = useState(true);
+  let [authenticateOpen, setAuthenticateOpen] = useState(false);
+  let [onAuthenticateFunction, setOnAuthenticateFunction] = useState(`Default`);
+  let [onAuthenticateLabel, setOnAuthenticateLabel] = useState(defaultAuthenticateLabel);
+
+  let [user, setUser] = useState(null);
+  let [users, setUsers] = useState([]);
+  let [grids, setGrids] = useState([]);
+  let [lists, setLists] = useState([]);
+  let [items, setItems] = useState([]);
+  let [board, setBoard] = useState({});
+  let [emails, setEmails] = useState([]);
+  let [boards, setBoards] = useState([]);
+  let [profile, setProfile] = useState(null);
+  let [profiles, setProfiles] = useState([]);
+  let [userGrids, setUserGrids] = useState([]);
+  let [selected, setSelected] = useState(null);
+  let [userBoards, setUserBoards] = useState([]);
+  let [usersGrids, setUsersGrids] = useState([]);
+  let [alertOpen, setAlertOpen] = useState(false);
+  let [gridBoardIDs, setGridBoardIDs] = useState([]);
   let [rearranging, setRearranging] = useState(false);
   let [boardLoaded, setBoardLoaded] = useState(false);
-  let [showLeaders, setShowLeaders] = useState(false);
+  let [selectedGrid, setSelectedGrid] = useState(null);
+  let [selectedGrids, setSelectedGrids] = useState([]);
   let [menuPosition, setMenuPosition] = useState(null);
-  let [content, setContent] = useState(`defaultContent`);
+  let [gridsLoading, setGridsLoading] = useState(true);
+  let [usersLoading, setUsersLoading] = useState(true);
+  let [activeOptions, setActiveOptions] = useState([]);
+  let [emailsLoading, setEmailsLoading] = useState(true);
+  let [boardsLoading, setBoardsLoading] = useState(true);
   let [tasksFiltered, setTasksFiltered] = useState(false);
   let [boardCategories, setBoardCategories] = useState([]);
-  let [year, setYear] = useState(new Date().getFullYear());
+  let [globalUserData, setGlobalUserData] = useState(null);
+  let [profilesLoading, setProfilesLoading] = useState(true);
   let [itemTypeMenuOpen, setItemTypeMenuOpen] = useState(false);
-  let [completeFiltered, setCompleteFiltered] = useState(false);
+  let [globalUserDataLoading, setGlobalUserDataLoading] = useState(true);
 
-  let [users, setUsers] = useState([]);
-  let [user, setUser] = useState(null);
-  let [usersLoading, setUsersLoading] = useState(false);
+  const getPageContainerClasses = () => {
+    let route = rte == `_` ? `root` : rte;
+    let pageName = isValid(page.toUpperCase()) ? page.toUpperCase() : `home_Page`;
+    let userClasses = `${user != null ? `signed_in` : `signed_out`} ${usersLoading ? `users_loading` : `users_loaded`}`;
+    let classes = `pageWrapContainer ${route} ${pageName} ${userClasses}`;
+    return classes;
+  }
 
-  useEffect(() => {
-    const usersDatabase = collection(db, usersTable);
-    const usersDatabaseRealtimeListener = onSnapshot(usersDatabase, snapshot => {
-      setUsersLoading(true);
+  const getFeature = (featureID) => {
+    if (features && features?.length > 0) {
+      let thisFeature = features?.find(feat => feat?.id == featureID);
+      if (thisFeature) {
+        return thisFeature;
+      }
+    }
+  }
 
-      let usersFromDB = [];
-      snapshot.forEach((doc) => usersFromDB.push(new User({ ...doc.data() })));
-      usersFromDB = usersFromDB.sort((a, b) => a?.rank - b?.rank);
-      setUsers(usersFromDB);
+  const isFeatureEnabled = (featureID, considerBeta = true) => {
+    let featureEnabled = false;
+    let thisFeature = getFeature(featureID);
 
-      let hasStoredUser = localStorage.getItem(`user`);
-      if (hasStoredUser) {
-        let storedUser = JSON.parse(hasStoredUser);
-        if (storedUser != null) {
-          let thisUser = usersFromDB.find(usr => usr?.id == storedUser?.id);
-          if (thisUser) {
-            setUser(thisUser);
-            setAuthState(`Sign Out`);
-            // dev() && console.log(`User Still Signed In`, {thisUser, updates});
-            if (isValid(thisUser?.boards)) {
-              setBoards(thisUser?.boards);
-            }
-          }
+    if (thisFeature) {
+      let isPubliclyAvailable = thisFeature?.status?.public == true;
+      let userHasPermission = userIsMinRole(user, thisFeature?.roles[0]);
+
+      let generalAvailability = isPubliclyAvailable && userHasPermission
+      featureEnabled = generalAvailability;
+      
+      if (considerBeta) {
+        if (user && user != null) {
+          let isInBetaTesting = thisFeature?.status?.beta == true;
+          let isBetaAvailable = isInBetaTesting && user?.beta == true;
+          featureEnabled = generalAvailability || isBetaAvailable;
         }
       }
-
-      dev() && console.log(`Users Update from Database`, usersFromDB);
-    }, error => {
-      console.log(`Error on Get Task(s) from Database`, error);
-    }, complete => {
-      setUsersLoading(false);
-      dev() && console.log(`User(s) Loaded`, complete);
-    })
-
-    // setUpdates(prevUpdates => prevUpdates + 1);
-
-    return () => {
-      usersDatabaseRealtimeListener();
     }
+
+    return featureEnabled;
+  }
+
+  const resetGridsBoards = () => {
+    setGrids([]);
+    setBoards([]);
+    setUserGrids([]);
+    setLoading(false);
+    setUsersGrids([]);
+    setUpNextGrid(null);
+    setSelectedGrids([]);
+    setActiveOptions([]);
+    setSelectedGrid(null);
+    setGridsLoading(true);
+    setBoardsLoading(true);
+    setGlobalUserDataLoading(true);
+    setOnAuthenticateFunction(`Default`);
+    setOnAuthenticateLabel(defaultAuthenticateLabel);
+  }
+
+  const signOutReset = async () => {
+    await setUser(null);
+    await setProfile(null);
+    await setAuthState(AuthStates.Next);
+    await setEmailField(false);
+    await resetGridsBoards();
+  }
+
+  const setSelectedGrd = (selectedGrd) => {
+    setSelectedGrid(selectedGrd);
+    setSelectedGrids([selectedGrd]);
+    setActiveOptions([selectedGrd]);
+  }
+
+  const switchSelectedGrid = (usr, selectedGrd) => {
+    let usrGridURL = `/user/${usr?.rank}/grids/${selectedGrd?.rank}`;
+    if (usr?.lastSelectedGridID != selectedGrd?.id) {
+      updateDocFieldsWTimeStamp(usr, { 
+        lastSelectedGridID: selectedGrd?.id, 
+        [`data.selectedGridIDs`]: [selectedGrd?.id], 
+      });
+    }
+    // if (navigate) {
+      router.replace(usrGridURL, undefined, {
+        shallow: true,
+      });
+    // }
+  }
+
+  const onSignOut = async (navigateToHome = true) => {
+    try {
+      await setUpdates(updates + 1);
+      await signOutReset();
+      await signOut(auth);
+      if (navigateToHome == true) router.replace(`/`, undefined, { shallow: true });
+    } catch (signOutError) {
+      await logToast(`Error on Sign Out`, signOutError, true);
+    }
+  }
+
+  const getGridsBoards = (activeGrds, brds) => {
+    let gridsBoards = [];
+    let gridsBoardsIDs = activeGrds?.length > 0 ? activeGrds.map(grd => grd?.data?.boardIDs).flat() : [];
+    if (gridsBoardsIDs.length > 0) {
+      gridsBoardsIDs.forEach(gbID => {
+        let gBoard = brds.find(br => br?.id == gbID);
+        if (gBoard) gridsBoards.push(gBoard);
+      })
+    }
+    return gridsBoards;
+  }
+
+  const seedUserDataNoDB = (usr) => {
+    let { grids: grds, boards: brds, user: updatedUser } = generateSeedUserData(usr);
+    
+    setGrids(grds);
+    setUserBoards(brds);
+
+    let privatePersonalGrid = grds.find(gr => gr.type == GridTypes.Personal);
+    let defaultSeletedGrid = privatePersonalGrid ? privatePersonalGrid : grds[0];
+    
+    let defaultSeletedGrids = [defaultSeletedGrid];
+    let gridBoards = getGridsBoards(defaultSeletedGrids, brds);
+
+    setSelectedGrids(defaultSeletedGrids);
+    setSelectedGrid(defaultSeletedGrid);
+    setGridsLoading(false);
+  
+    setBoards(gridBoards);
+    setBoardsLoading(false);
+  
+    if (user != null && updatedUser != null) {
+      setUser(updatedUser);
+    }
+  }
+
+  const seedUserData = (usr, useDB = true) => {
+    let { grids: grds, boards: brds, user: updatedUser } = generateSeedUserData(usr);
+    if (useDB == true) {
+      return {
+        seeded_Grids: grds,
+        seeded_Boards: brds,
+        seeded_User: updatedUser,
+      }
+    } else seedUserDataNoDB(usr);
+  }
+
+  const extractIDDetails = (ID) => {
+    const regex = /^(.+?)_([^_]+)_(\d+)_([^_]+)_(\d+_\d+_[APM]+_\d+_\d+_\d+)_([^_]+)_(.+)$/;
+    const match = ID.match(regex);
+    if (match) {
+      return {
+        email: match[1],
+        type: match[2],
+        rank: parseInt(match[3], 10),
+        name: match[4],
+        created: match[5].replace(/_/g, ` `),
+        uuid: match[6],
+        uid: match[7],
+      }
+    }
+  }
+
+  const signInUser = (usr, navigateToLastSelectedGrid = false) => {
+    setUser(new User(usr));
+    setAuthState(AuthStates.Sign_Out);
+
+    if (navigateToLastSelectedGrid) {
+      let userURL, gridURL;
+
+      const useExtendedURLIDs = false;
+
+      if (usr != null) {
+        const gridId = usr?.lastSelectedGridID;
+        const { name, rank, uuid } = extractIDDetails(gridId);
+        
+        const gridUrlId = `${rank}`;
+        const urlId = `${usr?.rank}`;
+        const userUrlId = urlId || usr?.id;
+        const gridUrlIdExtended = `${rank}-${name}-${uuid}`;
+        const userUrlIdExtended = `${usr?.rank}-${usr?.name}-${usr?.uid}`;
+
+        userURL = useExtendedURLIDs ? userUrlIdExtended : userUrlId;
+        gridURL = useExtendedURLIDs ? gridUrlIdExtended : gridUrlId;
+
+        const userStartURL = `/user/${userURL}/grids/${gridURL}`;
+        
+        router.replace(userStartURL, undefined, {
+          shallow: true,
+        });
+      }
+    }
+  }
+
+  const onSignIn = async (email, password) => {
+    signInWithEmailAndPassword(auth, email, password).then(async (userCredential) => {
+      if (userCredential != null) {
+        console.log(`User Credential`, userCredential);
+        let existingUser = users.find(eml => eml?.email?.toLowerCase() == email?.toLowerCase());
+        if (existingUser) {
+          const { date } = getIDParts();
+          await updateDocFieldsWTimeStamp(existingUser, { 'auth.signedIn': false, 'auth.lastSignIn': date, 'auth.lastAuthenticated': date });
+          signInUser(existingUser, true);
+          toast.success(`Successfully Signed In`);
+        } else {
+          setEmailField(true);
+          setAuthState(AuthStates.Sign_Up);
+        }
+      }
+    }).catch((error) => {
+      onSignOut(false);
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      if (errorMessage) {
+        toast.error(renderFirebaseAuthErrorMessage(errorMessage));
+        console.log(`Error Signing In`, {
+          error,
+          errorCode,
+          errorMessage,
+        });
+      }
+      return;
+    });
+  }
+
+  useEffect(() => {
+    let usersLoaded = globalUserData?.users;
+    let userLoaded = usersLoaded && globalUserData?.user;
+    let gridsLoaded = globalUserData?.grids && globalUserData?.grid;
+    let gridDataLoaded = globalUserData?.boards && globalUserData?.lists && globalUserData?.items && globalUserData?.tasks;
+    if (userLoaded && gridsLoaded && gridDataLoaded) {
+      setLoading(false);
+      setGlobalUserDataLoading(false);
+      setSystemStatus(`Data Loaded`);
+      dev() && console.log(`Application State Data Update`, globalUserData);
+      let gridBoardsByID = globalUserData?.grid?.data?.boardIDs?.map(bordID => {
+        let gridBoard = globalUserData?.boards?.find(brd => brd?.id == bordID);
+        if (gridBoard) return new Board(gridBoard);
+      })
+      if (globalUserDataLoading || globalUserData?.lastUpdateFrom == `Tasks`) {
+        setBoards(gridBoardsByID);
+      }
+      setBoardsLoading(false);
+      setTimeout(() => addBoardScrollBars(), 0);
+    }
+  }, [globalUserData]);
+
+  useEffect(() => {
+    let unsubscribeUserData = {};
+    let listenforGridsDataChanges = null;
+    if (selectedGrid != null) {
+      setBoardsLoading(globalUserDataLoading);
+      // dev() && console.log(`Selected Grid`, selectedGrid);
+      for (const collectionName of gridDataCollectionNames) {
+        const gridData_Database = collection(db, collectionName);
+        const gridDataQuery = query(gridData_Database, where(`gridID`, `==`, selectedGrid?.id));
+        if (unsubscribeUserData[collectionName] == null) {
+          unsubscribeUserData[collectionName] = onSnapshot(gridDataQuery, gridDataSnapshot => {
+            const gridDataDocs = gridDataSnapshot.docs.map(doc => ({ ...doc.data() }));
+            const formattedGridDataDocs = gridDataDocs?.sort((a, b) => a?.rank - b?.rank)?.map(doc => ({ ...doc, label: doc?.name, value: doc?.id }));
+            const modeledGridDataDocs = formattedGridDataDocs?.map(doc => {
+              if (doc?.type == Types.Board) {
+                return new Board(doc);
+              } else if (doc?.type == Types.List) {
+                return new List(doc);
+              } else if (doc?.type == Types.Item) {
+                return new Item(doc);
+              } else {
+                return new Task(doc);
+              }
+            });
+            setGlobalUserData(prevGlobalUserData => ({
+              ...prevGlobalUserData,
+              grid: selectedGrid,
+              lastUpdate: getIDParts()?.date,
+              [collectionName]: modeledGridDataDocs,
+              lastUpdateFrom: capWords(collectionName),
+            }));
+          });
+        } else {
+          setGlobalUserData(null);
+          unsubscribeUserData[collectionName] = null;
+        }
+      }
+    } else if (listenforGridsDataChanges != null) {
+      if (listenforGridsDataChanges != null) listenforGridsDataChanges();
+      if (Object.keys(unsubscribeUserData)?.length > 0) Object.values(unsubscribeUserData).forEach(unsubscribe => unsubscribe());
+    };
+    return () => {
+      if (listenforGridsDataChanges != null) listenforGridsDataChanges();
+      if (Object.keys(unsubscribeUserData)?.length > 0) Object.values(unsubscribeUserData).forEach(unsubscribe => unsubscribe());
+    };
+  }, [selectedGrid])
+
+  const setUsersGridsState = (lastSelectedGridID, usersGridsByID, updateGrids = true) => {
+    if (updateGrids == true) {
+      setGrids(usersGridsByID);
+      setUserGrids(usersGridsByID);
+      setUsersGrids(usersGridsByID);
+    }
+    let lastSelectedGrid = usersGridsByID?.find(gr => gr?.id == lastSelectedGridID);
+    if (lastSelectedGrid) {
+      // const openAuthenticationForm = () => {
+      //   setOnAuthenticateLabel(`View Private Grid`);
+      //   setOnAuthenticateFunction(`Set Grid`);
+      //   setUpNextGrid(lastSelectedGrid);
+      //   setAuthenticateOpen(true);
+      // }
+      setSelectedGrd(lastSelectedGrid);
+      // let recentlyAuthenticated = withinXTime(user?.auth?.lastAuthenticated, 15, `minutes`);
+      // if (!recentlyAuthenticated && (lastSelectedGrid?.options?.private == true && lastSelectedGrid?.gridType == GridTypes.Private)) {
+      //   openAuthenticationForm();
+      // } else setSelectedGrd(lastSelectedGrid);
+    }
+    setGlobalUserData(prevGlobalUserData => ({
+      ...prevGlobalUserData,
+      user,
+      grids: usersGridsByID,
+      lastUpdateFrom: `Grids`,
+      lastUpdate: getIDParts()?.date,
+    }))
+    if (usersGridsByID?.length > 0) setGridsLoading(false);
+  }
+
+  useEffect(() => {
+    let listenforUserGridsChanges = null;
+    if (user != null) {
+      const gridsDatabase = collection(db, gridsTable)?.withConverter(gridConverter);
+      const gridsQuery = query(gridsDatabase, where(`data.users`, `array-contains`, user?.email));
+      if (listenforUserGridsChanges == null) listenforUserGridsChanges = onSnapshot(gridsQuery, gridsUpdates => {
+        setGridsLoading(globalUserDataLoading);
+        let userGridsFromDB = [];
+        gridsUpdates.forEach((doc) => userGridsFromDB.push({ ...doc.data() }));
+        userGridsFromDB = userGridsFromDB?.sort((a, b) => a?.rank - b?.rank)?.map(gr => new Grid({ ...gr, label: gr?.name, value: gr?.id }));
+        let usersGridsByID = user?.data?.gridIDs.map(gridID => {
+          let userGridByID = userGridsFromDB?.find(gr => gr?.id == gridID);
+          if (userGridByID) return userGridByID;
+        })
+        if (id) {
+          if (gridid) {
+            if (usersGridsByID && usersGridsByID?.length > 0) {
+              let thisGrid = usersGridsByID?.find(gr => String(gr?.rank) == String(gridid));
+              if (thisGrid) {
+                if (user?.lastSelectedGridID != thisGrid?.id) {
+                  updateDocFieldsWTimeStamp(user, { 
+                    lastSelectedGridID: thisGrid?.id, 
+                    'data.selectedGridIDs': [thisGrid?.id], 
+                  });
+                }
+                setUsersGridsState(thisGrid?.id, usersGridsByID, globalUserDataLoading);
+              }
+            }
+          } else setUsersGridsState(user?.lastSelectedGridID, usersGridsByID, globalUserDataLoading);
+        } else setUsersGridsState(user?.lastSelectedGridID, usersGridsByID, globalUserDataLoading);
+      })
+    } else {
+      if (listenforUserGridsChanges != null) listenforUserGridsChanges();
+    }
+    return () => {if (listenforUserGridsChanges != null) listenforUserGridsChanges();};
+  }, [user])
+
+  useEffect(() => {
+    let listenForUserAuthChanges = null;
+    if (users?.length > 0) {
+      if (listenForUserAuthChanges == null) listenForUserAuthChanges = onAuthStateChanged(auth, async (usr) => {
+        if (usr) {
+          if (usr?.uid) {
+            let thisUser = users.find(us => us?.uid == usr?.uid);
+            signInUser(thisUser);
+          }
+        } else {
+          dev() && console.log(`Users`, users);
+        }
+      });
+    } else if (listenForUserAuthChanges != null) listenForUserAuthChanges();
+    return () => {if (listenForUserAuthChanges != null) listenForUserAuthChanges();};
+  }, [users]);
+
+  useEffect(() => {
+    const usersDatabase = collection(db, usersTable)?.withConverter(userConverter);
+    const usersDatabaseRealtimeListener = onSnapshot(usersDatabase, async usersUpdates => {
+      // On Users Database Update
+      setUsersLoading(true);
+      let usersFromDB = [];
+      usersUpdates.forEach((doc) => usersFromDB.push(new User({ ...doc.data() })));
+      usersFromDB = usersFromDB?.sort((a, b) => a?.rank - b?.rank);
+      setUsers(usersFromDB);
+      if (user != null) {
+        let thisUser = usersFromDB?.find(usr => usr?.uid == user?.uid);
+        if (thisUser) signInUser(thisUser);
+      }
+      setGlobalUserData(prevGlobalUserData => ({
+        ...prevGlobalUserData,
+        users: usersFromDB,
+        lastUpdateFrom: `Users`,
+        lastUpdate: getIDParts()?.date,
+      }))
+      setUsersLoading(false);
+      setLoading(false);
+      // dev() && console.log(`Users`, usersFromDB);
+      // Finish Users Database Update
+    }, error => logToast(`Error on Get Users from Database`, error, true));
+    return () => usersDatabaseRealtimeListener();
+  }, [])
+
+  useEffect(() => {
+    const featuresDatabase = collection(db, featuresTable)?.withConverter(featureConverter);
+    const featuresDatabaseRealtimeListener = onSnapshot(featuresDatabase, async featuresUpdates => {
+      // On Features Database Update
+      setFeaturesLoading(true);
+      let featuresFromDB = [];
+      featuresUpdates.forEach((doc) => featuresFromDB.push(new Feature({ ...doc.data() })));
+      // featuresFromDB = featuresFromDB?.sort((a, b) => a?.rank - b?.rank);
+      setFeatures(featuresFromDB);
+      setGlobalUserData(prevGlobalUserData => ({
+        ...prevGlobalUserData,
+        features: featuresFromDB,
+      }))
+      setFeaturesLoading(false);
+      // dev() && console.log(`Features`, featuresFromDB);
+      // Finish Features Database Update
+    }, error => logToast(`Error on Get Features from Database`, error, true));
+    return () => featuresDatabaseRealtimeListener();
   }, [])
   
   useEffect(() => {
     setLoading(true);
     setAnimComplete(false);
-    setSystemStatus(`Page Loading!`);
+    setSystemStatus(`Page Loading`);
 
     if (loaded.current) return;
 
@@ -501,13 +928,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
     if (cachedBoards && cachedBoards?.length > 0) {
       setBoards(cachedBoards);
     } else {
-      let hasLocalBoards = localStorage.getItem(`local_boards`);
-      if (hasLocalBoards) {
-        let localBoards = JSON.parse(hasLocalBoards);
-        setBoards(localBoards);
-      } else {
-        setBoards([]);
-      }
+      signOutReset();
     }
 
     let toc = document.querySelector(`.nextra-toc`);
@@ -537,9 +958,12 @@ export default function ProductIVF({ Component, pageProps, router }) {
       setBrowser(`opera`);
     }
 
+    setSystemStatus(`${getPage()} Loaded`);
     setLoading(false);
-    setSystemStatus(`${getPage()} Loaded.`);
-    setTimeout(() => setLoading(false), 1500);
+    setTimeout(() => {
+      setLoading(false);
+      setSystemStatus(`${getPage()} Loaded`);
+    }, 1500)
 
     // if (dev()) {
     //   console.log(`brwser`, brwser);
@@ -558,6 +982,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       onMac, 
       router,
       rte, setRte, 
+      year, setYear,
       page, setPage, 
       width, setWidth, 
       mobile, setMobile,
@@ -575,59 +1000,98 @@ export default function ProductIVF({ Component, pageProps, router }) {
       // Users
       user, setUser, 
       users, setUsers, 
+      emails, setEmails,
+      profile, setProfile, 
+      profiles, setProfiles,
       authState, setAuthState, 
       emailField, setEmailField, 
       usersLoading, setUsersLoading,
+      emailsLoading, setEmailsLoading,
+      profilesLoading, setProfilesLoading,
 
       // State
       IDs, setIDs, 
       qotd, setQotd, 
       focus, setFocus, 
+      loading, setLoading, 
       content, setContent, 
       updates, setUpdates, 
-      loading, setLoading, 
       anim, setAnimComplete, 
+      features, setFeatures,
       alertOpen, setAlertOpen, 
       highScore, setHighScore, 
       rearranging, setRearranging, 
       showLeaders, setShowLeaders, 
       systemStatus, setSystemStatus, 
+      featuresLoading, setFeaturesLoading,
+      authenticateOpen, setAuthenticateOpen,
 
-      // Boards
+      // Functions
+      onSignIn,
+      onSignOut,
+      signInUser,
+      getFeature,
+      seedUserData,
+      signOutReset,
+      getGridsBoards,
+      isFeatureEnabled,
+      switchSelectedGrid,
+      setUsersGridsState,
+      onAuthenticateLabel, setOnAuthenticateLabel,
+      onAuthenticateFunction, setOnAuthenticateFunction,
+
+      // Grids & Boards
       menuRef, 
+      setSelectedGrd,
+      grids, setGrids,
       lists, setLists, 
       items, setItems, 
       board, setBoard, 
       boards, setBoards, 
       selected, setSelected, 
+      userGrids, setUserGrids,
+      upNextGrid, setUpNextGrid,
+      usersGrids, setUsersGrids,
+      userBoards, setUserBoards,
       categories, setCategories, 
       boardLoaded, setBoardLoaded, 
+      gridBoardIDs, setGridBoardIDs,
+      selectedGrid, setSelectedGrid,
+      gridsLoading, setGridsLoading,
       menuPosition, setMenuPosition, 
+      boardsLoading, setBoardsLoading,
+      activeOptions, setActiveOptions,
+      selectedGrids, setSelectedGrids,
       tasksFiltered, setTasksFiltered, 
+      globalUserData, setGlobalUserData,
       boardCategories, setBoardCategories, 
-      completeFiltered, setCompleteFiltered, 
       itemTypeMenuOpen, setItemTypeMenuOpen, 
+      globalUserDataLoading, setGlobalUserDataLoading,
     }}>
-      {(browser != `chrome` || onMac) ? <AnimatePresence mode={`wait`}>
-        <motion.div className={`${rte} pageWrapContainer ${page.toUpperCase()}`} key={router.route} initial="pageInitial" animate="pageAnimate" exit="pageExit" transition={{ duration: 0.35 }} variants={{
-          pageInitial: {
-            opacity: 0,
-            clipPath: `polygon(0 0, 100% 0, 100% 100%, 0% 100%)`,
-          },
-          pageAnimate: {
-            opacity: 1,
-            clipPath: `polygon(0 0, 100% 0, 100% 100%, 0% 100%)`,
-          },
-          pageExit: {
-            opacity: 0,
-            clipPath: `polygon(50% 0, 50% 0, 50% 100%, 50% 100%)`,
-          },
-        }}>
+      {(browser != `chrome` || onMac) ? (
+        <AnimatePresence mode={`wait`}>
+          <motion.div className={getPageContainerClasses()} key={router.route} initial="pageInitial" animate="pageAnimate" exit="pageExit" transition={{ duration: 0.35 }} variants={{
+            pageInitial: {
+              opacity: 0,
+              clipPath: `polygon(0 0, 100% 0, 100% 100%, 0% 100%)`,
+            },
+            pageAnimate: {
+              opacity: 1,
+              clipPath: `polygon(0 0, 100% 0, 100% 100%, 0% 100%)`,
+            },
+            pageExit: {
+              opacity: 0,
+              clipPath: `polygon(50% 0, 50% 0, 50% 100%, 50% 100%)`,
+            },
+          }}>
+            <Component {...pageProps} />
+          </motion.div>
+        </AnimatePresence>
+      ) : (
+        <div className={getPageContainerClasses()}>
           <Component {...pageProps} />
-        </motion.div>
-      </AnimatePresence> : <div className={`pageWrapContainer ${page.toUpperCase()}`}>
-        <Component {...pageProps} />
-      </div>}
+        </div>
+      )}
       <ToastContainer
         draggable
         rtl={false}
@@ -641,6 +1105,8 @@ export default function ProductIVF({ Component, pageProps, router }) {
         pauseOnFocusLoss={false}
         style={{ marginTop: 55 }}
       />
+      {/* Popup which opens to Authenticate User */}
+      <AuthenticationDialog />
       <ContextMenu menuRef={menuRef} menuPosition={menuPosition} />
     </StateContext.Provider>
   )

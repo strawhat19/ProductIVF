@@ -2,27 +2,31 @@ import Progress from '../progress';
 import { ItemTypes } from './boards';
 import ItemDetail from './itemdetail';
 import CustomImage from '../custom-image';
+import { addBoardScrollBars } from './board';
+import { List } from '../../shared/models/List';
 import ConfirmAction from '../context-menus/confirm-action';
+import { Item as ItemModel } from '../../shared/models/Item';
 import React, { useContext, useEffect, useState } from 'react';
-import { showAlert, formatDate, dev, StateContext, capitalizeAllWords } from '../../pages/_app';
+import { showAlert, StateContext, capitalizeAllWords } from '../../pages/_app';
+import { deleteItemFromDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
 import { forceFieldBlurOnPressEnter, removeExtraSpacesFromString } from '../../shared/constants';
-import { updateUserFields } from '../../firebase';
 
 export const getTaskPercentage = (tasks: any[]) => {
     let tasksProgress = 0;
-    let completeTasks = tasks.filter(task => task.complete);
+    let completeTasks = tasks.filter(task => task?.options?.complete);
     tasksProgress = parseFloat(((completeTasks.length / tasks.length) * 100).toFixed(1));
     return tasksProgress;
 }
 
 export const getSubTaskPercentage = (subtasks: any[], item, isActive = null) => {
-    if (item?.complete) return 100;
+    let itemIsComplete = item?.options?.complete;
+    if (itemIsComplete) return 100;
     if (subtasks.length == 0) {
-        if (isActive != null) return item?.complete ? 100 : (isActive == true ? 0 : 100);
-        else return item?.complete ? 100 : 0;
+        if (isActive != null) return itemIsComplete ? 100 : (isActive == true ? 0 : 100);
+        else return itemIsComplete ? 100 : 0;
     };
     let subtasksProgress = 0;
-    let completeTasks = subtasks.filter(task => task.complete);
+    let completeTasks = subtasks.filter(task => task?.options?.complete);
     subtasksProgress = parseFloat(((completeTasks.length / subtasks.length) * 100).toFixed(1));
     return subtasksProgress;
 }
@@ -36,43 +40,33 @@ export const getTypeIcon = (type) => {
     }
 }
 
-export const manageItem = (e, item, index, board, boards, setBoards) => {
+export const manageItem = (e, item, index, tasks) => {
     if (!e.target.classList.contains(`changeLabel`) && !e.target.classList.contains(`confirmActionOption`)) {
         let isButton = e.target.classList.contains(`iconButton`);
         if (isButton) {
             let isManageButton = e.target.classList.contains(`manageButton`);
             if (isManageButton) {
-                dev() && console.log(`Item ${index + 1}`, item);
-                showAlert(item?.content, <ItemDetail item={item} index={index} board={board} boards={boards} setBoards={setBoards} />, `95%`, `85%`, `30px`);
+                // dev() && console.log(`On Manage Button Click Item ${index + 1}`, item);
+                showAlert(item?.name, <ItemDetail item={item} index={index} tasks={tasks} />, `95%`, `85%`, `30px`);
             };
         } else {
-            dev() && console.log(`Item ${index + 1}`, item);
-            showAlert(item?.content, <ItemDetail item={item} index={index} board={board} boards={boards} setBoards={setBoards} />, `95%`, `85%`, `30px`);
+            // dev() && console.log(`On Click Item ${index + 1}`, {item, tasks});
+            showAlert(item?.name, <ItemDetail item={item} index={index} tasks={tasks} />, `95%`, `85%`, `30px`);
         }
     }
 }
 
-export default function Item({ item, count, column, itemIndex, board, setBoard }: any) {
+export default function Item({ item, count, column, itemIndex, board }: any) {
     let [showConfirm, setShowConfirm] = useState(false);
     let { 
-        user,
-        boards, 
-        menuRef, 
-        setBoards, 
+        menuRef,  
         setLoading, 
         setSelected, 
+        globalUserData,
         setSystemStatus, 
         setMenuPosition, 
         setItemTypeMenuOpen, 
     } = useContext<any>(StateContext);
-
-    const updateBoards = (user) => {
-        localStorage.setItem(`boards`, JSON.stringify(boards));
-        if (user != null) {
-          updateUserFields(user?.id, { boards });
-          localStorage.setItem(`user`, JSON.stringify({ ...user, boards }));
-        }
-    }
 
     const changeLabel = (e, item) => {
         let elemValue = e.target.textContent;
@@ -86,33 +80,24 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
         elemValue = capitalizeAllWords(elemValue);
 
         e.target.innerHTML = elemValue;
-        item.title = elemValue;
-        item.content = elemValue;
-        item.updated = formatDate(new Date());
 
-        updateBoards(user);
+        const name = elemValue;
+        updateDocFieldsWTimeStamp(item, { name, A: name, title: `${item?.type} ${item?.rank} ${name}` });
     }
 
-    const completeActions = (item, itemId, isButton) => {
+    const completeActions = async (item, isButton) => {
         if (count == 0) {
             setLoading(true);
             setSystemStatus(`Marking Item as Complete.`);
 
-            board.items[itemId].updated = formatDate(new Date());
-            board.items[itemId].complete = !board.items[itemId].complete;
-
-            setBoard({
-                ...board,
-                updated: formatDate(new Date()),
-                items: {
-                    ...board.items
-                },
-            });
+            let isComplete = item?.options?.complete == true;
+            await updateDocFieldsWTimeStamp(item, { [`options.complete`]: !isComplete });
 
             setTimeout(() => {
-                setSystemStatus(item.complete ? `Marked Item as Complete.` : `Reopened Item.`);
+                setSystemStatus(!isComplete ? `Marked Item as Complete.` : `Reopened Item.`);
                 setLoading(false);
             }, 1000);
+
             if (isButton) count = count + 1;
         }
     }
@@ -125,68 +110,51 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
             if (!completeButton) return;
         }
         if (!e.target.classList.contains(`changeLabel`)) {
-            completeActions(item, item?.id, isButton);
+            completeActions(item, isButton);
         }
     }
 
-    const deleteItemLogic = (columnId, index, itemId) => {
-        const column = board.columns[columnId];
-        const newItemIds = Array.from(column.itemIds);
-        newItemIds.splice(index, 1);
-
-        const items = board.items;
-        const { [itemId]: oldItem, ...newItems } = items;
-
-        setBoard({
-            ...board,
-            updated: formatDate(new Date()),
-            items: {
-                ...newItems
-            },
-            columns: {
-                ...board.columns,
-                [columnId]: {
-                    ...column,
-                    itemIds: newItemIds
-                }
-            }
-        });
+    const deleteItemLogic = async () => {
+        if (column?.data?.itemIDs?.length < 5) {
+            await addBoardScrollBars();
+        }
+        await deleteItemFromDatabase(item);
     }
 
-    const finallyDeleteItem = (columnId, index, itemId) => {
+    const finallyDeleteItem = () => {
         setLoading(true);
-        setSystemStatus(`Deleting Item.`);
+        setSystemStatus(`Deleting Item`);
         
-        deleteItemLogic(columnId, index, itemId);
+        deleteItemLogic();
 
         setTimeout(() => {
-            setSystemStatus(`Deleted Item ${item.content}.`);
+            setSystemStatus(`Deleted Item #${item?.number}`);
             setLoading(false);
         }, 1000);  
     }
 
-    const deleteItem = (e, item, columnId, index, itemId, initialConfirm = true) => {
+    const deleteItem = (e, item, initialConfirm = true) => {
         let allowedDeletionSelectors = [`iconButton`, `confirmActionOption`, `customContextMenuOption`];
         let isButton = allowedDeletionSelectors.some(className => e?.target?.classList.contains(className));
         if (isButton) {
             e.preventDefault();
             if (showConfirm == true) {
                 if (!initialConfirm) {
-                    finallyDeleteItem(columnId, index, itemId);
+                    finallyDeleteItem();
                 }
                 setShowConfirm(false);
             } else {
-                if (item?.subtasks?.length > 0) {
+                if (item?.data?.taskIDs?.length > 0) {
                     setShowConfirm(true);
                 } else {
-                    finallyDeleteItem(columnId, index, itemId);
+                    finallyDeleteItem();
                 }
             }
         }
     }
 
     const onDeleteItem = (e) => {
-        deleteItem(e, item, column.id, itemIndex, item.id);
+        deleteItem(e, item);
     }
     
     const onCompleteItem = (e) => {
@@ -194,10 +162,12 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
     }
 
     const onManageItem = (e) => {
-        manageItem(e, item, itemIndex, board, boards, setBoards);
+        const tasksForThisItem = globalUserData?.tasks?.filter(tsk => tsk?.itemID == item?.id);
+        console.log({tasksForThisItem});
+        manageItem(e, item, itemIndex, tasksForThisItem);
     }
 
-    const onRightClick = (e: React.MouseEvent<HTMLDivElement>, item, column) => {
+    const onRightClick = (e: React.MouseEvent<HTMLDivElement>, item: ItemModel, column: List) => {
         e.preventDefault();
         setItemTypeMenuOpen(true);
         setMenuPosition({ x: e.clientX, y: e.clientY });
@@ -220,8 +190,8 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
     return <>
         <div id={`itemElement_${item.id}`} className={`itemComponent itemInnerRow flex row`} onContextMenu={(e) => onRightClick(e, item, column)}>
             <span className={`itemOrder rowIndexOrder`}>
-                <i className={`itemIndex ${item.complete ? `completedIndex` : `activeIndex`}`}>
-                    <span className={`itemIconType ${item?.type}`}>
+                <i className={`itemIndex ${item?.options?.complete ? `completedIndex` : `activeIndex`}`}>
+                    <span className={`itemIconType ${item?.itemType}`}>
                         +
                     </span> 
                     {itemIndex + 1}
@@ -241,7 +211,7 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
                         className={`changeLabel stretchEditable`}
                         onKeyDown={(e) => forceFieldBlurOnPressEnter(e)}
                     >
-                        {item.content}
+                        {item.name}
                     </span>
                     {/* {item.subtasks.length > 0 && (
                         <div className="progress">
@@ -255,54 +225,57 @@ export default function Item({ item, count, column, itemIndex, board, setBoard }
                         {wordOfCategory(item)}
                     </span>
                 </span>} */}
-                {(item?.image || column?.details && column?.details == true) ? <>
+                {(item?.image || column?.options?.details && column?.options?.details == true) ? <>
                     <hr className={`itemSep`} style={{height: 1, borderColor: `var(--gameBlue)`}} />
                     <div className={`itemFooter flex row`}>
-                        {item.created && !item.updated ? (
-                        <span className={`itemDate itemName itemCreated textOverflow extended flex row`}>
-                            <i className={`status`}>Cre.</i> 
-                            <span className={`itemDateTime`}>
-                                {formatDate(new Date(item.created))}
+                        {item?.meta?.created && !item?.meta?.updated ? (
+                            <span className={`itemDate itemName itemCreated textOverflow extended flex row`}>
+                                <i className={`status`}>
+                                    Cre.
+                                </i> 
+                                <span className={`itemDateTime`}>
+                                    {item?.meta?.created}
+                                </span>
                             </span>
-                        </span>
-                        ) : item.updated ? (
-                        <span className={`itemDate itemName itemCreated itemUpdated textOverflow extended flex row`}>
-                            <i className={`status`}>Upd.</i> 
-                            <span className={`itemDateTime`}>
-                                {/* {getLatestUpdateDate(item)} */}
-                                {formatDate(new Date(item?.updated))}
+                        ) : item?.meta?.updated ? (
+                            <span className={`itemDate itemName itemCreated itemUpdated textOverflow extended flex row`}>
+                                <i className={`status`}>
+                                    Upd.
+                                </i> 
+                                <span className={`itemDateTime`}>
+                                    {item?.meta?.updated}
+                                </span>
                             </span>
-                        </span>
                         ) : null}
-                        {item.subtasks && item.subtasks.length > 0 && <>
+                        {item?.data?.taskIDs && item?.data?.taskIDs.length > 0 && <>
                             <span className={`taskProgressCount subtaskIndex subscript flex row gap5`}>
                                 <span className={`slashes`}>
                                     ✔
-                                </span> {item?.complete ? item.subtasks.length : item.subtasks.filter(subtask => subtask.complete).length} <span className={`slashes`}>
+                                </span> {item?.options?.complete ? item?.data?.taskIDs.length : globalUserData?.tasks?.filter(task => task?.itemID == item?.id && task?.options?.complete).length} <span className={`slashes`}>
                                     //
-                                </span> {item.subtasks.length}
+                                </span> {item?.data?.taskIDs.length}
                             </span>
                         </>}
                     </div>
                 </> : <></>}
             </div>
-            <Progress item={item} tasks={item?.subtasks} />
+            <Progress item={item} tasks={globalUserData?.tasks?.filter(tsk => tsk?.itemID == item?.id)} />
             <div className={`itemOptions itemButtons customButtons`}>
                 {/* <button id={`copy_${item.id}`} onClick={(e) => copyItem(e, item)} title={`Copy Item`} className={`iconButton ${ItemActions.Copy} copyButton wordIconButton`}>
                     <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-copy`}></i>
                 </button> */}
-                <button id={`delete_${item.id}`} onClick={(e) => onDeleteItem(e)} title={`Delete Item`} className={`deleteItemButton iconButton deleteButton wordIconButton`}>
+                <button id={`delete_${item?.id}`} onClick={(e) => onDeleteItem(e)} title={`Delete Item`} className={`deleteItemButton iconButton deleteButton wordIconButton`}>
                     <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-${showConfirm ? `ban` : `trash`}`} />
                     {showConfirm && (
                         <ConfirmAction 
+                            onConfirm={(e) => deleteItem(e, item, false)} 
                             clickableStyle={{ height: `100%`, paddingRight: 7 }}
                             style={{ right: 40, bottom: 0, height: `100%`, justifyContent: `center` }} 
-                            onConfirm={(e) => deleteItem(e, item, column.id, itemIndex, item.id, false)} 
                         />
                     )}
                 </button>
-                <button id={`complete_${item.id}`} onClick={(e) => onCompleteItem(e)} title={`Complete Item`} className={`iconButton wordIconButton completeButton`}>
-                    <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas ${item.complete ? `fa-history` : `fa-check-circle`}`} />
+                <button id={`complete_${item?.id}`} onClick={(e) => onCompleteItem(e)} title={`Complete Item`} className={`iconButton wordIconButton completeButton`}>
+                    <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas ${item?.options?.complete ? `fa-history` : `fa-check-circle`}`} />
                 </button>
                 {/* <button id={`manage_${item.id}`} onClick={(e) => onManageItem(e)} title={`Manage Item`} className={`iconButton wordIconButton manageButton`}>
                     <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-bars`} />

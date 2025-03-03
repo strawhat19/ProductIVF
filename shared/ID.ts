@@ -19,11 +19,14 @@ export const generateID = () => {
 
 export class ID {
   id: any;
+  ID: any;
   type: Types;
   position: number;
   date: Date | string;
   uuid: string | number | any;
   title: string | number | any;
+  id_Title: string | number | any;
+  generatedUUID: string | number | any;
   currentDateTimeStampNoSpaces: string;
   constructor(data: Partial<ID>) {
     Object.assign(this, data);
@@ -36,11 +39,14 @@ export const getIDParts = () => {
   return { uuid, date };
 }
 
-export const genID = (type: Types = Types.Data, position = 1, name, injectedUID?): ID => {
+export const genID = (type: Types = Types.Data, rank = 1, name, injectedUID?): ID => {
   let { uuid, date } = getIDParts();
+  let generatedUUID = uuid;
   uuid = injectedUID ? injectedUID : uuid;
-  let title = `${type} ${position} ${name}`;
+  let title = `${type} ${rank} ${name}`;
+  let idTitle = `${title} ${uuid}`;
+  let id_Title = stringNoSpaces(idTitle);
   let idString = `${title} ${stringNoSpaces(date)} ${uuid}`;
   let id = stringNoSpaces(idString);
-  return new ID({ id, date, uuid, title }) as ID;
+  return new ID({ id, date, uuid, title, id_Title, generatedUUID }) as ID;
 }

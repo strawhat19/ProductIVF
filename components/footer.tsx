@@ -1,5 +1,9 @@
+import { useContext } from 'react';
+import { StateContext } from '../pages/_app';
+
 export default function Footer(props) {
     let { style } = props;
+    let { year } = useContext<any>(StateContext);
     return (
         <footer style={style}>
             <div className={`left`}>
@@ -8,7 +12,7 @@ export default function Footer(props) {
                 </a>
             </div>
             <div className={`right`}>
-                Piratechs <i className={`fas fa-copyright`} />{new Date()?.getFullYear()}
+                Piratechs <i className={`fas fa-copyright`} /> {year}
             </div>
         </footer>
     )

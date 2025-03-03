@@ -4,8 +4,8 @@ import { getSubTaskPercentage } from './boards/item';
 import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
 
 export default function Progress({ item, tasks = [], classes = `circleProgress`, injectedProgress = null }: any) {
-    let allTasksComplete = tasks.every(tsk => tsk.complete);
-    let progress = (!item?.complete && tasks?.length > 0 && allTasksComplete) ? 99 : getSubTaskPercentage(tasks, item);
+    let allTasksComplete = tasks.every(tsk => tsk?.options?.complete);
+    let progress = (!item?.options?.complete && tasks?.length > 0 && allTasksComplete) ? 99 : getSubTaskPercentage(tasks, item);
     progress = injectedProgress != null ? injectedProgress : progress;
     return (
         <div className={`progress ${classes}`}>

@@ -1,15 +1,15 @@
+import { useState } from 'react';
 import Progress from '../progress';
 import CustomImage from '../custom-image';
-import { getTaskPercentage } from './item';
-import { useContext, useState } from 'react';
-import { capWords, formatDate, generateUniqueID, StateContext } from '../../pages/_app';
+import { capWords } from '../../pages/_app';
+import { updateDocFieldsWTimeStamp } from '../../firebase';
 
 export default function ItemDetail(props) {
-    let { user } = useContext<any>(StateContext);
+    let { item, index, tasks } = props;
+
     let [disabled, setDisabled] = useState(false);
-    let { item, index, boards, setBoards, IDs } = props;
     let [image, setImage] = useState(props.item.image ?? undefined);
-    let [active, setActive] = useState(item?.complete ? `complete` : `active`);
+    let [active, setActive] = useState(item?.options?.complete ? `complete` : `active`);
 
     const refreshDetails = (e) => {
         e.preventDefault();
@@ -18,37 +18,51 @@ export default function ItemDetail(props) {
         }
     }
 
-    const saveItem = (e) => {
+    const saveItem = async (e) => {
         e.preventDefault();
         let form = e?.target;
-        let { itemName: itemNameField, itemImageLink, itemSubtask: itemSubtaskField, itemDescriptionField } = form;
+        let { 
+            itemImageLink, 
+            itemDescriptionField,
+            itemURL: itemURLField, 
+            itemName: itemNameField, 
+        } = form;
+
+        let itemURL = itemURLField?.value;
         let itemName = itemNameField?.value;
-        let imageLink = itemImageLink?.value;
-        let itemSubtask = itemSubtaskField?.value;
+        let itemImage = itemImageLink?.value;
         let itemDescription = itemDescriptionField?.value;
-        item.complete = active == `active` ? false : true;
-        item.updated = formatDate(new Date());
-        item.description = itemDescription;
-        item.content = itemName;
-        item.image = imageLink;
-        if (itemSubtask != ``) {
-            item.subtasks.push({
-                complete: false,
-                task: capWords(itemSubtask),
-                created: formatDate(new Date()),
-                id: `${item?.subtasks?.length + 1}_subtask_${generateUniqueID(IDs)}`,
-                ...(user != null && {
-                    creator: {
-                      id: user?.id,
-                      uid: user?.uid,
-                      name: user?.name,
-                      email: user?.email,
-                    }
+        let itemComplete = active == `active` ? false : true;
+
+        let completionStatusChanged = itemComplete != item?.options?.complete;
+        let nameChanged = itemName?.toLowerCase() != item?.name?.toLowerCase();
+        let imageChanged = itemImage?.toLowerCase() != item?.image?.toLowerCase();
+        let descriptionChanged = itemDescription?.toLowerCase() != item?.description?.toLowerCase();
+        let urlChanged = itemURL?.toLowerCase() != item?.data?.relatedURLs[0]?.toLowerCase() && !item?.data?.relatedURLs?.includes(itemURL);
+
+        if (completionStatusChanged || nameChanged || imageChanged || urlChanged || descriptionChanged) {
+            await updateDocFieldsWTimeStamp(item, {
+                ...(completionStatusChanged && {
+                    [`options.complete`]: itemComplete,
                 }),
-            });
+                ...(urlChanged && {
+                    [`data.relatedURLs`]: [itemURL, ...item?.data?.relatedURLs],
+                }),
+                ...(descriptionChanged && {
+                    description: itemDescription,
+                }),
+                ...(imageChanged && {
+                    image: itemImage,
+                    [`data.imageURLs`]: [itemImage, ...item?.data?.imageURLs],
+                }),
+                ...(nameChanged && {
+                    A: capWords(itemName),
+                    name: capWords(itemName),
+                    title: `${item?.type} ${item?.rank} ${capWords(itemName)}`,
+                }),
+            })
         }
-        localStorage.setItem(`boards`, JSON.stringify(boards));
-        setBoards(JSON.parse(localStorage.getItem(`boards`)) || []);
+
         let closeButton: any = document.querySelector(`.alertButton`);
         if (closeButton) closeButton.click();
     }
@@ -59,7 +73,7 @@ export default function ItemDetail(props) {
                 <figure className={`customDetailImage`} style={{ maxWidth: `40%` }}>
                     <CustomImage 
                         src={image} 
-                        alt={item?.content} 
+                        alt={item?.name} 
                         onError={(e) => setDisabled(true)} 
                         onLoad={(e) => setDisabled(false)} 
                         className={`itemImage detailViewImage`} 
@@ -75,9 +89,9 @@ export default function ItemDetail(props) {
                     </h3>
                     <Progress 
                         item={item} 
-                        tasks={item?.subtasks} 
+                        tasks={tasks}
                         classes={`detailViewProgress`} 
-                        injectedProgress={active === `complete` ? 100 : getTaskPercentage(item?.subtasks)} 
+                        injectedProgress={active === `complete` ? 100 : undefined} 
                     />
                 </div>
                 <div className={`toggle-buttons`}>
@@ -114,9 +128,9 @@ export default function ItemDetail(props) {
                 </div>
                 <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
                     <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
-                        Title
+                        Name
                     </div>
-                    <input type={`text`} name={`itemName`} className={`itemNameField`} placeholder={`Item Name`} defaultValue={item?.content} />
+                    <input type={`text`} name={`itemName`} className={`itemNameField`} placeholder={`Item Name`} defaultValue={item?.name} />
                 </div>
                 <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
                     <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
@@ -130,20 +144,26 @@ export default function ItemDetail(props) {
                     </div>
                     <input type={`text`} name={`itemImageLink`} className={`itemImageLinkField`} placeholder={`Item Image`} defaultValue={item?.image} />
                 </div>
-                <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
+                {/* <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
                     <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
                         Video
                     </div>
                     <input type={`text`} name={`itemVideoLink`} className={`itemVideoLinkField`} placeholder={`Item Video`} defaultValue={item?.video} />
-                </div>
+                </div> */}
                 <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
+                    <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
+                        URL
+                    </div>
+                    <input type={`text`} name={`itemURL`} className={`itemURLField`} placeholder={`Item URL`} />
+                </div>
+                {/* <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
                     <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
                         Subtask
                     </div>
-                    <input type={`text`} name={`itemSubtask`} className={`itemSubtaskField`} placeholder={`Item Subtask`} />
-                </div>
+                    <input type={`text`} name={`itemTask`} className={`itemTaskField`} placeholder={`Item Task`} />
+                </div> */}
                 <div className="toggle-buttons">
-                    {/* <button onClick={(e) => deleteItem(e)} className={`iconButton deleteButton`}>
+                    {/* <button className={`iconButton deleteButton`}>
                         Delete
                     </button> */}
                     <button disabled={disabled} className={`iconButton saveButton`} type={`submit`}>
