@@ -9,6 +9,7 @@ import { DndContext, PointerSensor, useSensor, useSensors, closestCenter } from 
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { restrictToFirstScrollableAncestor, restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers';
 import { forceFieldBlurOnPressEnter, getRankAndNumber, nameFields, removeExtraSpacesFromString, setMaxLengthOnField } from '../../shared/constants';
+import { getIDParts } from '../../shared/ID';
 
 const reorder = (list, oldIndex, newIndex) => arrayMove(list, oldIndex, newIndex);
 
@@ -132,6 +133,7 @@ export default function Tasks(props) {
 
   const completeTask = async (e, task) => {
     setLoading(true);
+    const { date } = getIDParts();
     const isTaskComplete = task?.options?.complete;
     setSystemStatus(`Marking Task as ${isTaskComplete ? `Reopened` : `Complete`}.`);
 
@@ -139,6 +141,10 @@ export default function Tasks(props) {
       options: {
         ...task?.options,
         complete: !isTaskComplete,
+      },
+      meta: {
+        ...task?.meta,
+        updated: date,
       }
     })
 

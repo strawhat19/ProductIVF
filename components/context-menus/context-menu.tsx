@@ -4,7 +4,7 @@ import { StateContext } from '../../pages/_app';
 
 export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--gameBlue)` }: any) {
     let { selected, setBoards, setMenuPosition, setItemTypeMenuOpen, setSelected } = useContext<any>(StateContext);
-    let ids = (selected == null || selected?.column == undefined || selected?.column == null) ? [] : Array.from(selected?.column?.itemIds);
+    let ids = (selected == null || selected?.column == undefined || selected?.column == null) ? [] : Array.from(selected?.column?.data?.itemIDs);
 
     const onDismiss = (setSelect = true) => {
         if (setSelect) setSelected(null);
@@ -31,14 +31,10 @@ export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--
         selected?.onDeleteItem(e);
     }
 
-    const itemTitle = (item?) => {
-        let title = item?.title || item?.content;
-        return title;
-    }
-
     const copyToClipBoard = () => {
         if (navigator.clipboard) {
-            navigator.clipboard.writeText(selected?.item?.title);
+            let textToCopy = selected?.item?.name;
+            navigator.clipboard.writeText(textToCopy);
             toast.success(`Copied to Clipboard`);
         }
         onDismiss();
@@ -93,9 +89,9 @@ export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--
             }}
         >
             <ul className={`customContextMenuOptions`}>
-                <li title={itemTitle(selected?.item)} className={`menuTitleRow customContextMenuOption flex gap15 disabledOption`} onClick={() => onClose()}>
+                <li title={selected?.item?.name} className={`menuTitleRow customContextMenuOption flex gap15 disabledOption`} onClick={() => onClose()}>
                     <span style={{ maxWidth: 120 }} className={`textOverflow`}>
-                        {itemTitle(selected?.item)?.toUpperCase()}
+                        {selected?.item?.name?.toUpperCase()}
                     </span>
                 </li>
                 <li className={`customContextMenuOption flex gap15`} onClick={() => onClose()}>
@@ -108,7 +104,7 @@ export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--
                     <i className={`fas fa-bars`} style={{ color: iconColor }} /> <span>Manage</span>
                 </li>
                 <li className={`customContextMenuOption flex gap15`} onClick={onCompleteItem}>
-                    <i className={`fas fa-${selected?.item?.complete ? `history` : `check-circle`}`} style={{ color: iconColor }} /> <span>{selected?.item?.complete ? `Active` : `Complete`}</span>
+                    <i className={`fas fa-${selected?.item?.options?.complete ? `history` : `check-circle`}`} style={{ color: iconColor }} /> <span>{selected?.item?.complete ? `Active` : `Complete`}</span>
                 </li>
                 <li className={`customContextMenuOption flex gap15`} onClick={onDeleteItem}>
                     <i className={`fas fa-trash`} style={{ color: iconColor }} /> <span>Delete</span>

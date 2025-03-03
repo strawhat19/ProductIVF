@@ -3,7 +3,9 @@ import { ItemTypes } from './boards';
 import ItemDetail from './itemdetail';
 import CustomImage from '../custom-image';
 import { addBoardScrollBars } from './board';
+import { List } from '../../shared/models/List';
 import ConfirmAction from '../context-menus/confirm-action';
+import { Item as ItemModel } from '../../shared/models/Item';
 import React, { useContext, useEffect, useState } from 'react';
 import { deleteItemFromDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
 import { showAlert, formatDate, dev, StateContext, capitalizeAllWords } from '../../pages/_app';
@@ -180,7 +182,7 @@ export default function Item({ item, count, column, itemIndex, board }: any) {
         manageItem(e, item, itemIndex, board, boards, setBoards);
     }
 
-    const onRightClick = (e: React.MouseEvent<HTMLDivElement>, item, column) => {
+    const onRightClick = (e: React.MouseEvent<HTMLDivElement>, item: ItemModel, column: List) => {
         e.preventDefault();
         setItemTypeMenuOpen(true);
         setMenuPosition({ x: e.clientX, y: e.clientY });

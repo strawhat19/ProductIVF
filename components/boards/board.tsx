@@ -248,10 +248,32 @@ export default function Board(props) {
             if (thisList) {
                 const sameListItemIDs = thisList?.data?.itemIDs;
                 const updatedSameListItemIDs = [...sameListItemIDs];
+                const thisItem = globalUserData?.items?.find(itm => itm?.id == draggableId);
 
                 if (sameListDrop) {
                     updatedSameListItemIDs.splice(source.index, 1);
                     updatedSameListItemIDs.splice(destination.index, 0, draggableId);
+
+                    if (thisItem) {
+                        setGlobalUserData(prevGlobalUserData => {
+                            let globalUserLists = [...prevGlobalUserData.lists];
+                            let updatedGlobalUserLists = globalUserLists?.map((lst: List) => {
+                                if (lst?.id == thisList?.id) {
+                                    return new List({
+                                        ...lst,
+                                        data: {
+                                            ...lst?.data,
+                                            itemIDs: updatedSameListItemIDs,
+                                        },
+                                    })
+                                } else return lst;
+                            })
+                            return {
+                                ...prevGlobalUserData,
+                                lists: updatedGlobalUserLists,
+                            }
+                        })
+                    }
     
                     await updateDocFieldsWTimeStamp(thisList, { [`data.itemIDs`]: updatedSameListItemIDs });
                     return;
@@ -262,8 +284,6 @@ export default function Board(props) {
                         const updatedNewListItemIDs = [...newListItemIDs];
 
                         updatedNewListItemIDs.splice(destination.index, 0, draggableId);
-        
-                        const thisItem = globalUserData?.items?.find(itm => itm?.id == draggableId);
         
                         if (thisItem) {
                             setGlobalUserData(prevGlobalUserData => {
