@@ -36,9 +36,10 @@ export const getLoadingLabel = (lbl: string, authState, user) => {
 
 export default function Boards(props: any) {
     let { 
+        user, 
+        devEnv,
         authState,
         setLoading, 
-        user, users, 
         globalUserData,
         setSystemStatus, 
         switchSelectedGrid,
@@ -50,8 +51,8 @@ export default function Boards(props: any) {
     const multiSelectorRef = useRef(null);
     let [updates, setUpdates] = useState(0);
     let [useSingleSelect, ] = useState(true);
-    let [useGridSearchCreate, ] = useState(false);
-    let [searchingGrid, setSearchingGrid] = useState(true);
+    let [useGridSearchCreate, ] = useState(devEnv);
+    let [searchingGrid, setSearchingGrid] = useState(false);
 
     const updateSelectedGrids = async (updatedSelectedGrids) => {
         let thisGrid = updatedSelectedGrids[0];
