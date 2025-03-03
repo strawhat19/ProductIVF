@@ -476,6 +476,14 @@ export const dragItemToNewList = async (item: Item, sourceList: List, destinatio
     const sourceListRef = await doc(db, listsTable, sourceList?.id);
     const destinationListRef = await doc(db, listsTable, destinationList?.id);
 
+    const itemDoc = await getDoc(itemRef);
+    if (itemDoc.exists()) {
+      dragItemToNewListBatchOperation.update(itemRef, {
+        [`meta.updated`]: date,
+        listID: destinationList?.id,
+      })
+    }
+
     const sourceListDoc = await getDoc(sourceListRef);
     if (sourceListDoc.exists()) {
       const sourceListData = sourceListDoc.data();
@@ -498,12 +506,13 @@ export const dragItemToNewList = async (item: Item, sourceList: List, destinatio
       });
     }
 
-    const itemDoc = await getDoc(itemRef);
-    if (itemDoc.exists()) {
-      dragItemToNewListBatchOperation.update(itemRef, {
-        [`meta.updated`]: date,
+    const tasksQuery = query(collection(db, tasksTable), where(`itemID`, `==`, item.id));
+    const tasksSnapshot = await getDocs(tasksQuery);
+    for (const taskDoc of tasksSnapshot.docs) {
+      const taskRef = doc(db, tasksTable, taskDoc.id);
+      dragItemToNewListBatchOperation.update(taskRef, {
         listID: destinationList?.id,
-      })
+      });
     }
 
     await dragItemToNewListBatchOperation.commit();

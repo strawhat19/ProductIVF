@@ -11,6 +11,7 @@ import { TasksFilterStates, Types } from '../../shared/types/types';
 import { capitalizeAllWords, dev, StateContext } from '../../pages/_app';
 import { forceFieldBlurOnPressEnter, getRankAndNumber, logToast } from '../../shared/constants';
 import { addListToDatabase, deleteBoardFromDatabase, dragItemToNewList, updateDocFieldsWTimeStamp } from '../../firebase';
+import { Item } from '../../shared/models/Item';
 
 export const taskFilterStateTransitions = {
     [TasksFilterStates.All_On]: TasksFilterStates.Tasks,
@@ -48,9 +49,9 @@ export default function Board(props) {
         setLoading, 
         user, users, 
         selectedGrid, 
-        globalUserData,
         setSystemStatus, 
         boards, setBoards, 
+        globalUserData, setGlobalUserData,
     } = useContext<any>(StateContext);
 
     const updateBoardInState = (updatedBoardData: Partial<BoardModel>) => {
@@ -216,7 +217,6 @@ export default function Board(props) {
     }
 
     const onDragEnd = async (dragEndEvent) => {
-        const { date } = getIDParts();
         const { destination, source, draggableId, type } = dragEndEvent;
 
         if (!destination) return;
@@ -266,12 +266,44 @@ export default function Board(props) {
                         const thisItem = globalUserData?.items?.find(itm => itm?.id == draggableId);
         
                         if (thisItem) {
-                            // Enhance by Fixing Item Drag to New List & Set State?
-                            // if (board) {
-                            //     const brd: BoardModel = new BoardModel({ ...board });
-                            //     brd.data.listIDs = updatedListIDs;
-                            //     updateBoardInState(brd);
-                            // }
+                            setGlobalUserData(prevGlobalUserData => {
+                                let globalUserItems = [...prevGlobalUserData.items];
+                                let globalUserLists = [...prevGlobalUserData.lists];
+                                let updatedGlobalUserItems = globalUserItems?.map((itm: Item) => {
+                                    if (itm?.id == thisItem?.id) {
+                                        return new Item({
+                                            ...itm,
+                                            listID: newList?.id,
+                                        })
+                                    } else return itm;
+                                })
+                                let updatedGlobalUserLists = globalUserLists?.map((lst: List) => {
+                                    if (lst?.id == thisList?.id) {
+                                        let prevSourceListItemIDs = [...lst?.data?.itemIDs];
+                                        let updatedSourceListItemIDs = prevSourceListItemIDs?.filter(itmID => itmID != thisItem?.id);
+                                        return new List({
+                                            ...lst,
+                                            data: {
+                                                ...lst?.data,
+                                                itemIDs: updatedSourceListItemIDs,
+                                            },
+                                        })
+                                    } else if (lst?.id == newList?.id) {
+                                        return new List({
+                                            ...lst,
+                                            data: {
+                                                ...lst?.data,
+                                                itemIDs: updatedNewListItemIDs,
+                                            },
+                                        })
+                                    } else return lst;
+                                })
+                                return {
+                                    ...prevGlobalUserData,
+                                    items: updatedGlobalUserItems,
+                                    lists: updatedGlobalUserLists,
+                                }
+                            })
                             await dragItemToNewList(thisItem, thisList, newList, updatedNewListItemIDs);
                             return;
                         }
