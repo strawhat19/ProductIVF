@@ -279,7 +279,7 @@ export default function Column(props) {
                                             <Draggable key={item?.id} draggableId={item?.id} index={itemIndex}>
                                                 {provided => (
                                                     <div id={item?.id} className={`item boardItem ${hoverItemForm ? `itemHoverToExpand` : ``} completeItem ${item?.options?.complete ? `complete completeBoardItem` : `activeBoardItem`} container ${snapshot.isDragging ? `dragging` : ``} ${(itemTypeMenuOpen || selected != null) ? `unfocus` : ``}`} title={item?.name} {...provided.draggableProps} ref={provided.innerRef}>
-                                                        <div onClick={(e) => manageItem(e, item, itemIndex, board, boards, setBoards)} {...provided.dragHandleProps} className={`itemRow flex row ${item?.options?.complete ? `completed` : `incomplete`} ${item?.tasks.length > 0 ? `hasTasksRow` : `noTasksRow`}`}>
+                                                        <div onClick={(e) => manageItem(e, item, itemIndex, globalUserData?.tasks?.filter(tsk => tsk?.itemID == item?.id))} {...provided.dragHandleProps} className={`itemRow flex row ${item?.options?.complete ? `completed` : `incomplete`} ${item?.tasks.length > 0 ? `hasTasksRow` : `noTasksRow`}`}>
                                                             <Item 
                                                                 item={item} 
                                                                 count={count} 

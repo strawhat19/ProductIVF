@@ -154,7 +154,7 @@ export default function Form(props?: any) {
       />
     ) : (
       <div className={`formButtonsField ${stringNoSpaces(auth_state)}_AuthState`} onClick={(e) => formRef != null ? submitFormProgrammatically(e, auth_state) : undefined}>
-        <i style={{ color: `var(--gameBlue) !important` }} className={`formButtonsFieldIcon ${getAuthStateIcon(auth_state)}`} />
+        <i style={{ color: `var(--gameBlue)` }} className={`formButtonsFieldIcon ${getAuthStateIcon(auth_state)}`} />
         {input}
       </div>
     )}
@@ -386,7 +386,7 @@ export default function Form(props?: any) {
             `Users Loading`, 
             `usersSkeleton`, 
             showConfirm ? AuthStates.Cancel : AuthStates.Delete,
-            <input className={`authFormDelete`} type="submit" name="authFormSubmit" value={showConfirm ? AuthStates.Cancel : AuthStates.Delete} />
+            <input className={`authFormDelete`} type={`submit`} name={`authFormSubmit`} value={showConfirm ? AuthStates.Cancel : AuthStates.Delete} />
           )}
           {showConfirm && (
             <ConfirmAction className={`formUserConfirmAction`} onConfirm={(e) => onDeleteOrCancelUser(e, false)} style={{ right: 0, top: 40 }} />

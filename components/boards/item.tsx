@@ -40,18 +40,18 @@ export const getTypeIcon = (type) => {
     }
 }
 
-export const manageItem = (e, item, index, board, boards, setBoards) => {
+export const manageItem = (e, item, index, tasks) => {
     if (!e.target.classList.contains(`changeLabel`) && !e.target.classList.contains(`confirmActionOption`)) {
         let isButton = e.target.classList.contains(`iconButton`);
         if (isButton) {
             let isManageButton = e.target.classList.contains(`manageButton`);
             if (isManageButton) {
-                dev() && console.log(`Item ${index + 1}`, item);
-                showAlert(item?.content, <ItemDetail item={item} index={index} board={board} boards={boards} setBoards={setBoards} />, `95%`, `85%`, `30px`);
+                dev() && console.log(`On Manage Button Click Item ${index + 1}`, item);
+                showAlert(item?.name, <ItemDetail item={item} index={index} tasks={tasks} />, `95%`, `85%`, `30px`);
             };
         } else {
-            dev() && console.log(`Item ${index + 1}`, item);
-            showAlert(item?.content, <ItemDetail item={item} index={index} board={board} boards={boards} setBoards={setBoards} />, `95%`, `85%`, `30px`);
+            dev() && console.log(`On Click Item ${index + 1}`, {item, tasks});
+            showAlert(item?.name, <ItemDetail item={item} index={index} tasks={tasks} />, `95%`, `85%`, `30px`);
         }
     }
 }
@@ -86,18 +86,18 @@ export default function Item({ item, count, column, itemIndex, board }: any) {
         item.content = elemValue;
         item.updated = formatDate(new Date());
 
-        let updatedBoards = boards.map(brd => brd?.id == board?.id ? ({
-            ...board,
-            items: {
-                ...board?.items,
-                [board?.items[item?.id]]: {
-                    ...board?.items[item?.id],
-                    title: elemValue,
-                    content: elemValue,
-                    updated: formatDate(new Date()),
-                }
-            }
-        }) : brd);
+        // let updatedBoards = boards.map(brd => brd?.id == board?.id ? ({
+        //     ...board,
+        //     items: {
+        //         ...board?.items,
+        //         [board?.items[item?.id]]: {
+        //             ...board?.items[item?.id],
+        //             title: elemValue,
+        //             content: elemValue,
+        //             updated: formatDate(new Date()),
+        //         }
+        //     }
+        // }) : brd);
 
         // updateBoards(updatedBoards);
     }
@@ -179,7 +179,9 @@ export default function Item({ item, count, column, itemIndex, board }: any) {
     }
 
     const onManageItem = (e) => {
-        manageItem(e, item, itemIndex, board, boards, setBoards);
+        const tasksForThisItem = globalUserData?.tasks?.filter(tsk => tsk?.itemID == item?.id);
+        console.log({tasksForThisItem});
+        manageItem(e, item, itemIndex, tasksForThisItem);
     }
 
     const onRightClick = (e: React.MouseEvent<HTMLDivElement>, item: ItemModel, column: List) => {

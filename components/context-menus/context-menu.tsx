@@ -1,9 +1,10 @@
 import { useContext } from 'react';
 import { toast } from 'react-toastify';
 import { StateContext } from '../../pages/_app';
+import { updateDocFieldsWTimeStamp } from '../../firebase';
 
 export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--gameBlue)` }: any) {
-    let { selected, setBoards, setMenuPosition, setItemTypeMenuOpen, setSelected } = useContext<any>(StateContext);
+    let { selected, setMenuPosition, setItemTypeMenuOpen, setSelected } = useContext<any>(StateContext);
     let ids = (selected == null || selected?.column == undefined || selected?.column == null) ? [] : Array.from(selected?.column?.data?.itemIDs);
 
     const onDismiss = (setSelect = true) => {
@@ -40,33 +41,13 @@ export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--
         onDismiss();
     }
 
-    // const showDefaultContextMenu = (event: React.MouseEvent) => {
-    //     // onDismiss();
-    //     setTimeout(() => {
-    //       document.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, clientX: event.clientX, clientY: event.clientY }));
-    //     }, 0);
-    // };
-
-    const moveItemToPosition = (top = true) => {
-        const itemIds = top == true ? [
-            selected?.item?.id,
-            ...selected?.column?.itemIds.filter(id => id != selected?.item?.id),
-        ] : [
-            ...selected?.column?.itemIds.filter(id => id != selected?.item?.id),
-            selected?.item?.id,
-        ]
-        const updatedBoard = {
-            ...selected?.board,
-            columns: {
-                ...selected?.board?.columns,
-                [selected?.column?.id]: {
-                    ...selected?.column,
-                    itemIds,
-                }
-            }
-        };
-        setBoards(prevBoards => prevBoards.map(brd => brd.id == selected?.board?.id ? updatedBoard : brd));
+    const moveItemToPosition = async (top = true) => {
+        const itemIDsWithoutItem = selected?.column?.data?.itemIDs.filter(id => id != selected?.item?.id);
+        const itemIDsWithItemMovedToTop = [ selected?.item?.id, ...itemIDsWithoutItem ];
+        const itemIDsWithItemMovedToBottom = [ ...itemIDsWithoutItem, selected?.item?.id ];
+        const updatedListItemIDs = top == true ? itemIDsWithItemMovedToTop : itemIDsWithItemMovedToBottom;
         onDismiss();
+        await updateDocFieldsWTimeStamp(selected?.column, { [`data.itemIDs`]: updatedListItemIDs });
     }
 
     return menuPosition && (
