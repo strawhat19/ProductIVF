@@ -42,7 +42,7 @@ const SortableSubtaskItem = ({ item, task, isLast, column, index, changeLabel, c
               onMouseDown={(e) => e.stopPropagation()}
               onPointerDown={(e) => e.stopPropagation()}
               onKeyDown={(e) => forceFieldBlurOnPressEnter(e)}
-              onInput={(e) => setMaxLengthOnField(e, nameFields.task.max)}
+              // onInput={(e) => setMaxLengthOnField(e, nameFields.task.max)}
               className={`changeLabel taskChangeLabel stretchEditable ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`}`}
             >
               {task.name}
