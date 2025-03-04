@@ -22,7 +22,19 @@ import { collection, onSnapshot, query, where  } from 'firebase/firestore';
 import { defaultAuthenticateLabel, isValid, logToast } from '../shared/constants';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import AuthenticationDialog from '../components/modals/authenticate/authenticate-dialog';
-import { auth, db, userConverter, gridDataCollectionNames, usersTable, gridsTable, gridConverter, updateDocFieldsWTimeStamp, featuresTable, featureConverter } from '../firebase';
+
+import { 
+  db, 
+  auth, 
+  usersTable,
+  gridsTable,
+  userConverter,
+  gridConverter,
+  featuresTable,
+  featureConverter,
+  gridDataCollectionNames,
+  updateDocFieldsWTimeStamp,
+} from '../firebase';
 
 export const StateContext = createContext({});
 
@@ -485,14 +497,14 @@ export default function ProductIVF({ Component, pageProps, router }) {
       let isPubliclyAvailable = thisFeature?.status?.public == true;
       let userHasPermission = userIsMinRole(user, thisFeature?.roles[0]);
 
-      let generalAvailability = isPubliclyAvailable && userHasPermission
+      let generalAvailability = isPubliclyAvailable && userHasPermission;
       featureEnabled = generalAvailability;
       
       if (considerBeta) {
         if (user && user != null) {
           let isInBetaTesting = thisFeature?.status?.beta == true;
           let isBetaAvailable = isInBetaTesting && user?.beta == true;
-          featureEnabled = generalAvailability || isBetaAvailable;
+          featureEnabled = generalAvailability || (isBetaAvailable && userHasPermission);
         }
       }
     }

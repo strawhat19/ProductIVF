@@ -9,10 +9,10 @@ import ConfirmAction from './context-menus/confirm-action';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { createUser, Roles, User } from '../shared/models/User';
+import FeatureFlagBadge from '../shared/admin/feature-flag-badge';
 import { formatDate, StateContext, showAlert, dev } from '../pages/_app';
 import { defaultAuthenticateLabel, findHighestNumberInArrayByKey, stringNoSpaces } from '../shared/constants';
 import { addUserToDatabase, auth, boardConverter, boardsTable, db, gridConverter, gridsTable, updateDocFieldsWTimeStamp } from '../firebase';
-import FeatureFlagBadge from '../shared/admin/feature-flag-badge';
 
 export const convertHexToRGB = (HexString?:any, returnObject?: any) => {
   let r = parseInt(HexString.slice(1, 3), 16),
