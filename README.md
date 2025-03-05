@@ -14,9 +14,11 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 ![SASS](https://img.shields.io/badge/SASS-hotpink.svg?style=for-the-badge&logo=SASS&logoColor=white)
 ![Firebase](https://img.shields.io/badge/Firebase-039BE5?style=for-the-badge&logo=Firebase&logoColor=white)
 
-![Screenshot of Application Dark Mode](./assets/ProductIVF-v200-Tasks.png)
+![Screenshot of Application Grids Boards DB](./assets/ProductIVF-v560-DB.png)
 
-![Screenshot of Application Light Mode](./assets/ProductIVF-v001-Light-Mode.png)
+<!-- ![Screenshot of Application Dark Mode](./assets/ProductIVF-v200-Tasks.png) -->
+
+<!-- ![Screenshot of Application Light Mode](./assets/ProductIVF-v001-Light-Mode.png) -->
 
 ## About
 I used Next js to make this site which is a playground for developers to mess with and test out code. Right now, I'm messing with Drag and Drop to make my own sort of to do list or kanban board app. I Wanted a way to quickly manage lists, to do lists, and subtasks. I used lots of productivity and project management apps, but they all seemed to be missing some feature I liked, so I'm experimenting with making my own just for fun! Once this app is done, I plan to use the board to help myself get into the world of machine learning and learn AI!

@@ -9,6 +9,7 @@ import { Types } from './types/types';
 import { Board } from './models/Board';
 import { toast } from 'react-toastify';
 
+export const maxCredits = 20_000;
 export const maxAuthAttempts = 5;
 export const defaultAuthenticateLabel = `Delete User & All Data`;
 export const userQueryFields = [`id`, `ID`, `uid`, `uuid`, `rank`, `name`, `role`, `email`, `image`, `avatar`, `phone`, `token`];

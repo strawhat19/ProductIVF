@@ -1,5 +1,6 @@
 import { useContext } from 'react';
 import { StateContext } from '../pages/_app';
+import { maxCredits } from '../shared/constants';
 import { AuthStates } from '../shared/types/types';
 
 export default function AuthState({ classes, nextOverride = ``, hideOnUsersLoading = false, extraUserMetric = `` }: any) {
@@ -8,8 +9,9 @@ export default function AuthState({ classes, nextOverride = ``, hideOnUsersLoadi
         hideOnUsersLoading == true && usersLoading ? <></> : (
             <span className={`authStateComponent ${user != null ? `hasUserSignedIn` : `noUserSignedIn`} ${classes} textOverflow extended`} style={{minWidth: `fit-content`}}>
                 {user != null ? (
-                    ` ${user?.name}`
-                    // `Welcome, ${user?.name} - Credits: ${(20_000 - user?.properties)?.toLocaleString()}`
+                    ((maxCredits - user?.properties) <= (maxCredits / 4)) ? (
+                        `${user?.name} - Credits: ${(maxCredits - user?.properties)?.toLocaleString()}`
+                    ) : `${user?.name} - ${user?.role}`
                 ) : (nextOverride != `` && authState == AuthStates.Next) ? nextOverride : authState}
             </span>
         )

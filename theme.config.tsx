@@ -1,5 +1,6 @@
 import React from 'react';
 import Logo from './components/logo';
+import Time from './components/time';
 import Form from './components/form';
 import Quote from './components/qotd';
 import Status from './components/status';
@@ -7,7 +8,6 @@ import Footer from './components/footer';
 import AuthState from './components/auth-state';
 import { AuthStates } from './shared/types/types';
 import { DocsThemeConfig } from 'nextra-theme-docs';
-import Time from './components/time';
 
 const setToc = (e) => {
   let toc = document.querySelector(`.nextra-toc`);

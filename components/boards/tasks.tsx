@@ -6,8 +6,8 @@ import { collection, getDocs } from 'firebase/firestore';
 import { capWords, StateContext } from '../../pages/_app';
 import { createTask, Task } from '../../shared/models/Task';
 import { DndContext, PointerSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core';
-import { forceFieldBlurOnPressEnter, removeExtraSpacesFromString } from '../../shared/constants';
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
+import { forceFieldBlurOnPressEnter, isValid, removeExtraSpacesFromString } from '../../shared/constants';
 import { addTaskToDatabase, db, deleteTaskFromDatabase, tasksTable, updateDocFieldsWTimeStamp } from '../../firebase';
 import { restrictToFirstScrollableAncestor, restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers';
 
@@ -25,7 +25,7 @@ const SortableSubtaskItem = ({ item, task, isLast, column, index, changeLabel, c
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners} className={`boardTaskDraggableWrap`}>
-      <div className={`task_${task?.id} boardTask subTaskItem ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`} ${isLast ? `dndLast` : ``}`}>
+      <div className={`task_${task?.id} boardTask subTaskItem ${isValid(task?.options?.active) && task?.options?.active == true ? `active` : ``} ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`} ${isLast ? `dndLast` : ``}`}>
         <div className={`boardTaskHandle cursorGrab draggableItem item subtaskHandle ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`}`}>
           <span className={`itemOrder taskComponentBG`}>
             <i className={`itemIndex ${(item?.options?.complete || task?.options?.complete) ? `completedIndex` : `activeIndex`}`}>
@@ -133,12 +133,19 @@ export default function Tasks(props) {
     setLoading(true);
     const { date } = getIDParts();
     const isTaskComplete = task?.options?.complete;
+    // const isTaskActive = isValid(task?.options?.active) && task?.options?.active == true;
+
     setSystemStatus(`Marking Task as ${isTaskComplete ? `Reopened` : `Complete`}.`);
 
     updateTaskInState(task, {
       options: {
         ...task?.options,
         complete: !isTaskComplete,
+        // ...((isTaskActive && !isTaskComplete) ? {
+        //   active: false,
+        // } : {
+        //   active: true,
+        // }),
       },
       meta: {
         ...task?.meta,
@@ -146,7 +153,14 @@ export default function Tasks(props) {
       }
     })
 
-    await updateDocFieldsWTimeStamp(task, { [`options.complete`]: !isTaskComplete });
+    await updateDocFieldsWTimeStamp(task, { 
+      [`options.complete`]: !isTaskComplete, 
+      // ...((isTaskActive && !isTaskComplete) ? {
+      //   [`options.active`]: false, 
+      // } : {
+      //   [`options.active`]: true, 
+      // }),
+    });
 
     setTimeout(() => {
       setSystemStatus(`Marked Task #${task?.number} as ${!isTaskComplete ? `Complete` : `Reopened`}.`);

@@ -82,7 +82,7 @@
                         }
                     }
                     .boardTask {
-                        &.complete {
+                        &.complete, &.active {
                             .changeLabel {
                                 color: var(--dark) !important;
                                 text-decoration-color: var(--dark) !important;
