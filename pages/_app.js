@@ -434,6 +434,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
   // State
   let [features, setFeatures] = useState([]);
   let [upNextGrid, setUpNextGrid] = useState(null);
+  let [useNavigation, setUseNavigation] = useState(false);
   let [featuresLoading, setFeaturesLoading] = useState(true);
   let [authenticateOpen, setAuthenticateOpen] = useState(false);
   let [onAuthenticateFunction, setOnAuthenticateFunction] = useState(`Default`);
@@ -543,19 +544,20 @@ export default function ProductIVF({ Component, pageProps, router }) {
     setActiveOptions([selectedGrd]);
   }
 
-  const switchSelectedGrid = (usr, selectedGrd) => {
-    let usrGridURL = `/user/${usr?.rank}/grids/${selectedGrd?.rank}`;
+  const switchSelectedGrid = (usr, selectedGrd, navigate = useNavigation) => {
+    // console.log(`Selected Grid`, usr?.lastSelectedGridID, `New Grid`, selectedGrd?.id);
     if (usr?.lastSelectedGridID != selectedGrd?.id) {
       updateDocFieldsWTimeStamp(usr, { 
         lastSelectedGridID: selectedGrd?.id, 
         [`data.selectedGridIDs`]: [selectedGrd?.id], 
       });
     }
-    // if (navigate) {
+    if (navigate) {
+      let usrGridURL = `/user/${usr?.rank}/grids/${selectedGrd?.rank}`;
       router.replace(usrGridURL, undefined, {
         shallow: true,
       });
-    // }
+    }
   }
 
   const onSignOut = async (navigateToHome = true) => {
@@ -579,6 +581,36 @@ export default function ProductIVF({ Component, pageProps, router }) {
       })
     }
     return gridsBoards;
+  }
+
+  const setUsersGridsState = (lastSelectedGridID, usersGridsByID, updateGrids = true) => {
+    if (updateGrids == true) {
+      setGrids(usersGridsByID);
+      setUserGrids(usersGridsByID);
+      setUsersGrids(usersGridsByID);
+    }
+    let lastSelectedGrid = usersGridsByID?.find(gr => gr?.id == lastSelectedGridID);
+    if (lastSelectedGrid) {
+      // const openAuthenticationForm = () => {
+      //   setOnAuthenticateLabel(`View Private Grid`);
+      //   setOnAuthenticateFunction(`Set Grid`);
+      //   setUpNextGrid(lastSelectedGrid);
+      //   setAuthenticateOpen(true);
+      // }
+      setSelectedGrd(lastSelectedGrid);
+      // let recentlyAuthenticated = withinXTime(user?.auth?.lastAuthenticated, 15, `minutes`);
+      // if (!recentlyAuthenticated && (lastSelectedGrid?.options?.private == true && lastSelectedGrid?.gridType == GridTypes.Private)) {
+      //   openAuthenticationForm();
+      // } else setSelectedGrd(lastSelectedGrid);
+    }
+    setGlobalUserData(prevGlobalUserData => ({
+      ...prevGlobalUserData,
+      user,
+      grids: usersGridsByID,
+      lastUpdateFrom: `Grids`,
+      lastUpdate: getIDParts()?.date,
+    }))
+    if (usersGridsByID?.length > 0) setGridsLoading(false);
   }
 
   const seedUserDataNoDB = (usr) => {
@@ -762,36 +794,6 @@ export default function ProductIVF({ Component, pageProps, router }) {
     };
   }, [selectedGrid])
 
-  const setUsersGridsState = (lastSelectedGridID, usersGridsByID, updateGrids = true) => {
-    if (updateGrids == true) {
-      setGrids(usersGridsByID);
-      setUserGrids(usersGridsByID);
-      setUsersGrids(usersGridsByID);
-    }
-    let lastSelectedGrid = usersGridsByID?.find(gr => gr?.id == lastSelectedGridID);
-    if (lastSelectedGrid) {
-      // const openAuthenticationForm = () => {
-      //   setOnAuthenticateLabel(`View Private Grid`);
-      //   setOnAuthenticateFunction(`Set Grid`);
-      //   setUpNextGrid(lastSelectedGrid);
-      //   setAuthenticateOpen(true);
-      // }
-      setSelectedGrd(lastSelectedGrid);
-      // let recentlyAuthenticated = withinXTime(user?.auth?.lastAuthenticated, 15, `minutes`);
-      // if (!recentlyAuthenticated && (lastSelectedGrid?.options?.private == true && lastSelectedGrid?.gridType == GridTypes.Private)) {
-      //   openAuthenticationForm();
-      // } else setSelectedGrd(lastSelectedGrid);
-    }
-    setGlobalUserData(prevGlobalUserData => ({
-      ...prevGlobalUserData,
-      user,
-      grids: usersGridsByID,
-      lastUpdateFrom: `Grids`,
-      lastUpdate: getIDParts()?.date,
-    }))
-    if (usersGridsByID?.length > 0) setGridsLoading(false);
-  }
-
   useEffect(() => {
     let listenforUserGridsChanges = null;
     if (user != null) {
@@ -806,20 +808,28 @@ export default function ProductIVF({ Component, pageProps, router }) {
           let userGridByID = userGridsFromDB?.find(gr => gr?.id == gridID);
           if (userGridByID) return userGridByID;
         })
-        if (id) {
-          if (gridid) {
-            if (usersGridsByID && usersGridsByID?.length > 0) {
-              let thisGrid = usersGridsByID?.find(gr => String(gr?.rank) == String(gridid));
-              if (thisGrid) {
-                if (user?.lastSelectedGridID != thisGrid?.id) {
-                  updateDocFieldsWTimeStamp(user, { 
-                    lastSelectedGridID: thisGrid?.id, 
-                    'data.selectedGridIDs': [thisGrid?.id], 
-                  });
+        dev() && console.log(`Updated User`, {
+          user,
+          useNavigation,
+          lastSelectedGridID: user?.lastSelectedGridID,
+        });
+        if (useNavigation == true) {
+          if (id) {
+            if (gridid) {
+              if (usersGridsByID && usersGridsByID?.length > 0) {
+                let thisGrid = usersGridsByID?.find(gr => String(gr?.rank) == String(gridid));
+                if (thisGrid) {
+                  if (user?.lastSelectedGridID != thisGrid?.id) {
+                    dev() && console.log(`Using Navigation`, thisGrid?.id);
+                    updateDocFieldsWTimeStamp(user, { 
+                      lastSelectedGridID: thisGrid?.id, 
+                      'data.selectedGridIDs': [thisGrid?.id], 
+                    });
+                  }
+                  setUsersGridsState(thisGrid?.id, usersGridsByID, globalUserDataLoading);
                 }
-                setUsersGridsState(thisGrid?.id, usersGridsByID, globalUserDataLoading);
               }
-            }
+            } else setUsersGridsState(user?.lastSelectedGridID, usersGridsByID, globalUserDataLoading);
           } else setUsersGridsState(user?.lastSelectedGridID, usersGridsByID, globalUserDataLoading);
         } else setUsersGridsState(user?.lastSelectedGridID, usersGridsByID, globalUserDataLoading);
       })
@@ -909,7 +919,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
     if (storedTaskFilterPreference != null) setTasksFiltered(storedTaskFilterPreference);
 
     let cachedBoard = JSON.parse(localStorage.getItem(`board`));
-    let cachedBoards = JSON.parse(localStorage.getItem(`boards`));
+    // let cachedBoards = JSON.parse(localStorage.getItem(`boards`));
 
     setThemeUI();
     setDevEnv(dev());
@@ -932,15 +942,16 @@ export default function ProductIVF({ Component, pageProps, router }) {
       if (!cachedBoard.columnOrder) cachedBoard.columnOrder = initialBoardData.columnOrder;
       if (!cachedBoard.items) cachedBoard.items = initialBoardData.items;
       setBoard(cachedBoard);
-    } else {
-      setBoard(initialBoardData);
     }
+    //  else {
+    //   setBoard(initialBoardData);
+    // }
 
-    if (cachedBoards && cachedBoards?.length > 0) {
-      setBoards(cachedBoards);
-    } else {
-      signOutReset();
-    }
+    // if (cachedBoards && cachedBoards?.length > 0) {
+      // setBoards(cachedBoards);
+    // } else {
+      // signOutReset();
+    // }
 
     let toc = document.querySelector(`.nextra-toc`);
     let tocMinimized = JSON.parse(localStorage.getItem(`tocMinimized`));
@@ -969,12 +980,12 @@ export default function ProductIVF({ Component, pageProps, router }) {
       setBrowser(`opera`);
     }
 
-    setSystemStatus(`${getPage()} Loaded`);
-    setLoading(false);
-    setTimeout(() => {
-      setLoading(false);
-      setSystemStatus(`${getPage()} Loaded`);
-    }, 1500)
+    // setLoading(false);
+    // setSystemStatus(`${getPage()} Loaded`);
+    // setTimeout(() => {
+      // setLoading(false);
+      // setSystemStatus(`${getPage()} Loaded`);
+    // }, 1500)
 
     // if (dev()) {
     //   console.log(`brwser`, brwser);
@@ -1034,6 +1045,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       rearranging, setRearranging, 
       showLeaders, setShowLeaders, 
       systemStatus, setSystemStatus, 
+      useNavigation, setUseNavigation,
       featuresLoading, setFeaturesLoading,
       authenticateOpen, setAuthenticateOpen,
 

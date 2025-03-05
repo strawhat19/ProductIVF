@@ -54,6 +54,14 @@ export default function Boards(props: any) {
     let [useGridSearchCreate, ] = useState(devEnv);
     let [searchingGrid, setSearchingGrid] = useState(false);
 
+    useEffect(() => {
+        setRte(replaceAll(router.route, `/`, `_`));
+        setUpdates(updates + 1);
+        return () => {
+            setRte(replaceAll(router.route, `/`, `_`));
+        }
+    }, [rte]);
+
     const updateSelectedGrids = async (updatedSelectedGrids) => {
         let thisGrid = updatedSelectedGrids[0];
 
@@ -151,14 +159,6 @@ export default function Boards(props: any) {
             </div>
         </div>
     )
-
-    useEffect(() => {
-        setRte(replaceAll(router.route, `/`, `_`));
-        setUpdates(updates + 1);
-        return () => {
-            setRte(replaceAll(router.route, `/`, `_`));
-        }
-    }, [rte]);
 
     return <>
         <div className={`boardsTitleRow flex row _projects_boards`}>

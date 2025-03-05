@@ -11,7 +11,7 @@ import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
 export default function ProfileGrids(props: any) {
     let router = useRouter();
     let { id, gridid } = router.query;
-    let { user, users, usersLoading } = useContext<any>(StateContext);
+    let { user, users, usersLoading, useNavigation } = useContext<any>(StateContext);
     let { userItem = false, profileType = `Profile`, userOnUserGrids = true } = props;
 
     let [userIsQuery, setUserIsQuery] = useState(false);
@@ -50,9 +50,9 @@ export default function ProfileGrids(props: any) {
     }
 
     useEffect(() => {
-        let userIsOnGrids = userItem == true && userOnUserGrids == true && user != null && id && window?.location?.href?.includes(`grids`);
+        let userIsOnGrids = useNavigation == false || (userItem == true && userOnUserGrids == true && user != null && id && window?.location?.href?.includes(`grids`));
         setUserOnGrids(userIsOnGrids);
-        if (userIsOnGrids) return;
+        if (useNavigation == false || userIsOnGrids) return;
         if (id && !userOnGrids) {
             let quer = id?.toString();
             setOriginalQuery(quer);
