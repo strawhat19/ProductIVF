@@ -29,17 +29,20 @@ export const onAuthenticate = (usr: User, password: string, onAuthenticatedFunct
             let lastAttemptWithin24Hours = withinXTime(lastAttempt, defaultTimePass, defaultInterval);
 
             signInWithEmailAndPassword(auth, email, password).then(async (userCredential) => {
-                if (userCredential != null) {
+                const successfulAuthentication = userCredential != null;
+                if (successfulAuthentication) {
                     let closeButton: any = document.querySelector(`.alertButton`);
                     if (closeButton) closeButton.click();
-                    updateDocFieldsWTimeStamp(usr, { 'auth.lastAuthenticated': date });
+                    updateDocFieldsWTimeStamp(usr, { [`auth.attempts`]: 0, [`auth.lastAuthenticated`]: date });
                     onAuthenticatedFunction(usr);
                 }
             }).catch((error) => {
                 if (lastAttemptWithin24Hours == true) {
                     if (nextAttemptNumber <= maxAuthAttempts) {
                         attemptsToUse = nextAttemptNumber;
-                        updateDocFieldsWTimeStamp(usr, { 'auth.attempts': attemptsToUse, 'auth.lastAttempt': date });
+                        let attemptsRemaining = maxAuthAttempts - attemptsToUse;
+                        toast.warn(`${attemptsRemaining} Attempts Left`);
+                        updateDocFieldsWTimeStamp(usr, { [`auth.attempts`]: attemptsToUse, [`auth.lastAttempt`]: date });
                     } else {
                         const errorMessage = error.message;
                         const nextTryDate = moment(new Date(lastAttempt))?.add(defaultTimePass, defaultInterval)?.format(momentFormats?.default);
@@ -56,7 +59,7 @@ export const onAuthenticate = (usr: User, password: string, onAuthenticatedFunct
                             }
                         }
                     }
-                } else updateDocFieldsWTimeStamp(usr, { 'auth.attempts': 1, 'auth.lastAttempt': date });
+                } else updateDocFieldsWTimeStamp(usr, { [`auth.attempts`]: 1, [`auth.lastAttempt`]: date });
 
                 return;
             });

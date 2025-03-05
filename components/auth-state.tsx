@@ -8,7 +8,8 @@ export default function AuthState({ classes, nextOverride = ``, hideOnUsersLoadi
         hideOnUsersLoading == true && usersLoading ? <></> : (
             <span className={`authStateComponent ${user != null ? `hasUserSignedIn` : `noUserSignedIn`} ${classes} textOverflow extended`} style={{minWidth: `fit-content`}}>
                 {user != null ? (
-                    `Welcome, ${user?.name} - Credits: ${(20_000 - user?.properties)?.toLocaleString()}`
+                    ` ${user?.name}`
+                    // `Welcome, ${user?.name} - Credits: ${(20_000 - user?.properties)?.toLocaleString()}`
                 ) : (nextOverride != `` && authState == AuthStates.Next) ? nextOverride : authState}
             </span>
         )

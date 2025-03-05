@@ -25,6 +25,8 @@ export enum GridTypes {
     Archived = `Archived`,
 }
 
+export const AuthGrids = [GridTypes.Private];
+
 export enum TasksFilterStates {
     All_On = `All On`,
     Tasks = `Tasks`,

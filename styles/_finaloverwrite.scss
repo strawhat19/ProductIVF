@@ -58,6 +58,8 @@ button {
     }
 }
 
+.pointerEventsNone { pointer-events: none !important; }
+
 // * {
 //     --main: var(--grass);
 //     --gameBlue: var(--main);

@@ -5,9 +5,29 @@ import { StateContext } from '../../../pages/_app';
 import { logToast } from '../../../shared/constants';
 import Authenticate, { onAuthenticate } from './authenticate';
 import { deleteDatabaseData, deleteUserAuth } from '../../../firebase';
+import { AuthGrids } from '../../../shared/types/types';
 
 export default function AuthenticationDialog({ }: any) {
-    const { user, signOutReset, onSignOut, onAuthenticateFunction, authenticateOpen, setAuthenticateOpen } = useContext<any>(StateContext);
+    const { 
+        user,
+        onSignOut,
+        upNextGrid,
+        signOutReset,
+        globalUserData, 
+        authenticateOpen, 
+        setAuthenticateOpen,
+        hardSetSelectedGrid,
+        onAuthenticateFunction,
+    } = useContext<any>(StateContext);
+
+    const deleteAndCloseDialog = () => {
+        setAuthenticateOpen(false);
+        deleteUserFromDatabases();
+    }
+    const setAuthGrid = () => {
+        setAuthenticateOpen(false);
+        hardSetSelectedGrid(upNextGrid, globalUserData?.grids);
+    }
 
     const deleteUserFromDatabases = async () => {
         toast.info(`Deleting User ${user?.id}`);
@@ -22,10 +42,18 @@ export default function AuthenticationDialog({ }: any) {
         });
     }
 
+    const onCloseLogic = (e?: any) => {
+        setAuthenticateOpen(!authenticateOpen);
+        if (onAuthenticateFunction == `Set Grid`) {
+            const unAuthGrids = globalUserData?.grids?.filter(gr => !AuthGrids?.includes(gr?.gridType));
+            hardSetSelectedGrid(unAuthGrids[0], globalUserData?.grids);
+        }
+    }
+
     return (
         <Dialog
             open={authenticateOpen}
-            onClose={(e) => setAuthenticateOpen(!authenticateOpen)}
+            onClose={(e) => onCloseLogic(e)}
             slotProps={{
                 paper: {
                     component: `form`,
@@ -35,28 +63,10 @@ export default function AuthenticationDialog({ }: any) {
                         const formData = new FormData(event.currentTarget);
                         const formJson = Object.fromEntries((formData as any).entries());
                         const { password } = formJson;
-                        // const switchGrid = () => {
-                        //     setAuthenticateOpen(false);
-                        //     switchSelectedGrid(user, upNextGrid);
-                        //     // let usrGridURL = `/user/${user?.rank}/grids/${upNextGrid?.rank}`;
-                        //     // router.replace(usrGridURL, undefined, {
-                        //     //     shallow: true,
-                        //     // });
-                        // }
-                        // const setGrid = () => {
-                        //     setAuthenticateOpen(false);
-                        //     setSelectedGrd(upNextGrid);
-                        //     // let usrGridURL = `/user/${user?.rank}/grids/${upNextGrid?.rank}`;
-                        //     // router.replace(usrGridURL, undefined, {
-                        //     //     shallow: true,
-                        //     // });
-                        // }
-                        const deleteAndCloseDialog = () => {
-                            setAuthenticateOpen(false);
-                            deleteUserFromDatabases();
-                        }
                         if (onAuthenticateFunction == `Default`) {
                             onAuthenticate(user, password, deleteAndCloseDialog, event);
+                        } else if (onAuthenticateFunction == `Set Grid`) {
+                            onAuthenticate(user, password, setAuthGrid, event);
                         }
                     },
                 },

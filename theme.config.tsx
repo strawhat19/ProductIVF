@@ -7,6 +7,7 @@ import Footer from './components/footer';
 import AuthState from './components/auth-state';
 import { AuthStates } from './shared/types/types';
 import { DocsThemeConfig } from 'nextra-theme-docs';
+import Time from './components/time';
 
 const setToc = (e) => {
   let toc = document.querySelector(`.nextra-toc`);
@@ -20,6 +21,7 @@ const navForm = (headerForm = false) => {
   return (
     <div className={`navFormDiv ${headerForm ? `headerForm` : `nav_Form`}`} style={{order: -1, display: `flex`, flexDirection: `row`, gridGap: 15, alignItems: `center`, marginRight: 10}}>
       <Status devOnly={true} style={{ minWidth: 200 }} showTitle={false} />
+      <Time />
       <AuthState classes={`navFormText`} nextOverride={AuthStates.Register} hideOnUsersLoading={true} />
       <section className={`navFormSection`} style={{margin: 0, padding: 0, position: `relative`}}>
         <Form navForm={true} style={{display: `flex`, flexDirection: `row`}} />

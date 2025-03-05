@@ -131,15 +131,20 @@ const MultiSelector = forwardRef((props: any, ref) => {
     placeholder = `Start Typing or Click Here`, 
   } = props;
 
-  let { user, selectedGrid, activeOptions, setActiveOptions } = useContext<any>(StateContext);
+  let { user, selectedGrid, activeOptions, setActiveOptions, openAuthenticationForm, userRecentlyAuthenticated } = useContext<any>(StateContext);
 
   let [hoveringOver, setHoveringOver] = useState(false);
 
   const onChangeValue = (val) => {
     if (single) val = isValid(val) && val?.length > 0 ? [val[val.length - 1]] : [];
     if (single && val?.length == 0) return;
-    setActiveOptions(val);
-    onChange(val);
+
+    const updateSelection = () => {
+      setActiveOptions(val);
+      onChange(val);
+    }
+
+    updateSelection();
   }
 
   useImperativeHandle(ref, () => ({

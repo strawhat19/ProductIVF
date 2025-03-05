@@ -1,14 +1,15 @@
 import Board from './board';
 import { toast } from 'react-toastify';
-import { Types } from '../../shared/types/types';
+import { User } from '../../shared/models/User';
 import MultiSelector from '../selector/multi-selector';
 import { collection, getDocs } from 'firebase/firestore';
 import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
+import { AuthGrids, GridTypes, Types } from '../../shared/types/types';
 import { useState, useEffect, useContext, useRef } from 'react';
-import { generateArray, logToast } from '../../shared/constants';
 import { capWords, replaceAll, StateContext } from '../../pages/_app';
 import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
 import { Board as BoardModel, createBoard } from '../../shared/models/Board';
+import { generateArray, logToast, withinXTime } from '../../shared/constants';
 import { addBoardToDatabase, boardsTable, db, updateDocFieldsWTimeStamp } from '../../firebase';
 
 export enum ItemTypes {
@@ -34,6 +35,14 @@ export const getLoadingLabel = (lbl: string, authState, user) => {
     return user != null ? `${lbl} Loading` : `${!nonFormAuthStates.includes(authState) ? authState : `Register`} to View ${lbl}`;
 }
 
+export const recentlyAuthenticated = (usr: User, interval = 5, timePass = `minutes`) => {
+    let isRecentlyAuthenticated = false;
+    let userRecentAuth = usr?.auth?.lastAuthenticated;
+    let userRecentlyAuthenticated = withinXTime(userRecentAuth, interval, timePass);
+    isRecentlyAuthenticated = userRecentlyAuthenticated;
+    return isRecentlyAuthenticated;
+}
+
 export default function Boards(props: any) {
     let { 
         user, 
@@ -42,8 +51,11 @@ export default function Boards(props: any) {
         setLoading, 
         globalUserData,
         setSystemStatus, 
+        setActiveOptions,
         switchSelectedGrid,
         rte, router, setRte,
+        openAuthenticationForm,
+        userRecentlyAuthenticated,
         boards, setBoards, boardsLoading,
         grids, gridsLoading, selectedGrids, selectedGrid, 
     } = useContext<any>(StateContext);
@@ -64,18 +76,14 @@ export default function Boards(props: any) {
 
     const updateSelectedGrids = async (updatedSelectedGrids) => {
         let thisGrid = updatedSelectedGrids[0];
-
-        // const openAuthenticationForm = () => {
-        //     setOnAuthenticateLabel(`View Private Grid`);
-        //     setOnAuthenticateFunction(`Switch Grid`);
-        //     setAuthenticateOpen(true);
-        //     setUpNextGrid(thisGrid);
-        // }
-
-        switchSelectedGrid(user, thisGrid);
-        // if (thisGrid?.options?.private == true && thisGrid?.gridType == GridTypes.Private) {
-        //     openAuthenticationForm();
-        // } else switchSelectedGrid(user, thisGrid);
+        if (AuthGrids?.includes(thisGrid?.gridType)) {
+            if (userRecentlyAuthenticated) {
+                switchSelectedGrid(user, thisGrid);
+            } else {
+                setActiveOptions([selectedGrid]);
+                openAuthenticationForm(thisGrid);
+            }
+        } else switchSelectedGrid(user, thisGrid);
     }
 
     const onDragEnd = (dragEndEvent) => {
@@ -126,7 +134,7 @@ export default function Boards(props: any) {
     }
     
     const createBoardComponent = () => (
-        <div className={`createBoard lists extended`}>
+        <div className={`createBoard lists extended transition ${AuthGrids?.includes(selectedGrid?.gridType) && !userRecentlyAuthenticated ? `blurred pointerEventsNone` : ``}`}>
             <div className={`list items addListDiv`}>
                 <div className={`formItems items`}>
                     <div className={`addListFormItem`}>
@@ -213,7 +221,7 @@ export default function Boards(props: any) {
         {selectedGrid?.options?.newestBoardsOnTop ? ((boardsLoading || user?.uid != selectedGrid?.ownerUID) ? <></> : createBoardComponent()) : <></>}
 
         <DragDropContext onDragEnd={onDragEnd}>
-            <div id={`allBoards`} className={`boards`}>
+            <div id={`allBoards`} className={`boards transition ${AuthGrids?.includes(selectedGrid?.gridType) && !userRecentlyAuthenticated ? `blurred pointerEventsNone` : ``}`}>
                 <div className={`flex ${boards && boards?.length > 0 ? `hasBoards` : `noBoards`} ${boards && boards?.length == 1 ? `oneBoard` : ``}`}>
                     {(boardsLoading || selectedGrid == null) ? <>
                         <div className={`flex isColumn`} style={{ paddingTop: 5 }}>

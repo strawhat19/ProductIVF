@@ -36,6 +36,7 @@ export const extractRankFromDoc = (doc: Partial<User> | Partial<Grid> | Partial<
 
 export const momentFormats = {
   default: `h:mm A M/D/YYYY`,
+  wSeconds: `h:mm:ss A M/D/YYYY`,
 }
 
 export const nameFields = {

@@ -16,9 +16,9 @@ import { addBoardScrollBars } from '../components/boards/board';
 import { createContext, useRef, useState, useEffect } from 'react';
 import ContextMenu from '../components/context-menus/context-menu';
 import { renderFirebaseAuthErrorMessage } from '../components/form';
-import { AuthStates, GridTypes, Types } from '../shared/types/types';
 import { seedUserData as generateSeedUserData } from '../shared/database';
 import { collection, onSnapshot, query, where  } from 'firebase/firestore';
+import { AuthGrids, AuthStates, GridTypes, Types } from '../shared/types/types';
 import { defaultAuthenticateLabel, isValid, logToast } from '../shared/constants';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import AuthenticationDialog from '../components/modals/authenticate/authenticate-dialog';
@@ -35,6 +35,8 @@ import {
   gridDataCollectionNames,
   updateDocFieldsWTimeStamp,
 } from '../firebase';
+import { recentlyAuthenticated } from '../components/boards/boards';
+import moment from 'moment-timezone';
 
 export const StateContext = createContext({});
 
@@ -438,7 +440,10 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let [featuresLoading, setFeaturesLoading] = useState(true);
   let [authenticateOpen, setAuthenticateOpen] = useState(false);
   let [onAuthenticateFunction, setOnAuthenticateFunction] = useState(`Default`);
+  let [userRecentlyAuthenticated, setUserRecentlyAuthenticated] = useState(false);
   let [onAuthenticateLabel, setOnAuthenticateLabel] = useState(defaultAuthenticateLabel);
+
+  let [currentTime, setCurrentTime] = useState(getIDParts()?.date);
 
   let [user, setUser] = useState(null);
   let [users, setUsers] = useState([]);
@@ -538,28 +543,6 @@ export default function ProductIVF({ Component, pageProps, router }) {
     await resetGridsBoards();
   }
 
-  const setSelectedGrd = (selectedGrd) => {
-    setSelectedGrid(selectedGrd);
-    setSelectedGrids([selectedGrd]);
-    setActiveOptions([selectedGrd]);
-  }
-
-  const switchSelectedGrid = (usr, selectedGrd, navigate = useNavigation) => {
-    // console.log(`Selected Grid`, usr?.lastSelectedGridID, `New Grid`, selectedGrd?.id);
-    if (usr?.lastSelectedGridID != selectedGrd?.id) {
-      updateDocFieldsWTimeStamp(usr, { 
-        lastSelectedGridID: selectedGrd?.id, 
-        [`data.selectedGridIDs`]: [selectedGrd?.id], 
-      });
-    }
-    if (navigate) {
-      let usrGridURL = `/user/${usr?.rank}/grids/${selectedGrd?.rank}`;
-      router.replace(usrGridURL, undefined, {
-        shallow: true,
-      });
-    }
-  }
-
   const onSignOut = async (navigateToHome = true) => {
     try {
       await setUpdates(updates + 1);
@@ -569,48 +552,6 @@ export default function ProductIVF({ Component, pageProps, router }) {
     } catch (signOutError) {
       await logToast(`Error on Sign Out`, signOutError, true);
     }
-  }
-
-  const getGridsBoards = (activeGrds, brds) => {
-    let gridsBoards = [];
-    let gridsBoardsIDs = activeGrds?.length > 0 ? activeGrds.map(grd => grd?.data?.boardIDs).flat() : [];
-    if (gridsBoardsIDs.length > 0) {
-      gridsBoardsIDs.forEach(gbID => {
-        let gBoard = brds.find(br => br?.id == gbID);
-        if (gBoard) gridsBoards.push(gBoard);
-      })
-    }
-    return gridsBoards;
-  }
-
-  const setUsersGridsState = (lastSelectedGridID, usersGridsByID, updateGrids = true) => {
-    if (updateGrids == true) {
-      setGrids(usersGridsByID);
-      setUserGrids(usersGridsByID);
-      setUsersGrids(usersGridsByID);
-    }
-    let lastSelectedGrid = usersGridsByID?.find(gr => gr?.id == lastSelectedGridID);
-    if (lastSelectedGrid) {
-      // const openAuthenticationForm = () => {
-      //   setOnAuthenticateLabel(`View Private Grid`);
-      //   setOnAuthenticateFunction(`Set Grid`);
-      //   setUpNextGrid(lastSelectedGrid);
-      //   setAuthenticateOpen(true);
-      // }
-      setSelectedGrd(lastSelectedGrid);
-      // let recentlyAuthenticated = withinXTime(user?.auth?.lastAuthenticated, 15, `minutes`);
-      // if (!recentlyAuthenticated && (lastSelectedGrid?.options?.private == true && lastSelectedGrid?.gridType == GridTypes.Private)) {
-      //   openAuthenticationForm();
-      // } else setSelectedGrd(lastSelectedGrid);
-    }
-    setGlobalUserData(prevGlobalUserData => ({
-      ...prevGlobalUserData,
-      user,
-      grids: usersGridsByID,
-      lastUpdateFrom: `Grids`,
-      lastUpdate: getIDParts()?.date,
-    }))
-    if (usersGridsByID?.length > 0) setGridsLoading(false);
   }
 
   const seedUserDataNoDB = (usr) => {
@@ -725,6 +666,109 @@ export default function ProductIVF({ Component, pageProps, router }) {
     });
   }
 
+  const getGridsBoards = (activeGrds, brds) => {
+    let gridsBoards = [];
+    let gridsBoardsIDs = activeGrds?.length > 0 ? activeGrds.map(grd => grd?.data?.boardIDs).flat() : [];
+    if (gridsBoardsIDs.length > 0) {
+      gridsBoardsIDs.forEach(gbID => {
+        let gBoard = brds.find(br => br?.id == gbID);
+        if (gBoard) gridsBoards.push(gBoard);
+      })
+    }
+    return gridsBoards;
+  }
+
+  const setSelectedGrd = (selectedGrd) => {
+    setSelectedGrid(selectedGrd);
+    setSelectedGrids([selectedGrd]);
+    setActiveOptions([selectedGrd]);
+  }
+
+  const openAuthenticationForm = (grd, actionType = `View Private Grid`, onAuthFuncType = `Set Grid`) => {
+    setOnAuthenticateLabel(actionType);
+    setOnAuthenticateFunction(onAuthFuncType);
+    setUpNextGrid(grd);
+    setAuthenticateOpen(true);
+  }
+
+  const switchSelectedGrid = (usr, selectedGrd, navigate = useNavigation) => {
+    if (usr?.lastSelectedGridID != selectedGrd?.id) {
+      updateDocFieldsWTimeStamp(usr, { 
+        lastSelectedGridID: selectedGrd?.id, 
+        [`data.selectedGridIDs`]: [selectedGrd?.id], 
+      });
+    }
+    if (navigate) {
+      let usrGridURL = `/user/${usr?.rank}/grids/${selectedGrd?.rank}`;
+      router.replace(usrGridURL, undefined, {
+        shallow: true,
+      });
+    }
+  }
+
+  const hardSetSelectedGrid = (gridToSet, grids) => {
+    if (user?.lastSelectedGridID != gridToSet?.id) {
+      updateDocFieldsWTimeStamp(user, { 
+        lastSelectedGridID: gridToSet?.id, 
+        [`data.selectedGridIDs`]: [gridToSet?.id], 
+      });
+    }
+    setUsersGridsState(gridToSet?.id, grids, globalUserDataLoading);
+  }
+
+  const setGlobalUserGrids = (gridsToSet, gridID = user?.lastSelectedGridID) => {
+    setGlobalUserData(prevGlobalUserData => ({
+      ...prevGlobalUserData,
+      user,
+      grids: gridsToSet,
+      lastUpdateFrom: `Grids`,
+      lastUpdate: getIDParts()?.date,
+    }));
+
+    // let lastSelectedGrid = gridsToSet?.find(gr => gr?.id == gridID);
+    // if (lastSelectedGrid) {
+    //   setSelectedGrd(lastSelectedGrid);
+    // }
+    // if (gridsToSet?.length > 0) setGridsLoading(false);
+  }
+
+  const setUsersGridsState = (lastSelectedGridID, usersGridsByID, updateGrids = true) => {
+    if (updateGrids == true) {
+      setGrids(usersGridsByID);
+      setUserGrids(usersGridsByID);
+      setUsersGrids(usersGridsByID);
+    }
+    setGlobalUserGrids(usersGridsByID, lastSelectedGridID);
+
+    let lastSelectedGrid = usersGridsByID?.find(gr => gr?.id == lastSelectedGridID);
+    if (lastSelectedGrid) {
+      setSelectedGrd(lastSelectedGrid);
+    }
+    if (usersGridsByID?.length > 0) setGridsLoading(false);
+  }
+
+  const [showedTimeWarning, setShowedTimeWarning] = useState(false);
+  useEffect(() => {
+    const isRecentlyAuthenticated = recentlyAuthenticated(user);
+    setUserRecentlyAuthenticated(isRecentlyAuthenticated);
+    let time = moment(new Date(currentTime));
+    let kickTime = moment(new Date(user?.auth?.lastAuthenticated)).add(5, `minutes`);
+    let warningTime = moment(new Date(user?.auth?.lastAuthenticated)).add(4, `minutes`);
+    if (AuthGrids?.includes(selectedGrid?.gridType)) {
+      if (time?.isSameOrAfter(warningTime) && time.isBefore(kickTime)) {
+        if (!showedTimeWarning) {
+          toast?.warn(`Will be transferred to non private grid soon`, { autoClose: 60_000, position: `bottom-right` });
+          setShowedTimeWarning(true);
+        }
+      }
+      // Enhance By Checking If User Is Active by Querying All User Data Meta.Updated Values
+      if (!isRecentlyAuthenticated) {
+        const unAuthGrids = globalUserData?.grids?.filter(gr => !AuthGrids?.includes(gr?.gridType));
+        hardSetSelectedGrid(unAuthGrids[0], globalUserData?.grids);
+      }
+    }
+  }, [currentTime])
+
   useEffect(() => {
     let usersLoaded = globalUserData?.users;
     let userLoaded = usersLoaded && globalUserData?.user;
@@ -808,30 +852,28 @@ export default function ProductIVF({ Component, pageProps, router }) {
           let userGridByID = userGridsFromDB?.find(gr => gr?.id == gridID);
           if (userGridByID) return userGridByID;
         })
-        dev() && console.log(`Updated User`, {
-          user,
-          useNavigation,
-          lastSelectedGridID: user?.lastSelectedGridID,
-        });
+        setGlobalUserGrids(usersGridsByID);
         if (useNavigation == true) {
           if (id) {
             if (gridid) {
               if (usersGridsByID && usersGridsByID?.length > 0) {
                 let thisGrid = usersGridsByID?.find(gr => String(gr?.rank) == String(gridid));
                 if (thisGrid) {
-                  if (user?.lastSelectedGridID != thisGrid?.id) {
-                    dev() && console.log(`Using Navigation`, thisGrid?.id);
-                    updateDocFieldsWTimeStamp(user, { 
-                      lastSelectedGridID: thisGrid?.id, 
-                      'data.selectedGridIDs': [thisGrid?.id], 
-                    });
-                  }
-                  setUsersGridsState(thisGrid?.id, usersGridsByID, globalUserDataLoading);
+                  hardSetSelectedGrid(thisGrid, usersGridsByID);
                 }
               }
             } else setUsersGridsState(user?.lastSelectedGridID, usersGridsByID, globalUserDataLoading);
           } else setUsersGridsState(user?.lastSelectedGridID, usersGridsByID, globalUserDataLoading);
-        } else setUsersGridsState(user?.lastSelectedGridID, usersGridsByID, globalUserDataLoading);
+        } else {
+          if (usersGridsByID && usersGridsByID?.length > 0) {
+            let gridToSet = usersGridsByID?.find(gr => gr?.id == user?.lastSelectedGridID);
+            if (AuthGrids?.includes(gridToSet?.gridType)) {
+              if (!recentlyAuthenticated(user)) {
+                openAuthenticationForm(gridToSet);
+              } else setUsersGridsState(user?.lastSelectedGridID, usersGridsByID, globalUserDataLoading);
+            } else setUsersGridsState(user?.lastSelectedGridID, usersGridsByID, globalUserDataLoading);
+          }
+        }
       })
     } else {
       if (listenforUserGridsChanges != null) listenforUserGridsChanges();
@@ -1044,10 +1086,12 @@ export default function ProductIVF({ Component, pageProps, router }) {
       highScore, setHighScore, 
       rearranging, setRearranging, 
       showLeaders, setShowLeaders, 
+      currentTime, setCurrentTime,
       systemStatus, setSystemStatus, 
       useNavigation, setUseNavigation,
       featuresLoading, setFeaturesLoading,
       authenticateOpen, setAuthenticateOpen,
+      userRecentlyAuthenticated, setUserRecentlyAuthenticated,
 
       // Functions
       onSignIn,
@@ -1060,6 +1104,8 @@ export default function ProductIVF({ Component, pageProps, router }) {
       isFeatureEnabled,
       switchSelectedGrid,
       setUsersGridsState,
+      hardSetSelectedGrid,
+      openAuthenticationForm,
       onAuthenticateLabel, setOnAuthenticateLabel,
       onAuthenticateFunction, setOnAuthenticateFunction,
 

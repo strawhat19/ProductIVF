@@ -1,6 +1,8 @@
 .hidden { display: none; }
 .flexThis { display: flex; }
+.blurred { filter: blur(15px); }
 .rowThis { flex-direction: row; }
+.transition { transition: var(--transition); }
 
 @mixin setWidth($width) {
     height: $width !important;
