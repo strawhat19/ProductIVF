@@ -3,6 +3,16 @@
     min-width: max-content;
 }
 
+.statusFieldInner {
+    grid-gap: 5px;
+    flex-direction: row;
+    align-items: center;
+}
+
+.statSymbol {
+    text-transform: none;
+}
+
 // .itemFooter {
 //     .slashesSymbol {
 //         font-size: 0px;

@@ -6,6 +6,7 @@
     --primary: var(--gameBlue) !important;
     --detailViewBG: rgba(21, 90, 130, 0.85);
     --primarySoft: var(--gameBlue) !important;
+    --whiteGradient: linear-gradient(90deg, var(--blackGlass) var(--buttonSize), var(--light) var(--buttonSize)) !important;
     --darkGradient: linear-gradient(90deg, var(--whiteGlass) var(--buttonSize), var(--blackGlass) var(--buttonSize)) !important;
     --lightGradient: linear-gradient(90deg, var(--blackGlass) var(--buttonSize), var(--whiteGlass) var(--buttonSize)) !important;
 }
@@ -92,6 +93,9 @@
                         &.activeItemOrTask {
                             --fontColor: var(--gameBlueSoft) !important;
                             background: var(--lightGradient) !important;
+                            &:hover {
+                                background: var(--whiteGradient) !important;
+                            }
                             .changeLabel {
                                 color: black !important;
                             }
@@ -100,11 +104,19 @@
                                 color: black !important;
                                 // color: var(--fontColor) !important;
                             }
+                            .deleteTaskButton {
+                                background: black;
+                            }
                             input[type="checkbox"] {
                                 &::before {
                                     content: "◍" !important;
                                     padding: 0px 8px!important;
                                     color: var(--fontColor) !important;
+                                }
+                            }
+                            &:hover {
+                                .deleteTaskButton {
+                                    background: var(--blackGlass) !important;
                                 }
                             }
                         }

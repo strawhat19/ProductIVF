@@ -244,11 +244,13 @@ export default function Item({ item, count, column, itemIndex, board }: any) {
                                 </span>
                                 </>} <span className={`slashes`}>
                                     ✔
-                                </span> {item?.options?.complete ? item?.data?.taskIDs.length : globalUserData?.tasks?.filter(task => task?.itemID == item?.id && task?.options?.complete).length} <span className={`slashes slashesSymbol`}>
-                                    /
-                                </span> <span className={`slashes`}>
-                                    T
-                                </span> {item?.data?.taskIDs.length}
+                                </span> {item?.options?.complete ? item?.data?.taskIDs.length : globalUserData?.tasks?.filter(task => task?.itemID == item?.id && task?.options?.complete).length} {!item?.options?.complete && <>
+                                    <span className={`slashes slashesSymbol`}>
+                                        /
+                                    </span> <span className={`slashes`}>
+                                        T
+                                    </span> {item?.data?.taskIDs.length}
+                                </>}
                             </span>
                         </>}
                     </div>

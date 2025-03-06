@@ -2004,10 +2004,24 @@ textarea {
                             }
                             .subTaskItem {
                                 background: linear-gradient(90deg, var(--whiteGlass) var(--buttonSize), var(--blackGlass) var(--buttonSize));
+                                &.taskItemNotComplete {
+                                    &:hover {
+                                        .deleteTaskButton {
+                                            background: var(--blackGlass) !important;
+                                        }
+                                    }
+                                }
                                 &.complete {
-                                    background: linear-gradient(90deg, var(--blackGlass) var(--buttonSize), var(--whiteGlass) var(--buttonSize));
+                                    background: var(--lightGradient);
                                     .taskDate {
                                         color: var(--dark);
+                                    }
+                                    &:not(.taskItemComplete) {
+                                        &:hover {
+                                            .deleteTaskButton {
+                                                background: var(--blackGlass) !important;
+                                            }
+                                        }
                                     }
                                 }
                                 &:not(:last-child) {
