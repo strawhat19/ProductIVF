@@ -68,10 +68,10 @@ const SortableSubtaskItem = ({ item, task, isLast, column, index, changeLabel, c
               type={`checkbox`}
               data-checkbox={true}
               autoComplete={`off`}
-              disabled={item?.complete}
+              disabled={item?.options?.complete}
+              onChange={(e) => completeTask(e, task)}
               onMouseDown={(e) => e.stopPropagation()}
               onPointerDown={(e) => e.stopPropagation()}
-              onChange={(e) => completeTask(e, task)}
               checked={item?.options?.complete || (task?.options?.complete || task?.options?.active)}
               className={`task_check_box taskCheckbox ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`}`}
             />

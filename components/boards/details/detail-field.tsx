@@ -25,7 +25,7 @@ export const getStatSymbol = (stat: Statuses) => {
     return statSymbol;
 }
 
-export const getItemOrTaskStatus = (itemOrTask: Item | Task, tasks: Task[] = []): Statuses => {
+export const getItemOrTaskStatus = (itemOrTask: Item | Task, tasks: Task[] = [], taskItem: Item = undefined): Statuses => {
     let status: Statuses = Statuses.Next;
 
     const statusIsTrue = (status) => isValid(status) && status == true;
@@ -34,18 +34,19 @@ export const getItemOrTaskStatus = (itemOrTask: Item | Task, tasks: Task[] = [])
     let isComplete = statusIsTrue(itemOrTask?.options?.complete);
     
     let isItem = itemOrTask?.type == Types.Item;
+
     let isItemWActiveTasks = isItem && (isValid(tasks) && tasks?.some(tsk => statusIsTrue(tsk?.options?.active) || statusIsTrue(tsk?.options?.complete)));
 
     if (isActive || isItemWActiveTasks) status = Statuses.Active;
-    if (isComplete) status = Statuses.Complete;
+    if (isComplete || (taskItem != undefined && taskItem?.options?.complete)) status = Statuses.Complete;
 
     return status;
 }
 
-export default function DetailField({ item, task = undefined, type = DetailTypes.Status, tasks = undefined }) {
+export default function DetailField({ item, task = undefined, type = DetailTypes.Status, tasks = undefined, taskItem = undefined }) {
 
     const detailFieldElement = (itemOrTask: Item | Task, className = `dateDetail`, key: `created` | `updated` = `created`) => {
-        let stat = getItemOrTaskStatus(itemOrTask, tasks);
+        let stat = getItemOrTaskStatus(itemOrTask, tasks, task == undefined ? undefined : item);
         return <>
             <span className={`detailField itemDate ${className} itemName textOverflow extended flex row`}>
                 <i className={`status statusLabel`}>
