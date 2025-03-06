@@ -9,7 +9,7 @@ import DetailField from './details/detail-field';
 import ConfirmAction from '../context-menus/confirm-action';
 import { Item as ItemModel } from '../../shared/models/Item';
 import React, { useContext, useEffect, useState } from 'react';
-import { showAlert, StateContext, capitalizeAllWords } from '../../pages/_app';
+import { showAlert, StateContext, capitalizeAllWords, dev } from '../../pages/_app';
 import { deleteItemFromDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
 import { forceFieldBlurOnPressEnter, isValid, removeExtraSpacesFromString } from '../../shared/constants';
 
@@ -173,10 +173,14 @@ export default function Item({ item, count, column, itemIndex, board }: any) {
     }
 
     const onRightClick = (e: React.MouseEvent<HTMLDivElement>, item: ItemModel, column: List) => {
-        e.preventDefault();
-        setItemTypeMenuOpen(true);
-        setMenuPosition({ x: e.clientX, y: e.clientY });
-        setSelected({item, column, board, onManageItem, onCompleteItem, onDeleteItem});
+        if (dev()) {
+            return;
+        } else {
+            e.preventDefault();
+            setItemTypeMenuOpen(true);
+            setMenuPosition({ x: e.clientX, y: e.clientY });
+            setSelected({item, column, board, onManageItem, onCompleteItem, onDeleteItem});
+        }
     }
     
     const handleClickOutside = (event: MouseEvent) => {
@@ -224,16 +228,32 @@ export default function Item({ item, count, column, itemIndex, board }: any) {
                         </div>
                     )} */}
                 </span>
-                {/* {devEnv && wordInCategories(item) && <span className="itemCategory itemDate itemName itemCreated itemUpdated textOverflow extended flex row">
-                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-hashtag"></i> 
-                    <span className={`itemDateTime`}>
-                        {wordOfCategory(item)}
-                    </span>
-                </span>} */}
                 {(item?.image || column?.options?.details && column?.options?.details == true) ? <>
                     <hr className={`itemSep`} style={{height: 1, borderColor: `var(--gameBlue)`}} />
                     <div className={`itemFooter flex row`}>
-                        <DetailField item={item} tasks={globalUserData?.tasks?.filter(tsk => tsk?.itemID == item?.id)} />
+                        <div className={`itemDetails`}>
+                            <DetailField item={item} tasks={globalUserData?.tasks?.filter(tsk => tsk?.itemID == item?.id)} />
+                            {devEnv && <>
+                                <span className={`detailField itemTags itemTag itemCategory itemDate itemName itemCreated itemUpdated textOverflow extended flex row`}>
+                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-hashtag`} />
+                                    <span className={`itemDateTime`}>
+                                        Tag
+                                    </span>
+                                </span>
+                                <span className={`detailField itemTags itemTag itemCategory itemDate itemName itemCreated itemUpdated textOverflow extended flex row`}>
+                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-hashtag`} />
+                                    <span className={`itemDateTime`}>
+                                        Item
+                                    </span>
+                                </span>
+                                <span className={`detailField itemTags itemTag itemCategory itemDate itemName itemCreated itemUpdated textOverflow extended flex row`}>
+                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-hashtag`} />
+                                    <span className={`itemDateTime`}>
+                                        Task
+                                    </span>
+                                </span>
+                            </>}
+                        </div>
                         {item?.data?.taskIDs && item?.data?.taskIDs.length > 0 && <>
                             <span className={`taskProgressCount subtaskIndex subscript flex row gap5`}>
                                 {!item?.options?.complete && <>
