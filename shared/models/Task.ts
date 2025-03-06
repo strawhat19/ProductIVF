@@ -27,6 +27,7 @@ export class Task extends Data {
     
     options = {
         private: true,
+        active: false,
         complete: false,
         archived: false,
         recurring: false,

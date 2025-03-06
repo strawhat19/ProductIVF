@@ -582,7 +582,7 @@ input {
 
 @media (max-width: 467px) {
     .overflowingBoard {
-        .itemDate {
+        .detailField {
             display: none !important;
         }
     }
@@ -597,7 +597,7 @@ input {
     .status {
         display: none !important;
     }
-    .itemDate {
+    .detailField {
         justify-content: flex-end !important;
     }
 
@@ -698,7 +698,7 @@ input {
                     padding-bottom: 1px !important;
                 }
             }
-            .itemDate {
+            .detailField {
                 min-width: 100%;
                 padding: 5px 0 5px 10px;
                 margin-top: -5px !important;
@@ -724,7 +724,7 @@ input {
     .itemName {
         max-width: 220px;
     }
-    .itemDate {
+    .detailField {
         min-width: 135px !important;
     }
    }
@@ -760,7 +760,7 @@ input {
         display: none !important;
     }
     .multiList {
-        .itemDate {
+        .detailField {
             justify-content: flex-end !important;
         }
     }
@@ -813,7 +813,7 @@ input {
                     padding-bottom: 1px !important;
                 }
             }
-            .itemDate {
+            .detailField {
                 min-width: 100%;
                 padding: 5px 0 5px 10px;
                 margin-top: -5px !important;
@@ -1211,7 +1211,7 @@ textarea {
             .boardDate {
                 margin-left: -15px;
                 justify-content: end;
-                .itemDate {
+                .detailField {
                     margin-left: -15px !important;
                 }
             }
@@ -1256,13 +1256,13 @@ textarea {
         .subTaskItem {
             &:hover {
                 .subtaskActions {
-                    .itemDate {
+                    .detailField {
                         border-color: var(--gameBlue) !important;
                     }
                 }
             }
             .subtaskActions {
-                .itemDate {
+                .detailField {
                     border-color: var(--gameBlueInverse) !important;
                 }
             }
@@ -1278,7 +1278,7 @@ textarea {
         font-weight: 600 !important;
         .subTaskItem {
             .subtaskActions {
-                .itemDate {
+                .detailField {
                     border-color: var(--gameBlueInverse) !important;
                 }
             }
@@ -1290,7 +1290,7 @@ textarea {
             font-weight: 600 !important;
         }
     }
-    .itemDate {
+    .detailField {
         font-weight: 600 !important;
         font-size: 0.65em !important;
     }
@@ -1324,7 +1324,7 @@ textarea {
             color: var(--gameBlueInverse);
         }
         .subTaskItem {
-            .itemDate {
+            .detailField {
                 border-color: var(--gameBlue) !important;
             }
             &:hover {
@@ -1915,7 +1915,7 @@ textarea {
                     text-transform: capitalize;
                     // font-weight: 500 !important;
                     transition: var(--transition);
-                    &:not(.itemDate) {
+                    &:not(.detailField) {
                         padding: 10px 0;
                         justify-content: center;
                         white-space: normal !important;
@@ -1923,7 +1923,7 @@ textarea {
                     }
                 }
                 
-                .itemDate {
+                .detailField {
                     font-size: 11px;
                     padding-right: 0;
                     text-align: right;
@@ -2070,7 +2070,7 @@ textarea {
                                         padding: 0 0 0 20px;
                                         max-width: -moz-fit-content;
                                         justify-content: space-between;
-                                        .itemDate {
+                                        .detailField {
                                             justify-content: flex-end;
                                             margin-right: 10px !important;
                                         }
@@ -2203,7 +2203,7 @@ textarea {
                     }
 
                     .itemName {
-                       &:not(.itemDate) {
+                       &:not(.detailField) {
                         text-decoration-thickness: 0;
                         text-decoration: line-through;
                         text-decoration-color: black;
@@ -2658,7 +2658,7 @@ footer {
                 .itemRow {
                     background: linear-gradient(90deg, var(--whiteGlass) var(--buttonSize), var(--blackGlass) var(--buttonSize));
                 }
-                .itemDate {
+                .detailField {
                     font-size: 9px;
                     max-width: fit-content !important;
                 }

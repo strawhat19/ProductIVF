@@ -1,6 +1,7 @@
 import { CSS } from '@dnd-kit/utilities';
 import { addBoardScrollBars } from './board';
 import { getIDParts } from '../../shared/ID';
+import DetailField from './details/detail-field';
 import React, { useContext, useState } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { capWords, StateContext } from '../../pages/_app';
@@ -13,7 +14,7 @@ import { restrictToFirstScrollableAncestor, restrictToVerticalAxis, restrictToWi
 
 const reorder = (list, oldIndex, newIndex) => arrayMove(list, oldIndex, newIndex);
 
-const SortableSubtaskItem = ({ item, task, isLast, column, index, changeLabel, completeSubtask, deleteSubtask }) => {
+const SortableSubtaskItem = ({ item, task, isLast, column, index, changeLabel, completeTask, deleteSubtask }) => {
   let { listeners, transform, attributes, setNodeRef, transition, isDragging } = useSortable({ id: task.id });
 
   const style = {
@@ -25,7 +26,7 @@ const SortableSubtaskItem = ({ item, task, isLast, column, index, changeLabel, c
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners} className={`boardTaskDraggableWrap`}>
-      <div className={`task_${task?.id} boardTask subTaskItem ${isValid(task?.options?.active) && task?.options?.active == true ? `active` : ``} ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`} ${isLast ? `dndLast` : ``}`}>
+      <div className={`task_${task?.id} boardTask subTaskItem ${!item?.options?.complete && (isValid(task?.options?.active) && task?.options?.active == true) ? `activeItemOrTask` : ``} ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`} ${isLast ? `dndLast` : ``}`}>
         <div className={`boardTaskHandle cursorGrab draggableItem item subtaskHandle ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`}`}>
           <span className={`itemOrder taskComponentBG`}>
             <i className={`itemIndex ${(item?.options?.complete || task?.options?.complete) ? `completedIndex` : `activeIndex`}`}>
@@ -49,25 +50,7 @@ const SortableSubtaskItem = ({ item, task, isLast, column, index, changeLabel, c
             </span>
 
             {column?.options?.details && column?.options?.details == true ? (
-              task?.meta?.created && !task?.meta?.updated ? (
-                <span className={`itemDate ${(item?.options?.complete || task?.options?.complete) ? `taskCompleteDate` : `taskActiveDate`} itemName itemCreated textOverflow extended flex row taskDate`}>
-                  <i className={`status`}>
-                    Cre.
-                  </i>
-                  <span className={`itemDateTime`}>
-                    {task?.meta?.created}
-                  </span>
-                </span>
-              ) : task?.meta?.updated ? (
-                <span className={`itemDate ${(item?.options?.complete || task?.options?.complete) ? `taskCompleteDate` : `taskActiveDate`} itemName itemCreated itemUpdated textOverflow extended flex row taskDate`}>
-                  <i className={`status`}>
-                    Upd.
-                  </i>
-                  <span className={`itemDateTime`}>
-                    {task?.meta?.updated}
-                  </span>
-                </span>
-              ) : null
+              <DetailField item={item} task={task} />
             ) : <></>}
           </div>
 
@@ -88,8 +71,8 @@ const SortableSubtaskItem = ({ item, task, isLast, column, index, changeLabel, c
               disabled={item?.complete}
               onMouseDown={(e) => e.stopPropagation()}
               onPointerDown={(e) => e.stopPropagation()}
-              onChange={(e) => completeSubtask(e, task)}
-              checked={item?.options?.complete || task?.options?.complete}
+              onChange={(e) => completeTask(e, task)}
+              checked={item?.options?.complete || (task?.options?.complete || task?.options?.active)}
               className={`task_check_box taskCheckbox ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`}`}
             />
           </div>
@@ -131,21 +114,34 @@ export default function Tasks(props) {
 
   const completeTask = async (e, task) => {
     setLoading(true);
-    const { date } = getIDParts();
-    const isTaskComplete = task?.options?.complete;
-    // const isTaskActive = isValid(task?.options?.active) && task?.options?.active == true;
 
-    setSystemStatus(`Marking Task as ${isTaskComplete ? `Reopened` : `Complete`}.`);
+    const { date } = getIDParts();
+
+    const taskComplete = task?.options?.complete == true;
+    const taskActive = isValid(task?.options?.active) && task?.options?.active == true;
+
+    setSystemStatus(`Marking Task as ${taskComplete ? `Reopened` : `Complete`}.`);
 
     updateTaskInState(task, {
       options: {
         ...task?.options,
-        complete: !isTaskComplete,
-        // ...((isTaskActive && !isTaskComplete) ? {
-        //   active: false,
-        // } : {
-        //   active: true,
-        // }),
+        ...(taskActive ? {
+          ...(taskComplete ? {
+            active: false,
+            complete: false,
+          } : {
+            active: false,
+            complete: true,
+          }),
+        } : {
+          ...(taskComplete ? {
+            active: false,
+            complete: false,
+          } : {
+            active: true,
+            complete: false,
+          })
+        }),
       },
       meta: {
         ...task?.meta,
@@ -154,16 +150,27 @@ export default function Tasks(props) {
     })
 
     await updateDocFieldsWTimeStamp(task, { 
-      [`options.complete`]: !isTaskComplete, 
-      // ...((isTaskActive && !isTaskComplete) ? {
-      //   [`options.active`]: false, 
-      // } : {
-      //   [`options.active`]: true, 
-      // }),
+      ...(taskActive ? {
+        ...(taskComplete ? {
+          [`options.active`]: false,
+          [`options.complete`]: false,
+        } : {
+          [`options.active`]: false,
+          [`options.complete`]: true,
+        }),
+      } : {
+        ...(taskComplete ? {
+          [`options.active`]: false,
+          [`options.complete`]: false,
+        } : {
+          [`options.active`]: true,
+          [`options.complete`]: false,
+        })
+      }),
     });
 
     setTimeout(() => {
-      setSystemStatus(`Marked Task #${task?.number} as ${!isTaskComplete ? `Complete` : `Reopened`}.`);
+      setSystemStatus(`Marked Task #${task?.number} as ${!taskComplete ? `Complete` : `Reopened`}.`);
       setLoading(false);
     }, 1000);
   }
@@ -286,7 +293,7 @@ export default function Tasks(props) {
                     column={column}
                     changeLabel={changeLabel}
                     deleteSubtask={(e) => deleteTask(e, task)}
-                    completeSubtask={(e) => completeTask(e, task)}
+                    completeTask={(e) => completeTask(e, task)}
                   />
                 );
               })}

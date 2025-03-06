@@ -29,6 +29,7 @@ export class Item extends Data {
     tasks?: any;
     
     options = {
+        active: false,
         private: true,
         complete: false,
         archived: false,

@@ -4,31 +4,34 @@ import ItemDetail from './itemdetail';
 import CustomImage from '../custom-image';
 import { addBoardScrollBars } from './board';
 import { List } from '../../shared/models/List';
+import { Task } from '../../shared/models/Task';
+import DetailField from './details/detail-field';
 import ConfirmAction from '../context-menus/confirm-action';
 import { Item as ItemModel } from '../../shared/models/Item';
 import React, { useContext, useEffect, useState } from 'react';
 import { showAlert, StateContext, capitalizeAllWords } from '../../pages/_app';
 import { deleteItemFromDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
-import { forceFieldBlurOnPressEnter, removeExtraSpacesFromString } from '../../shared/constants';
+import { forceFieldBlurOnPressEnter, isValid, removeExtraSpacesFromString } from '../../shared/constants';
 
-export const getTaskPercentage = (tasks: any[]) => {
-    let tasksProgress = 0;
-    let completeTasks = tasks.filter(task => task?.options?.complete);
-    tasksProgress = parseFloat(((completeTasks.length / tasks.length) * 100).toFixed(1));
-    return tasksProgress;
-}
-
-export const getSubTaskPercentage = (subtasks: any[], item, isActive = null) => {
-    let itemIsComplete = item?.options?.complete;
+export const getItemTaskCompletionPercentage = (tasks: Task[], item: ItemModel, isActive = null) => {
+    let itemIsComplete = isValid(item?.options?.complete) && item?.options?.complete == true;
     if (itemIsComplete) return 100;
-    if (subtasks.length == 0) {
+
+    if (tasks.length == 0) {
         if (isActive != null) return itemIsComplete ? 100 : (isActive == true ? 0 : 100);
         else return itemIsComplete ? 100 : 0;
-    };
-    let subtasksProgress = 0;
-    let completeTasks = subtasks.filter(task => task?.options?.complete);
-    subtasksProgress = parseFloat(((completeTasks.length / subtasks.length) * 100).toFixed(1));
-    return subtasksProgress;
+    }
+
+    let itemTaskCompletionProgress = 0;
+    
+    let activeTasks = tasks.filter(task => isValid(task?.options?.active) && task?.options?.active == true);
+    let completeTasks = tasks.filter(task => isValid(task?.options?.complete) && task?.options?.complete == true);
+
+    let activeTaskProgress = (activeTasks.length / tasks.length) * 50;
+    let completeTaskProgress = (completeTasks.length / tasks.length) * 100;
+
+    itemTaskCompletionProgress = parseFloat((activeTaskProgress + completeTaskProgress).toFixed(1));
+    return itemTaskCompletionProgress;
 }
 
 export const getTypeIcon = (type) => {
@@ -58,8 +61,10 @@ export const manageItem = (e, item, index, tasks) => {
 
 export default function Item({ item, count, column, itemIndex, board }: any) {
     let [showConfirm, setShowConfirm] = useState(false);
+
     let { 
-        menuRef,  
+        devEnv, 
+        menuRef, 
         setLoading, 
         setSelected, 
         globalUserData,
@@ -188,7 +193,7 @@ export default function Item({ item, count, column, itemIndex, board }: any) {
     }, []);
 
     return <>
-        <div id={`itemElement_${item.id}`} className={`itemComponent itemInnerRow flex row`} onContextMenu={(e) => onRightClick(e, item, column)}>
+        <div id={`itemElement_${item.id}`} className={`itemComponent itemInnerRow flex row ${isValid(item?.options?.active) && item?.options?.active == true ? `activeItemOrTask` : ``}`} onContextMenu={(e) => onRightClick(e, item, column)}>
             <span className={`itemOrder rowIndexOrder`}>
                 <i className={`itemIndex ${item?.options?.complete ? `completedIndex` : `activeIndex`}`}>
                     <span className={`itemIconType ${item?.itemType}`}>
@@ -228,31 +233,21 @@ export default function Item({ item, count, column, itemIndex, board }: any) {
                 {(item?.image || column?.options?.details && column?.options?.details == true) ? <>
                     <hr className={`itemSep`} style={{height: 1, borderColor: `var(--gameBlue)`}} />
                     <div className={`itemFooter flex row`}>
-                        {item?.meta?.created && !item?.meta?.updated ? (
-                            <span className={`itemDate itemName itemCreated textOverflow extended flex row`}>
-                                <i className={`status`}>
-                                    Cre.
-                                </i> 
-                                <span className={`itemDateTime`}>
-                                    {item?.meta?.created}
-                                </span>
-                            </span>
-                        ) : item?.meta?.updated ? (
-                            <span className={`itemDate itemName itemCreated itemUpdated textOverflow extended flex row`}>
-                                <i className={`status`}>
-                                    Upd.
-                                </i> 
-                                <span className={`itemDateTime`}>
-                                    {item?.meta?.updated}
-                                </span>
-                            </span>
-                        ) : null}
+                        <DetailField item={item} tasks={globalUserData?.tasks?.filter(tsk => tsk?.itemID == item?.id)} />
                         {item?.data?.taskIDs && item?.data?.taskIDs.length > 0 && <>
                             <span className={`taskProgressCount subtaskIndex subscript flex row gap5`}>
-                                <span className={`slashes`}>
+                                {!item?.options?.complete && <>
+                                    <span className={`slashes`}>
+                                        ●
+                                    </span> {globalUserData?.tasks?.filter(task => task?.itemID == item?.id && task?.options?.active).length} <span className={`slashes slashesSymbol`}>
+                                    /
+                                </span>
+                                </>} <span className={`slashes`}>
                                     ✔
-                                </span> {item?.options?.complete ? item?.data?.taskIDs.length : globalUserData?.tasks?.filter(task => task?.itemID == item?.id && task?.options?.complete).length} <span className={`slashes`}>
-                                    //
+                                </span> {item?.options?.complete ? item?.data?.taskIDs.length : globalUserData?.tasks?.filter(task => task?.itemID == item?.id && task?.options?.complete).length} <span className={`slashes slashesSymbol`}>
+                                    /
+                                </span> <span className={`slashes`}>
+                                    T
                                 </span> {item?.data?.taskIDs.length}
                             </span>
                         </>}

@@ -59,13 +59,13 @@
             &.boardColumnItems {
                 .boardItem {
                     &:not(.complete) {
-                        .changeLabel, .itemDate, itemButtons button {
+                        .changeLabel, .detailField, itemButtons button {
                             transition: none !important;
                         }
                     }
                     .itemRow {
                         &:hover {
-                            .itemName, .changeLabel, .itemDate, .taskProgressCount {
+                            .itemName, .changeLabel, .detailField, .taskProgressCount {
                                 color: var(--dark) !important;
                             }
                             .progress {
@@ -89,12 +89,31 @@
                                 -webkit-text-decoration-color: var(--dark) !important;
                             }
                         }
+                        &.activeItemOrTask {
+                            --fontColor: var(--gameBlueSoft) !important;
+                            background: var(--lightGradient) !important;
+                            .changeLabel {
+                                color: black !important;
+                            }
+                            .detailField {
+                                font-style: italic;
+                                color: black !important;
+                                // color: var(--fontColor) !important;
+                            }
+                            input[type="checkbox"] {
+                                &::before {
+                                    content: "◍" !important;
+                                    padding: 0px 8px!important;
+                                    color: var(--fontColor) !important;
+                                }
+                            }
+                        }
                     }
                     &.complete {
                         * {
                             transition: 85ms var(--delayedTransition) !important;
                         }
-                        .itemName, .changeLabel, .itemDate, .taskProgressCount {
+                        .itemName, .changeLabel, .detailField, .taskProgressCount {
                             color: var(--dark) !important;
                         }
                         .itemRow, .subTaskItem {
@@ -102,7 +121,7 @@
                         }
                         .boardTask {
                             &:hover {
-                                .itemName, .changeLabel, .itemDate {
+                                .itemName, .changeLabel, .detailField {
                                     color: var(--darkInverse) !important;
                                     text-decoration-color: var(--primary) !important;
                                     -webkit-text-decoration-color: var(--primary) !important;

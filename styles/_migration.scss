@@ -3,15 +3,11 @@
     min-width: max-content;
 }
 
-.boardTask {
-    &.active {
-        background: var(--lightGradient) !important;
-        input[type="checkbox"] {
-            &::before {
-                content: "○";
-                padding: 0px 8px!important;
-                color: var(--gameBlue) !important;
-            }
-        }
-    }
-}
+// .itemFooter {
+//     .slashesSymbol {
+//         font-size: 0px;
+//         color: transparent;
+//         max-width: 0px !important;
+//         letter-spacing: 0 !important;
+//     }
+// }
