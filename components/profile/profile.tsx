@@ -27,7 +27,7 @@ export default function Profile(props: any) {
                 label={label} 
                 showLoading={true}
                 className={`boardsSkeleton`} 
-                style={{ margin: `5px 0`, '--animation-delay': `${0.15}s` }}
+                style={{ margin: `5px 0`, [`--animation-delay`]: `${0.15}s` }}
             />
         )
     }

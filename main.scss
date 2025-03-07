@@ -352,6 +352,9 @@ nav {
     overflow: hidden !important;
     white-space: nowrap !important;
     text-overflow: ellipsis !important;
+    &.skeleton_label {
+        max-width: 550px;
+    }
 }
 
 html[class~=dark] .dark\:nx-bg-dark {
@@ -744,7 +747,6 @@ input {
         grid-gap: 10px !important;
         justify-content: flex-start;
         .status {
-            // @extend .textOverflow;
             text-align: left;
             overflow: hidden;
             display: inline-block;

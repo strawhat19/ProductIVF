@@ -76,10 +76,12 @@ export default function Form(props?: any) {
   const { 
     onSignIn,
     onSignOut, 
+    setLoading,
     setContent,
     signInUser, 
     usersLoading,
     setUpNextGrid,
+    setSystemStatus,
     isFeatureEnabled,
     updates, setUpdates, 
     setAuthenticateOpen,
@@ -342,6 +344,11 @@ export default function Form(props?: any) {
         onDeleteOrCancelUser(e);
         break;
     };
+
+    setTimeout(() => {
+      setSystemStatus(`${users?.length} User(s)`);
+      setLoading(false);
+    }, 500)
   }
 
   useEffect(() => {

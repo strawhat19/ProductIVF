@@ -3,16 +3,16 @@ import { toast } from 'react-toastify';
 import { User } from '../../shared/models/User';
 import MultiSelector from '../selector/multi-selector';
 import { collection, getDocs } from 'firebase/firestore';
+import { FeatureIDs } from '../../shared/admin/features';
 import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
 import { AuthGrids, Types } from '../../shared/types/types';
 import { useState, useEffect, useContext, useRef } from 'react';
+// import FeatureFlagBadge from '../../shared/admin/feature-flag-badge';
 import { capWords, dev, replaceAll, StateContext } from '../../pages/_app';
 import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
 import { Board as BoardModel, createBoard } from '../../shared/models/Board';
 import { generateArray, logToast, withinXTime } from '../../shared/constants';
 import { addBoardToDatabase, boardsTable, db, updateDocFieldsWTimeStamp } from '../../firebase';
-import { FeatureIDs } from '../../shared/admin/features';
-import FeatureFlagBadge from '../../shared/admin/feature-flag-badge';
 
 export enum ItemTypes {
     Item = `Item`,
@@ -48,7 +48,6 @@ export const recentlyAuthenticated = (usr: User, interval = 5, timePass = `minut
 export default function Boards(props: any) {
     let { 
         user, 
-        devEnv,
         authState,
         setLoading, 
         globalUserData,
@@ -64,7 +63,9 @@ export default function Boards(props: any) {
         grids, gridsLoading, selectedGrids, selectedGrid, 
     } = useContext<any>(StateContext);
 
+    const gridFormRef = useRef(null);
     const multiSelectorRef = useRef(null);
+
     let [updates, setUpdates] = useState(0);
     let [useSingleSelect, ] = useState(true);
     let [useGridSearchCreate, ] = useState(true);
@@ -81,6 +82,14 @@ export default function Boards(props: any) {
         const gridFormFieldValue = gridFormField?.value; 
         setGridSearchTerm(gridFormFieldValue);
     }
+
+    // useEffect(() => {
+    //     if (gridFormRef != null) {
+    //         if (gridFormRef?.current) {
+    //             gridFormRef?.current?.reset();
+    //         }
+    //     }
+    // }, [selectedGrid])
 
     useEffect(() => {
         setRte(replaceAll(router.route, `/`, `_`));
@@ -174,7 +183,7 @@ export default function Boards(props: any) {
                     {(gridsLoading || (selectedGrid == null && (grids?.length == 0 || globalUserData?.grids?.length == 0)) || !useGridSearchCreate) ? <></> : <>
                         {globalUserData?.boards?.length > 0 && globalUserData?.lists?.length > 0 && globalUserData?.items?.length > 0 && <>
                             {isFeatureEnabled(FeatureIDs.Search_Grid) && <>
-                                <form className={`gridForm w100 searchCreateGridForm`} onInput={(e) => onGridFormChange(e)} onSubmit={(e) => onGridFormSubmit(e)} style={{ position: `relative` }}>
+                                <form ref={gridFormRef} className={`gridForm w100 searchCreateGridForm`} onInput={(e) => onGridFormChange(e)} onSubmit={(e) => onGridFormSubmit(e)} style={{ position: `relative` }}>
                                     {/* <FeatureFlagBadge featureID={FeatureIDs.Search_Grid} /> */}
                                     <button style={{ background: `white`, pointerEvents: useSearchInputGridCreate ? `all` : `none`, width: `8%`, minWidth: 33, maxWidth: 33, justifyContent: `center`, borderTopRightRadius: 0, borderBottomRightRadius: 0 }} title={`${searchingGrid ? `Search` : `Create`} Grid`} className={`gridTypeIconButton iconButton filterButton hoverGlow ${searchingGrid ? `filerActive searchButton` : `filterInactive createGridButton`}`} onClick={() => setSearchingGrid(!searchingGrid)}>
                                         {searchingGrid ? <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-search`} /> : `+`}
@@ -196,7 +205,7 @@ export default function Boards(props: any) {
                             showLoading={true}
                             className={`gridsItemsSkeleton`} 
                             label={getLoadingLabel(`Grids`, authState, user)} 
-                            style={{ minWidth: 300, '--animation-delay': `${0.15}s` }} 
+                            style={{ minWidth: 300, [`--animation-delay`]: `${0.15}s` }} 
                         />
                     ) : (
                         <MultiSelector 
@@ -270,7 +279,7 @@ export default function Boards(props: any) {
                                     key={lblIndex}
                                     showLoading={true}
                                     className={`boardsSkeleton`} 
-                                    style={{ margin: `5px 0`, '--animation-delay': `${(lblIndex + 1) * 0.15}s` }}
+                                    style={{ margin: `5px 0`, [`--animation-delay`]: `${(lblIndex + 1) * 0.15}s` }}
                                 />
                             ))}
                         </div>

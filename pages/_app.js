@@ -530,9 +530,12 @@ export default function ProductIVF({ Component, pageProps, router }) {
     setActiveOptions([]);
     setSelectedGrid(null);
     setGridsLoading(true);
+    setGridSearchTerm(``);
     setBoardsLoading(true);
+    setSystemStatus(`Resetting`);
     setGlobalUserDataLoading(true);
     setOnAuthenticateFunction(`Default`);
+    setTimeout(() => setLoading(false), 1500);
     setOnAuthenticateLabel(defaultAuthenticateLabel);
   }
 
@@ -549,6 +552,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       await setUpdates(updates + 1);
       await signOutReset();
       await signOut(auth);
+      await setSystemStatus(`Signing Out`);
       if (navigateToHome == true) router.replace(`/`, undefined, { shallow: true });
     } catch (signOutError) {
       await logToast(`Error on Sign Out`, signOutError, true);
@@ -643,9 +647,13 @@ export default function ProductIVF({ Component, pageProps, router }) {
         let existingUser = users.find(eml => eml?.email?.toLowerCase() == email?.toLowerCase());
         if (existingUser) {
           const { date } = getIDParts();
-          await updateDocFieldsWTimeStamp(existingUser, { 'auth.signedIn': false, 'auth.lastSignIn': date, 'auth.lastAuthenticated': date });
+          await updateDocFieldsWTimeStamp(existingUser, { [`auth.signedIn`]: false, [`auth.lastSignIn`]: date, [`auth.lastAuthenticated`]: date });
           signInUser(existingUser, true);
           toast.success(`Successfully Signed In`);
+          setTimeout(() => {
+            setSystemStatus(`Signed In`);
+            setLoading(false);
+          }, 500);
         } else {
           setEmailField(true);
           setAuthState(AuthStates.Sign_Up);
@@ -663,6 +671,8 @@ export default function ProductIVF({ Component, pageProps, router }) {
           errorMessage,
         });
       }
+      setEmailField(true);
+      setAuthState(AuthStates.Sign_In);
       return;
     });
   }
@@ -694,6 +704,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
 
   const switchSelectedGrid = (usr, selectedGrd, navigate = useNavigation) => {
     if (usr?.lastSelectedGridID != selectedGrd?.id) {
+      // setGridSearchTerm(``);
       updateDocFieldsWTimeStamp(usr, { 
         lastSelectedGridID: selectedGrd?.id, 
         [`data.selectedGridIDs`]: [selectedGrd?.id], 
@@ -709,6 +720,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
 
   const hardSetSelectedGrid = (gridToSet, grids) => {
     if (user?.lastSelectedGridID != gridToSet?.id) {
+      // setGridSearchTerm(``);
       updateDocFieldsWTimeStamp(user, { 
         lastSelectedGridID: gridToSet?.id, 
         [`data.selectedGridIDs`]: [gridToSet?.id], 
@@ -725,12 +737,6 @@ export default function ProductIVF({ Component, pageProps, router }) {
       lastUpdateFrom: `Grids`,
       lastUpdate: getIDParts()?.date,
     }));
-
-    // let lastSelectedGrid = gridsToSet?.find(gr => gr?.id == gridID);
-    // if (lastSelectedGrid) {
-    //   setSelectedGrd(lastSelectedGrid);
-    // }
-    // if (gridsToSet?.length > 0) setGridsLoading(false);
   }
 
   const setUsersGridsState = (lastSelectedGridID, usersGridsByID, updateGrids = true) => {
@@ -893,6 +899,8 @@ export default function ProductIVF({ Component, pageProps, router }) {
           }
         } else {
           dev() && console.log(`Users`, users);
+          setSystemStatus(`${users?.length} User(s)`);
+          setLoading(false);
         }
       });
     } else if (listenForUserAuthChanges != null) listenForUserAuthChanges();
@@ -949,7 +957,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
   useEffect(() => {
     setLoading(true);
     setAnimComplete(false);
-    setSystemStatus(`Page Loading`);
+    setSystemStatus(`Loading`);
 
     if (loaded.current) return;
 
@@ -986,15 +994,6 @@ export default function ProductIVF({ Component, pageProps, router }) {
       if (!cachedBoard.items) cachedBoard.items = initialBoardData.items;
       setBoard(cachedBoard);
     }
-    //  else {
-    //   setBoard(initialBoardData);
-    // }
-
-    // if (cachedBoards && cachedBoards?.length > 0) {
-      // setBoards(cachedBoards);
-    // } else {
-      // signOutReset();
-    // }
 
     let toc = document.querySelector(`.nextra-toc`);
     let tocMinimized = JSON.parse(localStorage.getItem(`tocMinimized`));
@@ -1023,12 +1022,12 @@ export default function ProductIVF({ Component, pageProps, router }) {
       setBrowser(`opera`);
     }
 
-    // setLoading(false);
-    // setSystemStatus(`${getPage()} Loaded`);
+    setLoading(false);
+    setSystemStatus(`${users?.length} User(s)`);
     // setTimeout(() => {
-      // setLoading(false);
-      // setSystemStatus(`${getPage()} Loaded`);
-    // }, 1500)
+    //   setLoading(false);
+    //   setSystemStatus(`${users?.length} User(s)`);
+    // }, 1500);
 
     // if (dev()) {
     //   console.log(`brwser`, brwser);

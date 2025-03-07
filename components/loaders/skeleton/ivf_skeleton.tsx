@@ -28,7 +28,7 @@ export default function IVFSkeleton(props: any) {
                             <CircularProgress size={15} style={{ color: `var(--gameBlue)` }} />
                         </> : <></>}
                         <span className={`IVF_skeleton_label`}>
-                            <i style={{ color: labelColor, fontSize: labelSize }}>
+                            <i className={`skeleton_label ${label?.length > 45 ? `textOverflow` : ``}`} style={{ color: labelColor, fontSize: labelSize }}>
                                 {label}
                             </i>
                         </span>

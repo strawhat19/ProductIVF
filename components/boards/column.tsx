@@ -14,6 +14,7 @@ import { formatDate, StateContext, capitalizeAllWords, dev, capWords } from '../
 import { forceFieldBlurOnPressEnter, logToast, removeExtraSpacesFromString } from '../../shared/constants';
 import { addItemToDatabase, db, deleteListFromDatabase, itemsTable, updateDocFieldsWTimeStamp } from '../../firebase';
 import { Task } from '../../shared/models/Task';
+import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
 
 export default function Column(props) {
     let count = 0;
@@ -331,6 +332,18 @@ export default function Column(props) {
                                         )}
                                     )}
                                     {provided.placeholder}
+                                    {props.items.filter(itm => itemActiveFilters(itm))?.length == 0 && <>
+                                        <div className={`zeroState listZeroState`}>
+                                            <IVFSkeleton 
+                                                labelSize={12}
+                                                showLoading={true}
+                                                labelColor={`silver`}
+                                                className={`gridsItemsSkeleton`} 
+                                                label={`No Items Found for "${gridSearchTerm}"`} 
+                                                style={{ minWidth: 300, padding: `10px 3px`, [`--animation-delay`]: `${0.15}s` }} 
+                                            />
+                                        </div>
+                                    </>}
                                 </div>
                             )}
                         </Droppable>
