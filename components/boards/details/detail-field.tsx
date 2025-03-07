@@ -49,9 +49,12 @@ export default function DetailField({ item, task = undefined, type = DetailTypes
         let stat = getItemOrTaskStatus(itemOrTask, tasks, task == undefined ? undefined : item);
         return <>
             <span className={`detailField itemDate ${className} itemName textOverflow extended flex row`}>
-                <i className={`status statusLabel`}>
-                    {type == DetailTypes.Status ? `Sta` : capWords(key?.slice(0, 3))}.
-                </i> 
+                {type != DetailTypes.Status && (
+                    <i className={`status statusLabel`}>
+                        {capWords(key?.slice(0, 3))}.
+                        {/* {type == DetailTypes.Status ? `Sta` : capWords(key?.slice(0, 3))}. */}
+                    </i>
+                )} 
                 <span className={`statusField`}>
                     {type == DetailTypes.Status ? <>
                         <div className={`statusFieldInner`}>

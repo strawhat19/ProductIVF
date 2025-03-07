@@ -12,6 +12,9 @@ import React, { useContext, useEffect, useState } from 'react';
 import { showAlert, StateContext, capitalizeAllWords, dev } from '../../pages/_app';
 import { deleteItemFromDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
 import { forceFieldBlurOnPressEnter, isValid, removeExtraSpacesFromString } from '../../shared/constants';
+import ProgressBar from './details/progress-bar';
+import Tags from './details/tags';
+import Counts from './details/counts';
 
 export const getItemTaskCompletionPercentage = (tasks: Task[], item: ItemModel, isActive = null) => {
     let itemIsComplete = isValid(item?.options?.complete) && item?.options?.complete == true;
@@ -167,9 +170,7 @@ export default function Item({ item, count, column, itemIndex, board }: any) {
     }
 
     const onManageItem = (e) => {
-        const tasksForThisItem = globalUserData?.tasks?.filter(tsk => tsk?.itemID == item?.id);
-        console.log({tasksForThisItem});
-        manageItem(e, item, itemIndex, tasksForThisItem);
+        manageItem(e, item, itemIndex, getItemTasks());
     }
 
     const onRightClick = (e: React.MouseEvent<HTMLDivElement>, item: ItemModel, column: List) => {
@@ -189,7 +190,13 @@ export default function Item({ item, count, column, itemIndex, board }: any) {
             setMenuPosition(null);
             setItemTypeMenuOpen(false);
         }
-    };
+    }
+
+    const getItemTasks = (filterKey: string = ``) => {
+        let thisItemsTasks = globalUserData?.tasks?.filter(task => task?.itemID == item?.id);
+        if (filterKey != ``) thisItemsTasks = thisItemsTasks?.filter(tsk => tsk?.options[filterKey] == true);
+        return thisItemsTasks;
+    }
 
     useEffect(() => {
         document.addEventListener(`click`, handleClickOutside);
@@ -222,61 +229,22 @@ export default function Item({ item, count, column, itemIndex, board }: any) {
                     >
                         {item.name}
                     </span>
-                    {/* {item.subtasks.length > 0 && (
-                        <div className="progress">
-                            <div className="progressBar" style={{clipPath: `polygon(0% 0%, 0% 100%, 25% 100%, 25% 25%, 75% 25%, 75% 75%, 25% 75%, 25% 100%, 100% 100%, 100% 0%)`}}></div>
-                        </div>
-                    )} */}
+                    {devEnv && <ProgressBar progress={getItemTaskCompletionPercentage(getItemTasks(), item)} />}
                 </span>
                 {(item?.image || column?.options?.details && column?.options?.details == true) ? <>
                     <hr className={`itemSep`} style={{height: 1, borderColor: `var(--gameBlue)`}} />
                     <div className={`itemFooter flex row`}>
-                        <div className={`itemDetails`}>
-                            <DetailField item={item} tasks={globalUserData?.tasks?.filter(tsk => tsk?.itemID == item?.id)} />
-                            {devEnv && <>
-                                <span className={`detailField itemTags itemTag itemCategory itemDate itemName itemCreated itemUpdated textOverflow extended flex row`}>
-                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-hashtag`} />
-                                    <span className={`itemDateTime`}>
-                                        Tag
-                                    </span>
-                                </span>
-                                <span className={`detailField itemTags itemTag itemCategory itemDate itemName itemCreated itemUpdated textOverflow extended flex row`}>
-                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-hashtag`} />
-                                    <span className={`itemDateTime`}>
-                                        Item
-                                    </span>
-                                </span>
-                                <span className={`detailField itemTags itemTag itemCategory itemDate itemName itemCreated itemUpdated textOverflow extended flex row`}>
-                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-hashtag`} />
-                                    <span className={`itemDateTime`}>
-                                        Task
-                                    </span>
-                                </span>
-                            </>}
+                        <div className={`itemDetailsStart itemDetails`}>
+                            <DetailField item={item} tasks={getItemTasks()} />
+                            {devEnv && <Tags />}
                         </div>
-                        {item?.data?.taskIDs && item?.data?.taskIDs.length > 0 && <>
-                            <span className={`taskProgressCount subtaskIndex subscript flex row gap5`}>
-                                {!item?.options?.complete && <>
-                                    <span className={`slashes`}>
-                                        ●
-                                    </span> {globalUserData?.tasks?.filter(task => task?.itemID == item?.id && task?.options?.active).length} <span className={`slashes slashesSymbol`}>
-                                    /
-                                </span>
-                                </>} <span className={`slashes`}>
-                                    ✔
-                                </span> {item?.options?.complete ? item?.data?.taskIDs.length : globalUserData?.tasks?.filter(task => task?.itemID == item?.id && task?.options?.complete).length} {!item?.options?.complete && <>
-                                    <span className={`slashes slashesSymbol`}>
-                                        /
-                                    </span> <span className={`slashes`}>
-                                        T
-                                    </span> {item?.data?.taskIDs.length}
-                                </>}
-                            </span>
-                        </>}
+                        <div className={`itemDetailsEnd fit`}>
+                            <Counts item={item} activeTasks={getItemTasks(`active`)} completedTasks={getItemTasks(`complete`)} />
+                        </div>
                     </div>
                 </> : <></>}
             </div>
-            <Progress item={item} tasks={globalUserData?.tasks?.filter(tsk => tsk?.itemID == item?.id)} />
+            <Progress item={item} tasks={getItemTasks()} />
             <div className={`itemOptions itemButtons customButtons`}>
                 {/* <button id={`copy_${item.id}`} onClick={(e) => copyItem(e, item)} title={`Copy Item`} className={`iconButton ${ItemActions.Copy} copyButton wordIconButton`}>
                     <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-copy`}></i>

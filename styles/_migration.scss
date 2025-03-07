@@ -10,7 +10,14 @@
 }
 
 .statSymbol {
+    // top: -0.67px;
     text-transform: none;
+    // position: relative;
+    // display: inline-flex;
+}
+
+.statLabel {
+    font-weight: 700;
 }
 
 .itemDetails {
@@ -19,11 +26,23 @@
     flex-direction: row;
 }
 
-// .itemFooter {
-//     .slashesSymbol {
-//         font-size: 0px;
-//         color: transparent;
-//         max-width: 0px !important;
-//         letter-spacing: 0 !important;
-//     }
-// }
+.createTaskField {
+    font-weight: 600;
+}
+
+.progress {
+    &:has(.progressBar) {
+        margin-right: 0 !important;
+        .progressBar {
+            min-height: 3px;
+            transition: var(--transition);
+            border-radius: var(--borderRadius);
+        }
+    }
+}
+
+.itemTags {
+    grid-gap: 5px;
+    display: flex;
+    flex-direction: row;
+}

@@ -1,5 +1,6 @@
 .hidden { display: none; }
 .flexThis { display: flex; }
+.fit { max-width: fit-content; }
 .blurred { filter: blur(15px); }
 .rowThis { flex-direction: row; }
 .transition { transition: var(--transition); }

@@ -308,6 +308,7 @@ export default function Tasks(props) {
               type={`text`}
               autoComplete={`off`}
               placeholder={`Create Task +`}
+              className={`createTaskField`}
               id={`${item?.id}_createSubtask`}
               name={`createSubtask changeLabel`}
             />

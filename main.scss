@@ -552,6 +552,8 @@ input {
 }
 
 .itemFooter {
+    bottom: -2px;
+    position: relative;
     padding: 0 0 0 10px;
 }
 
@@ -2755,7 +2757,8 @@ footer {
                         background: white;
                         grid-gap: 5px !important;
                         padding: 0 5px !important;
-                        font-weight: 800 !important;
+                        font-size: 10px !important;
+                        font-weight: 700 !important;
                         max-width: min-content !important;
                         border-radius: var(--borderRadius);
                         justify-content: flex-start !important;
