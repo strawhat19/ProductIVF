@@ -13,6 +13,7 @@ import { createItem, Item as ItemModel } from '../../shared/models/Item';
 import { formatDate, StateContext, capitalizeAllWords, dev, capWords } from '../../pages/_app';
 import { forceFieldBlurOnPressEnter, logToast, removeExtraSpacesFromString } from '../../shared/constants';
 import { addItemToDatabase, db, deleteListFromDatabase, itemsTable, updateDocFieldsWTimeStamp } from '../../firebase';
+import { Task } from '../../shared/models/Task';
 
 export default function Column(props) {
     let count = 0;
@@ -28,6 +29,7 @@ export default function Column(props) {
         menuPosition, 
         selectedGrid,
         globalUserData,
+        gridSearchTerm,
         setSystemStatus,
     } = useContext<any>(StateContext);
 
@@ -47,15 +49,36 @@ export default function Column(props) {
         return nameClasses;
     }
 
-    const itemActiveFilters = (itm) => {
+    const itemActiveFilters = (itm: ItemModel) => {
+        let hasSearchTerm = gridSearchTerm != ``;
+        let itemInCurrentSearchFilters = !hasSearchTerm;
+
+        if (hasSearchTerm) {
+            let queryStrings = [];
+
+            let itemTags = itm?.data?.tags;
+            let itemQueryStrings = [itm?.name, itm?.description];
+
+            [...itemTags, ...itemQueryStrings]?.forEach(qStr => queryStrings?.push(qStr));
+
+            if (itm?.data?.taskIDs?.length > 0) {
+                let itemTasks = getItemTasks(itm);
+                let taskQueryStrings = itemTasks?.map((tsk: Task) => tsk?.name);
+                taskQueryStrings?.forEach(tqStr => queryStrings?.push(tqStr));
+            }
+
+            queryStrings = queryStrings?.map(qs => qs?.toLowerCase());
+            itemInCurrentSearchFilters = queryStrings?.join(``)?.includes(gridSearchTerm?.trim()?.toLowerCase());
+        }
+
         if (board?.options?.hideCompleted) {
             if (!itm?.options?.complete) {
-                return true;
+                return itemInCurrentSearchFilters;
             } else {
                 return false;
             }
         } else {
-            return true;
+            return itemInCurrentSearchFilters;
         }
     }
 

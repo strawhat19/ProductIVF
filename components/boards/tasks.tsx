@@ -84,7 +84,7 @@ const SortableSubtaskItem = ({ item, task, isLast, index, changeLabel, completeT
 
 export default function Tasks(props) {
   let { item, column, showForm = true } = props;
-  let { user, users, selectedGrid, globalUserData, setLoading, setSystemStatus } = useContext<any>(StateContext);
+  let { user, gridSearchTerm, selectedGrid, setLoading, setSystemStatus } = useContext<any>(StateContext);
 
   let [tasks, setTasks] = useState(item?.tasks);
 
@@ -110,6 +110,15 @@ export default function Tasks(props) {
     
     const name = cleanedValue;
     updateDocFieldsWTimeStamp(task, { name, A: name, title: `${task?.type} ${task?.rank} ${name}` });
+  }
+
+  const getTasksInCurrentSearchFilters = (tasks: Task[]) => {
+    let tasksInCurrentSearchFilters = tasks;
+    let hasSearchTerm = gridSearchTerm != ``;
+    if (hasSearchTerm) {
+      tasksInCurrentSearchFilters = tasks?.filter((tsk: Task) => tsk?.name?.toLowerCase()?.includes(gridSearchTerm?.toLowerCase()?.trim()));
+    }
+    return tasksInCurrentSearchFilters;
   }
 
   const completeTask = async (e, task) => {
@@ -264,9 +273,9 @@ export default function Tasks(props) {
 
   return (
     <div id={`${item?.id}_subTasks`} className={`rowSubtasks subTasks dndkitTasks  ${showForm ? `showForm` : `hideForm`}`}>
-      <div className={`subTaskElement flex ${tasks.length > 0 ? `hasTasks` : `noTasks`} ${showForm ? `hasForm` : `noForm`}`}>
+      <div className={`subTaskElement flex ${getTasksInCurrentSearchFilters(tasks)?.length > 0 ? `hasTasks` : `noTasks`} ${showForm ? `hasForm` : `noForm`}`}>
         {/* The scrollable container for tasks */}
-        <div style={{ marginTop: -1 }} className={`subTaskItems tasks_${tasks?.length} taskItems ${item?.options?.complete ? `completedTasks` : `activeTasks`}`}>
+        <div style={{ marginTop: -1 }} className={`subTaskItems tasks_${getTasksInCurrentSearchFilters(tasks)?.length} taskItems ${item?.options?.complete ? `completedTasks` : `activeTasks`}`}>
           {/* DndContext wraps the entire area that can be dragged */}
           <DndContext
             sensors={sensors}
@@ -278,11 +287,11 @@ export default function Tasks(props) {
           >
             {/* SortableContext defines which items we can reorder, and how */}
             <SortableContext
-              items={tasks.map((t) => t?.id)}
+              items={getTasksInCurrentSearchFilters(tasks)?.map((t) => t?.id)}
               strategy={verticalListSortingStrategy}
             >
-              {tasks.map((task, index) => {
-                let isLast = index == tasks.length - 1; 
+              {getTasksInCurrentSearchFilters(tasks)?.map((task, index) => {
+                let isLast = index == getTasksInCurrentSearchFilters(tasks)?.length - 1; 
                 return (
                   <SortableSubtaskItem
                     task={task}

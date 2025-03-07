@@ -6,14 +6,25 @@
 .transition { transition: var(--transition); }
 
 @mixin setWidth($width) {
-    height: $width !important;
-    min-height: $width !important;
-    max-height: $width !important;
+    width: $width !important;
+    min-width: $width !important;
+    max-width: $width !important;
+}
+
+@mixin setHeight($height) {
+    height: $height !important;
+    min-height: $height !important;
+    max-height: $height !important;
+}
+
+.w100, .fullw, .fullwidth, .fullW, .fullWidth {
+    --fullWidth: 100% !important;
+    @include setWidth(var(--fullWidth));
 }
 
 .stretch {
     --fullWidth: 100% !important;
-    @include setWidth(var(--fullWidth));
+    @include setHeight(var(--fullWidth));
     &.boardIndexAndTitle {
         --fullWidth: 74% !important;
     }

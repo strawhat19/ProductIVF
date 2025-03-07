@@ -4,9 +4,9 @@ import { User } from '../../shared/models/User';
 import MultiSelector from '../selector/multi-selector';
 import { collection, getDocs } from 'firebase/firestore';
 import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
-import { AuthGrids, GridTypes, Types } from '../../shared/types/types';
+import { AuthGrids, Types } from '../../shared/types/types';
 import { useState, useEffect, useContext, useRef } from 'react';
-import { capWords, replaceAll, StateContext } from '../../pages/_app';
+import { capWords, dev, replaceAll, StateContext } from '../../pages/_app';
 import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
 import { Board as BoardModel, createBoard } from '../../shared/models/Board';
 import { generateArray, logToast, withinXTime } from '../../shared/constants';
@@ -52,6 +52,7 @@ export default function Boards(props: any) {
         globalUserData,
         setSystemStatus, 
         setActiveOptions,
+        setGridSearchTerm,
         switchSelectedGrid,
         rte, router, setRte,
         openAuthenticationForm,
@@ -63,8 +64,20 @@ export default function Boards(props: any) {
     const multiSelectorRef = useRef(null);
     let [updates, setUpdates] = useState(0);
     let [useSingleSelect, ] = useState(true);
-    let [useGridSearchCreate, ] = useState(devEnv);
-    let [searchingGrid, setSearchingGrid] = useState(false);
+    let [useGridSearchCreate, ] = useState(true);
+    let [useSearchInputGridCreate, ] = useState(false);
+    let [searchingGrid, setSearchingGrid] = useState(true);
+
+    const onGridFormSubmit = (gridFromSubmitEvent) => {
+        gridFromSubmitEvent?.preventDefault();
+    }
+
+    const onGridFormChange = (gridFromChangeEvent) => {
+        gridFromChangeEvent?.preventDefault();
+        const gridFormField = gridFromChangeEvent?.target;
+        const gridFormFieldValue = gridFormField?.value; 
+        setGridSearchTerm(gridFormFieldValue);
+    }
 
     useEffect(() => {
         setRte(replaceAll(router.route, `/`, `_`));
@@ -132,6 +145,59 @@ export default function Boards(props: any) {
             logToast(`Failed to Add Board`, addBordError, true);
         });
     }
+
+    const gridRowComponent = () => <>
+        <div className={`boardsTitleRow flex row _projects_boards`}>
+            <div className={`row gridRow ${gridsLoading ? `gridsAreLoading` : `gridsLoaded`} ${(gridsLoading || (selectedGrid == null || (grids?.length == 0 || globalUserData?.grids?.length == 0)) || (grids?.length > 1 || globalUserData?.grids?.length > 1)) ? `hasGridSelector ${useSingleSelect ? `withSingleSelect` : ``}` : ``}`} style={{ padding: 0, paddingBottom: 7 }}>
+                <div className={`flex row left`} style={{ height: `var(--buttonSize)` }}>
+                    <h1 className={`nx-mt-2 nx-text-4xl nx-font-bold nx-tracking-tight nx-text-slate-900 dark:nx-text-slate-100`} style={{ maxWidth: `unset` }}>
+                        {selectedGrid?.options?.nameLabel == true ? selectedGrid?.name : <>
+                            {user != null ? user?.name + `s ` : ``}{(!gridsLoading && selectedGrids.length == 1) ? selectedGrids[0]?.name + (!useGridSearchCreate ? ` Grid` : ``) : `Grids`}
+                        </>}
+                    </h1>
+                </div>
+                <div className={`flex row middle`} style={{ textAlign: `center`, height: `var(--buttonSize)` }}>
+                    {(gridsLoading || (selectedGrid == null && (grids?.length == 0 || globalUserData?.grids?.length == 0)) || !useGridSearchCreate) ? <></> : <>
+                        <form className={`gridForm w100 searchCreateGridForm`} onInput={(e) => onGridFormChange(e)} onSubmit={(e) => onGridFormSubmit(e)}>
+                            <button style={{ background: `white`, pointerEvents: useSearchInputGridCreate ? `all` : `none`, width: `8%`, minWidth: 33, maxWidth: 33, justifyContent: `center`, borderTopRightRadius: 0, borderBottomRightRadius: 0 }} title={`${searchingGrid ? `Search` : `Create`} Grid`} className={`gridTypeIconButton iconButton filterButton hoverGlow ${searchingGrid ? `filerActive searchButton` : `filterInactive createGridButton`}`} onClick={() => setSearchingGrid(!searchingGrid)}>
+                                {searchingGrid ? <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-search`} /> : `+`}
+                            </button>
+                            {searchingGrid ? (
+                                <input autoComplete={`off`} placeholder={`Search Grid...`} type={`search`} name={`searchGrid`} className={`gridInputField searchGrid`} />
+                            ) : (
+                                <input autoComplete={`off`} placeholder={`Create Grid +`} type={`text`} name={`createGrid`} className={`gridInputField createGridField`} />
+                            )}
+                        </form>
+                    </>}
+                </div>
+                <div className={`flex row right`} style={{ height: `var(--buttonSize)` }}>
+                    {(gridsLoading || (selectedGrid == null && (grids?.length == 0 || globalUserData?.grids?.length == 0))) ? (
+                        <IVFSkeleton 
+                            labelSize={14}
+                            showLoading={true}
+                            className={`gridsItemsSkeleton`} 
+                            label={getLoadingLabel(`Grids`, authState, user)} 
+                            style={{ minWidth: 300, '--animation-delay': `${0.15}s` }} 
+                        />
+                    ) : (
+                        <MultiSelector 
+                            ref={multiSelectorRef}
+                            id={`select_grid_type`}
+                            single={useSingleSelect}
+                            showClearAll={!useSingleSelect}
+                            inputDisabled={useSingleSelect}
+                            placeholder={`Search Grids to View`}
+                            hostClass={`gridsMultiSelectorContainer`}
+                            onChange={(val) => updateSelectedGrids(val)} 
+                            options={grids?.length > 1 ? grids : globalUserData?.grids} 
+                        />
+                    )}
+                </div>
+            </div>
+        </div>
+
+        <hr className={`lineSep`} style={{ marginBottom: 10 }} />
+    </>
     
     const createBoardComponent = () => (
         <div className={`createBoard lists extended transition ${AuthGrids?.includes(selectedGrid?.gridType) && !userRecentlyAuthenticated ? `blurred pointerEventsNone` : ``}`}>
@@ -169,54 +235,7 @@ export default function Boards(props: any) {
     )
 
     return <>
-        <div className={`boardsTitleRow flex row _projects_boards`}>
-            <div className={`row gridRow ${gridsLoading ? `gridsAreLoading` : `gridsLoaded`} ${(gridsLoading || (selectedGrid == null || (grids?.length == 0 || globalUserData?.grids?.length == 0)) || (grids?.length > 1 || globalUserData?.grids?.length > 1)) ? `hasGridSelector ${useSingleSelect ? `withSingleSelect` : ``}` : ``}`} style={{ padding: 0, paddingBottom: 7 }}>
-                <div className={`flex row left`} style={{ height: `var(--buttonSize)` }}>
-                    <h1 className={`nx-mt-2 nx-text-4xl nx-font-bold nx-tracking-tight nx-text-slate-900 dark:nx-text-slate-100`} style={{ maxWidth: `unset` }}>
-                        {selectedGrid?.options?.nameLabel == true ? selectedGrid?.name : <>
-                            {user != null ? user?.name + `s ` : ``}{(!gridsLoading && selectedGrids.length == 1) ? selectedGrids[0]?.name + (!useGridSearchCreate ? ` Grid` : ``) : `Grids`}
-                        </>}
-                    </h1>
-                </div>
-                <div className={`flex row middle`} style={{ textAlign: `center`, height: `var(--buttonSize)` }}>
-                    {(gridsLoading || (selectedGrid == null && (grids?.length == 0 || globalUserData?.grids?.length == 0)) || !useGridSearchCreate) ? <></> : <>
-                        <button style={{ background: `white`, pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33, justifyContent: `center`, borderTopRightRadius: 0, borderBottomRightRadius: 0 }} title={`${searchingGrid ? `Search` : `Create`} Grid`} className={`gridTypeIconButton iconButton filterButton hoverGlow ${searchingGrid ? `filerActive searchButton` : `filterInactive createGridButton`}`} onClick={() => setSearchingGrid(!searchingGrid)}>
-                            {searchingGrid ? <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-search`} /> : `+`}
-                        </button>
-                        {searchingGrid ? (
-                            <input autoComplete={`off`} placeholder={`Search Grid...`} type={`search`} name={`searchGrid`} className={`gridInputField searchGrid`} />
-                        ) : (
-                            <input autoComplete={`off`} placeholder={`Create Grid +`} type={`text`} name={`createGrid`} className={`gridInputField createGridField`} />
-                        )}
-                    </>}
-                </div>
-                <div className={`flex row right`} style={{ height: `var(--buttonSize)` }}>
-                    {(gridsLoading || (selectedGrid == null && (grids?.length == 0 || globalUserData?.grids?.length == 0))) ? (
-                        <IVFSkeleton 
-                            labelSize={14}
-                            showLoading={true}
-                            className={`gridsItemsSkeleton`} 
-                            label={getLoadingLabel(`Grids`, authState, user)} 
-                            style={{ minWidth: 300, '--animation-delay': `${0.15}s` }} 
-                        />
-                    ) : (
-                        <MultiSelector 
-                            ref={multiSelectorRef}
-                            id={`select_grid_type`}
-                            single={useSingleSelect}
-                            showClearAll={!useSingleSelect}
-                            inputDisabled={useSingleSelect}
-                            placeholder={`Search Grids to View`}
-                            hostClass={`gridsMultiSelectorContainer`}
-                            onChange={(val) => updateSelectedGrids(val)} 
-                            options={grids?.length > 1 ? grids : globalUserData?.grids} 
-                        />
-                    )}
-                </div>
-            </div>
-        </div>
-
-        <hr className={`lineSep`} style={{ marginBottom: 10 }} />
+        {gridRowComponent()}
 
         {selectedGrid?.options?.newestBoardsOnTop ? ((boardsLoading || user?.uid != selectedGrid?.ownerUID) ? <></> : createBoardComponent()) : <></>}
 

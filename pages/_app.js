@@ -469,6 +469,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let [gridsLoading, setGridsLoading] = useState(true);
   let [usersLoading, setUsersLoading] = useState(true);
   let [activeOptions, setActiveOptions] = useState([]);
+  let [gridSearchTerm, setGridSearchTerm] = useState(``);
   let [emailsLoading, setEmailsLoading] = useState(true);
   let [boardsLoading, setBoardsLoading] = useState(true);
   let [tasksFiltered, setTasksFiltered] = useState(false);
@@ -1089,6 +1090,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       currentTime, setCurrentTime,
       systemStatus, setSystemStatus, 
       useNavigation, setUseNavigation,
+      gridSearchTerm, setGridSearchTerm,
       featuresLoading, setFeaturesLoading,
       authenticateOpen, setAuthenticateOpen,
       userRecentlyAuthenticated, setUserRecentlyAuthenticated,

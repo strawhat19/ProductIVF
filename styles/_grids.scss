@@ -4,6 +4,11 @@
     --authFormButtonBG: var(--blackGlass);
 }
 
+.gridForm {
+    display: flex;
+    align-items: center;
+}
+
 .gridsMultiSelectorContainer {
     min-width: 215px;
 }
