@@ -11,6 +11,8 @@ import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
 import { Board as BoardModel, createBoard } from '../../shared/models/Board';
 import { generateArray, logToast, withinXTime } from '../../shared/constants';
 import { addBoardToDatabase, boardsTable, db, updateDocFieldsWTimeStamp } from '../../firebase';
+import { FeatureIDs } from '../../shared/admin/features';
+import FeatureFlagBadge from '../../shared/admin/feature-flag-badge';
 
 export enum ItemTypes {
     Item = `Item`,
@@ -52,12 +54,13 @@ export default function Boards(props: any) {
         globalUserData,
         setSystemStatus, 
         setActiveOptions,
-        setGridSearchTerm,
+        isFeatureEnabled,
         switchSelectedGrid,
         rte, router, setRte,
         openAuthenticationForm,
         userRecentlyAuthenticated,
         boards, setBoards, boardsLoading,
+        gridSearchTerm, setGridSearchTerm,
         grids, gridsLoading, selectedGrids, selectedGrid, 
     } = useContext<any>(StateContext);
 
@@ -97,6 +100,17 @@ export default function Boards(props: any) {
                 openAuthenticationForm(thisGrid);
             }
         } else switchSelectedGrid(user, thisGrid);
+    }
+
+    const getBoardsInCurrentSearchFilters = (bords: BoardModel[]) => {
+        let boardsInCurrentSearchFilters = bords;
+        if (gridSearchTerm != ``) {
+            let expandedBoards = bords?.filter(brd => brd?.options?.expanded);
+            if (expandedBoards?.length == 0) {
+                boardsInCurrentSearchFilters = bords?.filter(brd => brd?.name?.toLowerCase()?.includes(gridSearchTerm?.toLowerCase()?.trim()));
+            }
+        }
+        return boardsInCurrentSearchFilters;
     }
 
     const onDragEnd = (dragEndEvent) => {
@@ -158,16 +172,21 @@ export default function Boards(props: any) {
                 </div>
                 <div className={`flex row middle`} style={{ textAlign: `center`, height: `var(--buttonSize)` }}>
                     {(gridsLoading || (selectedGrid == null && (grids?.length == 0 || globalUserData?.grids?.length == 0)) || !useGridSearchCreate) ? <></> : <>
-                        <form className={`gridForm w100 searchCreateGridForm`} onInput={(e) => onGridFormChange(e)} onSubmit={(e) => onGridFormSubmit(e)}>
-                            <button style={{ background: `white`, pointerEvents: useSearchInputGridCreate ? `all` : `none`, width: `8%`, minWidth: 33, maxWidth: 33, justifyContent: `center`, borderTopRightRadius: 0, borderBottomRightRadius: 0 }} title={`${searchingGrid ? `Search` : `Create`} Grid`} className={`gridTypeIconButton iconButton filterButton hoverGlow ${searchingGrid ? `filerActive searchButton` : `filterInactive createGridButton`}`} onClick={() => setSearchingGrid(!searchingGrid)}>
-                                {searchingGrid ? <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-search`} /> : `+`}
-                            </button>
-                            {searchingGrid ? (
-                                <input autoComplete={`off`} placeholder={`Search Grid...`} type={`search`} name={`searchGrid`} className={`gridInputField searchGrid`} />
-                            ) : (
-                                <input autoComplete={`off`} placeholder={`Create Grid +`} type={`text`} name={`createGrid`} className={`gridInputField createGridField`} />
-                            )}
-                        </form>
+                        {globalUserData?.boards?.length > 0 && globalUserData?.lists?.length > 0 && globalUserData?.items?.length > 0 && <>
+                            {isFeatureEnabled(FeatureIDs.Search_Grid) && <>
+                                <form className={`gridForm w100 searchCreateGridForm`} onInput={(e) => onGridFormChange(e)} onSubmit={(e) => onGridFormSubmit(e)} style={{ position: `relative` }}>
+                                    {/* <FeatureFlagBadge featureID={FeatureIDs.Search_Grid} /> */}
+                                    <button style={{ background: `white`, pointerEvents: useSearchInputGridCreate ? `all` : `none`, width: `8%`, minWidth: 33, maxWidth: 33, justifyContent: `center`, borderTopRightRadius: 0, borderBottomRightRadius: 0 }} title={`${searchingGrid ? `Search` : `Create`} Grid`} className={`gridTypeIconButton iconButton filterButton hoverGlow ${searchingGrid ? `filerActive searchButton` : `filterInactive createGridButton`}`} onClick={() => setSearchingGrid(!searchingGrid)}>
+                                        {searchingGrid ? <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-search`} /> : `+`}
+                                    </button>
+                                    {searchingGrid ? (
+                                        <input autoComplete={`off`} placeholder={`Search Grid...`} type={`search`} name={`searchGrid`} className={`gridInputField searchGrid`} />
+                                    ) : (
+                                        <input autoComplete={`off`} placeholder={`Create Grid +`} type={`text`} name={`createGrid`} className={`gridInputField createGridField`} />
+                                    )}
+                                </form>
+                            </>}
+                        </>}
                     </>}
                 </div>
                 <div className={`flex row right`} style={{ height: `var(--buttonSize)` }}>
@@ -213,10 +232,10 @@ export default function Boards(props: any) {
                             </div>
                             <form onSubmit={(e) => addNewBoard(e)} title={`Add Board`} id={`addBoardForm`} className={`addBoardForm flex addListForm itemButtons addForm`} style={{ width: `100%`, flexDirection: `row` }}>
                                 <div className={`inputGroup flex row`}>
-                                    <input autoComplete={`off`} maxLength={35} placeholder={`Create Board +`} type="text" name="createBoard" required />
+                                    <input autoComplete={`off`} maxLength={35} placeholder={`Create Board +`} type={`text`} name={`createBoard`} required />
                                 </div>
                                 <button type={`submit`} title={`Create Board`} className={`iconButton createList createBoardButton`}>
-                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-list"></i>
+                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-list`}></i>
                                     <span className={`iconButtonText textOverflow extended`}>
                                         <span style={{ fontSize: 12 }}>
                                             Create Board
@@ -260,10 +279,10 @@ export default function Boards(props: any) {
                             <Droppable droppableId={`all_boards`}>
                                 {(provided, snapshot) => (
                                     <div className={`all_boards_div ${snapshot.isDraggingOver ? `isDraggingOver` : ``}`} ref={provided.innerRef} {...provided.droppableProps}>
-                                        {boards && boards?.length > 0 && boards?.map((bord, bordIndex) => {
+                                        {boards && boards?.length > 0 && getBoardsInCurrentSearchFilters(boards)?.map((bord, bordIndex) => {
                                             if (bord?.id) {
                                                 return (
-                                                    <Draggable key={`${bordIndex + 1}_${bord?.id}_bord_key`} draggableId={`${bordIndex + 1}_${bord?.id}_draggable_bord`} index={bordIndex}>
+                                                    <Draggable key={`${bordIndex + 1}_${bord?.id}_bord_key`} draggableId={`${bordIndex + 1}_${bord?.id}_draggable_bord`} index={bordIndex} isDragDisabled={gridSearchTerm != ``}>
                                                         {(provided, snapshot) => (
                                                             <div id={`bord_${bord?.id}`} key={bordIndex} className={`draggableDroppableBoard bord ${bord?.options?.focused == true ? `focusBoard` : `unfocusedBoard`} ${bordIndex == 0 ? `firstBoard` : ``}`} {...provided.draggableProps} ref={provided.innerRef}>
                                                                 <Board board={bord} provided={provided} index={bordIndex} drag={onDragEnd} />

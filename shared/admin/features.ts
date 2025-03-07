@@ -4,6 +4,7 @@ export const makeTitleFromID = (id) => id && typeof id != `number` && id.include
 
 export enum FeatureIDs {
     Light_Mode = `Light_Mode`,
+    Search_Grid = `Search_Grid`,
     Delete_Self = `Delete_Self`,
 }
 

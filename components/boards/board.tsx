@@ -362,8 +362,8 @@ export default function Board(props) {
                                         name={`boardName`} 
                                         title={board?.name} 
                                         value={board?.name} 
-                                        id={`${board.id}_change_label`} 
                                         onBlur={(e) => changeLabel(e)} 
+                                        id={`${board.id}_change_label`} 
                                         onChange={(e) => changeLabel(e)}
                                         onKeyDown={(e) => forceFieldBlurOnPressEnter(e)}
                                         style={{ width: (boards?.length == 1 || board?.options?.expanded == true) ? (board.titleWidth ? board.titleWidth : `75px`) : `100%` }} 

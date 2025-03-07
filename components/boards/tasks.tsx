@@ -109,7 +109,10 @@ export default function Tasks(props) {
     e.target.innerHTML = cleanedValue;
     
     const name = cleanedValue;
-    updateDocFieldsWTimeStamp(task, { name, A: name, title: `${task?.type} ${task?.rank} ${name}` });
+    const updates = { name, A: name, title: `${task?.type} ${task?.rank} ${name}` };
+
+    updateTaskInState(task, updates);
+    updateDocFieldsWTimeStamp(task, updates);
   }
 
   const getTasksInCurrentSearchFilters = (tasks: Task[]) => {
@@ -287,8 +290,9 @@ export default function Tasks(props) {
           >
             {/* SortableContext defines which items we can reorder, and how */}
             <SortableContext
-              items={getTasksInCurrentSearchFilters(tasks)?.map((t) => t?.id)}
+              disabled={gridSearchTerm != ``}
               strategy={verticalListSortingStrategy}
+              items={getTasksInCurrentSearchFilters(tasks)?.map((t) => t?.id)}
             >
               {getTasksInCurrentSearchFilters(tasks)?.map((task, index) => {
                 let isLast = index == getTasksInCurrentSearchFilters(tasks)?.length - 1; 
