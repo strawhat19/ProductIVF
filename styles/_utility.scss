@@ -30,6 +30,18 @@
     }
 }
 
+.cursorAuto {
+    cursor: auto !important;
+}
+
+
+.cursorGrab {
+    cursor: grab !important;
+    &:has(:active) {
+        cursor: grabbing !important;
+    }
+}
+
 article {
     &:has(main.nx-w-full) {
         padding-top: 10px !important;

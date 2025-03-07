@@ -265,13 +265,6 @@
     }
 }
 
-.cursorGrab {
-    cursor: grab !important;
-    &:has(:active) {
-        cursor: grabbing !important;
-    }
-}
-
 .stretchEditable {
     max-width: unset !important;
 }
