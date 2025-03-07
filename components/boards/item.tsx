@@ -282,9 +282,6 @@ export default function Item({ item, count, column, itemIndex, board }: any) {
             </>}
             <Progress item={item} tasks={getItemTasks()} />
             <div className={`itemOptions itemButtons customButtons`}>
-                {/* <button id={`copy_${item.id}`} onClick={(e) => copyItem(e, item)} title={`Copy Item`} className={`iconButton ${ItemActions.Copy} copyButton wordIconButton`}>
-                    <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-copy`}></i>
-                </button> */}
                 <button id={`delete_${item?.id}`} onClick={(e) => onDeleteItem(e)} title={`Delete Item`} className={`deleteItemButton iconButton deleteButton wordIconButton`}>
                     <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-${showConfirm ? `ban` : `trash`}`} />
                     {showConfirm && (

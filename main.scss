@@ -2216,7 +2216,6 @@ textarea {
                     .itemOrder {
                         filter: invert(1);
                         background: transparent !important;
-                        color: var(--gameBlueSoft);
                     }
 
                     .itemName {
@@ -2738,10 +2737,10 @@ footer {
                     }
                 }
                 .itemOrder {
+                    background: transparent;
                     width: var(--buttonSize);
                     min-width: var(--buttonSize);
                     max-width: var(--buttonSize);
-                    background: transparent;
                 }
                 .itemContents {
                     display: flex;
