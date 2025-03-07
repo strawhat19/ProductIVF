@@ -5,11 +5,11 @@ import { capWords } from '../../pages/_app';
 import { updateDocFieldsWTimeStamp } from '../../firebase';
 
 export default function ItemDetail(props) {
-    let { item, index, tasks } = props;
+    let { item, index, tasks, activeTasks, completeTasks } = props;
 
     let [disabled, setDisabled] = useState(false);
     let [image, setImage] = useState(props.item.image ?? undefined);
-    let [active, setActive] = useState(item?.options?.complete ? `complete` : `active`);
+    let [active, setActive] = useState(item?.options?.complete ? `complete` : (item?.options?.active || activeTasks?.length > 0 || completeTasks?.length > 0) ? `active` : `to do`);
 
     const refreshDetails = (e) => {
         e.preventDefault();
@@ -32,18 +32,34 @@ export default function ItemDetail(props) {
         let itemName = itemNameField?.value;
         let itemImage = itemImageLink?.value;
         let itemDescription = itemDescriptionField?.value;
-        let itemComplete = active == `active` ? false : true;
 
+        let itemActive = active == `active`;
+        let itemComplete = active == `complete`;
+        let activeStatusChanged = itemActive != item?.options?.active;
         let completionStatusChanged = itemComplete != item?.options?.complete;
+
+        let statusChanged = activeStatusChanged || completionStatusChanged;
+
         let nameChanged = itemName?.toLowerCase() != item?.name?.toLowerCase();
         let imageChanged = itemImage?.toLowerCase() != item?.image?.toLowerCase();
         let descriptionChanged = itemDescription?.toLowerCase() != item?.description?.toLowerCase();
         let urlChanged = itemURL?.toLowerCase() != item?.data?.relatedURLs[0]?.toLowerCase() && !item?.data?.relatedURLs?.includes(itemURL);
 
-        if (completionStatusChanged || nameChanged || imageChanged || urlChanged || descriptionChanged) {
+        if (statusChanged || nameChanged || imageChanged || urlChanged || descriptionChanged) {
             await updateDocFieldsWTimeStamp(item, {
-                ...(completionStatusChanged && {
-                    [`options.complete`]: itemComplete,
+                ...(item?.data?.taskIDs?.length > 0 ? {
+                    ...(completionStatusChanged && {
+                        [`options.complete`]: itemComplete,
+                    }),
+                } : {
+                    ...(statusChanged && {
+                        ...(activeStatusChanged && {
+                            [`options.active`]: itemActive,
+                        }),
+                        ...(completionStatusChanged && {
+                            [`options.complete`]: itemComplete,
+                        }),
+                    }),
                 }),
                 ...(urlChanged && {
                     [`data.relatedURLs`]: [itemURL, ...item?.data?.relatedURLs],
@@ -91,20 +107,37 @@ export default function ItemDetail(props) {
                         item={item} 
                         tasks={tasks}
                         classes={`detailViewProgress`} 
-                        injectedProgress={active === `complete` ? 100 : undefined} 
+                        injectedProgress={active === `complete` ? 100 : active === `to do` ? 0 : item?.data?.taskIDs?.length == 0 ? 50 : undefined} 
                     />
                 </div>
                 <div className={`toggle-buttons`}>
+                    {item?.data?.taskIDs == 0 && <>
+                        <div 
+                            onClick={() => setActive(`to do`)}
+                            className={`toggle-button iconButton ${(active === `to do` || (item?.options?.active == false && active == `to do`)) ? `active` : ``}`} 
+                        >
+                            <input 
+                                type={`radio`} 
+                                value={`active`} 
+                                onChange={() => {}} 
+                                name={`toggleActive`} 
+                                checked={(active === `to do` || (item?.options?.active == false && active == `to do`))} 
+                            />
+                            <label>
+                                To Do
+                            </label>
+                        </div>
+                    </>}
                     <div 
                         onClick={() => setActive(`active`)}
-                        className={`toggle-button iconButton ${active === `active` ? `active` : ``}`} 
+                        className={`toggle-button iconButton ${(active === `active` || (active == `active` && (activeTasks?.length > 0 || completeTasks?.length > 0))) ? `active` : ``}`} 
                     >
                         <input 
                             type={`radio`} 
                             value={`active`} 
                             onChange={() => {}} 
                             name={`toggleActive`} 
-                            checked={active === `active`} 
+                            checked={(active === `active` || (active == `active` && (activeTasks?.length > 0 || completeTasks?.length > 0)))} 
                         />
                         <label>
                             Active
@@ -162,7 +195,7 @@ export default function ItemDetail(props) {
                     </div>
                     <input type={`text`} name={`itemTask`} className={`itemTaskField`} placeholder={`Item Task`} />
                 </div> */}
-                <div className="toggle-buttons">
+                <div className={`toggle-buttons`}>
                     {/* <button className={`iconButton deleteButton`}>
                         Delete
                     </button> */}

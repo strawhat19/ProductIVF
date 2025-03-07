@@ -37,7 +37,9 @@ export const getItemOrTaskStatus = (itemOrTask: Item | Task, tasks: Task[] = [],
 
     let isItemWActiveTasks = isItem && (isValid(tasks) && tasks?.some(tsk => statusIsTrue(tsk?.options?.active) || statusIsTrue(tsk?.options?.complete)));
 
-    if (isActive || isItemWActiveTasks) status = Statuses.Active;
+    const taskActive = !isItem && isActive;
+    const itemActive = isItem && isActive && itemOrTask?.data?.taskIDs?.length == 0;
+    if ((taskActive || itemActive) || isItemWActiveTasks) status = Statuses.Active;
     if (isComplete || (taskItem != undefined && taskItem?.options?.complete)) status = Statuses.Complete;
 
     return status;

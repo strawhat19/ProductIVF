@@ -2219,7 +2219,7 @@ textarea {
                     }
 
                     .itemName {
-                       &:not(.detailField) {
+                       &:not(.detailField):not(.isActiveItem) {
                         text-decoration-thickness: 0;
                         text-decoration: line-through;
                         text-decoration-color: black;
@@ -2713,10 +2713,12 @@ footer {
                         }
                         background: linear-gradient(90deg, var(--whiteGlass) var(--buttonSize), var(--blackGlass) var(--buttonSize)) !important;
                     }
-                    .subtaskAddForm {
-                        display: none;
-                        i {
-                            color: var(--gameBlueInverse) !important;
+                    &:not(.activeItemBoard) {
+                        .subtaskAddForm {
+                            display: none;
+                            i {
+                                color: var(--gameBlueInverse) !important;
+                            }
                         }
                     }
                     .subTaskItem {

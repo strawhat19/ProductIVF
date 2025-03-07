@@ -30,7 +30,7 @@ export class List extends Data {
     
     options = {
         private: true,
-        details: true,
+        details: false,
         archived: false,
         recurring: false,
     }

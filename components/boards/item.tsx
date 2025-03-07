@@ -17,7 +17,9 @@ import Tags from './details/tags';
 import Counts from './details/counts';
 
 export const getItemTaskCompletionPercentage = (tasks: Task[], item: ItemModel, isActive = null) => {
+    let itemIsActive = isValid(item?.options?.active) && item?.options?.active == true;
     let itemIsComplete = isValid(item?.options?.complete) && item?.options?.complete == true;
+    if (itemIsActive && item?.data?.taskIDs?.length == 0) return 50;
     if (itemIsComplete) return 100;
 
     if (tasks.length == 0) {
@@ -46,18 +48,18 @@ export const getTypeIcon = (type) => {
     }
 }
 
-export const manageItem = (e, item, index, tasks) => {
+export const manageItem = (e, item, index, tasks, activeTasks, completeTasks) => {
     if (!e.target.classList.contains(`changeLabel`) && !e.target.classList.contains(`confirmActionOption`)) {
         let isButton = e.target.classList.contains(`iconButton`);
         if (isButton) {
             let isManageButton = e.target.classList.contains(`manageButton`);
             if (isManageButton) {
                 // dev() && console.log(`On Manage Button Click Item ${index + 1}`, item);
-                showAlert(item?.name, <ItemDetail item={item} index={index} tasks={tasks} />, `95%`, `85%`, `30px`);
+                showAlert(item?.name, <ItemDetail item={item} index={index} tasks={tasks} activeTasks={activeTasks} completeTasks={completeTasks} />, `95%`, `85%`, `30px`);
             };
         } else {
             // dev() && console.log(`On Click Item ${index + 1}`, {item, tasks});
-            showAlert(item?.name, <ItemDetail item={item} index={index} tasks={tasks} />, `95%`, `85%`, `30px`);
+            showAlert(item?.name, <ItemDetail item={item} index={index} tasks={tasks} activeTasks={activeTasks} completeTasks={completeTasks} />, `95%`, `85%`, `30px`);
         }
     }
 }
@@ -99,7 +101,31 @@ export default function Item({ item, count, column, itemIndex, board }: any) {
             setSystemStatus(`Marking Item as Complete.`);
 
             let isComplete = item?.options?.complete == true;
-            await updateDocFieldsWTimeStamp(item, { [`options.complete`]: !isComplete });
+            let isActive = isValid(item?.options?.active) && item?.options?.active == true;
+
+            await updateDocFieldsWTimeStamp(item, { 
+                ...(item?.data?.taskIDs?.length > 0 ? {
+                    [`options.complete`]: !isComplete,
+                } : {
+                    ...(isActive ? {
+                        ...(isComplete ? {
+                          [`options.active`]: false,
+                          [`options.complete`]: false,
+                        } : {
+                          [`options.active`]: false,
+                          [`options.complete`]: true,
+                        }),
+                      } : {
+                        ...(isComplete ? {
+                          [`options.active`]: false,
+                          [`options.complete`]: false,
+                        } : {
+                          [`options.active`]: true,
+                          [`options.complete`]: false,
+                        })
+                    }),
+                }),
+            });
 
             setTimeout(() => {
                 setSystemStatus(!isComplete ? `Marked Item as Complete.` : `Reopened Item.`);
@@ -170,7 +196,10 @@ export default function Item({ item, count, column, itemIndex, board }: any) {
     }
 
     const onManageItem = (e) => {
-        manageItem(e, item, itemIndex, getItemTasks());
+        const allTasks = getItemTasks();
+        const activeTasks = getItemTasks(`active`);
+        const completeTasks = getItemTasks(`complete`);
+        manageItem(e, item, itemIndex, allTasks, activeTasks, completeTasks);
     }
 
     const onRightClick = (e: React.MouseEvent<HTMLDivElement>, item: ItemModel, column: List) => {
@@ -217,8 +246,7 @@ export default function Item({ item, count, column, itemIndex, board }: any) {
                 <CustomImage className={`itemImage boardItemImage`} src={item?.image} alt={item?.content} useLazyLoad={true} />
             )}
             <div className={`itemContents`}>
-                <span className={`flex row itemContent boardItemContent itemName textOverflow extended`}>
-                    {/* <textarea onBlur={(e) => changeLabel(e, item)} className={`changeLabel`} defaultValue={item.content} /> */}
+                <span className={`flex row itemContent boardItemContent itemName ${item?.options?.active ? `isActiveItem` : ``} textOverflow extended`}>
                     <span 
                         contentEditable 
                         spellCheck={false}
@@ -229,7 +257,9 @@ export default function Item({ item, count, column, itemIndex, board }: any) {
                     >
                         {item.name}
                     </span>
-                    {devEnv && <ProgressBar progress={getItemTaskCompletionPercentage(getItemTasks(), item)} />}
+                    {devEnv && column?.options?.details && column?.options?.details == true && <>
+                        <ProgressBar progress={getItemTaskCompletionPercentage(getItemTasks(), item)} />
+                    </>}
                 </span>
                 {(item?.image || column?.options?.details && column?.options?.details == true) ? <>
                     <hr className={`itemSep`} style={{height: 1, borderColor: `var(--gameBlue)`}} />
@@ -244,6 +274,12 @@ export default function Item({ item, count, column, itemIndex, board }: any) {
                     </div>
                 </> : <></>}
             </div>
+            {column?.options?.details == false && <>
+                <div className={`altTagsContainer itemContents fit`}>
+                    {devEnv && <Tags />}
+                </div>
+                <DetailField item={item} tasks={getItemTasks()} />
+            </>}
             <Progress item={item} tasks={getItemTasks()} />
             <div className={`itemOptions itemButtons customButtons`}>
                 {/* <button id={`copy_${item.id}`} onClick={(e) => copyItem(e, item)} title={`Copy Item`} className={`iconButton ${ItemActions.Copy} copyButton wordIconButton`}>
@@ -260,7 +296,7 @@ export default function Item({ item, count, column, itemIndex, board }: any) {
                     )}
                 </button>
                 <button id={`complete_${item?.id}`} onClick={(e) => onCompleteItem(e)} title={`Complete Item`} className={`iconButton wordIconButton completeButton`}>
-                    <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas ${item?.options?.complete ? `fa-history` : `fa-check-circle`}`} />
+                    <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`itemStatusIcon ${item?.options?.complete ? `fas fa-history` : (item?.data?.taskIDs?.length == 0 && item?.options?.active) ? `fas fa-play-circle` : `fas fa-check-circle`}`} />
                 </button>
                 {/* <button id={`manage_${item.id}`} onClick={(e) => onManageItem(e)} title={`Manage Item`} className={`iconButton wordIconButton manageButton`}>
                     <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-bars`} />

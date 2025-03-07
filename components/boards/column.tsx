@@ -23,10 +23,7 @@ export default function Column(props) {
 
     let { 
         user,
-        users,
-        boards,
         selected,
-        setBoards,
         setLoading,
         menuPosition, 
         selectedGrid,
@@ -209,6 +206,12 @@ export default function Column(props) {
         }, 1000);
     }
 
+    const getItemTasks = (item: ItemModel, filterKey: string = ``) => {
+        let itemTasks = globalUserData?.tasks?.filter(tsk => tsk?.itemID == item?.id);
+        if (filterKey != ``) itemTasks = itemTasks?.filter(tsk => tsk?.options[filterKey] == true);
+        return itemTasks;
+    }
+
     return (
         <Draggable draggableId={props.column.id} index={props.index}>
             {(provided, snapshot) => (
@@ -248,10 +251,10 @@ export default function Column(props) {
                                 </div>
                             </h3>
                             <div className={`listButtonOptions itemButtons customButtons`}>
-                                <button id={`details_Columns_${props.column.id}`} style={{ pointerEvents: `all` }} onClick={(e) => adjustColumnsDetails(props.column)} title={`Details`} className={`columnIconButton iconButton detailsButton ${props.column?.options?.details == true ? `optionActive` : ``}`}>
-                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${props?.column?.options?.details == true ? `fa-times` : `fa-bars`}`} />
+                                <button id={`details_Columns_${props.column.id}`} style={{ pointerEvents: `all` }} onClick={(e) => adjustColumnsDetails(props.column)} title={`Details`} className={`columnIconButton iconButton detailsButton ${props.column?.options?.details == true ? `` : `optionActive`}`}>
+                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${props?.column?.options?.details == true ? `fa-bars` : `fa-times`}`} />
                                     <span className={`iconButtonText listTitleButtonLabel firstTitle ${renderTitleSizeClass(props.column.name)} textOverflow extended`}>
-                                        Details
+                                        {props.column?.options?.details == true ? `Expanded` : `Compact`}
                                     </span>
                                 </button>
                                 <button id={`delete_${props.column.id}`} style={{ pointerEvents: `all` }} onClick={(e) => deleteColumn(props.column.id, props.index)} title={`Delete List`} className={`columnIconButton iconButton deleteButton deleteListButton ${showConfirm ? `cancelBtnList` : ``}`}>
@@ -280,8 +283,8 @@ export default function Column(props) {
                                         return (
                                             <Draggable key={item?.id} draggableId={item?.id} index={itemIndex}>
                                                 {provided => (
-                                                    <div id={item?.id} className={`item boardItem ${hoverItemForm ? `itemHoverToExpand` : ``} completeItem ${item?.options?.complete ? `complete completeBoardItem` : `activeBoardItem`} container ${snapshot.isDragging ? `dragging` : ``} ${(itemTypeMenuOpen || selected != null) ? `unfocus` : ``}`} title={item?.name} {...provided.draggableProps} ref={provided.innerRef}>
-                                                        <div onClick={(e) => manageItem(e, item, itemIndex, globalUserData?.tasks?.filter(tsk => tsk?.itemID == item?.id))} {...provided.dragHandleProps} className={`itemRow flex row ${item?.options?.complete ? `completed` : `incomplete`} ${item?.tasks.length > 0 ? `hasTasksRow` : `noTasksRow`}`}>
+                                                    <div id={item?.id} className={`item boardItem ${hoverItemForm ? `itemHoverToExpand` : ``} completeItem ${(item?.options?.complete || (item?.options?.active && item?.data?.taskIDs?.length == 0)) ? `complete completeBoardItem` : `activeBoardItem`} ${item?.options?.active ? `activeItemBoard` : ``} container ${snapshot.isDragging ? `dragging` : ``} ${(itemTypeMenuOpen || selected != null) ? `unfocus` : ``}`} title={item?.name} {...provided.draggableProps} ref={provided.innerRef}>
+                                                        <div onClick={(e) => manageItem(e, item, itemIndex, getItemTasks(item), getItemTasks(item, `active`), getItemTasks(item, `complete`))} {...provided.dragHandleProps} className={`itemRow flex row ${item?.options?.complete ? `completed` : `incomplete`} ${item?.tasks.length > 0 ? `hasTasksRow` : `noTasksRow`}`}>
                                                             <Item 
                                                                 item={item} 
                                                                 count={count} 

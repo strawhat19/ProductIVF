@@ -14,7 +14,7 @@ import { restrictToFirstScrollableAncestor, restrictToVerticalAxis, restrictToWi
 
 const reorder = (list, oldIndex, newIndex) => arrayMove(list, oldIndex, newIndex);
 
-const SortableSubtaskItem = ({ item, task, isLast, column, index, changeLabel, completeTask, deleteSubtask }) => {
+const SortableSubtaskItem = ({ item, task, isLast, index, changeLabel, completeTask, deleteSubtask }) => {
   let { listeners, transform, attributes, setNodeRef, transition, isDragging } = useSortable({ id: task.id });
 
   const style = {
@@ -49,9 +49,9 @@ const SortableSubtaskItem = ({ item, task, isLast, column, index, changeLabel, c
               {task.name}
             </span>
 
-            {column?.options?.details && column?.options?.details == true ? (
+            {/* {column?.options?.details && column?.options?.details == true ? ( */}
               <DetailField item={item} task={task} />
-            ) : <></>}
+            {/* // ) : <></>} */}
           </div>
 
           <div className={`taskOptions itemOptions itemButtons customButtons taskComponentBG taskButtons ${task?.options?.complete ? `taskComplete` : `taskActive`} ${item?.options?.complete ? `itemComplete` : `itemActive`} ${(item?.options?.complete || task?.options?.complete) ? `taskButtonsComplete` : `taskButtonsActive`}`}>
@@ -290,7 +290,6 @@ export default function Tasks(props) {
                     index={index}
                     key={task.id}
                     isLast={isLast}
-                    column={column}
                     changeLabel={changeLabel}
                     deleteSubtask={(e) => deleteTask(e, task)}
                     completeTask={(e) => completeTask(e, task)}
