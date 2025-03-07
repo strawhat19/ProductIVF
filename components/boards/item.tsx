@@ -296,11 +296,8 @@ export default function Item({ item, count, column, itemIndex, board }: any) {
                     )}
                 </button>
                 <button id={`complete_${item?.id}`} onClick={(e) => onCompleteItem(e)} title={`Complete Item`} className={`iconButton wordIconButton completeButton`}>
-                    <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`itemStatusIcon ${item?.options?.complete ? `fas fa-history` : (item?.data?.taskIDs?.length == 0 && item?.options?.active) ? `fas fa-play-circle` : `fas fa-check-circle`}`} />
+                    <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`itemStatusIcon ${item?.options?.complete ? `fas fa-history` : ((item?.data?.taskIDs?.length == 0 && item?.options?.active) || item?.data?.taskIDs?.length > 0) ? `fas fa-check-circle` : `fas fa-play-circle`}`} />
                 </button>
-                {/* <button id={`manage_${item.id}`} onClick={(e) => onManageItem(e)} title={`Manage Item`} className={`iconButton wordIconButton manageButton`}>
-                    <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-bars`} />
-                </button> */}
             </div>
         </div>
     </>
