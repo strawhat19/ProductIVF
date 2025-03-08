@@ -205,9 +205,10 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
 
     const showItemDetails = () => {
         let smallScreenSize = windowWidth <= 1800;
+        let fourOrMoreLists = board?.data?.listIDs?.length >= 4;
         let threeOrMoreLists = board?.data?.listIDs?.length >= 3;
         let listDetailsOn = column?.options?.details && column?.options?.details == true;
-        let forceDetails = smallScreenSize && threeOrMoreLists;
+        let forceDetails = (smallScreenSize && threeOrMoreLists) || fourOrMoreLists;
         setForceListDetails(forceDetails);
         let itemDetailsOn = forceDetails || listDetailsOn;
         return itemDetailsOn;

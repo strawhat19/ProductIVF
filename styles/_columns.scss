@@ -34,7 +34,7 @@
                 }
             }
         }
-        &.columns_4 { 
+        &.columns_4, &.multiColExtended { 
             --columnWidth: calc(95.5% / 4) !important;
             @media (max-width: 1500px) {
                 .changeLabel {

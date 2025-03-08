@@ -31,7 +31,7 @@ export class Board extends Data {
         archived: false,
         hideCompleted: false,
         hideCoverImages: false,
-        tasksFilterState: TasksFilterStates.All_On,
+        tasksFilterState: TasksFilterStates.Tasks,
     }
 
     data?: { [key: string]: string[] } = {

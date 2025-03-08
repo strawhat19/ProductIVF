@@ -276,7 +276,7 @@ export default function Column(props) {
                                 </div>
                             </h3>
                             <div className={`listButtonOptions itemButtons customButtons`}>
-                                {!forceListDetails && <>
+                                {(!forceListDetails && board?.data?.listIDs?.length <= 3) && <>
                                     <button id={`details_Columns_${props.column.id}`} style={{ pointerEvents: `all` }} onClick={(e) => adjustColumnsDetails(props.column)} title={`Details`} className={`columnIconButton iconButton detailsButton ${props.column?.options?.details == true ? `` : `optionActive`}`}>
                                         <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${props?.column?.options?.details == true ? `fa-bars` : `fa-times`}`} />
                                         <span className={`iconButtonText listTitleButtonLabel firstTitle ${renderTitleSizeClass(props.column.name)} textOverflow extended`}>
@@ -344,8 +344,8 @@ export default function Column(props) {
                                                 showLoading={true}
                                                 labelColor={`silver`}
                                                 className={`gridsItemsSkeleton`} 
-                                                label={`No Items Found for "${gridSearchTerm}"`} 
                                                 style={{ minWidth: 300, padding: `10px 3px`, [`--animation-delay`]: `${0.15}s` }} 
+                                                label={gridSearchTerm != `` ? `No Items Found for "${gridSearchTerm}"` : `No Items Yet`} 
                                             />
                                         </div>
                                     </>}
