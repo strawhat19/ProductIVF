@@ -48,10 +48,7 @@ const SortableSubtaskItem = ({ item, task, isLast, index, gridSearchTerm, change
             >
               {task?.name}
             </span>
-
-            {/* {column?.options?.details && column?.options?.details == true ? ( */}
-              <DetailField item={item} task={task} />
-            {/* // ) : <></>} */}
+            <DetailField item={item} task={task} />
           </div>
 
           <div className={`taskOptions itemOptions itemButtons customButtons taskComponentBG taskButtons ${task?.options?.complete ? `taskComplete` : `taskActive`} ${item?.options?.complete ? `itemComplete` : `itemActive`} ${(item?.options?.complete || task?.options?.complete) ? `taskButtonsComplete` : `taskButtonsActive`}`}>

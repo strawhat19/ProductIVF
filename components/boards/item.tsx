@@ -1,20 +1,20 @@
+import Tags from './details/tags';
 import Progress from '../progress';
 import { ItemTypes } from './boards';
+import Counts from './details/counts';
 import ItemDetail from './itemdetail';
 import CustomImage from '../custom-image';
 import { addBoardScrollBars } from './board';
 import { List } from '../../shared/models/List';
 import { Task } from '../../shared/models/Task';
 import DetailField from './details/detail-field';
+import ProgressBar from './details/progress-bar';
 import ConfirmAction from '../context-menus/confirm-action';
 import { Item as ItemModel } from '../../shared/models/Item';
 import React, { useContext, useEffect, useState } from 'react';
-import { showAlert, StateContext, capitalizeAllWords, dev } from '../../pages/_app';
 import { deleteItemFromDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
+import { showAlert, StateContext, capitalizeAllWords, dev } from '../../pages/_app';
 import { forceFieldBlurOnPressEnter, isValid, removeExtraSpacesFromString } from '../../shared/constants';
-import ProgressBar from './details/progress-bar';
-import Tags from './details/tags';
-import Counts from './details/counts';
 
 export const getItemTaskCompletionPercentage = (tasks: Task[], item: ItemModel, isActive = null) => {
     let itemIsActive = isValid(item?.options?.active) && item?.options?.active == true;
@@ -64,8 +64,9 @@ export const manageItem = (e, item, index, tasks, activeTasks, completeTasks) =>
     }
 }
 
-export default function Item({ item, count, column, itemIndex, board }: any) {
+export default function Item({ item, count, column, itemIndex, board, setForceListDetails }: any) {
     let [showConfirm, setShowConfirm] = useState(false);
+    let [windowWidth, setWindowWidth] = useState(typeof window !== undefined ? window.innerWidth : 1920);
 
     let { 
         devEnv, 
@@ -202,6 +203,16 @@ export default function Item({ item, count, column, itemIndex, board }: any) {
         manageItem(e, item, itemIndex, allTasks, activeTasks, completeTasks);
     }
 
+    const showItemDetails = () => {
+        let smallScreenSize = windowWidth <= 1800;
+        let threeOrMoreLists = board?.data?.listIDs?.length >= 3;
+        let listDetailsOn = column?.options?.details && column?.options?.details == true;
+        let forceDetails = smallScreenSize && threeOrMoreLists;
+        setForceListDetails(forceDetails);
+        let itemDetailsOn = forceDetails || listDetailsOn;
+        return itemDetailsOn;
+    }
+
     const onRightClick = (e: React.MouseEvent<HTMLDivElement>, item: ItemModel, column: List) => {
         if (dev()) {
             return;
@@ -232,6 +243,23 @@ export default function Item({ item, count, column, itemIndex, board }: any) {
         return () => document.removeEventListener(`click`, handleClickOutside);
     }, []);
 
+    useEffect(() => {
+        let resizeTimeout: NodeJS.Timeout;
+
+        const handleResize = () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                setWindowWidth(window.innerWidth);
+            }, 200);
+        };
+
+        window.addEventListener(`resize`, handleResize);
+        return () => {
+            clearTimeout(resizeTimeout);
+            window.removeEventListener(`resize`, handleResize);
+        };
+    }, []);
+
     return <>
         <div id={`itemElement_${item.id}`} className={`itemComponent itemInnerRow flex row ${isValid(item?.options?.active) && item?.options?.active == true ? `activeItemOrTask` : ``}`} onContextMenu={(e) => onRightClick(e, item, column)}>
             <span className={`itemOrder rowIndexOrder`}>
@@ -245,56 +273,58 @@ export default function Item({ item, count, column, itemIndex, board }: any) {
             {item?.image && (
                 <CustomImage className={`itemImage boardItemImage`} src={item?.image} alt={item?.content} useLazyLoad={true} />
             )}
-            <div className={`itemContents`}>
-                <span className={`flex row itemContent boardItemContent itemName ${item?.options?.active ? `isActiveItem` : ``} textOverflow extended`}>
-                    <span 
-                        contentEditable 
-                        spellCheck={false}
-                        suppressContentEditableWarning 
-                        onBlur={(e) => changeLabel(e, item)} 
-                        className={`changeLabel stretchEditable`}
-                        onKeyDown={(e) => forceFieldBlurOnPressEnter(e)}
-                    >
-                        {item.name}
+            <div className={`itemDetailsContainer`}>
+                <div className={`itemContents`}>
+                    <span className={`flex row itemContent boardItemContent itemName ${item?.options?.active ? `isActiveItem` : ``} textOverflow extended`}>
+                        <span 
+                            contentEditable 
+                            spellCheck={false}
+                            suppressContentEditableWarning 
+                            onBlur={(e) => changeLabel(e, item)} 
+                            className={`changeLabel stretchEditable`}
+                            onKeyDown={(e) => forceFieldBlurOnPressEnter(e)}
+                        >
+                            {item.name}
+                        </span>
+                        {devEnv && showItemDetails() == true && <>
+                            <ProgressBar progress={getItemTaskCompletionPercentage(getItemTasks(), item)} />
+                        </>}
                     </span>
-                    {devEnv && column?.options?.details && column?.options?.details == true && <>
-                        <ProgressBar progress={getItemTaskCompletionPercentage(getItemTasks(), item)} />
-                    </>}
-                </span>
-                {(item?.image || column?.options?.details && column?.options?.details == true) ? <>
-                    <hr className={`itemSep`} style={{height: 1, borderColor: `var(--gameBlue)`}} />
-                    <div className={`itemFooter flex row`}>
-                        <div className={`itemDetailsStart itemDetails`}>
-                            <DetailField item={item} tasks={getItemTasks()} />
-                            {devEnv && <Tags />}
+                    {(item?.image || showItemDetails() == true) ? <>
+                        <hr className={`itemSep`} style={{height: 1, borderColor: `var(--gameBlue)`}} />
+                        <div className={`itemFooter flex row`}>
+                            <div className={`itemDetailsStart itemDetails`}>
+                                <DetailField item={item} tasks={getItemTasks()} />
+                                {devEnv && <Tags />}
+                            </div>
+                            <div className={`itemDetailsEnd fit`}>
+                                <Counts item={item} activeTasks={getItemTasks(`active`)} completedTasks={getItemTasks(`complete`)} />
+                            </div>
                         </div>
-                        <div className={`itemDetailsEnd fit`}>
-                            <Counts item={item} activeTasks={getItemTasks(`active`)} completedTasks={getItemTasks(`complete`)} />
-                        </div>
-                    </div>
-                </> : <></>}
-            </div>
-            {column?.options?.details == false && <>
-                <div className={`altTagsContainer itemContents fit`}>
-                    {devEnv && <Tags />}
+                    </> : <></>}
                 </div>
-                <DetailField item={item} tasks={getItemTasks()} />
-            </>}
-            <Progress item={item} tasks={getItemTasks()} />
-            <div className={`itemOptions itemButtons customButtons`}>
-                <button id={`delete_${item?.id}`} onClick={(e) => onDeleteItem(e)} title={`Delete Item`} className={`deleteItemButton iconButton deleteButton wordIconButton`}>
-                    <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-${showConfirm ? `ban` : `trash`}`} />
-                    {showConfirm && (
-                        <ConfirmAction 
-                            onConfirm={(e) => deleteItem(e, item, false)} 
-                            clickableStyle={{ height: `100%`, paddingRight: 7 }}
-                            style={{ right: 40, bottom: 0, height: `100%`, justifyContent: `center` }} 
-                        />
-                    )}
-                </button>
-                <button id={`complete_${item?.id}`} onClick={(e) => onCompleteItem(e)} title={`Complete Item`} className={`iconButton wordIconButton completeButton`}>
-                    <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`itemStatusIcon ${item?.options?.complete ? `fas fa-history` : ((item?.data?.taskIDs?.length == 0 && item?.options?.active) || item?.data?.taskIDs?.length > 0) ? `fas fa-check-circle` : `fas fa-play-circle`}`} />
-                </button>
+                {showItemDetails() == false && <>
+                    <div className={`altTagsContainer itemContents fit`}>
+                        {devEnv && <Tags />}
+                    </div>
+                    <DetailField item={item} tasks={getItemTasks()} />
+                </>}
+                <Progress item={item} tasks={getItemTasks()} />
+                <div className={`itemOptions itemButtons customButtons`}>
+                    <button id={`delete_${item?.id}`} onClick={(e) => onDeleteItem(e)} title={`Delete Item`} className={`deleteItemButton iconButton deleteButton wordIconButton`}>
+                        <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`fas fa-${showConfirm ? `ban` : `trash`}`} />
+                        {showConfirm && (
+                            <ConfirmAction 
+                                onConfirm={(e) => deleteItem(e, item, false)} 
+                                clickableStyle={{ height: `100%`, paddingRight: 7 }}
+                                style={{ right: 40, bottom: 0, height: `100%`, justifyContent: `center` }} 
+                            />
+                        )}
+                    </button>
+                    <button id={`complete_${item?.id}`} onClick={(e) => onCompleteItem(e)} title={`Complete Item`} className={`iconButton wordIconButton completeButton`}>
+                        <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`itemStatusIcon ${item?.options?.complete ? `fas fa-history` : ((item?.data?.taskIDs?.length == 0 && item?.options?.active) || item?.data?.taskIDs?.length > 0) ? `fas fa-check-circle` : `fas fa-play-circle`}`} />
+                    </button>
+                </div>
             </div>
         </div>
     </>

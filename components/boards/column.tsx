@@ -2,19 +2,19 @@ import Tasks from './tasks';
 import { ItemTypes } from './boards';
 import { toast } from 'react-toastify';
 import { addBoardScrollBars } from './board';
+import { Task } from '../../shared/models/Task';
 import { Board } from '../../shared/models/Board';
 import React, { useContext, useState } from 'react';
 import Item, { getTypeIcon, manageItem } from './item';
 import { collection, getDocs } from 'firebase/firestore';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
+import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
 import ConfirmAction from '../context-menus/confirm-action';
 import { TasksFilterStates, Types } from '../../shared/types/types';
 import { createItem, Item as ItemModel } from '../../shared/models/Item';
 import { formatDate, StateContext, capitalizeAllWords, dev, capWords } from '../../pages/_app';
 import { forceFieldBlurOnPressEnter, logToast, removeExtraSpacesFromString } from '../../shared/constants';
 import { addItemToDatabase, db, deleteListFromDatabase, itemsTable, updateDocFieldsWTimeStamp } from '../../firebase';
-import { Task } from '../../shared/models/Task';
-import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
 
 export default function Column(props) {
     let count = 0;
@@ -22,6 +22,7 @@ export default function Column(props) {
     let [showConfirm, setShowConfirm] = useState(false);
     let [itemTypeMenuOpen, setItemTypeMenuOpen] = useState(false);
     let { board, column, hideAllTasks, updateBoardInState } = props;
+    let [forceListDetails, setForceListDetails] = useState(column?.options?.details == true);
 
     let { 
         user,
@@ -275,12 +276,14 @@ export default function Column(props) {
                                 </div>
                             </h3>
                             <div className={`listButtonOptions itemButtons customButtons`}>
-                                <button id={`details_Columns_${props.column.id}`} style={{ pointerEvents: `all` }} onClick={(e) => adjustColumnsDetails(props.column)} title={`Details`} className={`columnIconButton iconButton detailsButton ${props.column?.options?.details == true ? `` : `optionActive`}`}>
-                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${props?.column?.options?.details == true ? `fa-bars` : `fa-times`}`} />
-                                    <span className={`iconButtonText listTitleButtonLabel firstTitle ${renderTitleSizeClass(props.column.name)} textOverflow extended`}>
-                                        {props.column?.options?.details == true ? `Expanded` : `Compact`}
-                                    </span>
-                                </button>
+                                {!forceListDetails && <>
+                                    <button id={`details_Columns_${props.column.id}`} style={{ pointerEvents: `all` }} onClick={(e) => adjustColumnsDetails(props.column)} title={`Details`} className={`columnIconButton iconButton detailsButton ${props.column?.options?.details == true ? `` : `optionActive`}`}>
+                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${props?.column?.options?.details == true ? `fa-bars` : `fa-times`}`} />
+                                        <span className={`iconButtonText listTitleButtonLabel firstTitle ${renderTitleSizeClass(props.column.name)} textOverflow extended`}>
+                                            {props.column?.options?.details == true ? `Expanded` : `Compact`}
+                                        </span>
+                                    </button>
+                                </>}
                                 <button id={`delete_${props.column.id}`} style={{ pointerEvents: `all` }} onClick={(e) => deleteColumn(props.column.id, props.index)} title={`Delete List`} className={`columnIconButton iconButton deleteButton deleteListButton ${showConfirm ? `cancelBtnList` : ``}`}>
                                     <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`mainIcon fas fa-${showConfirm ? `ban` : `trash`}`} />
                                     <span className={`iconButtonText listTitleButtonLabel ${renderTitleSizeClass(props.column.name)} textOverflow extended`}>
@@ -316,6 +319,8 @@ export default function Column(props) {
                                                                 column={props.column} 
                                                                 itemIndex={itemIndex} 
                                                                 setBoard={props.setBoard} 
+                                                                forceListDetails={forceListDetails}
+                                                                setForceListDetails={setForceListDetails}
                                                             />
                                                         </div>
                                                         {!hideAllTasks && item.tasks && (
