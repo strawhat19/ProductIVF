@@ -29,11 +29,12 @@ export class Item extends Data {
     tasks?: any;
     
     options = {
-        active: false,
         private: true,
+        active: false,
         complete: false,
         archived: false,
         recurring: false,
+        showTaskForm: false,
         hideCoverImage: false,
         tasksFilterState: TasksFilterStates.All_On,
     }

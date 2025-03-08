@@ -214,14 +214,14 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
     }
 
     const onRightClick = (e: React.MouseEvent<HTMLDivElement>, item: ItemModel, column: List) => {
-        if (dev()) {
-            return;
-        } else {
+        // if (dev()) {
+            // return;
+        // } else {
             e.preventDefault();
             setItemTypeMenuOpen(true);
             setMenuPosition({ x: e.clientX, y: e.clientY });
             setSelected({item, column, board, onManageItem, onCompleteItem, onDeleteItem});
-        }
+        // }
     }
     
     const handleClickOutside = (event: MouseEvent) => {

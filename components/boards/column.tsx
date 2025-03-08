@@ -328,7 +328,7 @@ export default function Column(props) {
                                                                 item={item} 
                                                                 board={board}
                                                                 column={props.column} 
-                                                                showForm={board?.options?.tasksFilterState == TasksFilterStates.All_On} 
+                                                                showForm={(item?.options?.showTaskForm || board?.options?.tasksFilterState == TasksFilterStates.All_On)} 
                                                             />
                                                         )}
                                                     </div>

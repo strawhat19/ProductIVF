@@ -32,6 +32,15 @@ export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--
         selected?.onDeleteItem(e);
     }
 
+    const isActiveItem = () => {
+        let isActive = selected?.item?.options?.active;
+        let itemIsActive = selected?.item?.options?.active;
+        let noTasks = selected?.item?.data?.taskIDs?.length == 0;
+        let hasTasks = selected?.item?.data?.taskIDs?.length > 0;
+        isActive = (itemIsActive && noTasks) || hasTasks;
+        return isActive;
+    }
+
     const copyToClipBoard = () => {
         if (navigator.clipboard) {
             let textToCopy = selected?.item?.name;
@@ -39,6 +48,11 @@ export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--
             toast.success(`Copied to Clipboard`);
         }
         onDismiss();
+    }
+
+    const setItemTaskForm = async (taskFormShowing) => {
+        onDismiss();
+        await updateDocFieldsWTimeStamp(selected?.item, { [`options.showTaskForm`]: !taskFormShowing });
     }
 
     const moveItemToPosition = async (top = true) => {
@@ -81,11 +95,14 @@ export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--
                 <li className={`customContextMenuOption flex gap15`} onClick={() => copyToClipBoard()}>
                     <i className={`fas fa-copy`} style={{ color: iconColor }} /> <span>Copy</span>
                 </li>
+                <li className={`customContextMenuOption flex gap15`} onClick={() => setItemTaskForm(selected?.item?.options?.showTaskForm)}>
+                    <i className={`fas ${selected?.item?.options?.showTaskForm ? `fa-minus` : `fa-plus`}`} style={{ color: iconColor }} /> <span>{selected?.item?.options?.showTaskForm ? `` : ``}Task Form</span>
+                </li>
                 <li className={`customContextMenuOption flex gap15`} onClick={onManageItem}>
                     <i className={`fas fa-bars`} style={{ color: iconColor }} /> <span>Manage</span>
                 </li>
                 <li className={`customContextMenuOption flex gap15`} onClick={onCompleteItem}>
-                    <i className={`fas fa-${selected?.item?.options?.complete ? `history` : `check-circle`}`} style={{ color: iconColor }} /> <span>{selected?.item?.complete ? `Active` : `Complete`}</span>
+                    <i className={`contextMenuIcon ${selected?.item?.options?.complete ? `fas fa-history` : isActiveItem() ? `fas fa-check-circle` : `fas fa-play-circle`}`} style={{ color: iconColor }} /> <span>{selected?.item?.options?.complete ? `Open` : isActiveItem() ? `Complete` : `Active`}</span>
                 </li>
                 <li className={`customContextMenuOption flex gap15`} onClick={onDeleteItem}>
                     <i className={`fas fa-trash`} style={{ color: iconColor }} /> <span>Delete</span>
