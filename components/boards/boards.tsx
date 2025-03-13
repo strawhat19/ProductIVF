@@ -5,10 +5,9 @@ import MultiSelector from '../selector/multi-selector';
 import { collection, getDocs } from 'firebase/firestore';
 import { FeatureIDs } from '../../shared/admin/features';
 import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
-import { AuthGrids, Types } from '../../shared/types/types';
+import { AuthGrids, GridTypes, Types } from '../../shared/types/types';
 import { useState, useEffect, useContext, useRef } from 'react';
-// import FeatureFlagBadge from '../../shared/admin/feature-flag-badge';
-import { capWords, dev, replaceAll, StateContext } from '../../pages/_app';
+import { capWords, replaceAll, StateContext } from '../../pages/_app';
 import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
 import { Board as BoardModel, createBoard } from '../../shared/models/Board';
 import { generateArray, logToast, withinXTime } from '../../shared/constants';
@@ -228,38 +227,40 @@ export default function Boards(props: any) {
     </>
     
     const createBoardComponent = () => (
-        <div className={`createBoard lists extended transition ${AuthGrids?.includes(selectedGrid?.gridType) && !userRecentlyAuthenticated ? `blurred pointerEventsNone` : ``}`}>
-            <div className={`list items addListDiv`}>
-                <div className={`formItems items`}>
-                    <div className={`addListFormItem`}>
-                        <h2 style={{ fontWeight: 600, fontSize: 22, minWidth: `fit-content` }}>
-                            Create Board {boards && boards?.length + 1}
-                        </h2>
-                        <section className={`addBoardFormSection addListFormItemSection`} style={{ margin: 0, position: `relative`, overflowY: `hidden` }}>
-                            <div title={`Change Board Type`} onClick={(e) => toast.info(`Board Types are In Development`)} className={`typeIcon changeBoardTypeIcon`}>
-                                +
-                            </div>
-                            <form onSubmit={(e) => addNewBoard(e)} title={`Add Board`} id={`addBoardForm`} className={`addBoardForm flex addListForm itemButtons addForm`} style={{ width: `100%`, flexDirection: `row` }}>
-                                <div className={`inputGroup flex row`}>
-                                    <input autoComplete={`off`} maxLength={35} placeholder={`Create Board +`} type={`text`} name={`createBoard`} required />
+        selectedGrid?.gridType == GridTypes.Archived ? <></> : (
+            <div className={`createBoard lists extended transition ${AuthGrids?.includes(selectedGrid?.gridType) && !userRecentlyAuthenticated ? `blurred pointerEventsNone` : ``}`}>
+                <div className={`list items addListDiv`}>
+                    <div className={`formItems items`}>
+                        <div className={`addListFormItem`}>
+                            <h2 style={{ fontWeight: 600, fontSize: 22, minWidth: `fit-content` }}>
+                                Create Board {boards && boards?.length + 1}
+                            </h2>
+                            <section className={`addBoardFormSection addListFormItemSection`} style={{ margin: 0, position: `relative`, overflowY: `hidden` }}>
+                                <div title={`Change Board Type`} onClick={(e) => toast.info(`Board Types are In Development`)} className={`typeIcon changeBoardTypeIcon`}>
+                                    +
                                 </div>
-                                <button type={`submit`} title={`Create Board`} className={`iconButton createList createBoardButton`}>
-                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-list`}></i>
-                                    <span className={`iconButtonText textOverflow extended`}>
-                                        <span style={{ fontSize: 12 }}>
-                                            Create Board
+                                <form onSubmit={(e) => addNewBoard(e)} title={`Add Board`} id={`addBoardForm`} className={`addBoardForm flex addListForm itemButtons addForm`} style={{ width: `100%`, flexDirection: `row` }}>
+                                    <div className={`inputGroup flex row`}>
+                                        <input autoComplete={`off`} maxLength={35} placeholder={`Create Board +`} type={`text`} name={`createBoard`} required />
+                                    </div>
+                                    <button type={`submit`} title={`Create Board`} className={`iconButton createList createBoardButton`}>
+                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-list`}></i>
+                                        <span className={`iconButtonText textOverflow extended`}>
+                                            <span style={{ fontSize: 12 }}>
+                                                Create Board
+                                            </span>
+                                            <span className={`itemLength index`} style={{ fontSize: 14, fontWeight: 700, padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content` }}>
+                                                {boards && boards?.length + 1}
+                                            </span>
                                         </span>
-                                        <span className={`itemLength index`} style={{ fontSize: 14, fontWeight: 700, padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content` }}>
-                                            {boards && boards?.length + 1}
-                                        </span>
-                                    </span>
-                                </button>
-                            </form>
-                        </section>
+                                    </button>
+                                </form>
+                            </section>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        )
     )
 
     return <>

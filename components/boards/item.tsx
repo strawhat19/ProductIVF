@@ -209,7 +209,9 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
         let threeOrMoreLists = board?.data?.listIDs?.length >= 3;
         let listDetailsOn = column?.options?.details && column?.options?.details == true;
         let forceDetails = (smallScreenSize && threeOrMoreLists) || fourOrMoreLists;
-        setForceListDetails(forceDetails);
+        setTimeout(() => {
+            if (column) setForceListDetails(forceDetails);
+        }, 500)
         let itemDetailsOn = forceDetails || listDetailsOn;
         return itemDetailsOn;
     }

@@ -9,7 +9,7 @@ import React, { useState, useContext, useRef } from 'react';
 import { createList, List } from '../../shared/models/List';
 import { Board as BoardModel } from '../../shared/models/Board';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
-import { TasksFilterStates, Types } from '../../shared/types/types';
+import { GridTypes, TasksFilterStates, Types } from '../../shared/types/types';
 import { capitalizeAllWords, dev, StateContext } from '../../pages/_app';
 import { forceFieldBlurOnPressEnter, logToast } from '../../shared/constants';
 import { addListToDatabase, db, deleteBoardFromDatabase, dragItemToNewList, listsTable, updateDocFieldsWTimeStamp } from '../../firebase';
@@ -345,7 +345,7 @@ export default function Board(props) {
 
     return (
         <DragDropContext onDragEnd={onDragEnd}>
-            <section className={`boardsTitle boards ${props.index == 0 ? `isFirstBoardSection` : selectedGrid?.data?.boardIDs?.length == props.index - 1 ? `isLastBoardSection` : `isMiddleBoardSection`} ${selectedGrid?.options?.newestBoardsOnTop ? `newestBoardsOnTop` : `newestBoardsOnBottom`}`} style={{ paddingBottom: 0 }}>
+            <section className={`boardsTitle boards ${props.index == 0 ? `isFirstBoardSection` : selectedGrid?.data?.boardIDs?.length == props.index - 1 ? `isLastBoardSection` : `isMiddleBoardSection`} ${selectedGrid?.options?.newestBoardsOnTop ? `newestBoardsOnTop` : `newestBoardsOnBottom`} ${selectedGrid?.gridType == GridTypes.Archived ? `archivedBoardTitle` : `unarchivedBoardTitle`}`} style={{ paddingBottom: 0 }}>
                 <div className={`board boardInner boardTitle`}>
                     <div {...props.provided.dragHandleProps} className={`boardDetailsRowContainer titleRow flex row`}>
                         <div className={`boardDetailsRow flex row innerRow ${(boards?.length == 1 || board?.options?.expanded == true) ? `expandedBoardDetailsRow` : `collapsedBoardDetailsRow`}`}>
@@ -367,7 +367,7 @@ export default function Board(props) {
                                         onChange={(e) => changeLabel(e)}
                                         onKeyDown={(e) => forceFieldBlurOnPressEnter(e)}
                                         style={{ width: (boards?.length == 1 || board?.options?.expanded == true) ? (board.titleWidth ? board.titleWidth : `75px`) : `100%` }} 
-                                        className={`boardNameField changeLabel textOverflow ${(boards?.length == 1 || board?.options?.expanded == true) ? `expandedBoardChangeLabel` : `stretch collapsedBoardChangeLabel`}`} 
+                                        className={`boardNameField changeLabel textOverflow ${(boards?.length == 1 || board?.options?.expanded == true) ? `expandedBoardChangeLabel` : `stretch collapsedBoardChangeLabel`} ${selectedGrid?.gridType == GridTypes.Archived ? `pointerEventsNone` : ``}`} 
                                     />
                                 </h2>
                                 {(boards?.length == 1 || board?.options?.expanded == true) && <>
@@ -422,76 +422,78 @@ export default function Board(props) {
                                         </span>
                                     </h3>
                                 </>}
-                                <div className={`filterFormDiv filterButtons itemButtons`} style={{textAlign: `center`, justifyContent: `space-between`, alignItems: `center`}}>
-                                    {(boards?.length == 1 || board?.options?.expanded == true) && <>
-                                        <button onClick={(e) =>  setBoardTasksFilterState(e)} id={`filter_tasks`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Click to Set Tasks ${tasksFilterStateLabels[board?.options?.tasksFilterState]}`} className={`iconButton deleteButton filterButton ${(board?.options?.tasksFilterState == TasksFilterStates.Tasks || board?.options?.tasksFilterState == TasksFilterStates.All_Off) ? `filterActive` : `filterInactive`}`}>
-                                            <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${(board?.options?.tasksFilterState == TasksFilterStates.Tasks) ? `fa-list-ol` : board?.options?.tasksFilterState == TasksFilterStates.All_Off ? `fa-times-circle` : `fa-bars`}`}></i>
-                                            <span className={`iconButtonText textOverflow extended`}>
-                                                Tasks
-                                            </span>
-                                        </button>
-                                        <button onClick={(e) =>  setBoardHideCompleted()} id={`filter_completed`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Filter Completed`} className={`iconButton deleteButton filterButton ${board?.options?.hideCompleted ? `filterActive` : `filterInactive`}`}>
-                                            <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-check-circle`} />
-                                            <span className={`iconButtonText textOverflow extended`}>
-                                                Completed
-                                            </span>
-                                        </button>
-                                        <button onClick={(e) =>  setBoardFocused()} id={`focus_board`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Focus Board`} disabled={boards?.length == 1} className={`iconButton deleteButton filterButton ${(boards?.length == 1 || board?.options?.focused == true) ? `filterActive` : `filterInactive`} ${boards?.length == 1 ? `disabledField` : ``}`}>
-                                            <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${(boards?.length == 1 || board?.options?.focused == true) ? `fas fa-compress-arrows-alt` : `fa-expand-arrows-alt`}`}></i>
-                                            <span className={`iconButtonText textOverflow extended`}>
-                                                Focus
-                                            </span>
-                                        </button>
-                                        <button onClick={(e) =>  onShowSearchClick(e)} id={`search_board`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Search Board`} className={`iconButton searchButton filterButton ${showSearch ? `filterActive` : `filterInactive`}`}>
-                                            <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-search`} />
-                                            <span className={`iconButtonText textOverflow extended`}>
-                                                Search
-                                            </span>
-                                        </button>
-                                        <section className={`addListFormItemSection`} style={{ margin: 0, padding: 0, position: `relative` }}>
-                                            <div title={`Change Column Type`} onClick={(e) => toast.info(`Column Types are In Development`)} className={`typeIcon changeColumnTypeIcon ${showSearch ? `disabledIconBtn` : ``}`}>
-                                                {showSearch ? <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-search`} /> : `+`}
-                                            </div>
-                                            <form onSubmit={addNewList} title={`Add Column`} id={`addListForm_${board?.id}`} className={`flex addListForm itemButtons addForm`} style={{ width: `100%`, flexDirection: `row` }}>
-                                                {showSearch && (
-                                                    <input autoComplete={`off`} placeholder={`Search Board...`} type={`search`} name={`searchBoard`} />
-                                                )}
-                                                {!showSearch && (
-                                                    <input autoComplete={`off`} maxLength={35} placeholder={`Create List +, Press "Enter" to Create New List`} type={`text`} name={`createItem`} required />
-                                                )}
-                                                <button type={`submit`} title={`Create Column`} className={`submit iconButton createList createColumnButton`}>
-                                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-list"></i>
-                                                    <span className={`iconButtonText textOverflow extended`}>
-                                                        <span style={{ fontSize: 12 }}>
-                                                            Create List
-                                                        </span>
-                                                        <span className={`itemLength index`} style={{ fontSize: 14, fontWeight: 700, padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content` }}>
-                                                            {board?.data?.listIDs && board?.data?.listIDs.length + 1}
-                                                        </span>
-                                                    </span>
-                                                </button>
-                                            </form>
-                                        </section>
-                                    </>}
-                                    {boards?.length > 1 && (
-                                        <div className={`itemButtons customButtons`}>
-                                            {user?.uid == board?.ownerUID && (
-                                                <button id={`delete_${board?.id}`} onClick={(e) => deleteBoard(e)} title={`Delete Board`} className={`iconButton deleteButton deleteBoardButton ${showConfirm ? `cancelBtn` : ``}`}>
-                                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`mainIcon fas fa-${showConfirm ? `ban` : `trash`}`} />
-                                                    <span className={`iconButtonText textOverflow extended`}>
-                                                        {showConfirm ? `Cancel` : `Delete`}
-                                                    </span>
-                                                    {showConfirm && (
-                                                        <ConfirmAction onConfirm={(e) => deleteBoard(e, false)} />
-                                                    )}
-                                                </button>
-                                            )}
-                                            <button onClick={(e) => expandCollapseBoard(e)} className={`iconButton`}>
-                                                <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-chevron-${(boards?.length == 1 || board?.options?.expanded == true) ? `up` : `down`}`} />
+                                {selectedGrid?.gridType == GridTypes.Archived ? <></> : <>
+                                    <div className={`filterFormDiv filterButtons itemButtons`} style={{textAlign: `center`, justifyContent: `space-between`, alignItems: `center`}}>
+                                        {(boards?.length == 1 || board?.options?.expanded == true) && <>
+                                            <button onClick={(e) =>  setBoardTasksFilterState(e)} id={`filter_tasks`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Click to Set Tasks ${tasksFilterStateLabels[board?.options?.tasksFilterState]}`} className={`iconButton deleteButton filterButton ${(board?.options?.tasksFilterState == TasksFilterStates.Tasks || board?.options?.tasksFilterState == TasksFilterStates.All_Off) ? `filterActive` : `filterInactive`}`}>
+                                                <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${(board?.options?.tasksFilterState == TasksFilterStates.Tasks) ? `fa-list-ol` : board?.options?.tasksFilterState == TasksFilterStates.All_Off ? `fa-times-circle` : `fa-bars`}`}></i>
+                                                <span className={`iconButtonText textOverflow extended`}>
+                                                    Tasks
+                                                </span>
                                             </button>
-                                        </div>
-                                    )}
-                                </div>
+                                            <button onClick={(e) =>  setBoardHideCompleted()} id={`filter_completed`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Filter Completed`} className={`iconButton deleteButton filterButton ${board?.options?.hideCompleted ? `filterActive` : `filterInactive`}`}>
+                                                <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-check-circle`} />
+                                                <span className={`iconButtonText textOverflow extended`}>
+                                                    Completed
+                                                </span>
+                                            </button>
+                                            <button onClick={(e) =>  setBoardFocused()} id={`focus_board`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Focus Board`} disabled={boards?.length == 1} className={`iconButton deleteButton filterButton ${(boards?.length == 1 || board?.options?.focused == true) ? `filterActive` : `filterInactive`} ${boards?.length == 1 ? `disabledField` : ``}`}>
+                                                <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${(boards?.length == 1 || board?.options?.focused == true) ? `fas fa-compress-arrows-alt` : `fa-expand-arrows-alt`}`}></i>
+                                                <span className={`iconButtonText textOverflow extended`}>
+                                                    Focus
+                                                </span>
+                                            </button>
+                                            <button onClick={(e) =>  onShowSearchClick(e)} id={`search_board`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Search Board`} className={`iconButton searchButton filterButton ${showSearch ? `filterActive` : `filterInactive`}`}>
+                                                <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-search`} />
+                                                <span className={`iconButtonText textOverflow extended`}>
+                                                    Search
+                                                </span>
+                                            </button>
+                                            <section className={`addListFormItemSection`} style={{ margin: 0, padding: 0, position: `relative` }}>
+                                                <div title={`Change Column Type`} onClick={(e) => toast.info(`Column Types are In Development`)} className={`typeIcon changeColumnTypeIcon ${showSearch ? `disabledIconBtn` : ``}`}>
+                                                    {showSearch ? <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-search`} /> : `+`}
+                                                </div>
+                                                <form onSubmit={addNewList} title={`Add Column`} id={`addListForm_${board?.id}`} className={`flex addListForm itemButtons addForm`} style={{ width: `100%`, flexDirection: `row` }}>
+                                                    {showSearch && (
+                                                        <input autoComplete={`off`} placeholder={`Search Board...`} type={`search`} name={`searchBoard`} />
+                                                    )}
+                                                    {!showSearch && (
+                                                        <input autoComplete={`off`} maxLength={35} placeholder={`Create List +, Press "Enter" to Create New List`} type={`text`} name={`createItem`} required />
+                                                    )}
+                                                    <button type={`submit`} title={`Create Column`} className={`submit iconButton createList createColumnButton`}>
+                                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className="fas fa-list"></i>
+                                                        <span className={`iconButtonText textOverflow extended`}>
+                                                            <span style={{ fontSize: 12 }}>
+                                                                Create List
+                                                            </span>
+                                                            <span className={`itemLength index`} style={{ fontSize: 14, fontWeight: 700, padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content` }}>
+                                                                {board?.data?.listIDs && board?.data?.listIDs.length + 1}
+                                                            </span>
+                                                        </span>
+                                                    </button>
+                                                </form>
+                                            </section>
+                                        </>}
+                                        {boards?.length > 1 && (
+                                            <div className={`itemButtons customButtons`}>
+                                                {user?.uid == board?.ownerUID && (
+                                                    <button id={`delete_${board?.id}`} onClick={(e) => deleteBoard(e)} title={`Delete Board`} className={`iconButton deleteButton deleteBoardButton ${showConfirm ? `cancelBtn` : ``}`}>
+                                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`mainIcon fas fa-${showConfirm ? `ban` : `trash`}`} />
+                                                        <span className={`iconButtonText textOverflow extended`}>
+                                                            {showConfirm ? `Cancel` : `Delete`}
+                                                        </span>
+                                                        {showConfirm && (
+                                                            <ConfirmAction onConfirm={(e) => deleteBoard(e, false)} />
+                                                        )}
+                                                    </button>
+                                                )}
+                                                <button onClick={(e) => expandCollapseBoard(e)} className={`iconButton`}>
+                                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-chevron-${(boards?.length == 1 || board?.options?.expanded == true) ? `up` : `down`}`} />
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                </>}
                             </div>
                         </div>
                     </div>
