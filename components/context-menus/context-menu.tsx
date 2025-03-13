@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 import { toast } from 'react-toastify';
 import { StateContext } from '../../pages/_app';
+import { fontAwesomeIcons } from '../../shared/constants';
 import { updateDocFieldsWTimeStamp } from '../../firebase';
 
 export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--gameBlue)` }: any) {
@@ -20,6 +21,11 @@ export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--
     const onManageItem = (e) => {
         onDismiss();
         selected?.onManageItem(e);
+    }
+
+    const onArchiveItem = (e) => {
+        onDismiss();
+        selected?.onArchiveItem(e);
     }
 
     const onCompleteItem = (e) => {
@@ -97,6 +103,9 @@ export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--
                 </li>
                 <li className={`customContextMenuOption flex gap15`} onClick={() => setItemTaskForm(selected?.item?.options?.showTaskForm)}>
                     <i className={`fas ${selected?.item?.options?.showTaskForm ? `fa-minus` : `fa-plus`}`} style={{ color: iconColor }} /> <span>{selected?.item?.options?.showTaskForm ? `` : ``}Task Form</span>
+                </li>
+                <li className={`customContextMenuOption flex gap15`} onClick={onArchiveItem}>
+                    <i className={`archivedIcon ${fontAwesomeIcons.folder}`} style={{ color: iconColor }} /> <span>Archive</span>
                 </li>
                 <li className={`customContextMenuOption flex gap15`} onClick={onManageItem}>
                     <i className={`fas fa-bars`} style={{ color: iconColor }} /> <span>Manage</span>

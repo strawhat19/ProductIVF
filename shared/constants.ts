@@ -49,6 +49,12 @@ export const nameFields = {
   task: { min: 1, max: 30 },
 }
 
+export const fontAwesomeIcons = {
+  inbox: `fas fa-inbox`,
+  folder: `fas fa-folder`,
+  archive: `fas fa-archive`,
+}
+
 export const forceFieldBlurOnPressEnter = (e: any) => {
   if (e.key === `Enter`) {
     e.preventDefault();
