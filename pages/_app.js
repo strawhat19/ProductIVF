@@ -749,7 +749,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       if (bord?.type && bord?.type == Types.Board) {
         setTimeout(() => toast.dismiss(addBoardToast), 1500);
         logToast(`Successfully Added Board`, bord);
-        e.target.reset();
+        if (nameOfNewBoard == ``) e.target.reset();
       }
     })?.catch(addBordError => {
       logToast(`Failed to Add Board`, addBordError, true);

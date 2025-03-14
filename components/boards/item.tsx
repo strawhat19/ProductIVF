@@ -212,10 +212,13 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
         if (archivedGrid) {
             if (archivedGrid?.data?.boardIDs?.includes(board?.id)) {
                 dev() && console.log(`Has Board`, objLogs);
+                // Transfer Item to New List in New Board in Archived by changing item relational tags
             } else {
                 dev() && console.log(`Not Has Board`, objLogs);
                 if (dev()) {
                     await addNewBoard(e, board?.name, archivedGrid);
+                    // Create List for New Board in Archived
+                    // Transfer Item to New List in New Board in Archived by changing item relational tags
                 }
             }
         }
