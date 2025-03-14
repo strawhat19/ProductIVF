@@ -515,6 +515,36 @@ export const dragItemToNewList = async (item: Item, sourceList: List, destinatio
   }
 }
 
+export const transferItem = async (item: Item, listID, boardID, gridID) => {
+  const { date } = getIDParts();
+  const transferItemBatchOperation = await writeBatch(db);
+  try {
+    const itemRef = await doc(db, itemsTable, item?.id);
+    const listRef = await doc(db, listsTable, item?.listID);
+    const sourceListDoc = await getDoc(listRef);
+    if (sourceListDoc.exists()) {
+      const sourceListData = sourceListDoc.data();
+      const sourceListItemIDs = [...sourceListData?.data?.itemIDs];
+      const updatedSourceListItemIDs = sourceListItemIDs?.filter(itmID => itmID != item?.id);
+      transferItemBatchOperation.update(listRef, {
+        [`meta.updated`]: date,
+        [`data.itemIDs`]: updatedSourceListItemIDs,
+        properties: countPropertiesInObject({ ...sourceListData, data: { ...sourceListData?.data, itemIDs: updatedSourceListItemIDs } }),
+      });
+    }
+    transferItemBatchOperation.update(itemRef, { listID, boardID, gridID, [`meta.updated`]: date });
+    const tasksQuery = query(collection(db, tasksTable), where(`itemID`, `==`, item.id));
+    const tasksSnapshot = await getDocs(tasksQuery);
+    for (const taskDoc of tasksSnapshot.docs) {
+      const taskRef = doc(db, tasksTable, taskDoc.id);
+      transferItemBatchOperation.update(taskRef, { listID, boardID, gridID, [`meta.updated`]: date });
+    }
+  } catch (transferItemError) {
+    await logToast(`Error Transferring Item ${item?.name}`, transferItemError, true);
+    return transferItemError;
+  }
+}
+
 export const deleteItemFromDatabase = async (item: Item) => {
   const { date } = getIDParts();
   const deleteItemBatchOperation = await writeBatch(db);

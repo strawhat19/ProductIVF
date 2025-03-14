@@ -5,17 +5,18 @@ import Counts from './details/counts';
 import ItemDetail from './itemdetail';
 import CustomImage from '../custom-image';
 import { addBoardScrollBars } from './board';
-import { List } from '../../shared/models/List';
+import { createList, List } from '../../shared/models/List';
 import { Task } from '../../shared/models/Task';
 import DetailField from './details/detail-field';
 import ProgressBar from './details/progress-bar';
 import ConfirmAction from '../context-menus/confirm-action';
 import { Item as ItemModel } from '../../shared/models/Item';
 import React, { useContext, useEffect, useState } from 'react';
-import { deleteItemFromDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
-import { showAlert, StateContext, capitalizeAllWords, dev } from '../../pages/_app';
+import { addListToDatabase, db, deleteItemFromDatabase, listsTable, transferItem, updateDocFieldsWTimeStamp } from '../../firebase';
+import { showAlert, StateContext, capitalizeAllWords, dev, extractIDDetails } from '../../pages/_app';
 import { forceFieldBlurOnPressEnter, isValid, removeExtraSpacesFromString } from '../../shared/constants';
 import { GridTypes } from '../../shared/types/types';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 
 export const getItemTaskCompletionPercentage = (tasks: Task[], item: ItemModel, isActive = null) => {
     let itemIsActive = isValid(item?.options?.active) && item?.options?.active == true;
@@ -70,6 +71,7 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
     let [windowWidth, setWindowWidth] = useState(typeof window !== undefined ? window.innerWidth : 1920);
 
     let { 
+        user,
         devEnv, 
         menuRef, 
         setLoading, 
@@ -210,15 +212,30 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
         }
 
         if (archivedGrid) {
-            if (archivedGrid?.data?.boardIDs?.includes(board?.id)) {
-                dev() && console.log(`Has Board`, objLogs);
-                // Transfer Item to New List in New Board in Archived by changing item relational tags
-            } else {
-                dev() && console.log(`Not Has Board`, objLogs);
+            let boardUUID = extractIDDetails(board?.id)?.uuid;
+            let boardUUIDs = archivedGrid?.data?.boardIDs?.map(id => extractIDDetails(id)?.uuid);
+            if (boardUUIDs?.includes(boardUUID)) {
                 if (dev()) {
-                    await addNewBoard(e, board?.name, archivedGrid);
-                    // Create List for New Board in Archived
-                    // Transfer Item to New List in New Board in Archived by changing item relational tags
+                    console.log(`Has Board`, objLogs);
+                    const archivedGridBoardID = archivedGrid?.data?.boardIDs[0];
+                    const archivedGridBoardListQuery = await query(collection(db, listsTable), where(`boardID`, `==`, archivedGridBoardID));
+                    const archivedGridBoardListDocs = await getDocs(archivedGridBoardListQuery);
+                    for (const listDoc of archivedGridBoardListDocs.docs) {
+                        await transferItem(item, listDoc?.id, archivedGridBoardID, archivedGrid?.id);
+                    }
+                }
+            } else {
+                if (dev()) {
+                    console.log(`Not Has Board`, objLogs);
+                    const listsRef = await collection(db, listsTable);
+                    const listsSnapshot = await getDocs(listsRef);
+                    const listsCount = listsSnapshot.size;
+                    const listRank = listsCount + 1;
+                    const newList = createList(listRank, `Items`, user, listRank, archivedGrid?.id, board?.id) as List;
+                    await addListToDatabase(newList, board?.id)?.then(async lst => {
+                        await addNewBoard(e, board?.name, archivedGrid, [lst?.id]);
+                        await transferItem(item, lst?.id, board?.id, archivedGrid?.id);
+                    });
                 }
             }
         }

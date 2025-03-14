@@ -61,6 +61,22 @@ export const setThemeUI = () => {
   setThemeMode(themeMode);
 }
 
+export const extractIDDetails = (ID) => {
+  const regex = /^(.+?)_([^_]+)_(\d+)_([^_]+)_(\d+_\d+_[APM]+_\d+_\d+_\d+)_([^_]+)_(.+)$/;
+  const match = ID.match(regex);
+  if (match) {
+    return {
+      email: match[1],
+      type: match[2],
+      rank: parseInt(match[3], 10),
+      name: match[4],
+      created: match[5].replace(/_/g, ` `),
+      uuid: match[6],
+      uid: match[7],
+    }
+  }
+}
+
 export const formatDate = (date, specificPortion) => {
   let hours = date.getHours();
   let minutes = date.getMinutes();
@@ -596,22 +612,6 @@ export default function ProductIVF({ Component, pageProps, router }) {
     } else seedUserDataNoDB(usr);
   }
 
-  const extractIDDetails = (ID) => {
-    const regex = /^(.+?)_([^_]+)_(\d+)_([^_]+)_(\d+_\d+_[APM]+_\d+_\d+_\d+)_([^_]+)_(.+)$/;
-    const match = ID.match(regex);
-    if (match) {
-      return {
-        email: match[1],
-        type: match[2],
-        rank: parseInt(match[3], 10),
-        name: match[4],
-        created: match[5].replace(/_/g, ` `),
-        uuid: match[6],
-        uid: match[7],
-      }
-    }
-  }
-
   const signInUser = (usr, navigateToLastSelectedGrid = false) => {
     setUser(new User(usr));
     setAuthState(AuthStates.Sign_Out);
@@ -720,7 +720,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
     }
   }
 
-  const addNewBoard = async (e, nameOfNewBoard = ``, selectedGrd = selectedGrid) => {
+  const addNewBoard = async (e, nameOfNewBoard = ``, selectedGrd = selectedGrid, listIDs = []) => {
     e.preventDefault();
     
     setLoading(true);
@@ -741,7 +741,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
     const boardsSnapshot = await getDocs(boardsRef);
     const boardsCount = boardsSnapshot.size;
     const boardRank = boardsCount + 1;
-    const newBoard = createBoard(boardRank, boardName, user, titleWidth, boardRank, selectedGrd?.id);
+    const newBoard = createBoard(boardRank, boardName, user, titleWidth, boardRank, selectedGrd?.id, listIDs);
 
     setLoading(false);
     const addBoardToast = toast.info(`Adding Board`);
