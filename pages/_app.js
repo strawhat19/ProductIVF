@@ -1,25 +1,27 @@
 import '../main.scss';
 import 'react-toastify/dist/ReactToastify.css';
 
+import moment from 'moment-timezone';
 import ReactDOM from 'react-dom/client';
 import { getIDParts } from '../shared/ID';
 import { Grid } from '../shared/models/Grid';
 import { List } from '../shared/models/List';
 import { Item } from '../shared/models/Item';
 import { Task } from '../shared/models/Task';
-import { Board } from '../shared/models/Board';
 import { Feature } from '../shared/admin/features';
 import { toast, ToastContainer } from 'react-toastify';
 import { AnimatePresence, motion } from 'framer-motion';
+import { Board, createBoard } from '../shared/models/Board';
 import { User, userIsMinRole } from '../shared/models/User';
 import { addBoardScrollBars } from '../components/boards/board';
 import { createContext, useRef, useState, useEffect } from 'react';
 import ContextMenu from '../components/context-menus/context-menu';
 import { renderFirebaseAuthErrorMessage } from '../components/form';
 import { seedUserData as generateSeedUserData } from '../shared/database';
-import { collection, onSnapshot, query, where  } from 'firebase/firestore';
 import { AuthGrids, AuthStates, GridTypes, Types } from '../shared/types/types';
 import { defaultAuthenticateLabel, isValid, logToast } from '../shared/constants';
+import { collection, getDocs, onSnapshot, query, where  } from 'firebase/firestore';
+import { getBoardTitleWidth, recentlyAuthenticated } from '../components/boards/boards';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import AuthenticationDialog from '../components/modals/authenticate/authenticate-dialog';
 
@@ -28,15 +30,15 @@ import {
   auth, 
   usersTable,
   gridsTable,
+  boardsTable,
   userConverter,
   gridConverter,
   featuresTable,
   featureConverter,
   gridDataCollectionNames,
   updateDocFieldsWTimeStamp,
+  addBoardToDatabase,
 } from '../firebase';
-import { recentlyAuthenticated } from '../components/boards/boards';
-import moment from 'moment-timezone';
 
 export const StateContext = createContext({});
 
@@ -718,6 +720,42 @@ export default function ProductIVF({ Component, pageProps, router }) {
     }
   }
 
+  const addNewBoard = async (e, nameOfNewBoard = ``, selectedGrd = selectedGrid) => {
+    e.preventDefault();
+    
+    setLoading(true);
+
+    if (nameOfNewBoard == ``) {
+      let formFields = e?.target?.children[0]?.children;
+      let boardNameFieldValue = formFields?.createBoard?.value;
+      nameOfNewBoard = boardNameFieldValue;
+    }
+
+    let boardName = capWords(nameOfNewBoard);
+    let titleWidth = getBoardTitleWidth(boardName);
+    
+    setSystemStatus(`Creating Board ${boardName}.`);
+
+    // const { rank, number } = await getRankAndNumber(Types.Board, boards, selectedGrd?.data?.boardIDs, users, user);
+    const boardsRef = await collection(db, boardsTable);
+    const boardsSnapshot = await getDocs(boardsRef);
+    const boardsCount = boardsSnapshot.size;
+    const boardRank = boardsCount + 1;
+    const newBoard = createBoard(boardRank, boardName, user, titleWidth, boardRank, selectedGrd?.id);
+
+    setLoading(false);
+    const addBoardToast = toast.info(`Adding Board`);
+    await addBoardToDatabase(newBoard, selectedGrd?.id, user?.id, selectedGrd?.options?.newestBoardsOnTop)?.then(bord => {
+      if (bord?.type && bord?.type == Types.Board) {
+        setTimeout(() => toast.dismiss(addBoardToast), 1500);
+        logToast(`Successfully Added Board`, bord);
+        e.target.reset();
+      }
+    })?.catch(addBordError => {
+      logToast(`Failed to Add Board`, addBordError, true);
+    });
+  }
+
   const hardSetSelectedGrid = (gridToSet, grids) => {
     if (user?.lastSelectedGridID != gridToSet?.id) {
       // setGridSearchTerm(``);
@@ -1099,6 +1137,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       onSignOut,
       signInUser,
       getFeature,
+      addNewBoard,
       seedUserData,
       signOutReset,
       getGridsBoards,

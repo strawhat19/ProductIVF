@@ -15,6 +15,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { deleteItemFromDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
 import { showAlert, StateContext, capitalizeAllWords, dev } from '../../pages/_app';
 import { forceFieldBlurOnPressEnter, isValid, removeExtraSpacesFromString } from '../../shared/constants';
+import { GridTypes } from '../../shared/types/types';
 
 export const getItemTaskCompletionPercentage = (tasks: Task[], item: ItemModel, isActive = null) => {
     let itemIsActive = isValid(item?.options?.active) && item?.options?.active == true;
@@ -72,7 +73,9 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
         devEnv, 
         menuRef, 
         setLoading, 
+        addNewBoard,
         setSelected, 
+        selectedGrid,
         globalUserData,
         setSystemStatus, 
         setMenuPosition, 
@@ -196,6 +199,28 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
         completeItem(e, item);
     }
 
+    const onArchiveItem = async (e) => {
+        let { grids } = globalUserData;
+        let archivedGrid = grids?.find(gr => gr?.gridType == GridTypes.Archived);
+
+        let objLogs = {
+            item,
+            selectedGrid,
+            archivedGrid, 
+        }
+
+        if (archivedGrid) {
+            if (archivedGrid?.data?.boardIDs?.includes(board?.id)) {
+                dev() && console.log(`Has Board`, objLogs);
+            } else {
+                dev() && console.log(`Not Has Board`, objLogs);
+                if (dev()) {
+                    await addNewBoard(e, board?.name, archivedGrid);
+                }
+            }
+        }
+    }
+
     const onManageItem = (e) => {
         const allTasks = getItemTasks();
         const activeTasks = getItemTasks(`active`);
@@ -223,7 +248,7 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
             e.preventDefault();
             setItemTypeMenuOpen(true);
             setMenuPosition({ x: e.clientX, y: e.clientY });
-            setSelected({item, column, board, onManageItem, onCompleteItem, onDeleteItem});
+            setSelected({item, column, board, onManageItem, onCompleteItem, onArchiveItem, onDeleteItem});
         // }
     }
     

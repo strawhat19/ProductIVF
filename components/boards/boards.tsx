@@ -2,16 +2,15 @@ import Board from './board';
 import { toast } from 'react-toastify';
 import { User } from '../../shared/models/User';
 import MultiSelector from '../selector/multi-selector';
-import { collection, getDocs } from 'firebase/firestore';
 import { FeatureIDs } from '../../shared/admin/features';
 import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
-import { AuthGrids, GridTypes, Types } from '../../shared/types/types';
+import { updateDocFieldsWTimeStamp } from '../../firebase';
+import { replaceAll, StateContext } from '../../pages/_app';
 import { useState, useEffect, useContext, useRef } from 'react';
-import { capWords, replaceAll, StateContext } from '../../pages/_app';
+import { AuthGrids, GridTypes } from '../../shared/types/types';
+import { Board as BoardModel } from '../../shared/models/Board';
+import { generateArray, withinXTime } from '../../shared/constants';
 import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
-import { Board as BoardModel, createBoard } from '../../shared/models/Board';
-import { generateArray, logToast, withinXTime } from '../../shared/constants';
-import { addBoardToDatabase, boardsTable, db, updateDocFieldsWTimeStamp } from '../../firebase';
 
 export enum ItemTypes {
     Item = `Item`,
@@ -48,9 +47,8 @@ export default function Boards(props: any) {
     let { 
         user, 
         authState,
-        setLoading, 
+        addNewBoard,
         globalUserData,
-        setSystemStatus, 
         setActiveOptions,
         isFeatureEnabled,
         switchSelectedGrid,
@@ -81,14 +79,6 @@ export default function Boards(props: any) {
         const gridFormFieldValue = gridFormField?.value; 
         setGridSearchTerm(gridFormFieldValue);
     }
-
-    // useEffect(() => {
-    //     if (gridFormRef != null) {
-    //         if (gridFormRef?.current) {
-    //             gridFormRef?.current?.reset();
-    //         }
-    //     }
-    // }, [selectedGrid])
 
     useEffect(() => {
         setRte(replaceAll(router.route, `/`, `_`));
@@ -136,36 +126,6 @@ export default function Boards(props: any) {
         
         setBoards(updatedBoardsPositions);
         updateDocFieldsWTimeStamp(selectedGrid, { [`data.boardIDs`]: updatedBoardIDs });
-    }
-
-    const addNewBoard = async (e) => {
-        e.preventDefault();
-        
-        setLoading(true);
-        let formFields = e.target.children[0].children;
-        let boardName = capWords(formFields.createBoard.value);
-        let titleWidth = getBoardTitleWidth(boardName);
-        
-        setSystemStatus(`Creating Board ${boardName}.`);
-
-        // const { rank, number } = await getRankAndNumber(Types.Board, boards, selectedGrid?.data?.boardIDs, users, user);
-        const boardsRef = await collection(db, boardsTable);
-        const boardsSnapshot = await getDocs(boardsRef);
-        const boardsCount = boardsSnapshot.size;
-        const boardRank = boardsCount + 1;
-        const newBoard = createBoard(boardRank, boardName, user, titleWidth, boardRank, selectedGrid?.id);
-
-        setLoading(false);
-        const addBoardToast = toast.info(`Adding Board`);
-        await addBoardToDatabase(newBoard, selectedGrid?.id, user?.id, selectedGrid?.options?.newestBoardsOnTop)?.then(bord => {
-            if (bord?.type && bord?.type == Types.Board) {
-                setTimeout(() => toast.dismiss(addBoardToast), 1500);
-                logToast(`Successfully Added Board`, bord);
-                e.target.reset();
-            }
-        })?.catch(addBordError => {
-            logToast(`Failed to Add Board`, addBordError, true);
-        });
     }
 
     const gridRowComponent = () => <>

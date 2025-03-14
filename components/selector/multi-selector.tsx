@@ -240,7 +240,7 @@ const MultiSelector = forwardRef((props: any, ref) => {
           className={`multiSelectOptionContainer customHookRoot selectedOptions${activeOptions.length}Container customHookRootInputWrapper ${focused ? `focused` : ``}`} 
         >
           <div className={`multiSelectedIconLabels`}>
-            <div className={`selectedGridButton hoverBright gridsIconButon multiSelectOption styledTagWithProps`} onClick={(e) => showGridDetailView(e)} onMouseEnter={(e) => setHoveringOver(true)} onMouseLeave={(e) => setHoveringOver(false)}>
+            <div className={`selectedGridButton hoverBright gridsIconButon multiSelectOption styledTagWithProps ${selectedGrid?.gridType == GridTypes.Archived ? `pointerEventsNone` : ``}`} onClick={(e) => showGridDetailView(e)} onMouseEnter={(e) => setHoveringOver(true)} onMouseLeave={(e) => setHoveringOver(false)}>
               <div className={`gridsIconRow multiSelectedOption isFirst`}>
                 <i className={`gridsIcon fas ${hoveringOver ? `fa-cogs` : `fa-th`}`} style={{ fontSize: 16 }} />
                 <span className={`gridsIconLabel selectorOptionLabel`}>

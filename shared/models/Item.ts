@@ -37,6 +37,13 @@ export class Item extends Data {
         showTaskForm: false,
         hideCoverImage: false,
         tasksFilterState: TasksFilterStates.All_On,
+        archivedData: {
+            archivedBy: ``,
+            archivedAt: ``,
+            archivedFromGridID: ``,
+            archivedFromBoardID: ``,
+            archivedFromListID: ``,
+        },
     }
 
     data?: { [key: string]: string[] } = {
