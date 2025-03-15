@@ -231,7 +231,7 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
                     const listsSnapshot = await getDocs(listsRef);
                     const listsCount = listsSnapshot.size;
                     const listRank = listsCount + 1;
-                    const newList = createList(listRank, `Items`, user, listRank, archivedGrid?.id, board?.id) as List;
+                    const newList = createList(listRank, `Items`, user, listRank, archivedGrid?.id, board?.id, [item?.id]) as List;
                     await addListToDatabase(newList, board?.id)?.then(async lst => {
                         await addNewBoard(e, board?.name, archivedGrid, [lst?.id]);
                         await transferItem(item, lst?.id, board?.id, archivedGrid?.id);
