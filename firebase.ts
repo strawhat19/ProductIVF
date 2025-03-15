@@ -521,6 +521,7 @@ export const transferItem = async (item: Item, listID, boardID, gridID) => {
   try {
     const itemRef = await doc(db, itemsTable, item?.id);
     const listRef = await doc(db, listsTable, item?.listID);
+
     const sourceListDoc = await getDoc(listRef);
     if (sourceListDoc.exists()) {
       const sourceListData = sourceListDoc.data();
@@ -532,6 +533,7 @@ export const transferItem = async (item: Item, listID, boardID, gridID) => {
         properties: countPropertiesInObject({ ...sourceListData, data: { ...sourceListData?.data, itemIDs: updatedSourceListItemIDs } }),
       });
     }
+    
     transferItemBatchOperation.update(itemRef, { listID, boardID, gridID, [`meta.updated`]: date });
     const tasksQuery = query(collection(db, tasksTable), where(`itemID`, `==`, item.id));
     const tasksSnapshot = await getDocs(tasksQuery);
@@ -539,6 +541,8 @@ export const transferItem = async (item: Item, listID, boardID, gridID) => {
       const taskRef = doc(db, tasksTable, taskDoc.id);
       transferItemBatchOperation.update(taskRef, { listID, boardID, gridID, [`meta.updated`]: date });
     }
+
+    await transferItemBatchOperation.commit();
   } catch (transferItemError) {
     await logToast(`Error Transferring Item ${item?.name}`, transferItemError, true);
     return transferItemError;
