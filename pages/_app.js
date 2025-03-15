@@ -720,7 +720,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
     }
   }
 
-  const addNewBoard = async (e, nameOfNewBoard = ``, selectedGrd = selectedGrid, listIDs = []) => {
+  const addNewBoard = async (e, nameOfNewBoard = ``, selectedGrd = selectedGrid, listIDs = [], itemIDs = []) => {
     e.preventDefault();
     
     setLoading(true);
@@ -741,7 +741,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
     const boardsSnapshot = await getDocs(boardsRef);
     const boardsCount = boardsSnapshot.size;
     const boardRank = boardsCount + 1;
-    const newBoard = createBoard(boardRank, boardName, user, titleWidth, boardRank, selectedGrd?.id, listIDs);
+    const newBoard = createBoard(boardRank, boardName, user, titleWidth, boardRank, selectedGrd?.id, listIDs, itemIDs);
 
     setLoading(false);
     const addBoardToast = toast.info(`Adding Board`);

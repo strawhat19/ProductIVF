@@ -67,6 +67,7 @@ export const createBoard = (
     number: number = 1,
     gridID = ``, 
     listIDs = [], 
+    itemIDs = [], 
     boardType = BoardTypes.Kanban,
     color = `Default`,
     description = ``,
@@ -108,6 +109,7 @@ export const createBoard = (
         board.data = {
             ...board?.data,
             listIDs,
+            itemIDs,
             ...(user != null && {
                 users: [user?.email],
             }),
