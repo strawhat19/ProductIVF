@@ -36,6 +36,16 @@
         }
         &.columns_4, &.multiColExtended { 
             --columnWidth: calc(95.5% / 4) !important;
+            .subtaskHandle {
+                .taskChangeLabel {
+                    max-width: 220px !important;
+                }
+                &.complete {
+                    .taskChangeLabel {
+                        max-width: 200px !important;
+                    }
+                }
+            }
             @media (max-width: 1500px) {
                 .changeLabel {
                     &.columnName {
