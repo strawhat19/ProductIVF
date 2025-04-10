@@ -7,7 +7,7 @@ import DetailField from './details/detail-field';
 import { collection, getDocs } from 'firebase/firestore';
 import { capWords, StateContext } from '../../pages/_app';
 import { createTask, Task } from '../../shared/models/Task';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { DndContext, PointerSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { addTaskToDatabase, db, deleteTaskFromDatabase, tasksTable, updateDocFieldsWTimeStamp } from '../../firebase';
@@ -116,6 +116,13 @@ export default function Tasks(props) {
   } = useContext<any>(StateContext);
 
   let [tasks, setTasks] = useState(item?.tasks);
+  let createTaskFieldRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (showForm && createTaskFieldRef.current) {
+      createTaskFieldRef.current.focus();
+    }
+  }, [showForm]);  
 
   useEffect(() => {
     let thisItem = globalUserData?.items?.find(itm => itm?.id == item?.id);
@@ -365,6 +372,7 @@ export default function Tasks(props) {
               required
               type={`text`}
               autoComplete={`off`}
+              ref={createTaskFieldRef}
               placeholder={`Create Task +`}
               className={`createTaskField`}
               id={`${item?.id}_createSubtask`}
