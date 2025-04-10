@@ -742,7 +742,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
     const boardsCount = boardsSnapshot.size;
     const boardRank = boardsCount + 1;
     const boardNumber = Math.max(rank, number, boardRank);
-    
+
     const newBoard = createBoard(boardNumber, boardName, user, titleWidth, boardNumber, selectedGrd?.id, listIDs, itemIDs);
 
     setLoading(false);
@@ -833,7 +833,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
         setBoards(gridBoardsByID);
       }
       setBoardsLoading(false);
-      setTimeout(() => addBoardScrollBars(), 0);
+      setTimeout(() => addBoardScrollBars(), 150);
     }
   }, [globalUserData]);
 
