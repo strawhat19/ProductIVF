@@ -4,10 +4,10 @@ import { addBoardScrollBars } from './board';
 import { getIDParts } from '../../shared/ID';
 import { Types } from '../../shared/types/types';
 import DetailField from './details/detail-field';
-import React, { useContext, useState } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { capWords, StateContext } from '../../pages/_app';
 import { createTask, Task } from '../../shared/models/Task';
+import React, { useContext, useEffect, useState } from 'react';
 import { DndContext, PointerSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { addTaskToDatabase, db, deleteTaskFromDatabase, tasksTable, updateDocFieldsWTimeStamp } from '../../firebase';
@@ -117,6 +117,19 @@ export default function Tasks(props) {
 
   let [tasks, setTasks] = useState(item?.tasks);
 
+  useEffect(() => {
+    let thisItem = globalUserData?.items?.find(itm => itm?.id == item?.id);
+    if (thisItem) {
+      let updatedTasks = [];
+      let thisItemTaskIDs = thisItem?.data?.taskIDs;
+      thisItemTaskIDs.forEach(tskID => {
+        let thisTask = thisItem?.tasks?.find(tsk => tsk?.id == tskID);
+        if (thisTask) updatedTasks.push(thisTask);
+      })
+      setTasks(updatedTasks);
+    }
+  }, [globalUserData])
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       // activationConstraint: { distance: 8 },
@@ -124,20 +137,12 @@ export default function Tasks(props) {
   );
 
   const updateTaskInState = (task: Task, updates: Partial<Task>) => {
-    item.tasks = item?.tasks?.map(tsk => tsk?.id == task?.id ? ({
-      ...task,
-      ...updates,
-    }) : tsk);
-    setTasks(prevTasks => prevTasks?.map(tsk => tsk?.id == task?.id ? ({
-      ...task,
-      ...updates,
-    }) : tsk));
+    const getUpdatedTasks = (taskArray: Task[]) => taskArray?.map(tsk => tsk?.id == task?.id ? ({ ...task, ...updates }) : tsk);
+    item.tasks = getUpdatedTasks(item.tasks);
+    setTasks(prevTasks => getUpdatedTasks(prevTasks));
     setGlobalUserData(prevGlobalUserData => ({
       ...prevGlobalUserData,
-      tasks: prevGlobalUserData?.tasks?.map(tsk => tsk?.id == task?.id ? ({
-        ...task,
-        ...updates,
-      }) : tsk),
+      tasks: getUpdatedTasks(prevGlobalUserData?.tasks),
     }))
   }
 
@@ -157,6 +162,7 @@ export default function Tasks(props) {
 
   const getTasksInCurrentSearchFilters = (tasks: Task[]) => {
     let tasksInCurrentSearchFilters = tasks;
+    // let tasksInCurrentSearchFilters = item?.data?.taskIDs?.map(tskID => tasks?.find((tsk: Task) => tsk?.id == tskID));
     let hasSearchTerm = gridSearchTerm != ``;
     if (searchFilterTasks && hasSearchTerm) {
       tasksInCurrentSearchFilters = tasks?.filter((tsk: Task) => tsk?.name?.toLowerCase()?.includes(gridSearchTerm?.toLowerCase()?.trim()));

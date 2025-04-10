@@ -5,7 +5,7 @@ import { fontAwesomeIcons } from '../../shared/constants';
 import { updateDocFieldsWTimeStamp } from '../../firebase';
 
 export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--gameBlue)` }: any) {
-    let { devEnv, selected, setMenuPosition, setItemTypeMenuOpen, setSelected } = useContext<any>(StateContext);
+    let { selected, setMenuPosition, setItemTypeMenuOpen, setSelected } = useContext<any>(StateContext);
     let ids = (selected == null || selected?.column == undefined || selected?.column == null) ? [] : Array.from(selected?.column?.data?.itemIDs);
 
     const onDismiss = (setSelect = true) => {
@@ -103,11 +103,9 @@ export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--
                 <li className={`customContextMenuOption flex gap15`} onClick={() => onClose()}>
                     <i className={`fas fa-times`} style={{ color: iconColor }} /> <span>Close</span>
                 </li>
-                {devEnv && (
-                    <li className={`customContextMenuOption flex gap15`} onClick={() => sortTasks()}>
-                        <i className={`fas fa-sort`} style={{ color: iconColor, fontSize: 20 }} /> <span>Sort</span>
-                    </li>
-                )}
+                <li className={`customContextMenuOption flex gap15`} onClick={() => sortTasks()}>
+                    <i className={`fas fa-sort`} style={{ color: iconColor, fontSize: 20 }} /> <span>Sort</span>
+                </li>
                 <li className={`customContextMenuOption flex gap15`} onClick={() => copyToClipBoard()}>
                     <i className={`fas fa-copy`} style={{ color: iconColor }} /> <span>Copy</span>
                 </li>
