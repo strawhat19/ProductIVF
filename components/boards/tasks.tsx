@@ -2,16 +2,17 @@ import Tags from './details/tags';
 import { CSS } from '@dnd-kit/utilities';
 import { addBoardScrollBars } from './board';
 import { getIDParts } from '../../shared/ID';
+import { Types } from '../../shared/types/types';
 import DetailField from './details/detail-field';
 import React, { useContext, useState } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
+import { capWords, StateContext } from '../../pages/_app';
 import { createTask, Task } from '../../shared/models/Task';
-import { capWords, dev, StateContext } from '../../pages/_app';
 import { DndContext, PointerSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
-import { forceFieldBlurOnPressEnter, isValid, removeExtraSpacesFromString } from '../../shared/constants';
 import { addTaskToDatabase, db, deleteTaskFromDatabase, tasksTable, updateDocFieldsWTimeStamp } from '../../firebase';
 import { restrictToFirstScrollableAncestor, restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers';
+import { forceFieldBlurOnPressEnter, getRankAndNumber, isValid, removeExtraSpacesFromString } from '../../shared/constants';
 
 const reorder = (list, oldIndex, newIndex) => arrayMove(list, oldIndex, newIndex);
 
@@ -101,7 +102,18 @@ const SortableSubtaskItem = ({ item, task, isLast, index, gridSearchTerm, change
 
 export default function Tasks(props) {
   let { item, column, showForm = true } = props;
-  let { user, gridSearchTerm, selectedGrid, setLoading, setSystemStatus, setGlobalUserData, searchFilterTasks } = useContext<any>(StateContext);
+
+  let { 
+    user,
+    users,
+    setLoading,
+    selectedGrid,
+    gridSearchTerm,
+    globalUserData,
+    setSystemStatus,
+    setGlobalUserData,
+    searchFilterTasks, 
+  } = useContext<any>(StateContext);
 
   let [tasks, setTasks] = useState(item?.tasks);
 
@@ -262,12 +274,14 @@ export default function Tasks(props) {
     position = Math.min(parseInt(position, 10), nextIndex);
 
     if (column) {
-      // const { rank, number } = await getRankAndNumber(Types.Task, globalUserData?.tasks, column?.data?.taskIDs, users, user);
+      const { rank, number } = await getRankAndNumber(Types.Task, globalUserData?.tasks, column?.data?.taskIDs, users, user);
       const tasksRef = await collection(db, tasksTable);
       const tasksSnapshot = await getDocs(tasksRef);
       const tasksCount = tasksSnapshot.size;
       const taskRank = tasksCount + 1;
-      const newTask = createTask(taskRank, name, user, selectedGrid?.id, item?.boardID, column?.id, item?.id, taskRank) as Task;
+      const taskNumber = Math.max(rank, number, taskRank);
+
+      const newTask = createTask(taskNumber, name, user, selectedGrid?.id, item?.boardID, column?.id, item?.id, taskNumber) as Task;
 
       const prevTasks = [...tasks];
       const updatedTasks = Array.from(prevTasks);

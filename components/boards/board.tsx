@@ -10,8 +10,8 @@ import { createList, List } from '../../shared/models/List';
 import { Board as BoardModel } from '../../shared/models/Board';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { capitalizeAllWords, dev, StateContext } from '../../pages/_app';
-import { forceFieldBlurOnPressEnter, logToast } from '../../shared/constants';
 import { GridTypes, TasksFilterStates, Types } from '../../shared/types/types';
+import { forceFieldBlurOnPressEnter, getRankAndNumber, logToast } from '../../shared/constants';
 import { addListToDatabase, db, deleteBoardFromDatabase, dragItemToNewList, listsTable, updateDocFieldsWTimeStamp } from '../../firebase';
 
 export const taskFilterStateTransitions = {
@@ -48,6 +48,7 @@ export default function Board(props) {
 
     let { 
         user, 
+        users,
         setLoading, 
         selectedGrid, 
         setSystemStatus, 
@@ -186,12 +187,14 @@ export default function Board(props) {
         let name = formFields[0].value;
 
         if (board) {
-            // const { rank, number } = await getRankAndNumber(Types.List, globalUserData?.lists, board?.data?.listIDs, users, user);
+            const { rank, number } = await getRankAndNumber(Types.List, globalUserData?.lists, board?.data?.listIDs, users, user);
             const listsRef = await collection(db, listsTable);
             const listsSnapshot = await getDocs(listsRef);
             const listsCount = listsSnapshot.size;
             const listRank = listsCount + 1;
-            const newList = createList(listRank, name, user, listRank, selectedGrid?.id, board?.id) as List;
+            const listNumber = Math.max(rank, number, listRank);
+
+            const newList = createList(listNumber, name, user, listNumber, selectedGrid?.id, board?.id) as List;
 
             const addListToast = toast.info(`Adding List`);
 

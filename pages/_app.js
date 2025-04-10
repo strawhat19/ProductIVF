@@ -19,7 +19,7 @@ import ContextMenu from '../components/context-menus/context-menu';
 import { renderFirebaseAuthErrorMessage } from '../components/form';
 import { seedUserData as generateSeedUserData } from '../shared/database';
 import { AuthGrids, AuthStates, GridTypes, Types } from '../shared/types/types';
-import { defaultAuthenticateLabel, isValid, logToast } from '../shared/constants';
+import { defaultAuthenticateLabel, getRankAndNumber, isValid, logToast } from '../shared/constants';
 import { collection, getDocs, onSnapshot, query, where  } from 'firebase/firestore';
 import { getBoardTitleWidth, recentlyAuthenticated } from '../components/boards/boards';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
@@ -736,12 +736,14 @@ export default function ProductIVF({ Component, pageProps, router }) {
     
     setSystemStatus(`Creating Board ${boardName}.`);
 
-    // const { rank, number } = await getRankAndNumber(Types.Board, boards, selectedGrd?.data?.boardIDs, users, user);
+    const { rank, number } = await getRankAndNumber(Types.Board, boards, selectedGrd?.data?.boardIDs, users, user);
     const boardsRef = await collection(db, boardsTable);
     const boardsSnapshot = await getDocs(boardsRef);
     const boardsCount = boardsSnapshot.size;
     const boardRank = boardsCount + 1;
-    const newBoard = createBoard(boardRank, boardName, user, titleWidth, boardRank, selectedGrd?.id, listIDs, itemIDs);
+    const boardNumber = Math.max(rank, number, boardRank);
+    
+    const newBoard = createBoard(boardNumber, boardName, user, titleWidth, boardNumber, selectedGrd?.id, listIDs, itemIDs);
 
     setLoading(false);
     const addBoardToast = toast.info(`Adding Board`);

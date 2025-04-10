@@ -263,15 +263,30 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
         return itemDetailsOn;
     }
 
+    const sortItemTasks = async (item) => {
+        const updatedItemTasks = [];
+        const currentItemTaskIDs = item?.data?.taskIDs;
+        const completeItemTasks = item?.tasks?.filter((tsk: Task) => tsk?.options?.complete);
+        const completeItemTasksSorted = completeItemTasks?.sort((tskA: Task, tskB: Task) => tskA?.name?.length - tskB?.name?.length);
+        const completeItemTasksSortedIDs = completeItemTasksSorted?.map((tsk: Task) => tsk?.id);
+        const updatedItemTaskIDs = currentItemTaskIDs?.filter(tskID => !completeItemTasksSortedIDs?.includes(tskID))?.concat(completeItemTasksSortedIDs);
+        updatedItemTaskIDs?.forEach(tskID => {
+            const thisItemTask = item?.tasks?.find((tsk: Task) => tsk?.id == tskID);
+            if (thisItemTask) updatedItemTasks?.push(thisItemTask);
+        });
+        item.tasks = updatedItemTasks;
+        await updateDocFieldsWTimeStamp(item, { [`data.taskIDs`]: updatedItemTaskIDs });
+    }
+
+    const onSortItemTasks = async () => {
+        await sortItemTasks(item);
+    }
+
     const onRightClick = (e: React.MouseEvent<HTMLDivElement>, item: ItemModel, column: List) => {
-        // if (dev()) {
-            // return;
-        // } else {
-            e.preventDefault();
-            setItemTypeMenuOpen(true);
-            setMenuPosition({ x: e.clientX, y: e.clientY });
-            setSelected({item, column, board, onManageItem, onCompleteItem, onArchiveItem, onDeleteItem});
-        // }
+        e.preventDefault();
+        setItemTypeMenuOpen(true);
+        setMenuPosition({ x: e.clientX, y: e.clientY });
+        setSelected({ item, column, board, onManageItem, onCompleteItem, onArchiveItem, onDeleteItem, onSortItemTasks });
     }
     
     const handleClickOutside = (event: MouseEvent) => {
