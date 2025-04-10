@@ -2764,6 +2764,13 @@ footer {
                         max-width: min-content !important;
                         border-radius: var(--borderRadius);
                         justify-content: flex-start !important;
+                        &.itemTag {
+                            grid-gap: 3px !important;
+                        }
+                        &.tagTask {
+                            font-size: 9px !important;
+                            font-weight: 800 !important;
+                        }
                     }
                     .subtaskIndex {
                         font-size: 0.65em;

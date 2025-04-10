@@ -495,6 +495,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let [globalUserData, setGlobalUserData] = useState(null);
   let [profilesLoading, setProfilesLoading] = useState(true);
   let [itemTypeMenuOpen, setItemTypeMenuOpen] = useState(false);
+  let [searchFilterTasks, setSearchFilterTasks] = useState(false);
   let [globalUserDataLoading, setGlobalUserDataLoading] = useState(true);
 
   const getPageContainerClasses = () => {
@@ -706,7 +707,6 @@ export default function ProductIVF({ Component, pageProps, router }) {
 
   const switchSelectedGrid = (usr, selectedGrd, navigate = useNavigation) => {
     if (usr?.lastSelectedGridID != selectedGrd?.id) {
-      // setGridSearchTerm(``);
       updateDocFieldsWTimeStamp(usr, { 
         lastSelectedGridID: selectedGrd?.id, 
         [`data.selectedGridIDs`]: [selectedGrd?.id], 
@@ -758,7 +758,6 @@ export default function ProductIVF({ Component, pageProps, router }) {
 
   const hardSetSelectedGrid = (gridToSet, grids) => {
     if (user?.lastSelectedGridID != gridToSet?.id) {
-      // setGridSearchTerm(``);
       updateDocFieldsWTimeStamp(user, { 
         lastSelectedGridID: gridToSet?.id, 
         [`data.selectedGridIDs`]: [gridToSet?.id], 
@@ -1130,6 +1129,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       gridSearchTerm, setGridSearchTerm,
       featuresLoading, setFeaturesLoading,
       authenticateOpen, setAuthenticateOpen,
+      searchFilterTasks, setSearchFilterTasks,
       userRecentlyAuthenticated, setUserRecentlyAuthenticated,
 
       // Functions

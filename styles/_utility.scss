@@ -3,7 +3,20 @@
 .fit { max-width: fit-content; }
 .blurred { filter: blur(15px); }
 .rowThis { flex-direction: row; }
+.cursorPointer { cursor: pointer; }
+.cursorAuto { cursor: auto !important; }
 .transition { transition: var(--transition); }
+
+.cursorGrab {
+    cursor: grab !important;
+    &:has(:active) {
+        cursor: grabbing !important;
+    }
+}
+
+.highlightSearchMatch {
+    border-radius: var(--borderRadius);
+}
 
 @mixin setWidth($width) {
     width: $width !important;
@@ -27,18 +40,6 @@
     @include setHeight(var(--fullWidth));
     &.boardIndexAndTitle {
         --fullWidth: 74% !important;
-    }
-}
-
-.cursorAuto {
-    cursor: auto !important;
-}
-
-
-.cursorGrab {
-    cursor: grab !important;
-    &:has(:active) {
-        cursor: grabbing !important;
     }
 }
 

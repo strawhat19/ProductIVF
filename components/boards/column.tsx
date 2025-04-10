@@ -59,13 +59,15 @@ export default function Column(props) {
             let queryStrings = [];
 
             let itemTags = itm?.data?.tags;
-            let itemQueryStrings = [itm?.name, itm?.description];
+            let itemQueryStrings = [itm?.name, itm?.description, String(itm?.rank)];
 
             [...itemTags, ...itemQueryStrings]?.forEach(qStr => queryStrings?.push(qStr));
 
             if (itm?.data?.taskIDs?.length > 0) {
                 let itemTasks = getItemTasks(itm);
-                let taskQueryStrings = itemTasks?.map((tsk: Task) => tsk?.name);
+                let itemTaskNames = itemTasks?.map((tsk: Task) => tsk?.name);
+                let itemTaskRanks = itemTasks?.map((tsk: Task) => String(tsk?.rank));
+                let taskQueryStrings = [...itemTaskNames, ...itemTaskRanks];
                 taskQueryStrings?.forEach(tqStr => queryStrings?.push(tqStr));
             }
 
@@ -310,7 +312,7 @@ export default function Column(props) {
                                         return (
                                             <Draggable key={item?.id} draggableId={item?.id} index={itemIndex} isDragDisabled={gridSearchTerm != ``}>
                                                 {provided => (
-                                                    <div id={item?.id} className={`item boardItem ${hoverItemForm ? `itemHoverToExpand` : ``} completeItem ${(item?.options?.complete || (item?.options?.active && item?.data?.taskIDs?.length == 0)) ? `complete completeBoardItem` : `activeBoardItem`} ${item?.options?.active ? `activeItemBoard` : ``} ${gridSearchTerm != `` ? `wSearchTerm` : ``} container ${snapshot.isDragging ? `dragging` : ``} ${(itemTypeMenuOpen || selected != null) ? `unfocus` : ``}`} title={item?.name} {...provided.draggableProps} ref={provided.innerRef}>
+                                                    <div id={item?.id} className={`item boardItem ${hoverItemForm ? `itemHoverToExpand` : ``} completeItem ${(item?.options?.complete) ? `complete completeBoardItem` : `activeBoardItem`} ${(item?.options?.active && (getItemTasks(item, `active`)?.length > 0 || item?.data?.taskIDs?.length == 0)) ? `activeItemBoard` : ``} ${gridSearchTerm != `` ? `wSearchTerm` : ``} container ${snapshot.isDragging ? `dragging` : ``} ${(itemTypeMenuOpen || selected != null) ? `unfocus` : ``}`} title={item?.name} {...provided.draggableProps} ref={provided.innerRef}>
                                                         <div onClick={(e) => manageItem(e, item, itemIndex, getItemTasks(item), getItemTasks(item, `active`), getItemTasks(item, `complete`))} {...provided.dragHandleProps} className={`itemRow flex row ${item?.options?.complete ? `completed` : `incomplete`} ${item?.tasks.length > 0 ? `hasTasksRow` : `noTasksRow`}`}>
                                                             <Item 
                                                                 item={item} 

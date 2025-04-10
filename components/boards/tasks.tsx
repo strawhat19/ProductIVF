@@ -1,8 +1,9 @@
+import Tags from './details/tags';
 import { CSS } from '@dnd-kit/utilities';
 import { addBoardScrollBars } from './board';
 import { getIDParts } from '../../shared/ID';
 import DetailField from './details/detail-field';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { createTask, Task } from '../../shared/models/Task';
 import { capWords, dev, StateContext } from '../../pages/_app';
@@ -14,7 +15,7 @@ import { restrictToFirstScrollableAncestor, restrictToVerticalAxis, restrictToWi
 
 const reorder = (list, oldIndex, newIndex) => arrayMove(list, oldIndex, newIndex);
 
-const SortableSubtaskItem = ({ item, task, isLast, index, gridSearchTerm, changeLabel, completeTask, deleteSubtask }) => {
+const SortableSubtaskItem = ({ item, task, isLast, index, gridSearchTerm, changeLabel, completeTask, deleteSubtask, searchFilterTasks }) => {
   let { listeners, transform, attributes, setNodeRef, transition, isDragging } = useSortable({ id: task.id });
 
   const style = {
@@ -24,10 +25,25 @@ const SortableSubtaskItem = ({ item, task, isLast, index, gridSearchTerm, change
     transform: CSS.Translate.toString(transform),
   }
 
+  const getHighlightedText = (text: string, highlight: string) => {
+    if (!highlight) return text;
+    const regex = new RegExp(`(${highlight})`, `gi`);
+    const parts = text.split(regex);
+    return parts.map((part, i) =>
+      part.toLowerCase() === highlight.toLowerCase() ? (
+        <span key={i} className={`highlightSearchMatch fit`}>
+          {part}
+        </span>
+      ) : (
+        part
+      )
+    );
+  }
+
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners} className={`boardTaskDraggableWrap`}>
       <div className={`task_${task?.id} boardTask subTaskItem ${item?.options?.complete ? `taskItemComplete` : `taskItemNotComplete`} ${!item?.options?.complete && (isValid(task?.options?.active) && task?.options?.active == true) ? `activeItemOrTask` : ``} ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`} ${isLast ? `dndLast` : ``}`}>
-        <div className={`boardTaskHandle ${gridSearchTerm == `` ? `cursorGrab` : `cursorAuto`} draggableItem item subtaskHandle ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`}`}>
+        <div className={`boardTaskHandle ${searchFilterTasks && gridSearchTerm != `` ? `cursorAuto` : `cursorGrab`} draggableItem item subtaskHandle ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`}`}>
           <span className={`itemOrder taskComponentBG`}>
             <i className={`itemIndex ${(item?.options?.complete || task?.options?.complete) ? `completedIndex` : `activeIndex`}`}>
               {index + 1}
@@ -47,8 +63,12 @@ const SortableSubtaskItem = ({ item, task, isLast, index, gridSearchTerm, change
               className={`changeLabel taskChangeLabel stretchEditable ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`}`}
             >
               {task?.name}
+              {/* {getHighlightedText(task?.name || ``, gridSearchTerm)} */}
             </span>
-            <DetailField item={item} task={task} />
+            <div className={`taskDetailsEnd itemContents fit`}>
+              <Tags item={task} />
+              <DetailField item={item} task={task} />
+            </div>
           </div>
 
           <div className={`taskOptions itemOptions itemButtons customButtons taskComponentBG taskButtons ${task?.options?.complete ? `taskComplete` : `taskActive`} ${item?.options?.complete ? `itemComplete` : `itemActive`} ${(item?.options?.complete || task?.options?.complete) ? `taskButtonsComplete` : `taskButtonsActive`}`}>
@@ -81,7 +101,7 @@ const SortableSubtaskItem = ({ item, task, isLast, index, gridSearchTerm, change
 
 export default function Tasks(props) {
   let { item, column, showForm = true } = props;
-  let { user, gridSearchTerm, selectedGrid, setLoading, setSystemStatus, setGlobalUserData } = useContext<any>(StateContext);
+  let { user, gridSearchTerm, selectedGrid, setLoading, setSystemStatus, setGlobalUserData, searchFilterTasks } = useContext<any>(StateContext);
 
   let [tasks, setTasks] = useState(item?.tasks);
 
@@ -126,7 +146,7 @@ export default function Tasks(props) {
   const getTasksInCurrentSearchFilters = (tasks: Task[]) => {
     let tasksInCurrentSearchFilters = tasks;
     let hasSearchTerm = gridSearchTerm != ``;
-    if (hasSearchTerm) {
+    if (searchFilterTasks && hasSearchTerm) {
       tasksInCurrentSearchFilters = tasks?.filter((tsk: Task) => tsk?.name?.toLowerCase()?.includes(gridSearchTerm?.toLowerCase()?.trim()));
     }
     return tasksInCurrentSearchFilters;
@@ -285,21 +305,17 @@ export default function Tasks(props) {
   return (
     <div id={`${item?.id}_subTasks`} className={`rowSubtasks subTasks dndkitTasks  ${showForm ? `showForm` : `hideForm`}`}>
       <div className={`subTaskElement flex ${getTasksInCurrentSearchFilters(tasks)?.length > 0 ? `hasTasks` : `noTasks`} ${showForm ? `hasForm` : `noForm`}`}>
-        {/* The scrollable container for tasks */}
         <div style={{ marginTop: -1 }} className={`subTaskItems tasks_${getTasksInCurrentSearchFilters(tasks)?.length} taskItems ${item?.options?.complete ? `completedTasks` : `activeTasks`}`}>
-          {/* DndContext wraps the entire area that can be dragged */}
           <DndContext
             sensors={sensors}
             autoScroll={true}
             onDragEnd={handleDragEnd}
             collisionDetection={closestCenter}
-            // onDragOver={(e) => onDragover(e)}
             modifiers={[restrictToVerticalAxis, restrictToFirstScrollableAncestor, restrictToWindowEdges]}
           >
-            {/* SortableContext defines which items we can reorder, and how */}
             <SortableContext
-              disabled={gridSearchTerm != ``}
               strategy={verticalListSortingStrategy}
+              disabled={searchFilterTasks && gridSearchTerm != ``}
               items={getTasksInCurrentSearchFilters(tasks)?.map((t) => t?.id)}
             >
               {getTasksInCurrentSearchFilters(tasks)?.map((task, index) => {
@@ -313,6 +329,7 @@ export default function Tasks(props) {
                     isLast={isLast}
                     changeLabel={changeLabel}
                     gridSearchTerm={gridSearchTerm}
+                    searchFilterTasks={searchFilterTasks}
                     deleteSubtask={(e) => deleteTask(e, task)}
                     completeTask={(e) => completeTask(e, task)}
                   />

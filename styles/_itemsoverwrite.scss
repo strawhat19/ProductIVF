@@ -46,19 +46,40 @@
     }
 }
 
+// i {
+//     &.fa-trash {
+//         color: red !important;
+//     }
+// }
+
+.highlightSearchMatch {
+    padding: 0 2px;
+    border-radius: 2px;
+    background-color: var(--darkCheckBox);
+}  
+
 .board {
     .column {
         * {
+            --activeFontWeight: 700;
             --gameBlueInverse: var(--primary);
         }
         .items {
-            // --blackGlass: rgba(0, 0, 0, 0.95);
             --whiteGlass: rgba(255, 255, 255, 0.95);
             * {
                 filter: invert(0) !important;
             }
             &.boardColumnItems {
                 .boardItem {
+                    &.activeItemBoard {
+                        .itemChangeLabel {
+                            font-weight: calc(var(--activeFontWeight) - 100);
+                        }
+                        .detailField {
+                            font-style: italic;
+                            font-weight: var(--activeFontWeight) !important;
+                        }
+                    }
                     &:not(.complete) {
                         .changeLabel, .detailField, itemButtons button {
                             transition: none !important;
@@ -83,7 +104,8 @@
                         }
                     }
                     .boardTask {
-                        &.complete, &.active {
+                        // &.active,
+                        &.complete {
                             .changeLabel {
                                 color: var(--dark) !important;
                                 text-decoration-color: var(--dark) !important;
@@ -92,25 +114,26 @@
                         }
                         &.activeItemOrTask {
                             --fontColor: var(--gameBlueSoft) !important;
-                            background: var(--lightGradient) !important;
-                            &:hover {
-                                background: var(--whiteGradient) !important;
-                            }
-                            .changeLabel {
-                                color: black !important;
-                            }
-                            .detailField {
-                                font-style: italic;
-                                color: black !important;
-                                // color: var(--fontColor) !important;
-                            }
-                            .deleteTaskButton {
-                                background: black;
-                            }
+                            // background: var(--lightGradient) !important;
+                            // &:hover {
+                            //     background: var(--whiteGradient) !important;
+                            // }
+                            // .changeLabel {
+                            //     // color: black !important;
+                            //     font-weight: var(--activeFontWeight);
+                            // }
+                            // .detailField {
+                            //     // color: black !important;
+                            //     font-style: italic !important;
+                            //     font-weight: var(--activeFontWeight) !important;
+                            // }
+                            // .deleteTaskButton {
+                            //     background: black;
+                            // }
                             input[type="checkbox"] {
                                 &::before {
                                     content: "◍" !important;
-                                    padding: 0px 8px!important;
+                                    padding: 0px 8px !important;
                                     color: var(--fontColor) !important;
                                 }
                             }

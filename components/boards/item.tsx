@@ -5,18 +5,18 @@ import Counts from './details/counts';
 import ItemDetail from './itemdetail';
 import CustomImage from '../custom-image';
 import { addBoardScrollBars } from './board';
-import { createList, List } from '../../shared/models/List';
 import { Task } from '../../shared/models/Task';
 import DetailField from './details/detail-field';
 import ProgressBar from './details/progress-bar';
+import { GridTypes } from '../../shared/types/types';
+import { createList, List } from '../../shared/models/List';
 import ConfirmAction from '../context-menus/confirm-action';
 import { Item as ItemModel } from '../../shared/models/Item';
 import React, { useContext, useEffect, useState } from 'react';
-import { addListToDatabase, db, deleteItemFromDatabase, listsTable, transferItem, updateDocFieldsWTimeStamp } from '../../firebase';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { showAlert, StateContext, capitalizeAllWords, dev, extractIDDetails } from '../../pages/_app';
 import { forceFieldBlurOnPressEnter, isValid, removeExtraSpacesFromString } from '../../shared/constants';
-import { GridTypes } from '../../shared/types/types';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { addListToDatabase, db, deleteItemFromDatabase, listsTable, transferItem, updateDocFieldsWTimeStamp } from '../../firebase';
 
 export const getItemTaskCompletionPercentage = (tasks: Task[], item: ItemModel, isActive = null) => {
     let itemIsActive = isValid(item?.options?.active) && item?.options?.active == true;
@@ -331,8 +331,8 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
                             spellCheck={false}
                             suppressContentEditableWarning 
                             onBlur={(e) => changeLabel(e, item)} 
-                            className={`changeLabel stretchEditable`}
                             onKeyDown={(e) => forceFieldBlurOnPressEnter(e)}
+                            className={`changeLabel stretchEditable itemChangeLabel`}
                         >
                             {item.name}
                         </span>
@@ -345,7 +345,7 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
                         <div className={`itemFooter flex row`}>
                             <div className={`itemDetailsStart itemDetails`}>
                                 <DetailField item={item} tasks={getItemTasks()} />
-                                {devEnv && <Tags />}
+                                <Tags item={item} />
                             </div>
                             <div className={`itemDetailsEnd fit`}>
                                 <Counts item={item} activeTasks={getItemTasks(`active`)} completedTasks={getItemTasks(`complete`)} />
@@ -355,7 +355,7 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
                 </div>
                 {showItemDetails() == false && <>
                     <div className={`altTagsContainer itemContents fit`}>
-                        {devEnv && <Tags />}
+                        <Tags item={item} />
                     </div>
                     <DetailField item={item} tasks={getItemTasks()} />
                 </>}

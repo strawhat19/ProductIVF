@@ -4,6 +4,11 @@
     --whiteGlassInvert: rgba(191, 230, 244, 1);
 }
 
+.taskChangeLabel {
+    grid-gap: 5px;
+    flex-direction: row;
+}
+
 .board {
     .column {
         &.columns_1 { --columnWidth: 100% !important; }
@@ -194,6 +199,12 @@
 
 .detailsButton {
     border-radius: 0 !important;
+}
+
+.taskDetailsEnd {
+    align-items: center;
+    flex-direction: row;
+    grid-gap: 0 !important;
 }
 
 .boardItem {
