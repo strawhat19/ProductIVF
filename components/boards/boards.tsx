@@ -1,4 +1,5 @@
 import Board from './board';
+import { NextSeo } from 'next-seo';
 import { toast } from 'react-toastify';
 import { User } from '../../shared/models/User';
 import MultiSelector from '../selector/multi-selector';
@@ -224,6 +225,8 @@ export default function Boards(props: any) {
     )
 
     return <>
+        <NextSeo title={(selectedGrid?.name ?? ``) + ` Grid`} />
+
         {gridRowComponent()}
 
         {selectedGrid?.options?.newestBoardsOnTop ? ((boardsLoading || user?.uid != selectedGrid?.ownerUID) ? <></> : createBoardComponent()) : <></>}

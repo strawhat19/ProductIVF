@@ -789,15 +789,6 @@ export default function ProductIVF({ Component, pageProps, router }) {
     let lastSelectedGrid = usersGridsByID?.find(gr => gr?.id == lastSelectedGridID);
     if (lastSelectedGrid) {
       setSelectedGrd(lastSelectedGrid);
-      // localStorage.setItem(`lastSelectedGridName`, lastSelectedGrid?.name);
-      // if (document) {
-      //   let updatedTabTitle = `${lastSelectedGrid?.name} Grid | ProductIVF`;
-      //   let gridTitleElement = document?.querySelector(`#gridTitleElement`);
-      //   if (gridTitleElement) {
-      //     gridTitleElement.firstChild.innerHTML = updatedTabTitle;
-      //   }
-      //   // document.title = updatedTabTitle;
-      // }
     }
     if (usersGridsByID?.length > 0) setGridsLoading(false);
   }
