@@ -196,15 +196,25 @@
 .gridInputField {
     width: 100%; 
     font-size: 14px; 
-    min-height: var(--buttonSize); 
     padding-left: 15px; 
     max-width: unset !important; 
+    min-height: var(--buttonSize); 
     background: var(--blackGlass);
     border-radius: var(--borderRadius);
     border-top-left-radius: 0px !important;
     border-bottom-left-radius: 0px !important; 
+    &:focus-visible {
+        --tw-ring-opacity: 0 !important;
+    }
     &::placeholder {
         opacity: 0.65;
+    }
+}
+
+.clearSearchButton {
+    transition: var(--transition);
+    &:active {
+        background: black !important;
     }
 }
 

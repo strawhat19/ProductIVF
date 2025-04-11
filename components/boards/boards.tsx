@@ -11,6 +11,7 @@ import { useState, useEffect, useContext, useRef } from 'react';
 import { AuthGrids, GridTypes } from '../../shared/types/types';
 import { Board as BoardModel } from '../../shared/models/Board';
 import { generateArray, withinXTime } from '../../shared/constants';
+// import FeatureFlagBadge from '../../shared/admin/feature-flag-badge';
 import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
 
 export enum ItemTypes {
@@ -70,8 +71,23 @@ export default function Boards(props: any) {
     let [useSearchInputGridCreate, ] = useState(false);
     let [searchingGrid, setSearchingGrid] = useState(true);
 
+    useEffect(() => {
+        setRte(replaceAll(router.route, `/`, `_`));
+        setUpdates(updates + 1);
+        return () => {
+            setRte(replaceAll(router.route, `/`, `_`));
+        }
+    }, [rte]);
+
     const onGridFormSubmit = (gridFromSubmitEvent) => {
         gridFromSubmitEvent?.preventDefault();
+    }
+
+    const onClearSearch = (e) => {
+        e.preventDefault();
+        setGridSearchTerm(``);
+        const gridSearchField = gridFormRef.current?.querySelector(`.gridSearchField`);
+        if (gridSearchField) gridSearchField.value = ``;
     }
 
     const onGridFormChange = (gridFromChangeEvent) => {
@@ -80,14 +96,6 @@ export default function Boards(props: any) {
         const gridFormFieldValue = gridFormField?.value; 
         setGridSearchTerm(gridFormFieldValue);
     }
-
-    useEffect(() => {
-        setRte(replaceAll(router.route, `/`, `_`));
-        setUpdates(updates + 1);
-        return () => {
-            setRte(replaceAll(router.route, `/`, `_`));
-        }
-    }, [rte]);
 
     const updateSelectedGrids = async (updatedSelectedGrids) => {
         let thisGrid = updatedSelectedGrids[0];
@@ -149,9 +157,14 @@ export default function Boards(props: any) {
                                         {searchingGrid ? <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-search`} /> : `+`}
                                     </button>
                                     {searchingGrid ? (
-                                        <input autoComplete={`off`} placeholder={`Search Grid... (Drag & Drop Disabled When Searching)`} type={`search`} name={`searchGrid`} className={`gridInputField searchGrid`} />
+                                        <input autoComplete={`off`} placeholder={`Search Grid... (Drag & Drop Disabled When Searching)`} type={`search`} name={`searchGrid`} className={`gridInputField gridSearchField searchGrid`} />
                                     ) : (
                                         <input autoComplete={`off`} placeholder={`Create Grid +`} type={`text`} name={`createGrid`} className={`gridInputField createGridField`} />
+                                    )}
+                                    {(searchingGrid && gridSearchTerm != ``) && (
+                                        <button style={{ background: `white`, width: `8%`, minWidth: 33, maxWidth: 33, justifyContent: `center`, borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }} title={`Clear Search`} className={`clearSearchButton gridTypeIconButton iconButton filterButton hoverGlow`} onClick={(e) => onClearSearch(e)}>
+                                            <i style={{ color: `var(--gameBlue)`, fontSize: 16 }} className={`fas fa-times`} />
+                                        </button>
                                     )}
                                 </form>
                             </>}
