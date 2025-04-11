@@ -1133,23 +1133,6 @@ textarea {
     overflow-y: hidden;
 }
 
-.subtaskActions {
-    textarea {
-        height: 16px;
-        &:hover {
-            background: rgba(255, 61, 0, 0.2) !important;
-        }
-    }
-
-    .changeLabel {
-        &.complete {
-            text-decoration: line-through;
-            text-decoration-color: black;
-            text-decoration-thickness: 0 !important;
-        }
-    }
-}
-
 .changeLabel {
     cursor: text;
     padding: 0 10px;
@@ -2088,8 +2071,29 @@ textarea {
                                         grid-gap: 5px;
                                         max-width: 100%;
                                         padding: 0 0 0 20px;
+                                        container-type: inline-size;
                                         max-width: -moz-fit-content;
                                         justify-content: space-between;
+                                        @media (max-width: 1120px) {
+                                            @container (max-width: 347px) {
+                                                .taskDetailsEnd {
+                                                    max-width: unset;
+                                                    grid-gap: 10px !important;
+                                                    padding: 0 0 5px 10px !important;
+                                                    .detailField {
+                                                        border: none !important;
+                                                        margin-left: 0px !important;
+                                                        margin-right: 0px !important;
+                                                        max-width: fit-content !important;
+                                                        &.taskStatus {
+                                                            padding-right: 45px !important;
+                                                            max-width: fit-content !important;
+                                                            justify-content: flex-end !important;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
                                         .detailField {
                                             justify-content: flex-end;
                                             margin-right: 10px !important;
@@ -2097,6 +2101,19 @@ textarea {
                                         input[type="checkbox"] {
                                             font-size: 8px !important;
                                             font-weight: 400 !important;
+                                        }
+                                        textarea {
+                                            height: 16px;
+                                            &:hover {
+                                                background: rgba(255, 61, 0, 0.2) !important;
+                                            }
+                                        }
+                                        .changeLabel {
+                                            &.complete {
+                                                text-decoration: line-through;
+                                                text-decoration-color: black;
+                                                text-decoration-thickness: 0 !important;
+                                            }
                                         }
                                     }
                                     .itemButtons {
