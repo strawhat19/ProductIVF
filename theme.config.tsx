@@ -37,9 +37,24 @@ const config: DocsThemeConfig = {
   // primaryHue: 285, // Pink Purple
   primaryHue: 195, // Sky Blue
   useNextSeoProps() {
-    return {
-      titleTemplate: `%s | ProductIVF`
-    }
+    // if (typeof window !== undefined) {
+      // const lastSelectedGridName = `Selected`;
+      // if (lastSelectedGridName) {
+        return {
+          // title: `${lastSelectedGridName != `` ? lastSelectedGridName + ` ` : ``}Grid`,
+          titleTemplate: `%s | ProductIVF`,
+        };
+      // }
+    // }
+
+    // return {
+    //   titleTemplate: `%s | ProductIVF`
+    // }
+  
+    // return {
+    //   title: `ProductIVF`,
+    //   titleTemplate: `%s | ProductIVF`
+    // };
   },
   feedback: {
     content: null,

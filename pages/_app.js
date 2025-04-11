@@ -19,11 +19,11 @@ import ContextMenu from '../components/context-menus/context-menu';
 import { renderFirebaseAuthErrorMessage } from '../components/form';
 import { seedUserData as generateSeedUserData } from '../shared/database';
 import { AuthGrids, AuthStates, GridTypes, Types } from '../shared/types/types';
-import { defaultAuthenticateLabel, getRankAndNumber, isValid, logToast } from '../shared/constants';
 import { collection, getDocs, onSnapshot, query, where  } from 'firebase/firestore';
 import { getBoardTitleWidth, recentlyAuthenticated } from '../components/boards/boards';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import AuthenticationDialog from '../components/modals/authenticate/authenticate-dialog';
+import { defaultAuthenticateLabel, getRankAndNumber, isValid, logToast } from '../shared/constants';
 
 import { 
   db, 
@@ -789,6 +789,15 @@ export default function ProductIVF({ Component, pageProps, router }) {
     let lastSelectedGrid = usersGridsByID?.find(gr => gr?.id == lastSelectedGridID);
     if (lastSelectedGrid) {
       setSelectedGrd(lastSelectedGrid);
+      // localStorage.setItem(`lastSelectedGridName`, lastSelectedGrid?.name);
+      // if (document) {
+      //   let updatedTabTitle = `${lastSelectedGrid?.name} Grid | ProductIVF`;
+      //   let gridTitleElement = document?.querySelector(`#gridTitleElement`);
+      //   if (gridTitleElement) {
+      //     gridTitleElement.firstChild.innerHTML = updatedTabTitle;
+      //   }
+      //   // document.title = updatedTabTitle;
+      // }
     }
     if (usersGridsByID?.length > 0) setGridsLoading(false);
   }
