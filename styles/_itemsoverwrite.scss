@@ -199,6 +199,9 @@
                                     color: var(--darkInverse) !important;
                                     text-decoration-color: var(--primary) !important;
                                     -webkit-text-decoration-color: var(--primary) !important;
+                                    .tagNameField {
+                                        color: black;
+                                    }
                                 }
                                 .taskOptions {
                                     button {

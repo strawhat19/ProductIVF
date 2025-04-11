@@ -291,12 +291,24 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
         await sortItemTasks(item);
     }
 
+    const defaultRightClick = (element) => {
+        const evt = new MouseEvent(`contextmenu`, { view: window, bubbles: true, cancelable: true });
+        element?.dispatchEvent(evt);
+    }
+
+    const onDefaultRightClick = () => {
+        if (document) {
+            let itemElementClicked = document?.querySelector(`.itemElement_${item.uuid}`);
+            if (itemElementClicked) defaultRightClick(itemElementClicked);
+        }
+    }
+
     const onRightClick = (e: React.MouseEvent<HTMLDivElement>, item: ItemModel, column: List) => {
         if (!devEnv) {
             e.preventDefault();
             setItemTypeMenuOpen(true);
             setMenuPosition({ x: e.clientX, y: e.clientY });
-            setSelected({ item, column, board, onManageItem, onCompleteItem, onArchiveItem, onDeleteItem, onSortItemTasks });
+            setSelected({ item, column, board, onManageItem, onCompleteItem, onArchiveItem, onDeleteItem, onSortItemTasks, onDefaultRightClick });
         }
     }
     
@@ -337,13 +349,15 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
     }, []);
 
     return <>
-        <div id={`itemElement_${item.id}`} className={`itemComponent itemInnerRow flex row ${isValid(item?.options?.active) && item?.options?.active == true ? `activeItemOrTask` : ``}`} onContextMenu={(e) => onRightClick(e, item, column)}>
+        <div id={`itemElement_${item.id}`} className={`itemComponent itemElement_${item.uuid} itemInnerRow flex row ${isValid(item?.options?.active) && item?.options?.active == true ? `activeItemOrTask` : ``}`} onContextMenu={(e) => onRightClick(e, item, column)}>
             <span className={`itemOrder rowIndexOrder`}>
                 <i className={`itemIndex ${item?.options?.complete ? `completedIndex` : `activeIndex`}`}>
                     <span className={`itemIconType ${item?.itemType}`}>
                         +
                     </span> 
-                    {itemIndex + 1}
+                    <span className={`itemOrderText fit ${(itemIndex + 1) >= 10 ? `largeNum` : (itemIndex + 1) >= 100 ? `extraLargeNum` : ``}`}>
+                        {itemIndex + 1}
+                    </span>
                 </i>
             </span>
             {item?.image && (

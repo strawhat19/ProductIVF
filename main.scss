@@ -1876,10 +1876,10 @@ textarea {
                     border-top-left-radius: 4px;
                     border-bottom-left-radius: 4px;
                     .itemIndex {
-                        justify-content: center;
-                        flex-direction: row;
+                        grid-gap: 0;
                         align-items: center;
-                        grid-gap: 3px;
+                        flex-direction: row;
+                        justify-content: center;
                     }
                     .itemIconType {
                         opacity: 0.45;
@@ -1889,11 +1889,6 @@ textarea {
                             font-size: 0.65em;
                         }
                     }
-                    // transition: var(--transition);
-
-                    // .itemIndex {
-                    //     transition: var(--transition);
-                    // }
                 }
 
                 .itemName {
@@ -2074,12 +2069,17 @@ textarea {
                                         container-type: inline-size;
                                         max-width: -moz-fit-content;
                                         justify-content: space-between;
+                                        .taskDetailsEnd {
+                                            align-items: center;
+                                            flex-direction: row;
+                                            grid-gap: 0 !important;
+                                        }
                                         @media (max-width: 1120px) {
                                             @container (max-width: 347px) {
                                                 .taskDetailsEnd {
                                                     max-width: unset;
                                                     grid-gap: 10px !important;
-                                                    padding: 0 0 5px 10px !important;
+                                                    padding: 0 0 6px 10px !important;
                                                     .detailField {
                                                         border: none !important;
                                                         margin-left: 0px !important;

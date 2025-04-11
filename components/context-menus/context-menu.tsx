@@ -1,11 +1,11 @@
 import { useContext } from 'react';
 import { toast } from 'react-toastify';
 import { StateContext } from '../../pages/_app';
-import { fontAwesomeIcons } from '../../shared/constants';
 import { updateDocFieldsWTimeStamp } from '../../firebase';
+// import { fontAwesomeIcons } from '../../shared/constants';
 
 export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--gameBlue)` }: any) {
-    let { devEnv, selected, setMenuPosition, setItemTypeMenuOpen, setSelected } = useContext<any>(StateContext);
+    let { selected, setMenuPosition, setItemTypeMenuOpen, setSelected } = useContext<any>(StateContext);
     let ids = (selected == null || selected?.column == undefined || selected?.column == null) ? [] : Array.from(selected?.column?.data?.itemIDs);
 
     const onDismiss = (setSelect = true) => {
@@ -18,39 +18,44 @@ export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--
         onDismiss();
     }
 
-    const onManageItem = (e) => {
-        onDismiss();
-        selected?.onManageItem(e);
-    }
+    // const onManageItem = (e) => {
+    //     onDismiss();
+    //     selected?.onManageItem(e);
+    // }
 
-    const onArchiveItem = (e) => {
-        onDismiss();
-        selected?.onArchiveItem(e);
-    }
+    // const onArchiveItem = (e) => {
+    //     onDismiss();
+    //     selected?.onArchiveItem(e);
+    // }
 
-    const onCompleteItem = (e) => {
-        onDismiss();
-        selected?.onCompleteItem(e);
-    }
+    // const onCompleteItem = (e) => {
+    //     onDismiss();
+    //     selected?.onCompleteItem(e);
+    // }
 
-    const onDeleteItem = (e) => {
-        onDismiss();
-        selected?.onDeleteItem(e);
-    }
+    // const onDeleteItem = (e) => {
+    //     onDismiss();
+    //     selected?.onDeleteItem(e);
+    // }
 
     const sortTasks = () => {
         onDismiss();
         selected?.onSortItemTasks();
     }
 
-    const isActiveItem = () => {
-        let isActive = selected?.item?.options?.active;
-        let itemIsActive = selected?.item?.options?.active;
-        let noTasks = selected?.item?.data?.taskIDs?.length == 0;
-        let hasTasks = selected?.item?.data?.taskIDs?.length > 0;
-        isActive = (itemIsActive && noTasks) || hasTasks;
-        return isActive;
-    }
+    // const isActiveItem = () => {
+    //     let isActive = selected?.item?.options?.active;
+    //     let itemIsActive = selected?.item?.options?.active;
+    //     let noTasks = selected?.item?.data?.taskIDs?.length == 0;
+    //     let hasTasks = selected?.item?.data?.taskIDs?.length > 0;
+    //     isActive = (itemIsActive && noTasks) || hasTasks;
+    //     return isActive;
+    // }
+
+    // const onRightClick = () => {
+    //     onDismiss();
+    //     selected?.onDefaultRightClick();
+    // }
 
     const copyToClipBoard = () => {
         if (navigator.clipboard) {
