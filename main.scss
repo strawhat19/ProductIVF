@@ -2007,13 +2007,13 @@ textarea {
                             }
                             .subTaskItem {
                                 background: linear-gradient(90deg, var(--whiteGlass) var(--buttonSize), var(--blackGlass) var(--buttonSize));
-                                &.taskItemNotComplete {
-                                    &:hover {
-                                        .deleteTaskButton {
-                                            background: var(--blackGlass) !important;
-                                        }
-                                    }
-                                }
+                                // &.taskItemNotComplete {
+                                //     &:hover {
+                                //         .deleteTaskButton {
+                                //             background: var(--blackGlass) !important;
+                                //         }
+                                //     }
+                                // }
                                 &.complete {
                                     background: var(--lightGradient);
                                     .taskDate {
@@ -2040,7 +2040,7 @@ textarea {
                                     margin: 5px 15px 5px 0 !important;
                                 }
                                 &:hover {
-                                    background: linear-gradient(90deg, var(--blackGlass) var(--buttonSize), var(--whiteGlass) var(--buttonSize));
+                                    background: linear-gradient(90deg, var(--blackGlass) var(--buttonSize), rgba(255, 255, 255, 0.7) var(--buttonSize));
                                     .subtaskActions {
                                         input[type="checkbox"] {
                                             filter: invert(1);
@@ -2053,8 +2053,10 @@ textarea {
                                         }
                                     }
                                     &:not(.complete) {
-                                        .changeLabel, .taskDate {
-                                            color: var(--dark) !important;
+                                        &:not(:has(.status_Active)) {
+                                            .changeLabel {
+                                                color: var(--dark) !important;
+                                            }
                                         }
                                     }
                                 }
@@ -2069,8 +2071,9 @@ textarea {
                                             font-weight: 600;
                                         }
                                         .subtaskActions {
-                                            color: black;
-                                            font-weight: 600;
+                                            &:not(:has(.status_Active)) {
+                                                color: black;
+                                            }
                                         }
                                     }
                                     .itemOrder {

@@ -43,7 +43,7 @@ const SortableSubtaskItem = ({ item, task, isLast, index, gridSearchTerm, change
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners} className={`boardTaskDraggableWrap`}>
-      <div className={`task_${task?.id} boardTask subTaskItem ${item?.options?.complete ? `taskItemComplete` : `taskItemNotComplete`} ${!item?.options?.complete && (isValid(task?.options?.active) && task?.options?.active == true) ? `activeItemOrTask` : ``} ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`} ${isLast ? `dndLast` : ``}`}>
+      <div className={`task_${task?.id} boardTask taskMainWrap subTaskItem ${item?.options?.complete ? `taskItemComplete` : `taskItemNotComplete`} ${!item?.options?.complete && (isValid(task?.options?.active) && task?.options?.active == true) ? `activeItemOrTask` : ``} ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`} ${isLast ? `dndLast` : ``}`}>
         <div className={`boardTaskHandle ${searchFilterTasks && gridSearchTerm != `` ? `cursorAuto` : `cursorGrab`} draggableItem item subtaskHandle ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`}`}>
           <span className={`itemOrder taskComponentBG`}>
             <i className={`itemIndex ${(item?.options?.complete || task?.options?.complete) ? `completedIndex` : `activeIndex`}`}>

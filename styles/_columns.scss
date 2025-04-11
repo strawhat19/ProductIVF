@@ -297,7 +297,6 @@
 .draggableItem {
     &:hover {
         .taskComponentBG {
-            color: black;
             &.itemButtons {
                 filter: invert(0) !important;
                 input {

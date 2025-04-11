@@ -18,7 +18,8 @@ export enum DetailTypes {
 export const getStatSymbol = (stat: Statuses) => {
     let statSymbols = {
         [Statuses.Next]: `o`,
-        [Statuses.Active]: `●`,
+        // [Statuses.Active]: `✧`,
+        [Statuses.Active]: `▶`,
         [Statuses.Complete]: `✔`,
     }
     let statSymbol = statSymbols[stat];
@@ -50,7 +51,7 @@ export default function DetailField({ item, task = undefined, type = DetailTypes
     const detailFieldElement = (itemOrTask: Item | Task, className = `dateDetail`, key: `created` | `updated` = `created`) => {
         let stat = getItemOrTaskStatus(itemOrTask, tasks, task == undefined ? undefined : item);
         return <>
-            <span className={`detailField itemDate ${className} itemName textOverflow extended flex row`}>
+            <span className={`detailField detailField_${type} itemDate ${className} itemName textOverflow extended flex row`}>
                 {type != DetailTypes.Status && (
                     <i className={`status statusLabel`}>
                         {capWords(key?.slice(0, 3))}.
@@ -59,12 +60,12 @@ export default function DetailField({ item, task = undefined, type = DetailTypes
                 )} 
                 <span className={`statusField`}>
                     {type == DetailTypes.Status ? <>
-                        <div className={`statusFieldInner`}>
+                        <div className={`statusFieldInner status_${stat}`}>
                             <span className={`statSymbol slashes`}>
                                 {getStatSymbol(stat)}
                             </span>
                             <span className={`statLabel`}>
-                                {stat}
+                                {stat == Statuses.Complete ? `Done` : stat}
                             </span>
                         </div>
                     </> : itemOrTask?.meta[key]}

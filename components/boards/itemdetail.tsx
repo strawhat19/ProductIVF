@@ -106,6 +106,7 @@ export default function ItemDetail(props) {
                     <Progress 
                         item={item} 
                         tasks={tasks}
+                        customInnerText={false}
                         classes={`detailViewProgress`} 
                         injectedProgress={active === `complete` ? 100 : active === `to do` ? 0 : item?.data?.taskIDs?.length == 0 ? 50 : undefined} 
                     />

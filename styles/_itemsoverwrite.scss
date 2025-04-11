@@ -4,11 +4,33 @@
     --darkInverse: white !important;
     --lightInverse: black !important;
     --primary: var(--gameBlue) !important;
+    --detailViewBG2: rgba(0, 63, 99, 0.85);
     --detailViewBG: rgba(21, 90, 130, 0.85);
     --primarySoft: var(--gameBlue) !important;
     --whiteGradient: linear-gradient(90deg, var(--blackGlass) var(--buttonSize), var(--light) var(--buttonSize)) !important;
     --darkGradient: linear-gradient(90deg, var(--whiteGlass) var(--buttonSize), var(--blackGlass) var(--buttonSize)) !important;
     --lightGradient: linear-gradient(90deg, var(--blackGlass) var(--buttonSize), var(--whiteGlass) var(--buttonSize)) !important;
+}
+
+[data-test-id="CircularProgressbarWithChildren"] {
+    div {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        &:has([data-test-id="CircularProgressbarWithChildren__children"]) {
+            [data-test-id="CircularProgressbarWithChildren__children"] {
+                max-width: fit-content;
+                margin-top: 0 !important;
+            }
+        }
+    }
+}
+
+.itemDraggableWrapper, .taskMainWrap {
+    &:has(.status_Active) {
+        color: white !important;
+        background: linear-gradient(90deg, var(--blackGlass) var(--buttonSize), var(--detailViewBG2) var(--buttonSize)) !important;
+    }
 }
 
 .authFormBack {
@@ -76,7 +98,6 @@
                             font-weight: calc(var(--activeFontWeight) - 100);
                         }
                         .detailField {
-                            font-style: italic;
                             font-weight: var(--activeFontWeight) !important;
                         }
                     }
@@ -87,23 +108,33 @@
                     }
                     .itemRow {
                         &:hover {
-                            .itemName, .changeLabel, .detailField, .taskProgressCount {
-                                color: var(--dark) !important;
-                            }
-                            .progress {
-                                text {
-                                    fill: var(--dark) !important;
-                                }
-                            }
-                            .itemOptions {
-                                button {
-                                    background: var(--dark) !important;
-                                }
-                            }
-                            background: var(--lightGradient) !important;
+                            filter: brightness(1.15) !important;
+                            // background: var(--lightGradient) !important;
+                            // .itemName, .changeLabel, .detailField, .taskProgressCount {
+                            //     color: var(--dark) !important;
+                            // }
+                            // .progress {
+                            //     text {
+                            //         fill: var(--dark) !important;
+                            //     }
+                            // }
+                            // .itemOptions {
+                            //     button {
+                            //         background: var(--dark) !important;
+                            //     }
+                            // }
                         }
                     }
                     .boardTask {
+                        &:not(.complete) {
+                            &:hover {
+                                .deleteTaskButton {
+                                    &:hover {
+                                        background: black !important;
+                                    }
+                                }
+                            }
+                        }
                         // &.active,
                         &.complete {
                             .changeLabel {
@@ -113,7 +144,7 @@
                             }
                         }
                         &.activeItemOrTask {
-                            --fontColor: var(--gameBlueSoft) !important;
+                            --fontColor: var(--gameBlue) !important;
                             // background: var(--lightGradient) !important;
                             // &:hover {
                             //     background: var(--whiteGradient) !important;
@@ -132,16 +163,20 @@
                             // }
                             input[type="checkbox"] {
                                 &::before {
-                                    content: "◍" !important;
+                                    font-size: 11px;
+                                    // content: "✧" !important;
+                                    content: "▶" !important;
                                     padding: 0px 8px !important;
                                     color: var(--fontColor) !important;
                                 }
                             }
-                            &:hover {
-                                .deleteTaskButton {
-                                    background: var(--blackGlass) !important;
-                                }
-                            }
+                            // &:hover {
+                            //     .deleteTaskButton {
+                            //         &:hover {
+                            //             background: var(--blackGlass) !important;
+                            //         }
+                            //     }
+                            // }
                         }
                     }
                     &.complete {
@@ -154,8 +189,12 @@
                         .itemRow, .subTaskItem {
                             background: var(--lightGradient) !important;
                         }
+                        .progressCircleText {
+                            color: var(--dark) !important;
+                        }
                         .boardTask {
                             &:hover {
+                                background: var(--darkGradient) !important;
                                 .itemName, .changeLabel, .detailField {
                                     color: var(--darkInverse) !important;
                                     text-decoration-color: var(--primary) !important;
@@ -172,7 +211,6 @@
                                         }
                                     }
                                 }
-                                background: var(--darkGradient) !important;
                             }
                         }
                     }
