@@ -187,7 +187,7 @@ export default function Boards(props: any) {
     </>
     
     const createBoardComponent = () => (
-        selectedGrid?.gridType == GridTypes.Archived ? <></> : (
+        (boardsLoading || selectedGrid?.gridType == GridTypes.Archived) ? <></> : (
             <div className={`createBoard lists extended transition ${AuthGrids?.includes(selectedGrid?.gridType) && !userRecentlyAuthenticated ? `blurred pointerEventsNone` : ``}`}>
                 <div className={`list items addListDiv`}>
                     <div className={`formItems items`}>

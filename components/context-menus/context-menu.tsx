@@ -103,14 +103,14 @@ export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--
                 <li className={`customContextMenuOption flex gap15`} onClick={() => onClose()}>
                     <i className={`fas fa-times`} style={{ color: iconColor }} /> <span>Close</span>
                 </li>
+                <li className={`customContextMenuOption flex gap15`} onClick={() => setItemTaskForm(selected?.item?.options?.showTaskForm)}>
+                    <i className={`fas ${selected?.item?.options?.showTaskForm ? `fa-minus` : `fa-plus`}`} style={{ color: iconColor, fontSize: selected?.item?.options?.showTaskForm ? 14 : undefined }} /> <span>{selected?.item?.options?.showTaskForm ? `` : ``}Tasks</span>
+                </li>
                 <li className={`customContextMenuOption flex gap15`} onClick={() => sortTasks()}>
                     <i className={`fas fa-sort`} style={{ color: iconColor, fontSize: 20 }} /> <span>Sort</span>
                 </li>
                 <li className={`customContextMenuOption flex gap15`} onClick={() => copyToClipBoard()}>
                     <i className={`fas fa-copy`} style={{ color: iconColor }} /> <span>Copy</span>
-                </li>
-                <li className={`customContextMenuOption flex gap15`} onClick={() => setItemTaskForm(selected?.item?.options?.showTaskForm)}>
-                    <i className={`fas ${selected?.item?.options?.showTaskForm ? `fa-minus` : `fa-plus`}`} style={{ color: iconColor, fontSize: selected?.item?.options?.showTaskForm ? 14 : undefined }} /> <span>{selected?.item?.options?.showTaskForm ? `` : ``}Tasks</span>
                 </li>
                 {ids?.indexOf(selected?.item?.id) > 0 && (
                     <li className={`customContextMenuOption flex gap15`} onClick={() => moveItemToPosition()}>
