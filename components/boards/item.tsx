@@ -251,11 +251,20 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
     }
 
     const showItemDetails = () => {
+        let listItemsContainerSmall = false;
+        if (document) {
+            if (column?.uuid) {
+                let listItemsContainerElement = document?.querySelector(`.boardColumnItems_${column?.uuid}`);
+                if (listItemsContainerElement) {
+                    listItemsContainerSmall = (listItemsContainerElement?.clientWidth + 7) <= 660;
+                }
+            }
+        }
         let smallScreenSize = windowWidth <= 1800;
         let fourOrMoreLists = board?.data?.listIDs?.length >= 4;
         let threeOrMoreLists = board?.data?.listIDs?.length >= 3;
         let listDetailsOn = column?.options?.details && column?.options?.details == true;
-        let forceDetails = (smallScreenSize && threeOrMoreLists) || fourOrMoreLists;
+        let forceDetails = (smallScreenSize && threeOrMoreLists) || fourOrMoreLists || listItemsContainerSmall;
         setTimeout(() => {
             if (column) setForceListDetails(forceDetails);
         }, 500)
@@ -351,9 +360,9 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
                         >
                             {item.name}
                         </span>
-                        {devEnv && showItemDetails() == true && <>
+                        {/* {devEnv && showItemDetails() == true && <>
                             <ProgressBar progress={getItemTaskCompletionPercentage(getItemTasks(), item)} />
-                        </>}
+                        </>} */}
                     </span>
                     {(item?.image || showItemDetails() == true) ? <>
                         <hr className={`itemSep`} style={{height: 1, borderColor: `var(--gameBlue)`}} />
