@@ -18,6 +18,38 @@
     border-radius: var(--borderRadius);
 }
 
+.button {
+    color: black;
+    line-height: 1;
+    grid-gap: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    min-height: 35px;
+    background: white;
+    flex-direction: row;
+    align-items: center;
+    border: 0 !important;
+    justify-content: center;
+    display: flex !important;
+    max-height: 35px !important;
+    font-weight: 600 !important;
+    transition: var(--transition);
+    padding: 10.5px 15px !important;
+    max-width: fit-content !important;
+    min-width: fit-content !important;
+    border-radius: var(--borderRadius);
+    i {
+        color: var(--gameBlue);
+    }
+    &:not(.hoverBright) {
+        &:hover {
+            color: white;
+            box-shadow: 0 0 8px 0px black;
+            background: var(--authFormButtonBG) !important;
+        }
+    }
+}
+
 @mixin setWidth($width) {
     width: $width !important;
     min-width: $width !important;

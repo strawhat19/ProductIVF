@@ -203,9 +203,6 @@
     border-radius: var(--borderRadius);
     border-top-left-radius: 0px !important;
     border-bottom-left-radius: 0px !important; 
-    &:focus-visible {
-        --tw-ring-opacity: 0 !important;
-    }
     &::placeholder {
         opacity: 0.65;
     }

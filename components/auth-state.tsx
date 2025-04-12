@@ -7,7 +7,8 @@ export default function AuthState({ classes, nextOverride = ``, hideOnUsersLoadi
     let { user, authState, usersLoading } = useContext<any>(StateContext);
     return (
         hideOnUsersLoading == true && usersLoading ? <></> : (
-            <span className={`authStateComponent ${user != null ? `hasUserSignedIn` : `noUserSignedIn`} ${classes} textOverflow extended`} style={{minWidth: `fit-content`}}>
+            <span className={`welcomeUser button authStateComponent ${user != null ? `hasUserSignedIn` : `noUserSignedIn`} ${classes} textOverflow extended`} style={{minWidth: `fit-content`}}>
+                <i className={`userIcon fas fa-user`} style={{ fontSize: 16 }} />
                 {user != null ? (
                     ((maxCredits - user?.properties) <= (maxCredits / 4)) ? (
                         `${user?.name} - Credits: ${(maxCredits - user?.properties)?.toLocaleString()}`

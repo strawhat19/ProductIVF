@@ -88,25 +88,16 @@
     --transition: 0.24s cubic-bezier(0.77, 0.2, 0.05, 1) !important;
 }
 
-.profileForm {
-    width: 100%;
-    grid-gap: 5px;
-    flex-direction: column;
-    .formFieldWithConfirm {
-        width: 100%;
-    }
-    input, .formButtonsField {
-        width: 100%;
-        max-width: unset;
-        justify-content: center;
-        input {
-            max-width: fit-content;
-        }
-    }
-}
-
 ::selection {
     background: var(--darkCheckBox);
+}
+
+input {
+    max-width: 100%;
+    max-height: 100% !important;
+    &:focus-visible {
+        --tw-ring-opacity: 0 !important;
+    }
 }
 
 .dark {
@@ -238,6 +229,23 @@ article {
         padding: 0;
         width: 100% !important;
         max-width: 92rem !important;
+    }
+}
+
+.profileForm {
+    width: 100%;
+    grid-gap: 5px;
+    flex-direction: column;
+    .formFieldWithConfirm {
+        width: 100%;
+    }
+    input, .formButtonsField {
+        width: 100%;
+        max-width: unset;
+        justify-content: center;
+        input {
+            max-width: fit-content;
+        }
     }
 }
 
@@ -524,11 +532,6 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
             max-height: 33px;
         }
     }
-}
-
-input {
-    max-width: 100%;
-    max-height: 100% !important;
 }
 
 .createBoard {
