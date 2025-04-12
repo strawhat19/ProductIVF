@@ -57,12 +57,13 @@ const getGridIconOption = (option) => {
 function Tag(props: TagProps) {
   const { option, label, onDelete, className, isMultiSelect, ...other } = props;
   return (
-    <div className={`selectedOptionTag selectorOptionHookTag ${className} hoverBright`} {...other} {...isMultiSelect && {onClick: onDelete}}>
+    <div id={`selectedGridSelector`} {...other} style={{ minWidth: 120 }} {...isMultiSelect && { onClick: onDelete }} className={`selectedOptionTag selectorOptionHookTag ${className} hoverBright`}>
       <i className={`selectedOptionIcon ${getGridIconOption(option)}`} style={{ fontSize: 16 }} />
       <span className={`selectedOptionTagLabel selectorOptionLabel`}>
         {label}
       </span>
       {isMultiSelect && <i className={`selectedOptionIcon clearOptionIcon fas fa-times`} style={{ fontSize: 16 }} />}
+      {!isMultiSelect && <i className={`selectedOptionIcon fas fa-sort`} style={{ fontSize: 14, marginLeft: `auto`, paddingRight: 5 }} />}
     </div>
   );
 }

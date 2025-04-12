@@ -43,6 +43,27 @@
     }
 }
 
+.skeletonZeroState {
+    width: 100%;
+    margin: 10px 0;
+    padding: 5px 10px;
+    background: var(--gameBlueSoft);
+    border-radius: var(--borderRadius);
+}
+
+.customZeroState {
+    width: 100%;
+    display: flex;
+    font-size: 16px;
+    color: silver;
+    font-weight: 500;
+    text-align: center;
+    font-style: italic;
+    align-items: center;
+    justify-content: center;
+    padding: var(--buttonSize);
+}
+
 article {
     &:has(main.nx-w-full) {
         padding-top: 10px !important;

@@ -1,7 +1,7 @@
-import Board from './board';
 import { NextSeo } from 'next-seo';
 import { toast } from 'react-toastify';
 import { User } from '../../shared/models/User';
+import Board, { addBoardScrollBars } from './board';
 import MultiSelector from '../selector/multi-selector';
 import { FeatureIDs } from '../../shared/admin/features';
 import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
@@ -65,6 +65,8 @@ export default function Boards(props: any) {
     const gridFormRef = useRef(null);
     const multiSelectorRef = useRef(null);
 
+    const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
     let [updates, setUpdates] = useState(0);
     let [useSingleSelect, ] = useState(true);
     let [useGridSearchCreate, ] = useState(true);
@@ -88,6 +90,7 @@ export default function Boards(props: any) {
         setGridSearchTerm(``);
         const gridSearchField = gridFormRef.current?.querySelector(`.gridSearchField`);
         if (gridSearchField) gridSearchField.value = ``;
+        addBoardScrollBars();
     }
 
     const onGridFormChange = (gridFromChangeEvent) => {
@@ -95,6 +98,8 @@ export default function Boards(props: any) {
         const gridFormField = gridFromChangeEvent?.target;
         const gridFormFieldValue = gridFormField?.value; 
         setGridSearchTerm(gridFormFieldValue);
+        if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = setTimeout(() => addBoardScrollBars(), 300);
     }
 
     const updateSelectedGrids = async (updatedSelectedGrids) => {
@@ -261,7 +266,7 @@ export default function Boards(props: any) {
                             ))}
                         </div>
                     </> : (
-                        boards && boards?.length > 0 ? (
+                        boards && boards?.length > 0 && getBoardsInCurrentSearchFilters(boards)?.length > 0 ? (
                             <Droppable droppableId={`all_boards`}>
                                 {(provided, snapshot) => (
                                     <div className={`all_boards_div ${snapshot.isDraggingOver ? `isDraggingOver` : ``}`} ref={provided.innerRef} {...provided.droppableProps}>
@@ -283,8 +288,14 @@ export default function Boards(props: any) {
                                 )}
                             </Droppable>
                         ) : <>
-                            <div className={`boardsZeroState`}>
-                                0 Boards
+                            <div className={`zeroState boardsZeroState skeletonZeroState`}>
+                                <IVFSkeleton 
+                                    height={45} 
+                                    showLoading={true}
+                                    style={{ margin: `5px 0` }}
+                                    className={`boardsSkeleton`} 
+                                    label={gridSearchTerm != `` ? `0 Boards for "${gridSearchTerm}"` : `No Boards Yet`} 
+                                />
                             </div>
                         </>
                     )}

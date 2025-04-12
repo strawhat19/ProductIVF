@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 import { toast } from 'react-toastify';
 import { StateContext } from '../../pages/_app';
+import { addBoardScrollBars } from '../boards/board';
 import { updateDocFieldsWTimeStamp } from '../../firebase';
 // import { fontAwesomeIcons } from '../../shared/constants';
 
@@ -78,6 +79,7 @@ export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--
         const updatedListItemIDs = top == true ? itemIDsWithItemMovedToTop : itemIDsWithItemMovedToBottom;
         onDismiss();
         await updateDocFieldsWTimeStamp(selected?.column, { [`data.itemIDs`]: updatedListItemIDs });
+        addBoardScrollBars();
     }
 
     return menuPosition && (

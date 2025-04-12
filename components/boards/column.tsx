@@ -343,7 +343,7 @@ export default function Column(props) {
                                     )}
                                     {provided.placeholder}
                                     {props.items.filter(itm => itemActiveFilters(itm))?.length == 0 && <>
-                                        <div className={`zeroState listZeroState`}>
+                                        <div className={`zeroState listsZeroState`}>
                                             <IVFSkeleton 
                                                 labelSize={12}
                                                 showLoading={true}
