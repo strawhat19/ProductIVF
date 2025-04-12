@@ -446,12 +446,12 @@ export default function Board(props) {
                                             </span>
                                         </button>
                                         {selectedGrid?.gridType == GridTypes.Archived ? <></> : <>
-                                            <button onClick={(e) =>  onShowSearchClick(e)} id={`search_board`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Search Board`} className={`iconButton searchButton filterButton ${showSearch ? `filterActive` : `filterInactive`}`}>
+                                            {/* <button onClick={(e) =>  onShowSearchClick(e)} id={`search_board`} style={{ pointerEvents: `all`, width: `8%`, minWidth: 33, maxWidth: 33 }} title={`Search Board`} className={`iconButton searchButton filterButton ${showSearch ? `filterActive` : `filterInactive`}`}>
                                                 <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-search`} />
                                                 <span className={`iconButtonText textOverflow extended`}>
                                                     Search
                                                 </span>
-                                            </button>
+                                            </button> */}
                                             <section className={`addListFormItemSection`} style={{ margin: 0, padding: 0, position: `relative` }}>
                                                 <div title={`Change Column Type`} onClick={(e) => toast.info(`Column Types are In Development`)} className={`typeIcon changeColumnTypeIcon ${showSearch ? `disabledIconBtn` : ``}`}>
                                                     {showSearch ? <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-search`} /> : `+`}

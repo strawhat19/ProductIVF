@@ -243,9 +243,9 @@ const MultiSelector = forwardRef((props: any, ref) => {
           <div className={`multiSelectedIconLabels`}>
             <div className={`selectedGridButton hoverBright gridsIconButon multiSelectOption styledTagWithProps ${selectedGrid?.gridType == GridTypes.Archived ? `pointerEventsNone` : ``}`} onClick={(e) => showGridDetailView(e)} onMouseEnter={(e) => setHoveringOver(true)} onMouseLeave={(e) => setHoveringOver(false)}>
               <div className={`gridsIconRow multiSelectedOption isFirst`}>
-                <i className={`gridsIcon fas ${hoveringOver ? `fa-cogs` : `fa-th`}`} style={{ fontSize: 16 }} />
+                <i className={`gridsIcon fas fa-cogs`} style={{ fontSize: 16 }} />
                 <span className={`gridsIconLabel selectorOptionLabel`}>
-                  {hoveringOver ? `Manage Grid` : `Selected Grid${single ? `` : `s`}`}
+                  Manage
                 </span>
               </div>
             </div>

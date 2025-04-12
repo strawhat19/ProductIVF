@@ -162,7 +162,7 @@ export default function Boards(props: any) {
                                         {searchingGrid ? <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-search`} /> : `+`}
                                     </button>
                                     {searchingGrid ? (
-                                        <input autoComplete={`off`} placeholder={`Search Grid... (Drag & Drop Disabled When Searching)`} type={`search`} name={`searchGrid`} className={`gridInputField gridSearchField searchGrid`} />
+                                        <input autoComplete={`off`} placeholder={`Search Grid...`} type={`search`} name={`searchGrid`} className={`gridInputField gridSearchField searchGrid`} />
                                     ) : (
                                         <input autoComplete={`off`} placeholder={`Create Grid +`} type={`text`} name={`createGrid`} className={`gridInputField createGridField`} />
                                     )}
