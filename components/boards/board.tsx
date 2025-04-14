@@ -28,15 +28,17 @@ export const tasksFilterStateLabels = {
 
 export const addBoardScrollBars = () => {
     let boardColumnItems = document.querySelectorAll(`.boardColumnItems`);
-    boardColumnItems.forEach(columnItems => {
-        setTimeout(() => {
-            if (columnItems.scrollHeight > columnItems.clientHeight) {
-                columnItems.classList.add(`overflowingList`);
-            } else {
-                columnItems.classList.remove(`overflowingList`);
-            }
-        }, 300);
-    });
+    if (boardColumnItems && boardColumnItems?.length > 0) {
+        boardColumnItems.forEach(columnItems => {
+            setTimeout(() => {
+                if (columnItems.scrollHeight > columnItems.clientHeight) {
+                    columnItems.classList.add(`overflowingList`);
+                } else {
+                    columnItems.classList.remove(`overflowingList`);
+                }
+            }, 300);
+        });
+    }
 }
 
 export default function Board(props) {

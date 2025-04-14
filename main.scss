@@ -707,12 +707,14 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
 // @media (min-width: 1420px) {
 @media (min-width: 1367px) {
     .status {
-        overflow: hidden;
-        text-align: left;
-        white-space: nowrap;
-        display: inline-block;
-        text-overflow: ellipsis;
-        max-width: 50px !important;
+        &:not(.userData) {
+            overflow: hidden;
+            text-align: left;
+            white-space: nowrap;
+            display: inline-block;
+            text-overflow: ellipsis;
+            max-width: 50px !important;
+        }
     }
    .multiList {
     .itemName {

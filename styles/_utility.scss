@@ -18,19 +18,23 @@
     border-radius: var(--borderRadius);
 }
 
-.button {
-    color: black;
+.flexLabel {
     line-height: 1;
     grid-gap: 10px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    display: flex !important;
+}
+
+.button {
+    @extend .flexLabel;
+    color: black;
     cursor: pointer;
     font-size: 14px;
     min-height: 35px;
     background: white;
-    flex-direction: row;
-    align-items: center;
     border: 0 !important;
-    justify-content: center;
-    display: flex !important;
     max-height: 35px !important;
     font-weight: 600 !important;
     transition: var(--transition);
@@ -38,9 +42,6 @@
     max-width: fit-content !important;
     min-width: fit-content !important;
     border-radius: var(--borderRadius);
-    i {
-        color: var(--gameBlue);
-    }
     &:not(.hoverBright) {
         &:hover {
             color: white;

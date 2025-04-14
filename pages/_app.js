@@ -714,9 +714,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
     }
     if (navigate) {
       let usrGridURL = `/user/${usr?.rank}/grids/${selectedGrd?.rank}`;
-      router.replace(usrGridURL, undefined, {
-        shallow: true,
-      });
+      router.replace(usrGridURL, undefined, { shallow: true });
     }
   }
 
@@ -790,7 +788,11 @@ export default function ProductIVF({ Component, pageProps, router }) {
     if (lastSelectedGrid) {
       setSelectedGrd(lastSelectedGrid);
     }
-    if (usersGridsByID?.length > 0) setGridsLoading(false);
+    if (usersGridsByID?.length > 0) {
+      setSystemStatus(`Grids Loaded`);
+      setGridsLoading(false);
+      addBoardScrollBars();
+    }
   }
 
   const [showedTimeWarning, setShowedTimeWarning] = useState(false);
