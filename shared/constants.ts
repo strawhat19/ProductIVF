@@ -18,6 +18,30 @@ export const sortDescending = (arr: (string | number)[]): number[] => {
   return arr.map(item => (typeof item === `number` ? item : parseFloat(item))).filter(item => !isNaN(item)).sort((a, b) => b - a);
 }
 
+export const extractURLsFromText = (textArray: string[]) => {
+  const URLRegex = /(?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9.-]+\.(com|net|org|io|co|gov|edu|us|uk|dev|app|info|biz|me|tv|xyz|ai|ca|in|nl|au|de)(?:[^\s]*)/gi;
+  const URLsFromText = textArray.flatMap(text => text.match(URLRegex) || []);
+  const lowerCasedURLsFromText = URLsFromText?.map(txt => txt?.toLowerCase());
+  return lowerCasedURLsFromText;
+}
+
+export const setItemURLs = (item: Item, textArrayOfFields: string[]) => {
+  let updatedURLs = item?.data?.relatedURLs;
+  let URLsFromText = extractURLsFromText(textArrayOfFields);
+  if (URLsFromText && URLsFromText?.length > 0) {
+    let lowerCasedCurrentURLs = item?.data?.relatedURLs?.map(txt => txt?.toLowerCase());
+    let newURLsFromText = URLsFromText.filter(url => !lowerCasedCurrentURLs?.includes(url));
+    if (newURLsFromText && newURLsFromText?.length > 0) {
+      updatedURLs = [ ...item?.data?.relatedURLs, ...newURLsFromText ];
+      item.data = {
+        ...item?.data,
+        relatedURLs: updatedURLs,
+      }
+    }
+  }
+  return item;
+}
+
 export const removeExtraSpacesFromString = (string: string) => string.trim().replace(/\s+/g, ` `);
 export const generateArray = (length: number, itemData: any) => Array.from({ length }, () => itemData);
 export const stringMatch = (string: string, check: string): boolean => string?.toLowerCase()?.includes(check?.toLowerCase());

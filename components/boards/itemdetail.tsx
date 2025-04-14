@@ -1,8 +1,9 @@
-import { useState } from 'react';
 import Progress from '../progress';
 import CustomImage from '../custom-image';
-import { capWords } from '../../pages/_app';
+import DetailField from './details/detail-field';
+import { useContext, useEffect, useState } from 'react';
 import { updateDocFieldsWTimeStamp } from '../../firebase';
+import { capWords, dev, StateContext } from '../../pages/_app';
 
 export default function ItemDetail(props) {
     let { item, index, tasks, activeTasks, completeTasks } = props;
@@ -10,6 +11,10 @@ export default function ItemDetail(props) {
     let [disabled, setDisabled] = useState(false);
     let [image, setImage] = useState(props.item.image ?? undefined);
     let [active, setActive] = useState(item?.options?.complete ? `complete` : (item?.options?.active || activeTasks?.length > 0 || completeTasks?.length > 0) ? `active` : `to do`);
+
+    useEffect(() => {
+        dev() && console.log(`Item Detail`, item);
+    }, [])
 
     const refreshDetails = (e) => {
         e.preventDefault();
@@ -98,11 +103,63 @@ export default function ItemDetail(props) {
             )}
             <form onInput={(e) => refreshDetails(e)} onSubmit={(e) => saveItem(e)} className={`changeInputs flex isColumn`} data-index={index + 1}>
                 <div className={`formTop`}>
-                    <h3>
-                        <strong>
-                            {item?.type}
-                        </strong>
-                    </h3>
+                    <div className={`formTopLeft flexColumn gap10`}>
+                        <div className={`itemDetailFieldMetric flexLabel`}>
+                            <h4 className={`itemDetailType`}><strong>Type:</strong></h4>
+                            <h4 className={`itemDetailType`}>{item?.type}</h4>
+                        </div>
+                        <div className={`itemDetailFieldMetric flexLabel`}>
+                            <h4 className={`itemDetailType`}><strong>Status:</strong></h4>
+                            <DetailField item={item} tasks={tasks} />
+                        </div>
+                        <div className={`itemDetailFieldMetric flexLabel`}>
+                            <h4 className={`itemDetailType`}><strong>Created:</strong></h4>
+                            <h4 className={`itemDetailType`}>{item?.meta?.created}</h4>
+                        </div>
+                        <div className={`itemDetailFieldMetric flexLabel`}>
+                            <h4 className={`itemDetailType`}><strong>Updated:</strong></h4>
+                            <h4 className={`itemDetailType`}>{item?.meta?.updated}</h4>
+                        </div>
+                    </div>
+                    {(item?.data?.taskIDs?.length > 0 || item?.data?.tags?.length > 0 || item?.data?.relatedURLs?.length > 0) && (
+                        <div className={`formTopLeft flexColumn gap10`}>
+                            {item?.data?.taskIDs?.length > 0 && <>
+                                <div className={`itemDetailFieldMetric flexLabel`}>
+                                    <h4 className={`itemDetailType`}><strong>Tasks:</strong></h4>
+                                    <h4 className={`itemDetailType`}>{item?.data?.taskIDs?.length}</h4>
+                                </div>
+                            </>}
+                            {dev() && item?.data?.tags?.length > 0 && <>
+                                <div className={`itemDetailFieldMetric flexLabel`}>
+                                    <h4 className={`itemDetailType`}><strong>Tags:</strong></h4>
+                                    <h4 className={`itemDetailType`}>{item?.data?.tags?.length}</h4>
+                                </div>
+                                <div className={`itemDetailFieldMetric flexLabel`}>
+                                    {item?.data?.tags?.map((tag, tagIndex) => (
+                                        <div key={tagIndex} className={`itemTag`}>
+                                            {tag}
+                                        </div>
+                                    ))}
+                                </div>
+                            </>}
+                            {dev() && item?.data?.relatedURLs?.length > 0 && <>
+                                <div className={`itemDetailFieldMetric flexLabel`}>
+                                    <h4 className={`itemDetailType`}><strong>URLs:</strong></h4>
+                                    <h4 className={`itemDetailType`}>{item?.data?.relatedURLs?.length}</h4>
+                                </div>
+                                <div className={`itemDetailFieldMetric flexLabel`}>
+                                    {item?.data?.relatedURLs?.map((url, urlIndex) => (
+                                        <div key={urlIndex} className={`url websiteURL button hoverBright`}>
+                                            <a href={url} target={`_blank`} className={`itemURL flexLabel gap5`}>
+                                                <i className={`urlIcon useMainIconColor fas fa-globe`} style={{ fontSize: 12 }} />
+                                                <span className={`useFont`}>{url}</span>
+                                            </a>
+                                        </div>
+                                    ))}
+                                </div>
+                            </>}
+                        </div>
+                    )}
                     <Progress 
                         item={item} 
                         tasks={tasks}

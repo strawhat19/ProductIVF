@@ -1,6 +1,6 @@
 {
   "name": "product-ivf",
-  "version": "6.0.2.3",
+  "version": "6.0.2.4",
   "description": "Nextra docs template",
   "scripts": {
     "dev": "next dev",

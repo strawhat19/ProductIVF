@@ -27,6 +27,19 @@
     display: flex !important;
 }
 
+.flexColumn {
+    display: flex;
+    flex-direction: column;
+}
+
+.useFont {
+    font-family: 'Montserrat' !important;
+}
+
+.useMainIconColor {
+    color: var(--gameBlue) !important;
+}
+
 .button {
     @extend .flexLabel;
     color: black;

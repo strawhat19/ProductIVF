@@ -48,6 +48,19 @@
     }
 }
 
+.itemDetailFieldMetric {
+    justify-content: flex-start;
+    .itemDetailType {
+        min-width: 60px;
+    }
+    .statusFieldInner {
+        display: flex;
+        .statLabel {
+            font-weight: 400;
+        }
+    }
+}
+
 .itemTypesMenu {
     .itemTypeIconRow {
         grid-gap: 5px;

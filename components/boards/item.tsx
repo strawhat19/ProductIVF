@@ -15,7 +15,7 @@ import { Item as ItemModel } from '../../shared/models/Item';
 import React, { useContext, useEffect, useState } from 'react';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { showAlert, StateContext, capitalizeAllWords, dev, extractIDDetails } from '../../pages/_app';
-import { forceFieldBlurOnPressEnter, isValid, removeExtraSpacesFromString } from '../../shared/constants';
+import { forceFieldBlurOnPressEnter, isValid, removeExtraSpacesFromString, setItemURLs } from '../../shared/constants';
 import { addListToDatabase, db, deleteItemFromDatabase, listsTable, transferItem, updateDocFieldsWTimeStamp } from '../../firebase';
 
 export const getItemTaskCompletionPercentage = (tasks: Task[], item: ItemModel, isActive = null) => {
@@ -52,16 +52,17 @@ export const getTypeIcon = (type) => {
 
 export const manageItem = (e, item, index, tasks, activeTasks, completeTasks) => {
     if (!e.target.classList.contains(`changeLabel`) && !e.target.classList.contains(`confirmActionOption`)) {
+        const showItemDetailsAlert = () => {
+            showAlert(item?.name, <ItemDetail item={item} index={index} tasks={tasks} activeTasks={activeTasks} completeTasks={completeTasks} />, `95%`, `85%`, `30px`);
+        }
         let isButton = e.target.classList.contains(`iconButton`);
         if (isButton) {
             let isManageButton = e.target.classList.contains(`manageButton`);
             if (isManageButton) {
-                // dev() && console.log(`On Manage Button Click Item ${index + 1}`, item);
-                showAlert(item?.name, <ItemDetail item={item} index={index} tasks={tasks} activeTasks={activeTasks} completeTasks={completeTasks} />, `95%`, `85%`, `30px`);
-            };
+                showItemDetailsAlert();
+            }
         } else {
-            // dev() && console.log(`On Click Item ${index + 1}`, {item, tasks});
-            showAlert(item?.name, <ItemDetail item={item} index={index} tasks={tasks} activeTasks={activeTasks} completeTasks={completeTasks} />, `95%`, `85%`, `30px`);
+            showItemDetailsAlert();
         }
     }
 }
@@ -98,7 +99,10 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
         e.target.innerHTML = elemValue;
 
         const name = elemValue;
-        updateDocFieldsWTimeStamp(item, { name, A: name, title: `${item?.type} ${item?.rank} ${name}` });
+        const updatedURLsItem = setItemURLs(item, [name]);
+        const updatedURLs = updatedURLsItem?.data?.relatedURLs;
+
+        updateDocFieldsWTimeStamp(item, { name, A: name, title: `${item?.type} ${item?.rank} ${name}`, [`data.relatedURLs`]: updatedURLs });
     }
 
     const completeActions = async (item, isButton) => {

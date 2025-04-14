@@ -3,7 +3,7 @@ import { genID } from '../ID';
 import { User } from './User';
 import { TasksFilterStates, Types } from '../types/types';
 import { ItemTypes } from '../../components/boards/boards';
-import { countPropertiesInObject, isValid, stringNoSpaces } from '../constants';
+import { countPropertiesInObject, extractURLsFromText, isValid, setItemURLs, stringNoSpaces } from '../constants';
 
 export class Item extends Data {
     ID: any;
@@ -25,7 +25,7 @@ export class Item extends Data {
     video = ``;
     description = ``;
     color = `Default`;
-
+    
     tasks?: any;
     
     options = {
@@ -90,7 +90,6 @@ export const createItem = (
     description = ``,
     type = Types.Item, 
 ) => {
-
     let item: Item = new Item({
         name,
         type,
@@ -130,6 +129,8 @@ export const createItem = (
             }),
         }
     }
+
+    item = setItemURLs(item, [item?.name]);
 
     return item;
 }
