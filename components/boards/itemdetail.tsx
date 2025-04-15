@@ -203,7 +203,7 @@ export default function ItemDetail(props) {
                                     ))}
                                 </div>
                             </>}
-                            {dev() && item?.data?.relatedURLs?.length > 0 && <>
+                            {item?.data?.relatedURLs?.length > 0 && <>
                                 <div className={`itemDetailURLsField itemDetailFieldMetric flexLabel`}>
                                     <div className={`itemDetailURLsFieldLabels flexLabel`}>
                                         <h4 className={`itemDetailType`}><strong>URLs:</strong></h4>
