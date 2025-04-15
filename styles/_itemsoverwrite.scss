@@ -48,10 +48,29 @@
     }
 }
 
+.relatedURLs {
+    top: -10px;
+    position: relative;
+}
+
+.formCenterData {
+    width: 100%;
+    align-self: flex-start;
+    .itemDetailURLs {
+        flex-wrap: wrap;
+    }
+    .itemDetailURLsFieldLabels {
+        align-self: flex-start;
+    }
+}
+
 .itemDetailFieldMetric {
     justify-content: flex-start;
     .itemDetailType {
         min-width: 60px;
+    }
+    .itemDetailSubType {
+        padding-right: 10px;
     }
     .statusFieldInner {
         display: flex;

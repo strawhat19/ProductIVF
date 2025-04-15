@@ -1,31 +1,88 @@
 import Progress from '../progress';
 import CustomImage from '../custom-image';
+import { Item } from '../../shared/models/Item';
 import DetailField from './details/detail-field';
-import { useContext, useEffect, useState } from 'react';
-import { updateDocFieldsWTimeStamp } from '../../firebase';
-import { capWords, dev, StateContext } from '../../pages/_app';
+import { capWords, dev } from '../../pages/_app';
+// import RelatedURLs from './details/related-urls';
+import { useEffect, useRef, useState } from 'react';
+import { doc, onSnapshot } from 'firebase/firestore';
+import RelatedURLsDND from './details/related-urls-dnd';
+import { db, itemsTable, updateDocFieldsWTimeStamp } from '../../firebase';
 
 export default function ItemDetail(props) {
-    let { item, index, tasks, activeTasks, completeTasks } = props;
+    let formRef = useRef(null);
+    let { item: itemProp, index, tasks, activeTasks, completeTasks } = props;
 
-    let [disabled, setDisabled] = useState(false);
+    let [item, setItem] = useState<Item>(itemProp);
+    let [formStatus, setFormStatus] = useState(``);
+    let [imageErrorText, ] = useState(`Image Error`);
     let [image, setImage] = useState(props.item.image ?? undefined);
     let [active, setActive] = useState(item?.options?.complete ? `complete` : (item?.options?.active || activeTasks?.length > 0 || completeTasks?.length > 0) ? `active` : `to do`);
 
     useEffect(() => {
-        dev() && console.log(`Item Detail`, item);
+        const itemListener = onSnapshot(doc(db, itemsTable, itemProp.id), (docSnap) => {
+            if (docSnap.exists()) {
+              const updatedItem = docSnap.data();
+              const refreshedItem = new Item(updatedItem);
+              setItem(refreshedItem);
+            }
+        });
+        return () => itemListener();
     }, [])
 
-    const refreshDetails = (e) => {
-        e.preventDefault();
-        if (e.target.name == `itemImageLink`) {
-            setImage(e.target.value);
+    const updateFormStatus = (statusText: string = ``, clear = false) => {
+        if (statusText == ``) {
+            setFormStatus(statusText);
+        } else {
+            if (clear) {
+                if (formStatus?.includes(statusText)) {
+                    if (formStatus?.includes(`,`)) {
+                        setFormStatus(prevFormStatus => prevFormStatus?.replaceAll(`, ${statusText}`, ``));
+                    } else {
+                        setFormStatus(prevFormStatus => prevFormStatus?.replaceAll(statusText, ``));
+                    }
+                }
+            } else {
+                if (formStatus == ``) {
+                    setFormStatus(statusText);
+                } else {
+                    setFormStatus(prevFormStatus => prevFormStatus + `, ${statusText}`);
+                }
+            }
         }
     }
 
-    const saveItem = async (e) => {
+    const refreshDetails = (e) => {
         e.preventDefault();
+
+        let formField = e?.target;
+
+        if (formField?.name == `itemImageLink`) {
+            setImage(formField?.value);
+        }
+
+        if (formRef != null) {
+            let form = formRef?.current;
+
+            let { 
+                itemURL: itemURLField, 
+            } = form;
+
+            if (itemURLField) {
+                let itemURL = itemURLField?.value;
+                let itemURLLowercased = itemURL?.toLowerCase();
+                let lowercasedCurrentURLs = item?.data?.relatedURLs?.map(url => url?.toLowerCase());
+                let URLAlreadyLinked = itemURLLowercased != `` && lowercasedCurrentURLs?.includes(itemURLLowercased);
+                updateFormStatus(`URL already linked`, !URLAlreadyLinked);
+            }
+        }
+    }
+
+    const saveItem = async (e, dismissOnSave = false) => {
+        e.preventDefault();
+
         let form = e?.target;
+
         let { 
             itemImageLink, 
             itemDescriptionField,
@@ -84,8 +141,12 @@ export default function ItemDetail(props) {
             })
         }
 
-        let closeButton: any = document.querySelector(`.alertButton`);
-        if (closeButton) closeButton.click();
+        if (dismissOnSave) {
+            let closeButton: any = document.querySelector(`.alertButton`);
+            if (closeButton) closeButton.click();
+        } else {
+            form?.reset();
+        }
     }
 
     return (
@@ -95,15 +156,15 @@ export default function ItemDetail(props) {
                     <CustomImage 
                         src={image} 
                         alt={item?.name} 
-                        onError={(e) => setDisabled(true)} 
-                        onLoad={(e) => setDisabled(false)} 
                         className={`itemImage detailViewImage`} 
+                        onError={(e) => updateFormStatus(imageErrorText)} 
+                        onLoad={(e) => updateFormStatus(imageErrorText, true)} 
                     />
                 </figure>
             )}
-            <form onInput={(e) => refreshDetails(e)} onSubmit={(e) => saveItem(e)} className={`changeInputs flex isColumn`} data-index={index + 1}>
+            <form ref={formRef} onInput={(e) => refreshDetails(e)} onSubmit={(e) => saveItem(e)} className={`changeInputs flex isColumn`} data-index={index + 1}>
                 <div className={`formTop`}>
-                    <div className={`formTopLeft flexColumn gap10`}>
+                    <div className={`formStartData formTopLeft flexColumn gap10`} style={{ minWidth: 255 }}>
                         <div className={`itemDetailFieldMetric flexLabel`}>
                             <h4 className={`itemDetailType`}><strong>Type:</strong></h4>
                             <h4 className={`itemDetailType`}>{item?.type}</h4>
@@ -122,19 +183,19 @@ export default function ItemDetail(props) {
                         </div>
                     </div>
                     {(item?.data?.taskIDs?.length > 0 || item?.data?.tags?.length > 0 || item?.data?.relatedURLs?.length > 0) && (
-                        <div className={`formTopLeft flexColumn gap10`}>
+                        <div className={`formCenterData formTopLeft flexColumn gap10`}>
                             {item?.data?.taskIDs?.length > 0 && <>
-                                <div className={`itemDetailFieldMetric flexLabel`}>
+                                <div className={`itemDetailTasksLabel itemDetailFieldMetric flexLabel`}>
                                     <h4 className={`itemDetailType`}><strong>Tasks:</strong></h4>
                                     <h4 className={`itemDetailType`}>{item?.data?.taskIDs?.length}</h4>
                                 </div>
                             </>}
                             {dev() && item?.data?.tags?.length > 0 && <>
-                                <div className={`itemDetailFieldMetric flexLabel`}>
+                                <div className={`itemDetailTagsLabel itemDetailFieldMetric flexLabel`}>
                                     <h4 className={`itemDetailType`}><strong>Tags:</strong></h4>
                                     <h4 className={`itemDetailType`}>{item?.data?.tags?.length}</h4>
                                 </div>
-                                <div className={`itemDetailFieldMetric flexLabel`}>
+                                <div className={`itemDetailTags itemDetailFieldMetric flexLabel`}>
                                     {item?.data?.tags?.map((tag, tagIndex) => (
                                         <div key={tagIndex} className={`itemTag`}>
                                             {tag}
@@ -143,19 +204,12 @@ export default function ItemDetail(props) {
                                 </div>
                             </>}
                             {dev() && item?.data?.relatedURLs?.length > 0 && <>
-                                <div className={`itemDetailFieldMetric flexLabel`}>
-                                    <h4 className={`itemDetailType`}><strong>URLs:</strong></h4>
-                                    <h4 className={`itemDetailType`}>{item?.data?.relatedURLs?.length}</h4>
-                                </div>
-                                <div className={`itemDetailFieldMetric flexLabel`}>
-                                    {item?.data?.relatedURLs?.map((url, urlIndex) => (
-                                        <div key={urlIndex} className={`url websiteURL button hoverBright`}>
-                                            <a href={url} target={`_blank`} className={`itemURL flexLabel gap5`}>
-                                                <i className={`urlIcon useMainIconColor fas fa-globe`} style={{ fontSize: 12 }} />
-                                                <span className={`useFont`}>{url}</span>
-                                            </a>
-                                        </div>
-                                    ))}
+                                <div className={`itemDetailURLsField itemDetailFieldMetric flexLabel`}>
+                                    <div className={`itemDetailURLsFieldLabels flexLabel`}>
+                                        <h4 className={`itemDetailType`}><strong>URLs:</strong></h4>
+                                        <h4 className={`itemDetailSubType`}>{item?.data?.relatedURLs?.length}</h4>
+                                    </div>
+                                    <RelatedURLsDND item={item} />
                                 </div>
                             </>}
                         </div>
@@ -169,7 +223,7 @@ export default function ItemDetail(props) {
                     />
                 </div>
                 <div className={`toggle-buttons`}>
-                    {item?.data?.taskIDs == 0 && <>
+                    {item?.data?.taskIDs?.length == 0 && <>
                         <div 
                             onClick={() => setActive(`to do`)}
                             className={`toggle-button iconButton ${(active === `to do` || (item?.options?.active == false && active == `to do`)) ? `active` : ``}`} 
@@ -181,7 +235,8 @@ export default function ItemDetail(props) {
                                 name={`toggleActive`} 
                                 checked={(active === `to do` || (item?.options?.active == false && active == `to do`))} 
                             />
-                            <label>
+                            <label className={`flexLabel`}>
+                                <i className={`fas fa-plus`} />
                                 To Do
                             </label>
                         </div>
@@ -197,7 +252,8 @@ export default function ItemDetail(props) {
                             name={`toggleActive`} 
                             checked={(active === `active` || (active == `active` && (activeTasks?.length > 0 || completeTasks?.length > 0)))} 
                         />
-                        <label>
+                        <label className={`flexLabel`}>
+                            <i className={`fas fa-play-circle`} />
                             Active
                         </label>
                     </div>
@@ -212,8 +268,9 @@ export default function ItemDetail(props) {
                             name={`toggleComplete`} 
                             checked={active === `complete`} 
                         />
-                        <label>
-                            Complete
+                        <label className={`flexLabel`}>
+                            <i className={`fas fa-check-circle`} />
+                            Done
                         </label>
                     </div>
                 </div>
@@ -245,7 +302,7 @@ export default function ItemDetail(props) {
                     <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
                         URL
                     </div>
-                    <input type={`text`} name={`itemURL`} className={`itemURLField`} placeholder={`Item URL`} />
+                    <input type={`url`} name={`itemURL`} className={`itemURLField`} placeholder={`https Item URL`} pattern={`https?://.*`} />
                 </div>
                 {/* <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
                     <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
@@ -253,12 +310,19 @@ export default function ItemDetail(props) {
                     </div>
                     <input type={`text`} name={`itemTask`} className={`itemTaskField`} placeholder={`Item Task`} />
                 </div> */}
+                {/* {formStatus != `` && (
+                    <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
+                        <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end`, color: `red` }}>
+                            {formStatus}
+                        </div>
+                    </div>
+                )} */}
                 <div className={`toggle-buttons`}>
                     {/* <button className={`iconButton deleteButton`}>
                         Delete
                     </button> */}
-                    <button disabled={disabled} className={`iconButton saveButton`} type={`submit`}>
-                        Save
+                    <button type={`submit`} title={formStatus != `` ? formStatus : undefined} disabled={formStatus != ``} className={`iconButton saveButton ${formStatus != `` ? `pointerEventsNone` : ``}`} style={{ color: formStatus != `` ? `red` : `black` }}>
+                        {formStatus != `` ? formStatus : `Save`}
                     </button>
                 </div>
             </form>

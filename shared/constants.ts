@@ -25,6 +25,16 @@ export const extractURLsFromText = (textArray: string[]) => {
   return lowerCasedURLsFromText;
 }
 
+export const extractRootDomain = (url: string, withPath = false) => {
+  if (url) {
+    const parsedUrl = new URL(url);
+    const checkSlash = (string: string) => string != `/` ? string : ``;
+    const hostnameParts = parsedUrl.hostname.split(`.`).filter(Boolean);
+    const domain = hostnameParts.length >= 2 ? hostnameParts.slice(-2).join(`.`) : parsedUrl.hostname;
+    return withPath ? `${domain}${checkSlash(parsedUrl.pathname)}${checkSlash(parsedUrl.search)}${checkSlash(parsedUrl.hash)}` : domain;
+  }
+}
+
 export const setItemURLs = (item: Item, textArrayOfFields: string[]) => {
   let updatedURLs = item?.data?.relatedURLs;
   let URLsFromText = extractURLsFromText(textArrayOfFields);
