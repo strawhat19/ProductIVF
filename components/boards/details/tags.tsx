@@ -1,9 +1,9 @@
 import { Types } from '../../../shared/types/types';
 
-export default function Tags({ item }) {
+export default function Tags({ item, className = `tagsComponent`, parentClass = `tagsParent` }) {
     const Tag = (tagName = item?.rank) => {
         return (
-            <span className={`detailField itemTags itemTag ${item?.type == Types.Item ? `tagItem` : `tagTask`} itemCategory itemDate itemName itemCreated itemUpdated textOverflow extended flex row`}>
+            <span className={`detailField itemTags itemTag ${item?.type == Types.Item ? `tagItem` : `tagTask`} itemCategory itemDate itemName itemCreated itemUpdated textOverflow extended flex row ${className}`}>
                 <span className={`tagIconBadge`} style={{ color: `var(--gameBlue)`, fontSize: 9 }}>
                     {item?.type[0]}
                 </span>
@@ -21,7 +21,7 @@ export default function Tags({ item }) {
     }
 
     return <>
-        <div className={`itemTags fit ${item?.type == Types.Item ? `tagsItem` : `tagsTask`}`}>
+        <div className={`itemTags itemTagsParent ${parentClass} fit ${item?.type == Types.Item ? `tagsItem` : `tagsTask`}`}>
             {Tag()}
         </div>
     </>

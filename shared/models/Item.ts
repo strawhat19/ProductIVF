@@ -3,7 +3,7 @@ import { genID } from '../ID';
 import { User } from './User';
 import { TasksFilterStates, Types } from '../types/types';
 import { ItemTypes } from '../../components/boards/boards';
-import { countPropertiesInObject, extractURLsFromText, isValid, setItemURLs, stringNoSpaces } from '../constants';
+import { countPropertiesInObject, isValid, stringNoSpaces } from '../constants';
 
 export class Item extends Data {
     ID: any;
@@ -130,7 +130,7 @@ export const createItem = (
         }
     }
 
-    item = setItemURLs(item, [item?.name]);
+    // item = setItemURLs(item, [item?.name]);
 
     return item;
 }

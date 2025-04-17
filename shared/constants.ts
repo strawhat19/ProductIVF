@@ -35,22 +35,22 @@ export const extractRootDomain = (url: string, withPath = false) => {
   }
 }
 
-export const setItemURLs = (item: Item, textArrayOfFields: string[]) => {
-  let updatedURLs = item?.data?.relatedURLs;
-  let URLsFromText = extractURLsFromText(textArrayOfFields);
-  if (URLsFromText && URLsFromText?.length > 0) {
-    let lowerCasedCurrentURLs = item?.data?.relatedURLs?.map(txt => txt?.toLowerCase());
-    let newURLsFromText = URLsFromText.filter(url => !lowerCasedCurrentURLs?.includes(url));
-    if (newURLsFromText && newURLsFromText?.length > 0) {
-      updatedURLs = [ ...item?.data?.relatedURLs, ...newURLsFromText ];
-      item.data = {
-        ...item?.data,
-        relatedURLs: updatedURLs,
-      }
-    }
-  }
-  return item;
-}
+// export const setItemURLs = (item: Item, textArrayOfFields: string[]) => {
+//   let updatedURLs = item?.data?.relatedURLs;
+//   let URLsFromText = extractURLsFromText(textArrayOfFields);
+//   if (URLsFromText && URLsFromText?.length > 0) {
+//     let lowerCasedCurrentURLs = item?.data?.relatedURLs?.map(txt => txt?.toLowerCase());
+//     let newURLsFromText = URLsFromText.filter(url => !lowerCasedCurrentURLs?.includes(url));
+//     if (newURLsFromText && newURLsFromText?.length > 0) {
+//       updatedURLs = [ ...item?.data?.relatedURLs, ...newURLsFromText ];
+//       item.data = {
+//         ...item?.data,
+//         relatedURLs: updatedURLs,
+//       }
+//     }
+//   }
+//   return item;
+// }
 
 export const removeExtraSpacesFromString = (string: string) => string.trim().replace(/\s+/g, ` `);
 export const generateArray = (length: number, itemData: any) => Array.from({ length }, () => itemData);

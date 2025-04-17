@@ -1,3 +1,5 @@
+import Tasks from './tasks';
+import Tags from './details/tags';
 import Progress from '../progress';
 import CustomImage from '../custom-image';
 import { Item } from '../../shared/models/Item';
@@ -6,18 +8,26 @@ import { capWords, dev } from '../../pages/_app';
 // import RelatedURLs from './details/related-urls';
 import { useEffect, useRef, useState } from 'react';
 import { doc, onSnapshot } from 'firebase/firestore';
-import RelatedURLsDND from './details/related-urls-dnd';
+// import RelatedURLsDND from './details/related-urls-dnd';
+import { TasksFilterStates } from '../../shared/types/types';
 import { db, itemsTable, updateDocFieldsWTimeStamp } from '../../firebase';
+import ItemWrapper from './itemwrapper';
 
 export default function ItemDetail(props) {
     let formRef = useRef(null);
-    let { item: itemProp, index, tasks, activeTasks, completeTasks } = props;
+    let { item: itemProp, index, tasks, activeTasks, completeTasks, board, column } = props;
 
     let [item, setItem] = useState<Item>(itemProp);
     let [formStatus, setFormStatus] = useState(``);
     let [imageErrorText, ] = useState(`Image Error`);
     let [image, setImage] = useState(props.item.image ?? undefined);
-    let [active, setActive] = useState(item?.options?.complete ? `complete` : (item?.options?.active || activeTasks?.length > 0 || completeTasks?.length > 0) ? `active` : `to do`);
+    let [active, setActive] = useState(
+        item?.options?.complete 
+        ? `complete` 
+        : (item?.options?.active || activeTasks?.length > 0 || completeTasks?.length > 0) 
+        ? `active` 
+        : `to do`
+    );
 
     useEffect(() => {
         const itemListener = onSnapshot(doc(db, itemsTable, itemProp.id), (docSnap) => {
@@ -54,28 +64,19 @@ export default function ItemDetail(props) {
 
     const refreshDetails = (e) => {
         e.preventDefault();
-
         let formField = e?.target;
-
-        if (formField?.name == `itemImageLink`) {
-            setImage(formField?.value);
-        }
-
-        if (formRef != null) {
-            let form = formRef?.current;
-
-            let { 
-                itemURL: itemURLField, 
-            } = form;
-
-            if (itemURLField) {
-                let itemURL = itemURLField?.value;
-                let itemURLLowercased = itemURL?.toLowerCase();
-                let lowercasedCurrentURLs = item?.data?.relatedURLs?.map(url => url?.toLowerCase());
-                let URLAlreadyLinked = itemURLLowercased != `` && lowercasedCurrentURLs?.includes(itemURLLowercased);
-                updateFormStatus(`URL already linked`, !URLAlreadyLinked);
-            }
-        }
+        if (formField?.name == `itemImageLink`) setImage(formField?.value);
+        // if (formRef != null) {
+        //     let form = formRef?.current;
+        //     let { itemURL: itemURLField } = form;
+        //     if (itemURLField) {
+        //         let itemURL = itemURLField?.value;
+        //         let itemURLLowercased = itemURL?.toLowerCase();
+        //         let lowercasedCurrentURLs = item?.data?.relatedURLs?.map(url => url?.toLowerCase());
+        //         let URLAlreadyLinked = itemURLLowercased != `` && lowercasedCurrentURLs?.includes(itemURLLowercased);
+        //         updateFormStatus(`URL already linked`, !URLAlreadyLinked);
+        //     }
+        // }
     }
 
     const saveItem = async (e, dismissOnSave = false) => {
@@ -86,11 +87,11 @@ export default function ItemDetail(props) {
         let { 
             itemImageLink, 
             itemDescriptionField,
-            itemURL: itemURLField, 
+            // itemURL: itemURLField, 
             itemName: itemNameField, 
         } = form;
 
-        let itemURL = itemURLField?.value;
+        // let itemURL = itemURLField?.value;
         let itemName = itemNameField?.value;
         let itemImage = itemImageLink?.value;
         let itemDescription = itemDescriptionField?.value;
@@ -105,9 +106,9 @@ export default function ItemDetail(props) {
         let nameChanged = itemName?.toLowerCase() != item?.name?.toLowerCase();
         let imageChanged = itemImage?.toLowerCase() != item?.image?.toLowerCase();
         let descriptionChanged = itemDescription?.toLowerCase() != item?.description?.toLowerCase();
-        let urlChanged = itemURL?.toLowerCase() != item?.data?.relatedURLs[0]?.toLowerCase() && !item?.data?.relatedURLs?.includes(itemURL);
+        // let urlChanged = itemURL?.toLowerCase() != item?.data?.relatedURLs[0]?.toLowerCase() && !item?.data?.relatedURLs?.includes(itemURL);
 
-        if (statusChanged || nameChanged || imageChanged || urlChanged || descriptionChanged) {
+        if (statusChanged || nameChanged || imageChanged || descriptionChanged) {
             await updateDocFieldsWTimeStamp(item, {
                 ...(item?.data?.taskIDs?.length > 0 ? {
                     ...(completionStatusChanged && {
@@ -123,9 +124,6 @@ export default function ItemDetail(props) {
                         }),
                     }),
                 }),
-                ...(urlChanged && {
-                    [`data.relatedURLs`]: [itemURL, ...item?.data?.relatedURLs],
-                }),
                 ...(descriptionChanged && {
                     description: itemDescription,
                 }),
@@ -138,6 +136,9 @@ export default function ItemDetail(props) {
                     name: capWords(itemName),
                     title: `${item?.type} ${item?.rank} ${capWords(itemName)}`,
                 }),
+                // ...(urlChanged && {
+                //     [`data.relatedURLs`]: [itemURL, ...item?.data?.relatedURLs],
+                // }),
             })
         }
 
@@ -170,6 +171,14 @@ export default function ItemDetail(props) {
                             <h4 className={`itemDetailType`}>{item?.type}</h4>
                         </div>
                         <div className={`itemDetailFieldMetric flexLabel`}>
+                            <h4 className={`itemDetailType`}><strong>ID:</strong></h4>
+                            <h4 className={`itemDetailType`}>
+                                <ItemWrapper>    
+                                    <Tags item={item} parentClass={`itemDetailContentsTagParent itemContents`} className={`IDTag`} />
+                                </ItemWrapper>
+                            </h4>
+                        </div>
+                        <div className={`itemDetailFieldMetric flexLabel`}>
                             <h4 className={`itemDetailType`}><strong>Status:</strong></h4>
                             <DetailField item={item} tasks={tasks} />
                         </div>
@@ -182,15 +191,23 @@ export default function ItemDetail(props) {
                             <h4 className={`itemDetailType`}>{item?.meta?.updated}</h4>
                         </div>
                     </div>
-                    {(item?.data?.taskIDs?.length > 0 || item?.data?.tags?.length > 0 || item?.data?.relatedURLs?.length > 0) && (
+                    {dev() && (item?.data?.taskIDs?.length > 0 || item?.data?.tags?.length > 0) && (
                         <div className={`formCenterData formTopLeft flexColumn gap10`}>
                             {item?.data?.taskIDs?.length > 0 && <>
                                 <div className={`itemDetailTasksLabel itemDetailFieldMetric flexLabel`}>
                                     <h4 className={`itemDetailType`}><strong>Tasks:</strong></h4>
                                     <h4 className={`itemDetailType`}>{item?.data?.taskIDs?.length}</h4>
                                 </div>
+                                <ItemWrapper>
+                                    <Tasks 
+                                        item={item} 
+                                        board={board}
+                                        column={column} 
+                                        showForm={(item?.options?.showTaskForm || board?.options?.tasksFilterState == TasksFilterStates.All_On)} 
+                                    />
+                                </ItemWrapper>
                             </>}
-                            {dev() && item?.data?.tags?.length > 0 && <>
+                            {/* {dev() && item?.data?.tags?.length > 0 && <>
                                 <div className={`itemDetailTagsLabel itemDetailFieldMetric flexLabel`}>
                                     <h4 className={`itemDetailType`}><strong>Tags:</strong></h4>
                                     <h4 className={`itemDetailType`}>{item?.data?.tags?.length}</h4>
@@ -211,7 +228,7 @@ export default function ItemDetail(props) {
                                     </div>
                                     <RelatedURLsDND item={item} />
                                 </div>
-                            </>}
+                            </>} */}
                         </div>
                     )}
                     <Progress 
@@ -282,15 +299,15 @@ export default function ItemDetail(props) {
                 </div>
                 <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
                     <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
-                        Description
-                    </div>
-                    <textarea name={`itemDescriptionField`} className={`itemDescriptionField`} placeholder={`Item Description`} defaultValue={item?.description} />
-                </div>
-                <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
-                    <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
                         Image
                     </div>
                     <input type={`text`} name={`itemImageLink`} className={`itemImageLinkField`} placeholder={`Item Image`} defaultValue={item?.image} />
+                </div>
+                <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
+                    <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
+                        Description
+                    </div>
+                    <textarea name={`itemDescriptionField`} className={`itemDescriptionField`} placeholder={`Item Description`} defaultValue={item?.description} />
                 </div>
                 {/* <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
                     <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
@@ -298,12 +315,12 @@ export default function ItemDetail(props) {
                     </div>
                     <input type={`text`} name={`itemVideoLink`} className={`itemVideoLinkField`} placeholder={`Item Video`} defaultValue={item?.video} />
                 </div> */}
-                <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
+                {/* <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
                     <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
                         URL
                     </div>
                     <input type={`url`} name={`itemURL`} className={`itemURLField`} placeholder={`https Item URL`} pattern={`https?://.*`} />
-                </div>
+                </div> */}
                 {/* <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
                     <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
                         Subtask

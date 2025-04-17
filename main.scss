@@ -1499,11 +1499,13 @@ textarea {
             justify-content: center;
             transition: var(--transition);
             &.deleteButton {
-                color: white;
-                background: red;
-                &:hover {
-                    font-weight: 800;
-                    color: black;
+                &:not(.deleteTaskButton) {
+                    color: white;
+                    background: red;
+                    &:hover {
+                        color: black;
+                        font-weight: 800;
+                    }
                 }
             }
         }

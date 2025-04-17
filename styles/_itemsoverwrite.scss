@@ -64,6 +64,51 @@
     }
 }
 
+.formTop {
+    .itemDetails_Board {
+        .itemDetails_List {
+            padding: 0 !important;
+            --columnWidth: 100% !important;
+            min-height: fit-content !important;
+            &:has(.IDTag) {
+                background: transparent !important;
+            }
+            .items {
+                min-height: fit-content !important;
+                .item {
+                    .itemDetailContentsTagParent {
+                        padding: 0 !important;
+                        .itemCategory {
+                            font-size: 16px !important;
+                            .tagIconBadge {
+                                font-size: 13px !important;
+                            }
+                        }
+                    }
+                    .taskElement {
+                        margin: 0 !important;
+                        width: 100% !important;
+                        .taskItems {
+                            &.wScroll {
+                                overflow: auto;
+                                max-height: 105px;
+                            }
+                            width: 100% !important;
+                            max-width: 100% !important;
+                            min-width: 100% !important;
+                            .taskMainWrap {
+                                &.dndFirst {
+                                    border-top: 0 !important;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 .itemDetailFieldMetric {
     justify-content: flex-start;
     .itemDetailType {

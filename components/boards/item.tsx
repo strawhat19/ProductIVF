@@ -8,15 +8,15 @@ import { addBoardScrollBars } from './board';
 import { Task } from '../../shared/models/Task';
 import DetailField from './details/detail-field';
 import { GridTypes } from '../../shared/types/types';
+// import RelatedURLsDND from './details/related-urls-dnd';
 import { createList, List } from '../../shared/models/List';
 import ConfirmAction from '../context-menus/confirm-action';
 import { Item as ItemModel } from '../../shared/models/Item';
 import React, { useContext, useEffect, useState } from 'react';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { showAlert, StateContext, capitalizeAllWords, dev, extractIDDetails } from '../../pages/_app';
-import { forceFieldBlurOnPressEnter, isValid, removeExtraSpacesFromString, setItemURLs } from '../../shared/constants';
+import { forceFieldBlurOnPressEnter, isValid, removeExtraSpacesFromString } from '../../shared/constants';
 import { addListToDatabase, db, deleteItemFromDatabase, listsTable, transferItem, updateDocFieldsWTimeStamp } from '../../firebase';
-import RelatedURLsDND from './details/related-urls-dnd';
 
 export const getItemTaskCompletionPercentage = (tasks: Task[], item: ItemModel, isActive = null) => {
     let itemIsActive = isValid(item?.options?.active) && item?.options?.active == true;
@@ -50,10 +50,23 @@ export const getTypeIcon = (type) => {
     }
 }
 
-export const manageItem = (e, item, index, tasks, activeTasks, completeTasks) => {
+export const manageItem = (e, item, index, tasks, activeTasks, completeTasks, board, column) => {
     if (!e.target.classList.contains(`changeLabel`) && !e.target.classList.contains(`confirmActionOption`)) {
         const showItemDetailsAlert = () => {
-            showAlert(item?.name, <ItemDetail key={item?.meta?.updated} item={item} index={index} tasks={tasks} activeTasks={activeTasks} completeTasks={completeTasks} />, `95%`, `85%`, `30px`);
+            showAlert(
+                item?.name, 
+                <ItemDetail 
+                    key={item?.meta?.updated} 
+                    item={item}
+                    board={board} 
+                    index={index} 
+                    tasks={tasks} 
+                    column={column}
+                    activeTasks={activeTasks} 
+                    completeTasks={completeTasks} 
+                />, 
+                `95%`, `85%`, `30px`,
+            );
         }
         let isButton = e.target.classList.contains(`iconButton`);
         if (isButton) {
@@ -99,10 +112,11 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
         e.target.innerHTML = elemValue;
 
         const name = elemValue;
-        const updatedURLsItem = setItemURLs(item, [name]);
-        const updatedURLs = updatedURLsItem?.data?.relatedURLs;
+        // const updatedURLsItem = setItemURLs(item, [name]);
+        // const updatedURLs = updatedURLsItem?.data?.relatedURLs;
 
-        updateDocFieldsWTimeStamp(item, { name, A: name, title: `${item?.type} ${item?.rank} ${name}`, [`data.relatedURLs`]: updatedURLs });
+        updateDocFieldsWTimeStamp(item, { name, A: name, title: `${item?.type} ${item?.rank} ${name}` });
+        // updateDocFieldsWTimeStamp(item, { name, A: name, title: `${item?.type} ${item?.rank} ${name}`, [`data.relatedURLs`]: updatedURLs });
     }
 
     const completeActions = async (item, isButton) => {
@@ -251,7 +265,7 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
         const allTasks = getItemTasks();
         const activeTasks = getItemTasks(`active`);
         const completeTasks = getItemTasks(`complete`);
-        manageItem(e, item, itemIndex, allTasks, activeTasks, completeTasks);
+        manageItem(e, item, itemIndex, allTasks, activeTasks, completeTasks, board, column);
     }
 
     const showItemDetails = () => {
@@ -390,7 +404,7 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
                             <div className={`itemDetailsStart itemDetails`}>
                                 <DetailField item={item} tasks={getItemTasks()} />
                                 <Tags item={item} />
-                                {devEnv && <RelatedURLsDND item={{ ...item, data: { ...item?.data, relatedURLs: [item?.data?.relatedURLs[0]] } }} />}
+                                {/* {devEnv && <RelatedURLsDND item={{ ...item, data: { ...item?.data, relatedURLs: [item?.data?.relatedURLs[0]] } }} />} */}
                             </div>
                             <div className={`itemDetailsEnd fit`}>
                                 <Counts item={item} activeTasks={getItemTasks(`active`)} completedTasks={getItemTasks(`complete`)} />
@@ -401,7 +415,7 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
                 {showItemDetails() == false && <>
                     <div className={`altTagsContainer itemContents fit`}>
                         <Tags item={item} />
-                        {devEnv && <RelatedURLsDND item={{ ...item, data: { ...item?.data, relatedURLs: [item?.data?.relatedURLs[0]] } }} />}
+                        {/* {devEnv && <RelatedURLsDND item={{ ...item, data: { ...item?.data, relatedURLs: [item?.data?.relatedURLs[0]] } }} />} */}
                     </div>
                     <DetailField item={item} tasks={getItemTasks()} />
                 </>}
