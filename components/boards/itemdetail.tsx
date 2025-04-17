@@ -12,6 +12,7 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { TasksFilterStates } from '../../shared/types/types';
 import { db, itemsTable, updateDocFieldsWTimeStamp } from '../../firebase';
 import ItemWrapper from './itemwrapper';
+import ToggleButtons from './details/toggle-buttons';
 
 export default function ItemDetail(props) {
     let formRef = useRef(null);
@@ -239,58 +240,7 @@ export default function ItemDetail(props) {
                         injectedProgress={active === `complete` ? 100 : active === `to do` ? 0 : item?.data?.taskIDs?.length == 0 ? 50 : undefined} 
                     />
                 </div>
-                <div className={`toggle-buttons`}>
-                    {item?.data?.taskIDs?.length == 0 && <>
-                        <div 
-                            onClick={() => setActive(`to do`)}
-                            className={`toggle-button iconButton ${(active === `to do` || (item?.options?.active == false && active == `to do`)) ? `active` : ``}`} 
-                        >
-                            <input 
-                                type={`radio`} 
-                                value={`active`} 
-                                onChange={() => {}} 
-                                name={`toggleActive`} 
-                                checked={(active === `to do` || (item?.options?.active == false && active == `to do`))} 
-                            />
-                            <label className={`flexLabel`}>
-                                <i className={`fas fa-plus`} />
-                                To Do
-                            </label>
-                        </div>
-                    </>}
-                    <div 
-                        onClick={() => setActive(`active`)}
-                        className={`toggle-button iconButton ${(active === `active` || (active == `active` && (activeTasks?.length > 0 || completeTasks?.length > 0))) ? `active` : ``}`} 
-                    >
-                        <input 
-                            type={`radio`} 
-                            value={`active`} 
-                            onChange={() => {}} 
-                            name={`toggleActive`} 
-                            checked={(active === `active` || (active == `active` && (activeTasks?.length > 0 || completeTasks?.length > 0)))} 
-                        />
-                        <label className={`flexLabel`}>
-                            <i className={`fas fa-play-circle`} />
-                            Active
-                        </label>
-                    </div>
-                    <div 
-                        onClick={() => setActive(`complete`)}
-                        className={`toggle-button iconButton ${active === `complete` ? `active` : ``}`} 
-                    >
-                        <input 
-                            type={`radio`} 
-                            value={`complete`} 
-                            onChange={() => {}} 
-                            name={`toggleComplete`} 
-                            checked={active === `complete`} 
-                        />
-                        <label className={`flexLabel`}>
-                            <i className={`fas fa-check-circle`} />
-                            Done
-                        </label>
-                    </div>
-                </div>
+                <ToggleButtons item={item} activeTasks={activeTasks} completeTasks={completeTasks} onActiveChange={(newActive) => setActive(newActive)} />
                 <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
                     <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
                         Name

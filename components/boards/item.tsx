@@ -8,6 +8,7 @@ import { addBoardScrollBars } from './board';
 import { Task } from '../../shared/models/Task';
 import DetailField from './details/detail-field';
 import { GridTypes } from '../../shared/types/types';
+import ToggleButtons from './details/toggle-buttons';
 // import RelatedURLsDND from './details/related-urls-dnd';
 import { createList, List } from '../../shared/models/List';
 import ConfirmAction from '../context-menus/confirm-action';
@@ -66,6 +67,7 @@ export const manageItem = (e, item, index, tasks, activeTasks, completeTasks, bo
                     completeTasks={completeTasks} 
                 />, 
                 `95%`, `85%`, `30px`,
+                // <ToggleButtons item={item} activeTasks={activeTasks} completeTasks={completeTasks} onActiveChange={(newActive) => setActive(newActive)} />
             );
         }
         let isButton = e.target.classList.contains(`iconButton`);
