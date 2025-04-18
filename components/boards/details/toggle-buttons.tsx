@@ -21,6 +21,16 @@ export default function ToggleButtons({ item, activeTasks, completeTasks, onActi
         onActiveChange(active);
     }, [active])
     
+    useEffect(() => {
+        setActive(
+            item?.options?.complete 
+            ? `complete` 
+            : (item?.options?.active || activeTasks?.length > 0 || completeTasks?.length > 0) 
+            ? `active` 
+            : `to do`
+        )
+    }, [item])
+    
     return (
         <div className={`toggle-buttons`}>
             {item?.data?.taskIDs?.length == 0 && <>

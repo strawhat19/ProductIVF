@@ -27,6 +27,11 @@ export enum GridTypes {
 
 export const AuthGrids = [GridTypes.Private];
 
+export enum Views {
+    Details = `Details`,
+    Context = `Context Menu`,
+}
+
 export enum TasksFilterStates {
     All_On = `All On`,
     Tasks = `Tasks`,

@@ -6,18 +6,19 @@ import ItemDetail from './itemdetail';
 import CustomImage from '../custom-image';
 import { addBoardScrollBars } from './board';
 import { Task } from '../../shared/models/Task';
+import { List } from '../../shared/models/List';
 import DetailField from './details/detail-field';
-import { GridTypes } from '../../shared/types/types';
-import ToggleButtons from './details/toggle-buttons';
+import { Views } from '../../shared/types/types';
+// import { GridTypes } from '../../shared/types/types';
+// import ToggleButtons from './details/toggle-buttons';
 // import RelatedURLsDND from './details/related-urls-dnd';
-import { createList, List } from '../../shared/models/List';
 import ConfirmAction from '../context-menus/confirm-action';
 import { Item as ItemModel } from '../../shared/models/Item';
 import React, { useContext, useEffect, useState } from 'react';
-import { collection, getDocs, query, where } from 'firebase/firestore';
-import { showAlert, StateContext, capitalizeAllWords, dev, extractIDDetails } from '../../pages/_app';
+// import { collection, getDocs, query, where } from 'firebase/firestore';
+import { showAlert, StateContext, capitalizeAllWords } from '../../pages/_app';
+import { deleteItemFromDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
 import { forceFieldBlurOnPressEnter, isValid, removeExtraSpacesFromString } from '../../shared/constants';
-import { addListToDatabase, db, deleteItemFromDatabase, listsTable, transferItem, updateDocFieldsWTimeStamp } from '../../firebase';
 
 export const getItemTaskCompletionPercentage = (tasks: Task[], item: ItemModel, isActive = null) => {
     let itemIsActive = isValid(item?.options?.active) && item?.options?.active == true;
@@ -87,13 +88,13 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
     let [windowWidth, setWindowWidth] = useState(typeof window !== undefined ? window.innerWidth : 1920);
 
     let { 
-        user,
-        devEnv, 
+        // user,
         menuRef, 
+        // devEnv, 
         setLoading, 
-        addNewBoard,
         setSelected, 
-        selectedGrid,
+        // addNewBoard,
+        // selectedGrid,
         globalUserData,
         setSystemStatus, 
         setMenuPosition, 
@@ -162,6 +163,12 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
         }
     }
 
+    const getItemTasks = (filterKey: string = ``) => {
+        let thisItemsTasks = globalUserData?.tasks?.filter(task => task?.itemID == item?.id);
+        if (filterKey != ``) thisItemsTasks = thisItemsTasks?.filter(tsk => tsk?.options[filterKey] == true);
+        return thisItemsTasks;
+    }
+
     const completeItem = (e, item) => {
         let button = e.target;
         let isButton = button.classList.contains(`iconButton`);
@@ -221,54 +228,54 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
         completeItem(e, item);
     }
 
-    const onArchiveItem = async (e) => {
-        let { grids } = globalUserData;
-        let archivedGrid = grids?.find(gr => gr?.gridType == GridTypes.Archived);
+    // const onArchiveItem = async (e) => {
+    //     let { grids } = globalUserData;
+    //     let archivedGrid = grids?.find(gr => gr?.gridType == GridTypes.Archived);
 
-        let objLogs = {
-            item,
-            selectedGrid,
-            archivedGrid, 
-        }
+    //     let objLogs = {
+    //         item,
+    //         selectedGrid,
+    //         archivedGrid, 
+    //     }
 
-        if (archivedGrid) {
-            let boardUUID = extractIDDetails(board?.id)?.uuid;
-            let boardUUIDs = archivedGrid?.data?.boardIDs?.map(id => extractIDDetails(id)?.uuid);
-            if (boardUUIDs?.includes(boardUUID)) {
-                if (dev()) {
-                    console.log(`Has Board`, objLogs);
-                    const archivedGridBoardID = archivedGrid?.data?.boardIDs[0];
-                    const archivedGridBoardListQuery = await query(collection(db, listsTable), where(`boardID`, `==`, archivedGridBoardID));
-                    const archivedGridBoardListDocs = await getDocs(archivedGridBoardListQuery);
-                    for (const listDoc of archivedGridBoardListDocs.docs) {
-                        await transferItem(item, listDoc?.id, archivedGridBoardID, archivedGrid?.id);
-                    }
-                }
-            } else {
-                if (dev()) {
-                    console.log(`Not Has Board`, objLogs);
-                    const listsRef = await collection(db, listsTable);
-                    const listsSnapshot = await getDocs(listsRef);
-                    const listsCount = listsSnapshot.size;
-                    const listRank = listsCount + 1;
-                    const newList = createList(listRank, `Items`, user, listRank, archivedGrid?.id, board?.id, [item?.id]) as List;
-                    // Remove List ID from Current Board
-                    // Remove Item ID from Current Board
-                    await addListToDatabase(newList, board?.id)?.then(async lst => {
-                        await addNewBoard(e, board?.name, archivedGrid, [lst?.id], [item?.id]);
-                        await transferItem(item, lst?.id, board?.id, archivedGrid?.id);
-                    });
-                }
-            }
-        }
-    }
+    //     if (archivedGrid) {
+    //         let boardUUID = extractIDDetails(board?.id)?.uuid;
+    //         let boardUUIDs = archivedGrid?.data?.boardIDs?.map(id => extractIDDetails(id)?.uuid);
+    //         if (boardUUIDs?.includes(boardUUID)) {
+    //             if (dev()) {
+    //                 console.log(`Has Board`, objLogs);
+    //                 const archivedGridBoardID = archivedGrid?.data?.boardIDs[0];
+    //                 const archivedGridBoardListQuery = await query(collection(db, listsTable), where(`boardID`, `==`, archivedGridBoardID));
+    //                 const archivedGridBoardListDocs = await getDocs(archivedGridBoardListQuery);
+    //                 for (const listDoc of archivedGridBoardListDocs.docs) {
+    //                     await transferItem(item, listDoc?.id, archivedGridBoardID, archivedGrid?.id);
+    //                 }
+    //             }
+    //         } else {
+    //             if (dev()) {
+    //                 console.log(`Not Has Board`, objLogs);
+    //                 const listsRef = await collection(db, listsTable);
+    //                 const listsSnapshot = await getDocs(listsRef);
+    //                 const listsCount = listsSnapshot.size;
+    //                 const listRank = listsCount + 1;
+    //                 const newList = createList(listRank, `Items`, user, listRank, archivedGrid?.id, board?.id, [item?.id]) as List;
+    //                 // Remove List ID from Current Board
+    //                 // Remove Item ID from Current Board
+    //                 await addListToDatabase(newList, board?.id)?.then(async lst => {
+    //                     await addNewBoard(e, board?.name, archivedGrid, [lst?.id], [item?.id]);
+    //                     await transferItem(item, lst?.id, board?.id, archivedGrid?.id);
+    //                 });
+    //             }
+    //         }
+    //     }
+    // }
 
-    const onManageItem = (e) => {
-        const allTasks = getItemTasks();
-        const activeTasks = getItemTasks(`active`);
-        const completeTasks = getItemTasks(`complete`);
-        manageItem(e, item, itemIndex, allTasks, activeTasks, completeTasks, board, column);
-    }
+    // const onManageItem = (e) => {
+    //     const allTasks = getItemTasks();
+    //     const activeTasks = getItemTasks(`active`);
+    //     const completeTasks = getItemTasks(`complete`);
+    //     manageItem(e, item, itemIndex, allTasks, activeTasks, completeTasks, board, column);
+    // }
 
     const showItemDetails = () => {
         let listItemsContainerSmall = false;
@@ -311,25 +318,36 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
         await sortItemTasks(item);
     }
 
-    const defaultRightClick = (element) => {
-        const evt = new MouseEvent(`contextmenu`, { view: window, bubbles: true, cancelable: true });
-        element?.dispatchEvent(evt);
-    }
+    // const defaultRightClick = (element) => {
+    //     const evt = new MouseEvent(`contextmenu`, { view: window, bubbles: true, cancelable: true });
+    //     element?.dispatchEvent(evt);
+    // }
 
-    const onDefaultRightClick = () => {
-        if (document) {
-            let itemElementClicked = document?.querySelector(`.itemElement_${item.uuid}`);
-            if (itemElementClicked) defaultRightClick(itemElementClicked);
-        }
-    }
+    // const onDefaultRightClick = () => {
+    //     if (document) {
+    //         let itemElementClicked = document?.querySelector(`.itemElement_${item.uuid}`);
+    //         if (itemElementClicked) defaultRightClick(itemElementClicked);
+    //     }
+    // }
 
     const onRightClick = (e: React.MouseEvent<HTMLDivElement>, item: ItemModel, column: List) => {
-        if (!devEnv) {
+        // if (!devEnv) {
             e.preventDefault();
             setItemTypeMenuOpen(true);
             setMenuPosition({ x: e.clientX, y: e.clientY });
-            setSelected({ item, column, board, onManageItem, onCompleteItem, onArchiveItem, onDeleteItem, onSortItemTasks, onDefaultRightClick });
-        }
+            setSelected({ 
+                item,
+                column,
+                board,
+                onSortItemTasks,
+                type: Views.Context,
+                // onManageItem,
+                // onDeleteItem,
+                // onArchiveItem,
+                // onCompleteItem,
+                // onDefaultRightClick, 
+            });
+        // }
     }
     
     const handleClickOutside = (event: MouseEvent) => {
@@ -338,12 +356,6 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
             setMenuPosition(null);
             setItemTypeMenuOpen(false);
         }
-    }
-
-    const getItemTasks = (filterKey: string = ``) => {
-        let thisItemsTasks = globalUserData?.tasks?.filter(task => task?.itemID == item?.id);
-        if (filterKey != ``) thisItemsTasks = thisItemsTasks?.filter(tsk => tsk?.options[filterKey] == true);
-        return thisItemsTasks;
     }
 
     useEffect(() => {

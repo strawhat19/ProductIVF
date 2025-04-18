@@ -17,6 +17,7 @@ import { addBoardScrollBars } from '../components/boards/board';
 import { createContext, useRef, useState, useEffect } from 'react';
 import ContextMenu from '../components/context-menus/context-menu';
 import { renderFirebaseAuthErrorMessage } from '../components/form';
+import DetailsDialog from '../components/modals/details/details-dialog';
 import { seedUserData as generateSeedUserData } from '../shared/database';
 import { AuthGrids, AuthStates, GridTypes, Types } from '../shared/types/types';
 import { collection, getDocs, onSnapshot, query, where  } from 'firebase/firestore';
@@ -776,6 +777,12 @@ export default function ProductIVF({ Component, pageProps, router }) {
     }));
   }
 
+  const getItemTasks = (item, filterKey) => {
+    let thisItemsTasks = globalUserData?.tasks?.filter(task => task?.itemID == item?.id);
+    if (filterKey != ``) thisItemsTasks = thisItemsTasks?.filter(tsk => tsk?.options[filterKey] == true);
+    return thisItemsTasks;
+  }
+
   const setUsersGridsState = (lastSelectedGridID, usersGridsByID, updateGrids = true) => {
     if (updateGrids == true) {
       setGrids(usersGridsByID);
@@ -1142,6 +1149,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       signInUser,
       getFeature,
       addNewBoard,
+      getItemTasks,
       seedUserData,
       signOutReset,
       getGridsBoards,
@@ -1220,6 +1228,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       />
       {/* Popup which opens to Authenticate User */}
       <AuthenticationDialog />
+      <DetailsDialog />
       <ContextMenu menuRef={menuRef} menuPosition={menuPosition} />
     </StateContext.Provider>
   )

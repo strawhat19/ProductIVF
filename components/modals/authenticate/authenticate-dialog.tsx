@@ -3,9 +3,9 @@ import { Dialog } from '@mui/material';
 import { toast } from 'react-toastify';
 import { StateContext } from '../../../pages/_app';
 import { logToast } from '../../../shared/constants';
+import { AuthGrids } from '../../../shared/types/types';
 import Authenticate, { onAuthenticate } from './authenticate';
 import { deleteDatabaseData, deleteUserAuth } from '../../../firebase';
-import { AuthGrids } from '../../../shared/types/types';
 
 export default function AuthenticationDialog({ }: any) {
     const { 

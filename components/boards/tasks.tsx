@@ -42,7 +42,7 @@ const SortableSubtaskItem = ({ item, task, isLast, index, gridSearchTerm, change
   }
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners} className={`draggableTask boardTaskDraggableWrap ${isLast ? `dndLastTask` : index == 0 ? `dndFirstTask` : `dndMiddleTask`}`}>
+    <div ref={setNodeRef} title={task?.name} style={style} {...attributes} {...listeners} className={`draggableTask boardTaskDraggableWrap ${isLast ? `dndLastTask` : index == 0 ? `dndFirstTask` : `dndMiddleTask`}`}>
       <div className={`task_${task?.id} boardTask taskMainWrap subTaskItem ${item?.options?.complete ? `taskItemComplete` : `taskItemNotComplete`} ${!item?.options?.complete && (isValid(task?.options?.active) && task?.options?.active == true) ? `activeItemOrTask` : ``} ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`} ${isLast ? `dndLast` : index == 0 ? `dndFirst` : `dndMiddle`}`}>
         <div className={`boardTaskHandle ${searchFilterTasks && gridSearchTerm != `` ? `cursorAuto` : `cursorGrab`} draggableItem item subtaskHandle ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`}`}>
           <span className={`itemOrder taskComponentBG`}>
@@ -101,7 +101,7 @@ const SortableSubtaskItem = ({ item, task, isLast, index, gridSearchTerm, change
 }
 
 export default function Tasks(props) {
-  let { item, column, showForm = true } = props;
+  let { item, column, showForm = true, tasksProp = undefined } = props;
 
   let { 
     user,
@@ -174,7 +174,11 @@ export default function Tasks(props) {
     if (searchFilterTasks && hasSearchTerm) {
       tasksInCurrentSearchFilters = tasks?.filter((tsk: Task) => tsk?.name?.toLowerCase()?.includes(gridSearchTerm?.toLowerCase()?.trim()));
     }
-    return tasksInCurrentSearchFilters;
+    if (tasksProp != undefined) {
+      return tasksProp;
+    } else {
+      return tasksInCurrentSearchFilters;
+    }
   }
 
   const completeTask = async (e, task) => {

@@ -1,20 +1,22 @@
 import Tasks from './tasks';
 import { ItemTypes } from './boards';
 import { toast } from 'react-toastify';
+import Item, { getTypeIcon } from './item';
 import { addBoardScrollBars } from './board';
 import { Task } from '../../shared/models/Task';
 import { Board } from '../../shared/models/Board';
 import React, { useContext, useState } from 'react';
-import Item, { getTypeIcon, manageItem } from './item';
 import { collection, getDocs } from 'firebase/firestore';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
 import ConfirmAction from '../context-menus/confirm-action';
-import { TasksFilterStates, Types } from '../../shared/types/types';
 import { createItem, Item as ItemModel } from '../../shared/models/Item';
+import { TasksFilterStates, Types, Views } from '../../shared/types/types';
 import { formatDate, StateContext, capitalizeAllWords, dev, capWords } from '../../pages/_app';
 import { addItemToDatabase, db, deleteListFromDatabase, itemsTable, updateDocFieldsWTimeStamp } from '../../firebase';
 import { forceFieldBlurOnPressEnter, getRankAndNumber, logToast, removeExtraSpacesFromString } from '../../shared/constants';
+
+export const isSelected = (selected, selectedType: Views) => selected != null && selected?.type == selectedType;
 
 export default function Column(props) {
     let count = 0;
@@ -29,6 +31,7 @@ export default function Column(props) {
         users,
         selected,
         setLoading,
+        setSelected,
         menuPosition, 
         selectedGrid,
         globalUserData,
@@ -50,6 +53,12 @@ export default function Column(props) {
         if (name?.length >= 15) nameClasses = `lTitle`;
         if (name?.length >= 20) nameClasses = `xlTitle`;
         return nameClasses;
+    }
+
+    const getItemTasks = (item: ItemModel, filterKey: string = ``) => {
+        let itemTasks = globalUserData?.tasks?.filter(tsk => tsk?.itemID == item?.id);
+        if (filterKey != ``) itemTasks = itemTasks?.filter(tsk => tsk?.options[filterKey] == true);
+        return itemTasks;
     }
 
     const itemActiveFilters = (itm: ItemModel) => {
@@ -236,10 +245,20 @@ export default function Column(props) {
         }, 1000);
     }
 
-    const getItemTasks = (item: ItemModel, filterKey: string = ``) => {
-        let itemTasks = globalUserData?.tasks?.filter(tsk => tsk?.itemID == item?.id);
-        if (filterKey != ``) itemTasks = itemTasks?.filter(tsk => tsk?.options[filterKey] == true);
-        return itemTasks;
+    const openItemDetails = (e, item, itemIndex) => {
+        // manageItem(e, item, itemIndex, getItemTasks(item), getItemTasks(item, `active`), getItemTasks(item, `complete`), board, column);
+        e.preventDefault();
+        const selectedToSet = { 
+            item,
+            board,
+            column,
+            itemIndex,
+            type: `Details`,
+            tasks: item?.tasks,
+            activeTasks: item?.tasks?.filter((tsk: Task) => tsk?.options?.active),
+            completeTasks: item?.tasks?.filter((tsk: Task) => tsk?.options?.complete),
+        };
+        setSelected(selectedToSet);
     }
 
     return (
@@ -315,8 +334,8 @@ export default function Column(props) {
                                         return (
                                             <Draggable key={item?.id} draggableId={item?.id} index={itemIndex} isDragDisabled={gridSearchTerm != ``}>
                                                 {provided => (
-                                                    <div id={item?.id} className={`item boardItem ${hoverItemForm ? `itemHoverToExpand` : ``} completeItem ${(item?.options?.complete) ? `complete completeBoardItem` : `activeBoardItem`} ${(item?.options?.active && (getItemTasks(item, `active`)?.length > 0 || item?.data?.taskIDs?.length == 0)) ? `activeItemBoard` : ``} ${gridSearchTerm != `` ? `wSearchTerm` : ``} container ${snapshot.isDragging ? `dragging` : ``} ${(itemTypeMenuOpen || selected != null) ? `unfocus` : ``}`} title={item?.name} {...provided.draggableProps} ref={provided.innerRef}>
-                                                        <div onClick={(e) => manageItem(e, item, itemIndex, getItemTasks(item), getItemTasks(item, `active`), getItemTasks(item, `complete`), board, column)} {...provided.dragHandleProps} className={`itemDraggableWrapper itemRow flex row ${item?.options?.complete ? `completed` : `incomplete`} ${item?.tasks.length > 0 ? `hasTasksRow` : `noTasksRow`}`}>
+                                                    <div id={item?.id} className={`item boardItem ${hoverItemForm ? `itemHoverToExpand` : ``} completeItem ${(item?.options?.complete) ? `complete completeBoardItem` : `activeBoardItem`} ${(item?.options?.active && (getItemTasks(item, `active`)?.length > 0 || item?.data?.taskIDs?.length == 0)) ? `activeItemBoard` : ``} ${gridSearchTerm != `` ? `wSearchTerm` : ``} container ${snapshot.isDragging ? `dragging` : ``} ${(itemTypeMenuOpen || isSelected(selected, Views.Context)) ? `unfocus` : ``}`} title={item?.name} {...provided.draggableProps} ref={provided.innerRef}>
+                                                        <div onClick={(e) => openItemDetails(e, item, itemIndex)} {...provided.dragHandleProps} className={`itemDraggableWrapper itemRow flex row ${item?.options?.complete ? `completed` : `incomplete`} ${item?.tasks.length > 0 ? `hasTasksRow` : `noTasksRow`}`}>
                                                             <Item 
                                                                 item={item} 
                                                                 count={count} 
