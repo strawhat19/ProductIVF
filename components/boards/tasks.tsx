@@ -106,6 +106,7 @@ export default function Tasks(props) {
   let { 
     user,
     users,
+    selected,
     setLoading,
     selectedGrid,
     gridSearchTerm,
@@ -371,7 +372,7 @@ export default function Tasks(props) {
         </div>
 
         {showForm && (
-          <form onSubmit={addTask} className={`subtaskAddForm addForm flex row`}>
+          <form onSubmit={(e) => selected != null ? e?.preventDefault() : addTask(e)} className={`subtaskAddForm addForm flex row`}>
             <input
               required
               type={`text`}

@@ -1,7 +1,7 @@
 import 'react-lazy-load-image-component/src/effects/blur.css';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 
-export default function CustomImage({ useLazyLoad = true, alt, width, height, effect = `blur`, className, id, src }: any) {
+export default function CustomImage({ useLazyLoad = true, alt, width, height, effect = `blur`, className, id, src, onImageLoad = (e) => {}, onImageError = (e) => {} }: any) {
     return useLazyLoad ? (
         <LazyLoadImage 
             id={id} 
@@ -11,6 +11,8 @@ export default function CustomImage({ useLazyLoad = true, alt, width, height, ef
             height={height} 
             effect={effect} 
             className={className} 
+            onLoad={(e) => onImageLoad(e)}
+            onError={(e) => onImageError(e)}
         />
     ) : (
         <img 
@@ -20,6 +22,8 @@ export default function CustomImage({ useLazyLoad = true, alt, width, height, ef
             width={width}
             height={height} 
             className={className}
+            onLoad={(e) => onImageLoad(e)}
+            onError={(e) => onImageError(e)}
         />
     )
 }

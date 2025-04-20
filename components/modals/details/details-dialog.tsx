@@ -25,7 +25,7 @@ export default function DetailsDialog({ }: any) {
             onClose={(e) => onCloseLogic(e)}
             slotProps={{
                 paper: {
-                    component: `form`,
+                    component: `div`,
                     className: `detailsDialog`,
                     onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
                         event.preventDefault();
@@ -38,7 +38,13 @@ export default function DetailsDialog({ }: any) {
                     <h2 className={`alertTitle`}>
                         {selected?.item?.name}
                     </h2>
-                    <div className={`rightTitleField`}></div>
+                    <div className={`rightTitleField`}>
+                        {selected != null && (
+                            <button className={`detailsCloseButton buttonComponent`} onClick={(e) => onCloseLogic(e)}>
+                                <i className={`fas fa-times`} />
+                            </button>
+                        )}
+                    </div>
                 </div>
                 <div className={`detailsDialogAlertInner inner`}>
                     <Details />

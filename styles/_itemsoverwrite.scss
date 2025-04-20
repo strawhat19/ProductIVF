@@ -65,7 +65,14 @@
     }
 }
 
-.formTop {
+.tasksContainer {
+    width: 100%;
+    display: flex;
+    grid-gap: 10px;
+    flex-direction: column;
+}
+
+.formTop, .tasksContainer {
     .itemDetails_Board {
         .itemDetails_List {
             padding: 0 !important;
@@ -111,9 +118,10 @@
 }
 
 .itemDetailFieldMetric {
+    max-height: 20px;
     justify-content: flex-start;
     .itemDetailType {
-        min-width: 60px;
+        max-width: fit-content;
     }
     .itemDetailSubType {
         padding-right: 10px;

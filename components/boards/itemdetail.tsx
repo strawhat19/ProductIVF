@@ -6,12 +6,9 @@ import CustomImage from '../custom-image';
 import { Task } from '../../shared/models/Task';
 import { Item } from '../../shared/models/Item';
 import DetailField from './details/detail-field';
-// import RelatedURLs from './details/related-urls';
+import { isValid } from '../../shared/constants';
 import ToggleButtons from './details/toggle-buttons';
-// import { doc, onSnapshot } from 'firebase/firestore';
-// import RelatedURLsDND from './details/related-urls-dnd';
 import { updateDocFieldsWTimeStamp } from '../../firebase';
-import { TasksFilterStates } from '../../shared/types/types';
 import { capWords, dev, StateContext } from '../../pages/_app';
 import { useContext, useEffect, useRef, useState } from 'react';
 
@@ -19,12 +16,13 @@ export default function ItemDetail(props) {
     let formRef = useRef(null);
     let { item: itemProp, index, tasks: tasksProp, activeTasks, completeTasks, board, column } = props;
 
-    let { selected, globalUserData } = useContext<any>(StateContext);
+    let { selected, setSelected, globalUserData } = useContext<any>(StateContext);
 
     let [item, setItem] = useState<Item>(itemProp);
     let [formStatus, setFormStatus] = useState(``);
     let [imageErrorText, ] = useState(`Image Error`);
     let [tasks, setTasks] = useState<Task[]>(tasksProp);
+    let [validSelectedImage, setValidSelectedImage] = useState(isValid(itemProp?.image));
     let [image, setImage] = useState((itemProp?.image && itemProp?.image != ``) ? itemProp?.image : undefined);
     let [active, setActive] = useState(
         item?.options?.complete 
@@ -44,7 +42,11 @@ export default function ItemDetail(props) {
         })
         setTasks(updatedTasks);
         const updatedItemAndTasks = { ...refreshedItem, tasks: updatedTasks };
+        dev() && console.log(`Updated Item & Tasks`, updatedItemAndTasks);
         setItem(updatedItemAndTasks);
+        if (updatedItemAndTasks != null) {
+            setSelected(prevSelected => ({ ...prevSelected, item: updatedItemAndTasks }));
+        }
     }, [globalUserData])
 
     const updateFormStatus = (statusText: string = ``, clear = false) => {
@@ -72,7 +74,24 @@ export default function ItemDetail(props) {
     const refreshDetails = (e) => {
         e.preventDefault();
         let formField = e?.target;
-        if (formField?.name == `itemImageLink`) setImage(formField?.value);
+        if (formField?.name == `itemImageLink`) {
+            const detailViewImage: HTMLImageElement = document?.querySelector(`.detailViewImage`);
+            const updatedImage = formField?.value;
+            setImage(`${updatedImage}?retry=${Date.now()}`);
+            setImage(updatedImage);
+            if (detailViewImage) {
+                console.log(`Form Input`, { 
+                    detailViewImage,
+                    src: formField?.value,
+                    complete: detailViewImage?.complete,
+                    width: detailViewImage?.naturalWidth,
+                    height: detailViewImage?.naturalHeight, 
+                });
+                // fetch(formField?.value)?.then(imgRes => imgRes?.json())?.then(imgData => {
+                //     console.log(`Image Fetch`, imgData);
+                // })
+            }
+        }
         // if (formRef != null) {
         //     let form = formRef?.current;
         //     let { itemURL: itemURLField } = form;
@@ -89,13 +108,14 @@ export default function ItemDetail(props) {
     const saveItem = async (e, dismissOnSave = false) => {
         e.preventDefault();
 
-        let form = e?.target;
+        // let form = e?.target;
+        let form = formRef?.current;
 
         let { 
             itemImageLink, 
             itemDescriptionField,
-            // itemURL: itemURLField, 
             itemName: itemNameField, 
+            // itemURL: itemURLField, 
         } = form;
 
         // let itemURL = itemURLField?.value;
@@ -157,149 +177,170 @@ export default function ItemDetail(props) {
         }
     }
 
+    const onItemShowFormChange = async (e) => {
+        e?.preventDefault();
+        await updateDocFieldsWTimeStamp(selected?.item, { [`options.showTaskForm`]: !item?.options?.showTaskForm });
+    }
+
+    const imageLoaded = (e) => {
+        const imageComponent = e?.target;
+        // const imageHeight = image?.clientHeight;
+        console.log(`Image Loaded`, { e, complete: imageComponent?.complete, width: imageComponent?.naturalWidth, height: imageComponent?.naturalHeight });
+        // if (imageComponent?.complete && imageComponent?.naturalWidth > 0) {
+        //     setValidSelectedImage(true);
+        //     // updateFormStatus(`Image Error`, true);
+        // }
+        // setTimeout(() => {
+        // if (imageHeight >= 50) {
+        //     setValidSelectedImage(true);
+        //     updateFormStatus(`Image Error`, true);
+        // }
+        // }, 1000)
+    }
+  
+    const imageErrored = (e) => {
+        const imageComponent = e?.target;
+        // const imageHeight = image?.clientHeight;
+        console.log(`Image Errored`, { e, complete: imageComponent?.complete, width: imageComponent?.naturalWidth, height: imageComponent?.naturalHeight });
+        // setTimeout(() => {
+        //     console.log(`Image Errored`, { e, complete: imageComponent?.complete, width: imageComponent?.naturalWidth, height: imageComponent?.naturalHeight });
+        // }, 250)
+        // if (!imageComponent?.complete || imageComponent?.naturalWidth === 0) {
+        //     setValidSelectedImage(false);
+        //     // updateFormStatus(`Image Error`);
+        // }
+        // if (imageHeight >= 50) {
+        //     // console.log(`Image Loaded`, e);
+        //     // setValidSelectedImage(true);
+        //     // updateFormStatus(`Image Error`, true);
+        // } else {
+        //     updateFormStatus(`Image Error`);
+        // }
+    }
+
+    const DetailsFields = () => {
+        return <>
+            <div className={`itemDetailFieldMetric flexLabel`}>
+                <h4 className={`itemDetailType`}><strong>ID:</strong></h4>
+                <h4 className={`itemDetailType`}>
+                    <ItemWrapper cursorGrab={false}>    
+                        <Tags item={item} extend={true} parentClass={`itemDetailContentsTagParent itemContents`} className={`IDTag`} />
+                    </ItemWrapper>
+                </h4>
+            </div>
+            <div className={`itemDetailFieldMetric flexLabel`}>
+                <h4 className={`itemDetailType`}><strong>Status:</strong></h4>
+                <DetailField item={item} tasks={tasks} />
+            </div>
+            <div className={`itemDetailFieldMetric flexLabel`}>
+                <h4 className={`itemDetailType`}><strong>Created:</strong></h4>
+                <h4 className={`itemDetailType`}>{item?.meta?.created}</h4>
+            </div>
+            <div className={`itemDetailFieldMetric flexLabel`}>
+                <h4 className={`itemDetailType`}><strong>Updated:</strong></h4>
+                <h4 className={`itemDetailType`}>{item?.meta?.updated}</h4>
+            </div>
+        </>
+    }
+
+    const TasksField = () => {
+        return <>
+            <div className={`itemDetailTasksRow flexLabel spaceBetween`}>
+                <div className={`itemDetailTasksLabel itemDetailFieldMetric flexLabel`}>
+                    <h4 className={`itemDetailType`}><strong>Tasks:</strong></h4>
+                    <h4 className={`itemDetailType`}>{item?.data?.taskIDs?.length}</h4>
+                </div>
+                <div className={`itemDetailTasksLabel itemDetailFieldMetric flexLabel`}>
+                    <div className={`toggle-buttons`}>
+                        <button className={`taskFormToggleButton flexLabel buttonComponent`} type={`button`} onClick={(e) => onItemShowFormChange(e)}>
+                            <i className={`fas ${item?.options?.showTaskForm ? `fa-minus` : `fa-plus`}`} />
+                            Tasks
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <ItemWrapper>
+                <Tasks 
+                    item={item} 
+                    board={board}
+                    column={column} 
+                    tasksProp={tasks}
+                    showForm={item?.options?.showTaskForm} 
+                />
+            </ItemWrapper>
+        </>
+    }
+
+    const FormFields = () => {
+        return <>
+            <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
+                <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
+                    Name
+                </div>
+                <input type={`text`} name={`itemName`} className={`itemNameField`} placeholder={`Item Name`} defaultValue={item?.name} />
+            </div>
+            {dev() && (
+                <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
+                    <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
+                        Image
+                    </div>
+                    <input type={`text`} name={`itemImageLink`} className={`itemImageLinkField`} placeholder={`Item Image`} defaultValue={item?.image} />
+                </div>
+            )}
+            <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
+                <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
+                    Description
+                </div>
+                <textarea name={`itemDescriptionField`} className={`itemDescriptionField`} placeholder={`Item Description`} defaultValue={item?.description} />
+            </div>
+            <div className={`toggle-buttons`}>
+                <button onClick={(e) => saveItem(e)} type={`button`} title={formStatus != `` ? formStatus : undefined} disabled={formStatus != ``} className={`iconButton saveButton ${formStatus != `` ? `pointerEventsNone` : ``}`} style={{ color: formStatus != `` ? `red` : `black` }}>
+                    {formStatus != `` ? formStatus : `Save`}
+                </button>
+            </div>
+        </>
+    }
+
     return (
         <div id={`detail_view_${item?.id}`} className={`detailView flex row`}>
-            {image && (
+            {validSelectedImage && (
                 <figure className={`customDetailImage`} style={{ maxWidth: `40%` }}>
                     <CustomImage 
                         src={image} 
                         alt={item?.name} 
-                        className={`itemImage detailViewImage`} 
-                        onError={(e) => updateFormStatus(imageErrorText)} 
-                        onLoad={(e) => updateFormStatus(imageErrorText, true)} 
+                        onImageLoad={(e) => imageLoaded(e)} 
+                        onImageError={(e) => imageErrored(e)} 
+                        className={`itemImage detailViewImage imageLoadElement`} 
                     />
                 </figure>
             )}
-            {selected != null && (
+            {selected != null && item != null && item?.type && (
                 <form ref={formRef} onInput={(e) => refreshDetails(e)} onSubmit={(e) => saveItem(e)} className={`changeInputs flex isColumn`} data-index={index + 1}>
                     <div className={`formTop`}>
-                        <div className={`detailsColumn detailStart detailEdge formStartData formTopLeft flexColumn gap10`} style={{ minWidth: 255 }}>
-                            <div className={`itemDetailFieldMetric flexLabel`}>
-                                <h4 className={`itemDetailType`}><strong>Type:</strong></h4>
-                                <h4 className={`itemDetailType`}>{item?.type}</h4>
+                        <div className={`detailsStartContent`}>
+                            <div className={`detailsColumn detailStart detailEdge formStartData formTopLeft flexColumn gap10`} style={{ minWidth: 255 }}>
+                                {DetailsFields()}
                             </div>
-                            <div className={`itemDetailFieldMetric flexLabel`}>
-                                <h4 className={`itemDetailType`}><strong>ID:</strong></h4>
-                                <h4 className={`itemDetailType`}>
-                                    <ItemWrapper>    
-                                        <Tags item={item} parentClass={`itemDetailContentsTagParent itemContents`} className={`IDTag`} />
-                                    </ItemWrapper>
-                                </h4>
-                            </div>
-                            <div className={`itemDetailFieldMetric flexLabel`}>
-                                <h4 className={`itemDetailType`}><strong>Status:</strong></h4>
-                                <DetailField item={item} tasks={tasks} />
-                            </div>
-                            <div className={`itemDetailFieldMetric flexLabel`}>
-                                <h4 className={`itemDetailType`}><strong>Created:</strong></h4>
-                                <h4 className={`itemDetailType`}>{item?.meta?.created}</h4>
-                            </div>
-                            <div className={`itemDetailFieldMetric flexLabel`}>
-                                <h4 className={`itemDetailType`}><strong>Updated:</strong></h4>
-                                <h4 className={`itemDetailType`}>{item?.meta?.updated}</h4>
+                            <div className={`detailProgress`}>
+                                <Progress 
+                                    item={item} 
+                                    tasks={tasks}
+                                    customInnerText={false}
+                                    classes={`detailViewProgress detailsColumn detailEdge detailEnd`} 
+                                    injectedProgress={active === `complete` ? 100 : active === `to do` ? 0 : item?.data?.taskIDs?.length == 0 ? 50 : undefined} 
+                                />
                             </div>
                         </div>
-                        {dev() && (item?.data?.taskIDs?.length > 0 || item?.data?.tags?.length > 0) && (
-                            <div className={`formCenterData detailCenter formTopLeft flexColumn gap10`}>
-                                {item?.data?.taskIDs?.length > 0 && <>
-                                    <div className={`itemDetailTasksLabel itemDetailFieldMetric flexLabel`}>
-                                        <h4 className={`itemDetailType`}><strong>Tasks:</strong></h4>
-                                        <h4 className={`itemDetailType`}>{item?.data?.taskIDs?.length}</h4>
-                                    </div>
-                                    <ItemWrapper>
-                                        <Tasks 
-                                            item={item} 
-                                            board={board}
-                                            column={column} 
-                                            showForm={true} 
-                                            tasksProp={tasks}
-                                        />
-                                    </ItemWrapper>
-                                </>}
-                                {/* {dev() && item?.data?.tags?.length > 0 && <>
-                                    <div className={`itemDetailTagsLabel itemDetailFieldMetric flexLabel`}>
-                                        <h4 className={`itemDetailType`}><strong>Tags:</strong></h4>
-                                        <h4 className={`itemDetailType`}>{item?.data?.tags?.length}</h4>
-                                    </div>
-                                    <div className={`itemDetailTags itemDetailFieldMetric flexLabel`}>
-                                        {item?.data?.tags?.map((tag, tagIndex) => (
-                                            <div key={tagIndex} className={`itemTag`}>
-                                                {tag}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </>}
-                                {item?.data?.relatedURLs?.length > 0 && <>
-                                    <div className={`itemDetailURLsField itemDetailFieldMetric flexLabel`}>
-                                        <div className={`itemDetailURLsFieldLabels flexLabel`}>
-                                            <h4 className={`itemDetailType`}><strong>URLs:</strong></h4>
-                                            <h4 className={`itemDetailSubType`}>{item?.data?.relatedURLs?.length}</h4>
-                                        </div>
-                                        <RelatedURLsDND item={item} />
-                                    </div>
-                                </>} */}
-                            </div>
-                        )}
-                        <Progress 
-                            item={item} 
-                            tasks={tasks}
-                            customInnerText={false}
-                            classes={`detailViewProgress detailsColumn detailEdge detailEnd`} 
-                            injectedProgress={active === `complete` ? 100 : active === `to do` ? 0 : item?.data?.taskIDs?.length == 0 ? 50 : undefined} 
-                        />
+                        <div className={`formCenterData detailCenter formTopLeft flexColumn gap10`}>
+                            {FormFields()}
+                        </div>
                     </div>
                     <ToggleButtons item={item} activeTasks={tasks?.filter((tsk: Task) => tsk?.options?.active)} completeTasks={tasks?.filter((tsk: Task) => tsk?.options?.complete)} onActiveChange={(newActive) => setActive(newActive)} />
-                    <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
-                        <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
-                            Name
+                    {item?.data?.taskIDs?.length > 0 && <>
+                        <div className={`tasksContainer`}>
+                            {TasksField()}
                         </div>
-                        <input type={`text`} name={`itemName`} className={`itemNameField`} placeholder={`Item Name`} defaultValue={item?.name} />
-                    </div>
-                    <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
-                        <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
-                            Image
-                        </div>
-                        <input type={`text`} name={`itemImageLink`} className={`itemImageLinkField`} placeholder={`Item Image`} defaultValue={item?.image} />
-                    </div>
-                    <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
-                        <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
-                            Description
-                        </div>
-                        <textarea name={`itemDescriptionField`} className={`itemDescriptionField`} placeholder={`Item Description`} defaultValue={item?.description} />
-                    </div>
-                    {/* <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
-                        <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
-                            Video
-                        </div>
-                        <input type={`text`} name={`itemVideoLink`} className={`itemVideoLinkField`} placeholder={`Item Video`} defaultValue={item?.video} />
-                    </div> */}
-                    {/* <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
-                        <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
-                            URL
-                        </div>
-                        <input type={`url`} name={`itemURL`} className={`itemURLField`} placeholder={`https Item URL`} pattern={`https?://.*`} />
-                    </div> */}
-                    {/* <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
-                        <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
-                            Subtask
-                        </div>
-                        <input type={`text`} name={`itemTask`} className={`itemTaskField`} placeholder={`Item Task`} />
-                    </div> */}
-                    {/* {formStatus != `` && (
-                        <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
-                            <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end`, color: `red` }}>
-                                {formStatus}
-                            </div>
-                        </div>
-                    )} */}
-                    <div className={`toggle-buttons`}>
-                        {/* <button className={`iconButton deleteButton`}>
-                            Delete
-                        </button> */}
-                        <button type={`submit`} title={formStatus != `` ? formStatus : undefined} disabled={formStatus != ``} className={`iconButton saveButton ${formStatus != `` ? `pointerEventsNone` : ``}`} style={{ color: formStatus != `` ? `red` : `black` }}>
-                            {formStatus != `` ? formStatus : `Save`}
-                        </button>
-                    </div>
+                    </>}
                 </form>
             )}
         </div>

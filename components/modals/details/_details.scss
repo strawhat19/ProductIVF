@@ -2,6 +2,47 @@
     --detailsTasksMaxHeight: 348px;
 }
 
+.createTaskButton {
+    grid-gap: 6px;
+    padding-left: 10px;
+}
+
+.buttonComponent {
+    display: flex;
+    border-radius: 4px;
+    padding: 10px 15px;
+    background: white;
+    align-items: center;
+    color: var(--gameBlue);
+    justify-content: center;
+    transition: var(--transition);
+    &:hover {
+        color: white !important;
+        background: var(--gameBlue);
+        i {
+            color: white !important;
+        }
+    }
+}
+
+.taskFormToggleButton {
+    grid-gap: 5px;
+    font-size: 12px;
+    align-items: center;
+    padding: 3px 5px !important;
+    i {
+        font-size: 12px;
+        color: var(--gameBlue);
+    }
+}
+
+.detailsStartContent {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
 .MuiDialog-root {
     &:has(.detailsDialog) {
         backdrop-filter: blur(10px);
@@ -45,7 +86,7 @@
         .formTop {
             align-items: flex-start;
             .detailEdge {
-                padding-top: 50px;
+                padding-top: 10px;
             }
         }
     }
@@ -62,9 +103,15 @@
                 background: transparent;
             }
             .createTaskButton {
+                color: white;
                 padding-left: 5px;
                 align-self: center;
                 padding-right: 5px;
+                background: transparent;
+                transition: var(--transition);
+                &:hover {
+                    background: black;
+                }
                 .itemLength {
                     &.index {
                         display: none;

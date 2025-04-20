@@ -997,13 +997,13 @@ section {
 
 ::-webkit-scrollbar {
     position: relative;
-    width: 1px !important;
+    width: 2px !important;
     border-radius: var(--borderRadius);
-    background: var(--gameBlue) !important;
+    background: var(--blackGlass) !important;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--navAndFooterBG);
+    background: var(--gameBlue);
     border-radius: var(--borderRadius);
 }
 
@@ -1456,6 +1456,7 @@ textarea {
             color: white;
             font-size: 35px;
             font-weight: 600;
+            max-width: fit-content;
         }
         .rightTitleField {
             text-align: right;
@@ -1698,8 +1699,8 @@ textarea {
 
             &::-webkit-scrollbar {
                 position: relative;
-                border-radius: var(--borderRadius);
                 width: 4px !important;
+                border-radius: var(--borderRadius);
                 background: var(--blackGlass) !important;
             }
             &::-webkit-scrollbar-thumb {
@@ -1773,7 +1774,7 @@ textarea {
                     width: auto;
                     min-height: 75px;
                     max-width: 175px;
-                    max-height: 350px; 
+                    max-height: 180px; 
                     margin-left: -13px;
                     align-self: stretch;
                     height: 100% !important;
@@ -2160,7 +2161,7 @@ textarea {
 
                         input {
                             font-size: 10px;
-                            padding: 3px 15px;
+                            padding: 3px 15px 5px;
                             background: transparent !important;
                             border-bottom-left-radius: var(--borderRadius);
                             border-bottom-right-radius: var(--borderRadius);
@@ -2941,9 +2942,11 @@ footer {
 }
 
 .detailView {
+    grid-gap: 17px !important;
     --gameBlueInverse: var(--gameBlue);
     .detailViewImage {
-        max-height: 675px;
+        max-height: 850px;
+        border-radius: 4px;
     }
     form {
         .formTop {

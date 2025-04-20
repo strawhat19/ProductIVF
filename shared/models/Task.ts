@@ -2,7 +2,7 @@ import { Data } from './Data';
 import { User } from './User';
 import { genID } from '../ID';
 import { Types } from '../types/types';
-import { countPropertiesInObject, isValid, stringNoSpaces } from '../constants';
+import { countPropertiesInObject, getItemOrTaskURLs, isValid, stringNoSpaces } from '../constants';
 
 export class Task extends Data {
     ID: any;
@@ -35,6 +35,7 @@ export class Task extends Data {
 
     data?: { [key: string]: string[] } = {
         users: [],
+        relatedURLs: [],
     }
 
     constructor(data: Partial<Task>) {
@@ -109,6 +110,9 @@ export const createTask = (
             }),
         }
     }
+
+    const taskURLs = getItemOrTaskURLs(task, [task?.name]);
+    console.log(`Task URLs`, taskURLs);
 
     return task;
 }

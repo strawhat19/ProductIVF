@@ -36,9 +36,9 @@ import {
   gridConverter,
   featuresTable,
   featureConverter,
+  addBoardToDatabase,
   gridDataCollectionNames,
   updateDocFieldsWTimeStamp,
-  addBoardToDatabase,
 } from '../firebase';
 
 export const StateContext = createContext({});
@@ -872,6 +872,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
             });
             setGlobalUserData(prevGlobalUserData => ({
               ...prevGlobalUserData,
+              selected,
               grid: selectedGrid,
               lastUpdate: getIDParts()?.date,
               [collectionName]: modeledGridDataDocs,

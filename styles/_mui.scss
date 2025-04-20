@@ -5,6 +5,11 @@
     --skeletonSweepColor: var(--skeletonSweepDarkBlue);
 }
 
+.MuiSwitch-root {
+    margin: 0;
+    margin-right: -10px;
+}
+
 .MuiDialog-root {
     &:has(.authConfirmForm) {
         --authFormSpacing: 10px;

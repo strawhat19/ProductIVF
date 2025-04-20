@@ -8,7 +8,6 @@ export default function Details({ className = `detailsElement` }: any) {
     let { selected } = useContext<any>(StateContext);
     return <>
         <div className={`detailsComponent ${className} ${selected?.tasks?.length >= 5 ? `overflowingTasks` : selected?.tasks?.length}`}>
-            {/* Details */}
             <ItemDetail 
                 key={selected?.item?.meta?.updated} 
                 item={selected?.item}

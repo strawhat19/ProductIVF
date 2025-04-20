@@ -94,8 +94,8 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
         setLoading, 
         setSelected, 
         // addNewBoard,
-        // selectedGrid,
         globalUserData,
+        // selectedGrid,
         setSystemStatus, 
         setMenuPosition, 
         setItemTypeMenuOpen, 
@@ -111,15 +111,10 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
 
         elemValue = removeExtraSpacesFromString(value);
         elemValue = capitalizeAllWords(elemValue);
-
         e.target.innerHTML = elemValue;
-
         const name = elemValue;
-        // const updatedURLsItem = setItemURLs(item, [name]);
-        // const updatedURLs = updatedURLsItem?.data?.relatedURLs;
 
         updateDocFieldsWTimeStamp(item, { name, A: name, title: `${item?.type} ${item?.rank} ${name}` });
-        // updateDocFieldsWTimeStamp(item, { name, A: name, title: `${item?.type} ${item?.rank} ${name}`, [`data.relatedURLs`]: updatedURLs });
     }
 
     const completeActions = async (item, isButton) => {
@@ -393,7 +388,7 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
                 </i>
             </span>
             {item?.image && (
-                <CustomImage className={`itemImage boardItemImage`} src={item?.image} alt={item?.content} useLazyLoad={true} />
+                <CustomImage className={`itemImage boardItemImage`} src={item?.image} alt={item?.content} />
             )}
             <div className={`itemDetailsContainer`}>
                 <div className={`itemContents`}>
@@ -408,9 +403,6 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
                         >
                             {item.name}
                         </span>
-                        {/* {devEnv && showItemDetails() == true && <>
-                            <ProgressBar progress={getItemTaskCompletionPercentage(getItemTasks(), item)} />
-                        </>} */}
                     </span>
                     {(item?.image || showItemDetails() == true) ? <>
                         <hr className={`itemSep`} style={{height: 1, borderColor: `var(--gameBlue)`}} />
@@ -426,7 +418,7 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
                         </div>
                     </> : <></>}
                 </div>
-                {showItemDetails() == false && <>
+                {(!item?.image && showItemDetails() == false) && <>
                     <div className={`altTagsContainer itemContents fit`}>
                         <Tags item={item} />
                         {/* {devEnv && <RelatedURLsDND item={{ ...item, data: { ...item?.data, relatedURLs: [item?.data?.relatedURLs[0]] } }} />} */}

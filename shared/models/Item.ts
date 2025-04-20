@@ -130,7 +130,5 @@ export const createItem = (
         }
     }
 
-    // item = setItemURLs(item, [item?.name]);
-
     return item;
 }
