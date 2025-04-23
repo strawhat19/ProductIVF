@@ -52,37 +52,6 @@ export const getTypeIcon = (type) => {
     }
 }
 
-export const manageItem = (e, item, index, tasks, activeTasks, completeTasks, board, column) => {
-    if (!e.target.classList.contains(`changeLabel`) && !e.target.classList.contains(`confirmActionOption`)) {
-        const showItemDetailsAlert = () => {
-            showAlert(
-                item?.name, 
-                <ItemDetail 
-                    key={item?.meta?.updated} 
-                    item={item}
-                    board={board} 
-                    index={index} 
-                    tasks={tasks} 
-                    column={column}
-                    activeTasks={activeTasks} 
-                    completeTasks={completeTasks} 
-                />, 
-                `95%`, `85%`, `30px`,
-                // <ToggleButtons item={item} activeTasks={activeTasks} completeTasks={completeTasks} onActiveChange={(newActive) => setActive(newActive)} />
-            );
-        }
-        let isButton = e.target.classList.contains(`iconButton`);
-        if (isButton) {
-            let isManageButton = e.target.classList.contains(`manageButton`);
-            if (isManageButton) {
-                showItemDetailsAlert();
-            }
-        } else {
-            showItemDetailsAlert();
-        }
-    }
-}
-
 export default function Item({ item, count, column, itemIndex, board, setForceListDetails }: any) {
     let [showConfirm, setShowConfirm] = useState(false);
     let [windowWidth, setWindowWidth] = useState(typeof window !== undefined ? window.innerWidth : 1920);
@@ -265,13 +234,6 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
     //     }
     // }
 
-    // const onManageItem = (e) => {
-    //     const allTasks = getItemTasks();
-    //     const activeTasks = getItemTasks(`active`);
-    //     const completeTasks = getItemTasks(`complete`);
-    //     manageItem(e, item, itemIndex, allTasks, activeTasks, completeTasks, board, column);
-    // }
-
     const showItemDetails = () => {
         let listItemsContainerSmall = false;
         if (document) {
@@ -326,23 +288,16 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
     // }
 
     const onRightClick = (e: React.MouseEvent<HTMLDivElement>, item: ItemModel, column: List) => {
-        // if (!devEnv) {
-            e.preventDefault();
-            setItemTypeMenuOpen(true);
-            setMenuPosition({ x: e.clientX, y: e.clientY });
-            setSelected({ 
-                item,
-                column,
-                board,
-                onSortItemTasks,
-                type: Views.Context,
-                // onManageItem,
-                // onDeleteItem,
-                // onArchiveItem,
-                // onCompleteItem,
-                // onDefaultRightClick, 
-            });
-        // }
+        e.preventDefault();
+        setItemTypeMenuOpen(true);
+        setMenuPosition({ x: e.clientX, y: e.clientY });
+        setSelected({ 
+            item,
+            column,
+            board,
+            onSortItemTasks,
+            type: Views.Context,
+        });
     }
     
     const handleClickOutside = (event: MouseEvent) => {

@@ -19,11 +19,6 @@ export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--
         onDismiss();
     }
 
-    // const onManageItem = (e) => {
-    //     onDismiss();
-    //     selected?.onManageItem(e);
-    // }
-
     // const onArchiveItem = (e) => {
     //     onDismiss();
     //     selected?.onArchiveItem(e);

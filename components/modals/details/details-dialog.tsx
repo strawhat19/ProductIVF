@@ -1,13 +1,9 @@
 import Details from './details';
 import { useContext } from 'react';
 import { Dialog } from '@mui/material';
-// import { toast } from 'react-toastify';
 import { isSelected } from '../../boards/column';
 import { StateContext } from '../../../pages/_app';
 import { Views } from '../../../shared/types/types';
-// import { logToast } from '../../../shared/constants';
-// import { AuthGrids } from '../../../shared/types/types';
-// import { deleteDatabaseData, deleteUserAuth } from '../../../firebase';
 
 export default function DetailsDialog({ }: any) {
     const { 

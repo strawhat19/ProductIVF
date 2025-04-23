@@ -246,19 +246,23 @@ export default function Column(props) {
     }
 
     const openItemDetails = (e, item, itemIndex) => {
-        // manageItem(e, item, itemIndex, getItemTasks(item), getItemTasks(item, `active`), getItemTasks(item, `complete`), board, column);
         e.preventDefault();
-        const selectedToSet = { 
-            item,
-            board,
-            column,
-            itemIndex,
-            type: `Details`,
-            tasks: item?.tasks,
-            activeTasks: item?.tasks?.filter((tsk: Task) => tsk?.options?.active),
-            completeTasks: item?.tasks?.filter((tsk: Task) => tsk?.options?.complete),
-        };
-        setSelected(selectedToSet);
+        const target = e?.target;
+        const itemInteractiveClasses = [`iconButton`, `changeLabel`, `completeButton`, `confirmActionOption`, `deleteItemButton`];
+        const itemInteractiveClicked = itemInteractiveClasses?.some(clsString => target?.classList.contains(clsString));
+        if (itemInteractiveClicked == false) {
+            const selectedToSet = { 
+                item,
+                board,
+                column,
+                itemIndex,
+                type: `Details`,
+                tasks: item?.tasks,
+                activeTasks: item?.tasks?.filter((tsk: Task) => tsk?.options?.active),
+                completeTasks: item?.tasks?.filter((tsk: Task) => tsk?.options?.complete),
+            };
+            setSelected(selectedToSet);
+        }
     }
 
     return (
