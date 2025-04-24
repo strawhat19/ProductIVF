@@ -23,7 +23,7 @@ export default function DetailsDialog({ }: any) {
                 paper: {
                     component: `div`,
                     className: `detailsDialog`,
-                    onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
+                    onSubmit: (event: any) => {
                         event.preventDefault();
                     },
                 },

@@ -7,6 +7,11 @@
     padding-left: 10px;
 }
 
+.itemDetailsForm {
+    width: 100% !important;
+    justify-content: flex-start !important;
+}
+
 .buttonComponent {
     display: flex;
     border-radius: 4px;
@@ -38,6 +43,7 @@
 
 .detailsStartContent {
     display: flex;
+    grid-gap: 25px;
     align-items: center;
     flex-direction: column;
     justify-content: flex-start;

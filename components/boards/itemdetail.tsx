@@ -20,7 +20,7 @@ export default function ItemDetail(props) {
 
     let [item, setItem] = useState<Item>(itemProp);
     let [formStatus, setFormStatus] = useState(``);
-    let [imageErrorText, ] = useState(`Image Error`);
+    // let [imageErrorText, ] = useState(`Image Error`);
     let [tasks, setTasks] = useState<Task[]>(tasksProp);
     let [validSelectedImage, setValidSelectedImage] = useState(isValid(itemProp?.image));
     let [image, setImage] = useState((itemProp?.image && itemProp?.image != ``) ? itemProp?.image : undefined);
@@ -108,6 +108,8 @@ export default function ItemDetail(props) {
     const saveItem = async (e, dismissOnSave = false) => {
         e.preventDefault();
 
+        console.log(`saveItem`, e);
+
         // let form = e?.target;
         let form = formRef?.current;
 
@@ -117,6 +119,15 @@ export default function ItemDetail(props) {
             itemName: itemNameField, 
             // itemURL: itemURLField, 
         } = form;
+
+        // console.log(`saveItem`, {
+        //     e,
+        //     form,
+        //     dismissOnSave,
+        //     itemImageLink,
+        //     itemNameField,
+        //     itemDescriptionField,
+        // })
 
         // let itemURL = itemURLField?.value;
         let itemName = itemNameField?.value;
@@ -271,20 +282,29 @@ export default function ItemDetail(props) {
         </>
     }
 
+    const formSubmitOnEnter = (e) => {
+        const queryFields = [e?.key, e?.keyCode];
+        const submitKeys = [13, `Enter`, `Return`];
+        const shouldSubmitOnEnter = queryFields?.some(fld => submitKeys?.includes(fld));
+        if (shouldSubmitOnEnter) {
+            saveItem(e);
+        }
+    }
+
     const FormFields = () => {
         return <>
             <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
                 <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
                     Name
                 </div>
-                <input type={`text`} name={`itemName`} className={`itemNameField`} placeholder={`Item Name`} defaultValue={item?.name} />
+                <input onKeyDown={(e) => formSubmitOnEnter(e)} type={`text`} name={`itemName`} className={`itemNameField`} placeholder={`Item Name`} defaultValue={item?.name} />
             </div>
             {dev() && (
                 <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
                     <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
                         Image
                     </div>
-                    <input type={`text`} name={`itemImageLink`} className={`itemImageLinkField`} placeholder={`Item Image`} defaultValue={item?.image} />
+                    <input onKeyDown={(e) => formSubmitOnEnter(e)} type={`text`} name={`itemImageLink`} className={`itemImageLinkField`} placeholder={`Item Image`} defaultValue={item?.image} />
                 </div>
             )}
             <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
@@ -315,7 +335,7 @@ export default function ItemDetail(props) {
                 </figure>
             )}
             {selected != null && item != null && item?.type && (
-                <form ref={formRef} onInput={(e) => refreshDetails(e)} onSubmit={(e) => saveItem(e)} className={`changeInputs flex isColumn`} data-index={index + 1}>
+                <form ref={formRef} onInput={(e) => refreshDetails(e)} onSubmit={(e) => saveItem(e)} className={`itemDetailsForm changeInputs flex isColumn`} data-index={index + 1}>
                     <div className={`formTop`}>
                         <div className={`detailsStartContent`}>
                             <div className={`detailsColumn detailStart detailEdge formStartData formTopLeft flexColumn gap10`} style={{ minWidth: 255 }}>
@@ -335,7 +355,9 @@ export default function ItemDetail(props) {
                             {FormFields()}
                         </div>
                     </div>
-                    <ToggleButtons item={item} activeTasks={tasks?.filter((tsk: Task) => tsk?.options?.active)} completeTasks={tasks?.filter((tsk: Task) => tsk?.options?.complete)} onActiveChange={(newActive) => setActive(newActive)} />
+                    {(item?.data?.taskIDs?.length == 0 || item?.data?.taskIDs?.length == tasks?.filter((tsk: Task) => tsk?.options?.complete)?.length) && (
+                        <ToggleButtons item={item} toDoTasks={tasks?.filter((tsk: Task) => !tsk?.options?.active && !tsk?.options?.complete)} activeTasks={tasks?.filter((tsk: Task) => tsk?.options?.active)} completeTasks={tasks?.filter((tsk: Task) => tsk?.options?.complete)} onActiveChange={(newActive) => setActive(newActive)} />
+                    )}
                     {item?.data?.taskIDs?.length > 0 && <>
                         <div className={`tasksContainer`}>
                             {TasksField()}

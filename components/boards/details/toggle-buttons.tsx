@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react';
+import { Task } from '../../../shared/models/Task';
 
 export class ToggleButtonsProps {
     item: any;
-    activeTasks: any[];
-    completeTasks: any[];
+    toDoTasks: Task[];
+    activeTasks: Task[];
+    completeTasks: Task[];
     onActiveChange?: (active: string) => void;
 };
 
-export default function ToggleButtons({ item, activeTasks, completeTasks, onActiveChange = () => {} }: ToggleButtonsProps) {
-
+export default function ToggleButtons({ item, activeTasks, completeTasks, toDoTasks, onActiveChange = () => {} }: ToggleButtonsProps) {
     let [active, setActive] = useState(
         item?.options?.complete 
         ? `complete` 
@@ -33,7 +34,7 @@ export default function ToggleButtons({ item, activeTasks, completeTasks, onActi
     
     return (
         <div className={`toggle-buttons`}>
-            {item?.data?.taskIDs?.length == 0 && <>
+            {(item?.data?.taskIDs?.length == 0 || item?.data?.taskIDs?.length == toDoTasks?.length) && <>
                 <div 
                     onClick={() => setActive(`to do`)}
                     className={`toggle-button iconButton ${(active === `to do` || (item?.options?.active == false && active == `to do`)) ? `active` : ``}`} 

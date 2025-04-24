@@ -392,9 +392,11 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
                             />
                         )}
                     </button>
-                    <button id={`complete_${item?.id}`} onClick={(e) => onCompleteItem(e)} title={`Complete Item`} className={`iconButton wordIconButton completeButton`}>
-                        <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`itemStatusIcon ${item?.options?.complete ? `fas fa-history` : ((item?.data?.taskIDs?.length == 0 && item?.options?.active) || item?.data?.taskIDs?.length > 0) ? `fas fa-check-circle` : `fas fa-play-circle`}`} />
-                    </button>
+                    {(item?.data?.taskIDs?.length == 0 || (item?.data?.taskIDs?.length == getItemTasks(`complete`)?.length)) && (
+                        <button id={`complete_${item?.id}`} onClick={(e) => onCompleteItem(e)} title={`Complete Item`} className={`iconButton wordIconButton completeButton`}>
+                            <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`itemStatusIcon ${item?.options?.complete ? `fas fa-history` : ((item?.data?.taskIDs?.length == 0 && item?.options?.active) || item?.data?.taskIDs?.length > 0) ? `fas fa-check-circle` : `fas fa-play-circle`}`} />
+                        </button>
+                    )}
                     {/* <button id={`complete_${item?.id}`} onClick={(e) => onCompleteItem(e)} title={`Complete Item`} className={`iconButton wordIconButton completeButton`}>
                         {(item?.options?.complete || ((item?.data?.taskIDs?.length == 0 && item?.options?.active) || item?.data?.taskIDs?.length > 0)) ? (
                             <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`itemStatusIcon ${item?.options?.complete ? `fas fa-history` : ((item?.data?.taskIDs?.length == 0 && item?.options?.active) || item?.data?.taskIDs?.length > 0) ? `fas fa-check-circle` : `fas fa-play-circle`}`} />

@@ -16,7 +16,7 @@ import { forceFieldBlurOnPressEnter, getRankAndNumber, isValid, removeExtraSpace
 
 const reorder = (list, oldIndex, newIndex) => arrayMove(list, oldIndex, newIndex);
 
-const SortableSubtaskItem = ({ item, task, isLast, index, gridSearchTerm, changeLabel, completeTask, deleteSubtask, searchFilterTasks }) => {
+const SortableSubtaskItem = ({ selected, item, task, isLast, index, gridSearchTerm, changeLabel, completeTask, deleteSubtask, searchFilterTasks }) => {
   let { listeners, transform, attributes, setNodeRef, transition, isDragging } = useSortable({ id: task.id });
 
   const style = {
@@ -26,20 +26,20 @@ const SortableSubtaskItem = ({ item, task, isLast, index, gridSearchTerm, change
     transform: CSS.Translate.toString(transform),
   }
 
-  const getHighlightedText = (text: string, highlight: string) => {
-    if (!highlight) return text;
-    const regex = new RegExp(`(${highlight})`, `gi`);
-    const parts = text.split(regex);
-    return parts.map((part, i) =>
-      part.toLowerCase() === highlight.toLowerCase() ? (
-        <span key={i} className={`highlightSearchMatch fit`}>
-          {part}
-        </span>
-      ) : (
-        part
-      )
-    );
-  }
+  // const getHighlightedText = (text: string, highlight: string) => {
+  //   if (!highlight) return text;
+  //   const regex = new RegExp(`(${highlight})`, `gi`);
+  //   const parts = text.split(regex);
+  //   return parts.map((part, i) =>
+  //     part.toLowerCase() === highlight.toLowerCase() ? (
+  //       <span key={i} className={`highlightSearchMatch fit`}>
+  //         {part}
+  //       </span>
+  //     ) : (
+  //       part
+  //     )
+  //   );
+  // }
 
   return (
     <div ref={setNodeRef} title={task?.name} style={style} {...attributes} {...listeners} className={`draggableTask boardTaskDraggableWrap ${isLast ? `dndLastTask` : index == 0 ? `dndFirstTask` : `dndMiddleTask`}`}>
@@ -73,15 +73,17 @@ const SortableSubtaskItem = ({ item, task, isLast, index, gridSearchTerm, change
           </div>
 
           <div className={`taskOptions itemOptions itemButtons customButtons taskComponentBG taskButtons ${task?.options?.complete ? `taskComplete` : `taskActive`} ${item?.options?.complete ? `itemComplete` : `itemActive`} ${(item?.options?.complete || task?.options?.complete) ? `taskButtonsComplete` : `taskButtonsActive`}`}>
-            <button
-              title={`Delete Task`}
-              onClick={(e) => deleteSubtask(e, task)}
-              onMouseDown={(e) => e.stopPropagation()}
-              onPointerDown={(e) => e.stopPropagation()}
-              className={`iconButton deleteButton deleteTaskButton wordIconButton`}
-            >
-              <i className={`fas fa-trash`} style={{ color: `var(--gameBlue)`, fontSize: 9 }} />
-            </button>
+            {/* {selected != null && ( */}
+              <button
+                title={`Delete Task`}
+                onClick={(e) => deleteSubtask(e, task)}
+                onMouseDown={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
+                className={`iconButton deleteButton deleteTaskButton wordIconButton`}
+              >
+                <i className={`fas fa-trash`} style={{ color: `var(--gameBlue)`, fontSize: 9 }} />
+              </button>
+            {/* // )} */}
             <input
               type={`checkbox`}
               data-checkbox={true}
@@ -276,68 +278,88 @@ export default function Tasks(props) {
     await updateDocFieldsWTimeStamp(item, { [`data.taskIDs`]: updatedTaskIDs });
   }
 
+  const formSubmitOnEnter = (e) => {
+    const queryFields = [e?.key, e?.keyCode];
+    const submitKeys = [13, `Enter`, `Return`];
+    const shouldSubmitOnEnter = queryFields?.some(fld => submitKeys?.includes(fld));
+    if (shouldSubmitOnEnter) {
+      addTask(e);
+    }
+  }
+
   const addTask = async (e) => {
     e.preventDefault();
     
     setLoading(true);
     setSystemStatus(`Creating Task.`);
 
-    const formFields = e.target.children;
+    let default_TaskFormSelector = `.taskAddForm_${item?.uuid}`;
+    let taskFormSelector = default_TaskFormSelector;
+    if (selected != null) {
+      taskFormSelector = `.detailsDialogAlert ${default_TaskFormSelector}`;
+    }
+    
+    const taskForm: any = document?.querySelector(taskFormSelector);
+    const formFields: any = taskForm?.children;
     const taskName = formFields[0].value.trim();
     const name = capWords(taskName);
 
-    let position = formFields.rank.value;
-    const nextIndex = tasks.length + 1;
-    if (!position) position = nextIndex;
-    position = Math.min(parseInt(position, 10), nextIndex);
-
-    if (column) {
-      const { rank, number } = await getRankAndNumber(Types.Task, globalUserData?.tasks, column?.data?.taskIDs, users, user);
-      const tasksRef = await collection(db, tasksTable);
-      const tasksSnapshot = await getDocs(tasksRef);
-      const tasksCount = tasksSnapshot.size;
-      const taskRank = tasksCount + 1;
-      const taskNumber = Math.max(rank, number, taskRank);
-
-      const newTask = createTask(taskNumber, name, user, selectedGrid?.id, item?.boardID, column?.id, item?.id, taskNumber) as Task;
-
-      const prevTasks = [...tasks];
-      const updatedTasks = Array.from(prevTasks);
-      updatedTasks.splice(position - 1, 0, newTask);
+    if (name && name != ``) {
+      let position = formFields.rank.value;
+      const nextIndex = tasks.length + 1;
+      if (!position) position = nextIndex;
+      position = Math.min(parseInt(position, 10), nextIndex);
+  
+      if (column) {
+        const { rank, number } = await getRankAndNumber(Types.Task, globalUserData?.tasks, column?.data?.taskIDs, users, user);
+        const tasksRef = await collection(db, tasksTable);
+        const tasksSnapshot = await getDocs(tasksRef);
+        const tasksCount = tasksSnapshot.size;
+        const taskRank = tasksCount + 1;
+        const taskNumber = Math.max(rank, number, taskRank);
+  
+        const newTask = createTask(taskNumber, name, user, selectedGrid?.id, item?.boardID, column?.id, item?.id, taskNumber) as Task;
+  
+        const prevTasks = [...tasks];
+        const updatedTasks = Array.from(prevTasks);
+        updatedTasks.splice(position - 1, 0, newTask);
+        
+        setTasks(updatedTasks);
+        taskForm.reset();
+  
+        const updatedTaskIDs = updatedTasks?.map(tsk => tsk?.id);
+        if (updatedTaskIDs?.length > 5) addBoardScrollBars();
+  
+        await addTaskToDatabase(newTask, item?.id, column?.id, updatedTaskIDs);
+  
+        if (formFields && formFields?.length > 0) {
+          formFields[0].focus();
+        }
+      }
+  
+      setTimeout(() => {
+        setSystemStatus(`Created Task.`);
+        setLoading(false);
+      }, 1000);
+  
       
-      setTasks(updatedTasks);
-      e.target.reset();
-
-      const updatedTaskIDs = updatedTasks?.map(tsk => tsk?.id);
-      if (updatedTaskIDs?.length > 5) addBoardScrollBars();
-
-      await addTaskToDatabase(newTask, item?.id, column?.id, updatedTaskIDs);
-
-      if (formFields && formFields?.length > 0) {
-        formFields[0].focus();
+      const tasksList = document?.querySelector(`.taskItems_${item?.uuid}`);
+      if (tasksList) {
+        window.requestAnimationFrame(() => {
+          if (position <= 5) {
+            tasksList.scrollTop = 0;
+          } else {
+            tasksList.scrollTop = tasksList.scrollHeight;
+          }
+        });
       }
     }
-
-    setTimeout(() => {
-      setSystemStatus(`Created Task.`);
-      setLoading(false);
-    }, 1000);
-
-    
-    const tasksList = e.target.previousSibling;
-    window.requestAnimationFrame(() => {
-      if (position <= 5) {
-        tasksList.scrollTop = 0;
-      } else {
-        tasksList.scrollTop = tasksList.scrollHeight;
-      }
-    });
   }
 
   return (
     <div id={`${item?.id}_subTasks`} className={`rowTasks rowSubtasks subTasks dndkitTasks  ${showForm ? `showForm` : `hideForm`}`}>
       <div className={`taskElement subTaskElement flex ${getTasksInCurrentSearchFilters(tasks)?.length > 0 ? `hasTasks` : `noTasks`} ${showForm ? `hasForm` : `noForm`}`}>
-        <div style={{ marginTop: -1 }} className={`subTaskItems tasks_${getTasksInCurrentSearchFilters(tasks)?.length} taskItems ${item?.options?.complete ? `completedTasks` : `activeTasks`}`}>
+        <div style={{ marginTop: -1 }} className={`subTaskItems taskItems_${item?.uuid} tasks_${getTasksInCurrentSearchFilters(tasks)?.length} taskItems ${item?.options?.complete ? `completedTasks` : `activeTasks`}`}>
           <DndContext
             sensors={sensors}
             autoScroll={true}
@@ -359,6 +381,7 @@ export default function Tasks(props) {
                     index={index}
                     key={task.id}
                     isLast={isLast}
+                    selected={selected}
                     changeLabel={changeLabel}
                     gridSearchTerm={gridSearchTerm}
                     searchFilterTasks={searchFilterTasks}
@@ -372,7 +395,7 @@ export default function Tasks(props) {
         </div>
 
         {showForm && (
-          <form onSubmit={(e) => selected != null ? e?.preventDefault() : addTask(e)} className={`subtaskAddForm addForm flex row`}>
+          <form onSubmit={(e) => addTask(e)} className={`taskAddForm subtaskAddForm addForm flex row taskAddForm_${item?.uuid}`}>
             <input
               required
               type={`text`}
@@ -382,6 +405,7 @@ export default function Tasks(props) {
               className={`createTaskField`}
               id={`${item?.id}_createSubtask`}
               name={`createSubtask changeLabel`}
+              onKeyDown={(e) => formSubmitOnEnter(e)}
             />
             <input
               name={`rank`}
@@ -390,10 +414,12 @@ export default function Tasks(props) {
               defaultValue={tasks.length + 1}
               className={`rankField taskRankField`}
               id={`${item?.id}_createSubtask_rank`}
+              onKeyDown={(e) => formSubmitOnEnter(e)}
             />
             <button
-              type={`submit`}
+              type={`button`}
               title={`Add Task`}
+              onClick={(e) => addTask(e)}
               className={`iconButton createList wordIconButton createTaskButton`}
             >
               <i style={{ color: `var(--gameBlue)`, fontSize: 10 }} className={`fas fa-plus`} />
@@ -407,7 +433,6 @@ export default function Tasks(props) {
             </button>
           </form>
         )}
-
       </div>
     </div>
   )
