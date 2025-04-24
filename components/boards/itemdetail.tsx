@@ -108,8 +108,6 @@ export default function ItemDetail(props) {
     const saveItem = async (e, dismissOnSave = false) => {
         e.preventDefault();
 
-        console.log(`saveItem`, e);
-
         // let form = e?.target;
         let form = formRef?.current;
 
@@ -120,19 +118,10 @@ export default function ItemDetail(props) {
             // itemURL: itemURLField, 
         } = form;
 
-        // console.log(`saveItem`, {
-        //     e,
-        //     form,
-        //     dismissOnSave,
-        //     itemImageLink,
-        //     itemNameField,
-        //     itemDescriptionField,
-        // })
-
         // let itemURL = itemURLField?.value;
         let itemName = itemNameField?.value;
-        let itemImage = itemImageLink?.value;
         let itemDescription = itemDescriptionField?.value;
+        let itemImage = itemImageLink ? itemImageLink?.value : ``;
 
         let itemActive = active == `active`;
         let itemComplete = active == `complete`;
@@ -142,8 +131,8 @@ export default function ItemDetail(props) {
         let statusChanged = activeStatusChanged || completionStatusChanged;
 
         let nameChanged = itemName?.toLowerCase() != item?.name?.toLowerCase();
-        let imageChanged = itemImage?.toLowerCase() != item?.image?.toLowerCase();
         let descriptionChanged = itemDescription?.toLowerCase() != item?.description?.toLowerCase();
+        let imageChanged = itemImage && itemImage != `` && (itemImage?.toLowerCase() != item?.image?.toLowerCase());
         // let urlChanged = itemURL?.toLowerCase() != item?.data?.relatedURLs[0]?.toLowerCase() && !item?.data?.relatedURLs?.includes(itemURL);
 
         if (statusChanged || nameChanged || imageChanged || descriptionChanged) {
