@@ -16,8 +16,16 @@ import { forceFieldBlurOnPressEnter, getRankAndNumber, isValid, removeExtraSpace
 
 const reorder = (list, oldIndex, newIndex) => arrayMove(list, oldIndex, newIndex);
 
-const SortableSubtaskItem = ({ selected, item, task, isLast, index, gridSearchTerm, changeLabel, completeTask, deleteSubtask, searchFilterTasks }) => {
-  let { listeners, transform, attributes, setNodeRef, transition, isDragging } = useSortable({ id: task.id });
+const SortableSubtaskItem = ({ selected, item, task: taskProp, isLast, index, gridSearchTerm, changeLabel, completeTask, deleteSubtask, searchFilterTasks }) => {
+  let { globalUserData } = useContext<any>(StateContext);
+  let { listeners, transform, attributes, setNodeRef, transition, isDragging } = useSortable({ id: taskProp?.id });
+
+  let [task, setTask] = useState<Task>(taskProp);
+
+  useEffect(() => {
+    let thisTask = globalUserData?.tasks?.find(tsk => tsk?.id == task?.id);
+    if (thisTask) setTask(thisTask);
+  }, [globalUserData])
 
   const style = {
     transition,

@@ -14,7 +14,7 @@ import { useContext, useEffect, useRef, useState } from 'react';
 
 export default function ItemDetail(props) {
     let formRef = useRef(null);
-    let { item: itemProp, index, tasks: tasksProp, activeTasks, completeTasks, board, column } = props;
+    let { itemID, item: itemProp, index, tasks: tasksProp, activeTasks, completeTasks, board, column } = props;
 
     let { selected, setSelected, globalUserData } = useContext<any>(StateContext);
 
@@ -34,42 +34,42 @@ export default function ItemDetail(props) {
 
     useEffect(() => {
         const updatedTasks = [];
-        const refreshedItem = globalUserData?.items?.find((itm: Item) => itm?.id == itemProp?.id);
-        const refreshedTasks = globalUserData?.tasks?.filter((tsk: Task) => tsk?.itemID == itemProp?.id);
+        const refreshedItem = globalUserData?.items?.find((itm: Item) => itm?.id == itemID);
+        const refreshedTasks = globalUserData?.tasks?.filter((tsk: Task) => tsk?.itemID == itemID);
         refreshedItem?.data?.taskIDs?.forEach(tskID => {
             const thisTask = refreshedTasks?.find((tsk: Task) => tsk?.id == tskID);
             if (thisTask) updatedTasks?.push(thisTask);
         })
         setTasks(updatedTasks);
         const updatedItemAndTasks = { ...refreshedItem, tasks: updatedTasks };
-        dev() && console.log(`Updated Item & Tasks`, updatedItemAndTasks);
+        dev() && console.log(`Updated Item & Tasks`, {itemID, globalUserData, itemProp, tasksProp, activeTasks, completeTasks, updatedItemAndTasks});
         setItem(updatedItemAndTasks);
         if (updatedItemAndTasks != null) {
             setSelected(prevSelected => ({ ...prevSelected, item: updatedItemAndTasks }));
         }
     }, [globalUserData])
 
-    const updateFormStatus = (statusText: string = ``, clear = false) => {
-        if (statusText == ``) {
-            setFormStatus(statusText);
-        } else {
-            if (clear) {
-                if (formStatus?.includes(statusText)) {
-                    if (formStatus?.includes(`,`)) {
-                        setFormStatus(prevFormStatus => prevFormStatus?.replaceAll(`, ${statusText}`, ``));
-                    } else {
-                        setFormStatus(prevFormStatus => prevFormStatus?.replaceAll(statusText, ``));
-                    }
-                }
-            } else {
-                if (formStatus == ``) {
-                    setFormStatus(statusText);
-                } else {
-                    setFormStatus(prevFormStatus => prevFormStatus + `, ${statusText}`);
-                }
-            }
-        }
-    }
+    // const updateFormStatus = (statusText: string = ``, clear = false) => {
+    //     if (statusText == ``) {
+    //         setFormStatus(statusText);
+    //     } else {
+    //         if (clear) {
+    //             if (formStatus?.includes(statusText)) {
+    //                 if (formStatus?.includes(`,`)) {
+    //                     setFormStatus(prevFormStatus => prevFormStatus?.replaceAll(`, ${statusText}`, ``));
+    //                 } else {
+    //                     setFormStatus(prevFormStatus => prevFormStatus?.replaceAll(statusText, ``));
+    //                 }
+    //             }
+    //         } else {
+    //             if (formStatus == ``) {
+    //                 setFormStatus(statusText);
+    //             } else {
+    //                 setFormStatus(prevFormStatus => prevFormStatus + `, ${statusText}`);
+    //             }
+    //         }
+    //     }
+    // }
 
     const refreshDetails = (e) => {
         e.preventDefault();
@@ -347,11 +347,9 @@ export default function ItemDetail(props) {
                     {(item?.data?.taskIDs?.length == 0 || item?.data?.taskIDs?.length == tasks?.filter((tsk: Task) => tsk?.options?.complete)?.length) && (
                         <ToggleButtons item={item} toDoTasks={tasks?.filter((tsk: Task) => !tsk?.options?.active && !tsk?.options?.complete)} activeTasks={tasks?.filter((tsk: Task) => tsk?.options?.active)} completeTasks={tasks?.filter((tsk: Task) => tsk?.options?.complete)} onActiveChange={(newActive) => setActive(newActive)} />
                     )}
-                    {item?.data?.taskIDs?.length > 0 && <>
-                        <div className={`tasksContainer`}>
-                            {TasksField()}
-                        </div>
-                    </>}
+                    <div className={`tasksContainer`}>
+                        {TasksField()}
+                    </div>
                 </form>
             )}
         </div>
