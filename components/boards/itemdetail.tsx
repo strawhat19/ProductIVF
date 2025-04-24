@@ -6,7 +6,6 @@ import CustomImage from '../custom-image';
 import { Task } from '../../shared/models/Task';
 import { Item } from '../../shared/models/Item';
 import DetailField from './details/detail-field';
-import { isValid } from '../../shared/constants';
 import ToggleButtons from './details/toggle-buttons';
 import { updateDocFieldsWTimeStamp } from '../../firebase';
 import { capWords, dev, StateContext } from '../../pages/_app';
@@ -22,7 +21,7 @@ export default function ItemDetail(props) {
     let [formStatus, setFormStatus] = useState(``);
     // let [imageErrorText, ] = useState(`Image Error`);
     let [tasks, setTasks] = useState<Task[]>(tasksProp);
-    let [validSelectedImage, setValidSelectedImage] = useState(isValid(itemProp?.image));
+    let [validSelectedImage, setValidSelectedImage] = useState(false);
     let [image, setImage] = useState((itemProp?.image && itemProp?.image != ``) ? itemProp?.image : undefined);
     let [active, setActive] = useState(
         item?.options?.complete 
@@ -42,7 +41,6 @@ export default function ItemDetail(props) {
         })
         setTasks(updatedTasks);
         const updatedItemAndTasks = { ...refreshedItem, tasks: updatedTasks };
-        dev() && console.log(`Updated Item & Tasks`, {itemID, globalUserData, itemProp, tasksProp, activeTasks, completeTasks, updatedItemAndTasks});
         setItem(updatedItemAndTasks);
         if (updatedItemAndTasks != null) {
             setSelected(prevSelected => ({ ...prevSelected, item: updatedItemAndTasks }));
@@ -75,21 +73,13 @@ export default function ItemDetail(props) {
         e.preventDefault();
         let formField = e?.target;
         if (formField?.name == `itemImageLink`) {
-            const detailViewImage: HTMLImageElement = document?.querySelector(`.detailViewImage`);
             const updatedImage = formField?.value;
-            setImage(`${updatedImage}?retry=${Date.now()}`);
+            // dev() && console.log(`Item Detail Form Change`, {detailViewImage, updatedImage});
             setImage(updatedImage);
-            if (detailViewImage) {
-                console.log(`Form Input`, { 
-                    detailViewImage,
-                    src: formField?.value,
-                    complete: detailViewImage?.complete,
-                    width: detailViewImage?.naturalWidth,
-                    height: detailViewImage?.naturalHeight, 
-                });
-                // fetch(formField?.value)?.then(imgRes => imgRes?.json())?.then(imgData => {
-                //     console.log(`Image Fetch`, imgData);
-                // })
+            const detailViewImage: HTMLImageElement = document?.querySelector(`.detailViewImage`);
+            if (detailViewImage || updatedImage == ``) {
+                setValidSelectedImage(true);
+                setFormStatus(``);
             }
         }
         // if (formRef != null) {
@@ -184,38 +174,27 @@ export default function ItemDetail(props) {
 
     const imageLoaded = (e) => {
         const imageComponent = e?.target;
-        // const imageHeight = image?.clientHeight;
-        console.log(`Image Loaded`, { e, complete: imageComponent?.complete, width: imageComponent?.naturalWidth, height: imageComponent?.naturalHeight });
-        // if (imageComponent?.complete && imageComponent?.naturalWidth > 0) {
-        //     setValidSelectedImage(true);
-        //     // updateFormStatus(`Image Error`, true);
-        // }
-        // setTimeout(() => {
-        // if (imageHeight >= 50) {
-        //     setValidSelectedImage(true);
-        //     updateFormStatus(`Image Error`, true);
-        // }
-        // }, 1000)
+        // console.log(`Image Loaded`, { e, complete: imageComponent?.complete, width: imageComponent?.naturalWidth, height: imageComponent?.naturalHeight });
+        if (imageComponent?.complete && imageComponent?.naturalWidth > 0) {
+            setValidSelectedImage(true);
+            setFormStatus(``);
+        }
     }
   
     const imageErrored = (e) => {
         const imageComponent = e?.target;
-        // const imageHeight = image?.clientHeight;
-        console.log(`Image Errored`, { e, complete: imageComponent?.complete, width: imageComponent?.naturalWidth, height: imageComponent?.naturalHeight });
-        // setTimeout(() => {
-        //     console.log(`Image Errored`, { e, complete: imageComponent?.complete, width: imageComponent?.naturalWidth, height: imageComponent?.naturalHeight });
-        // }, 250)
-        // if (!imageComponent?.complete || imageComponent?.naturalWidth === 0) {
-        //     setValidSelectedImage(false);
-        //     // updateFormStatus(`Image Error`);
-        // }
-        // if (imageHeight >= 50) {
-        //     // console.log(`Image Loaded`, e);
-        //     // setValidSelectedImage(true);
-        //     // updateFormStatus(`Image Error`, true);
-        // } else {
-        //     updateFormStatus(`Image Error`);
-        // }
+        dev() && console.log(`Image Errored`, { e, complete: imageComponent?.complete, width: imageComponent?.naturalWidth, height: imageComponent?.naturalHeight });
+        setValidSelectedImage(false);
+        setFormStatus(`Image Error`);
+    }
+
+    const formSubmitOnEnter = (e) => {
+        const queryFields = [e?.key, e?.keyCode];
+        const submitKeys = [13, `Enter`, `Return`];
+        const shouldSubmitOnEnter = queryFields?.some(fld => submitKeys?.includes(fld));
+        if (shouldSubmitOnEnter) {
+            saveItem(e);
+        }
     }
 
     const DetailsFields = () => {
@@ -271,15 +250,6 @@ export default function ItemDetail(props) {
         </>
     }
 
-    const formSubmitOnEnter = (e) => {
-        const queryFields = [e?.key, e?.keyCode];
-        const submitKeys = [13, `Enter`, `Return`];
-        const shouldSubmitOnEnter = queryFields?.some(fld => submitKeys?.includes(fld));
-        if (shouldSubmitOnEnter) {
-            saveItem(e);
-        }
-    }
-
     const FormFields = () => {
         return <>
             <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
@@ -312,8 +282,8 @@ export default function ItemDetail(props) {
 
     return (
         <div id={`detail_view_${item?.id}`} className={`detailView flex row`}>
-            {validSelectedImage && (
-                <figure className={`customDetailImage`} style={{ maxWidth: `40%` }}>
+            {/* {validSelectedImage && ( */}
+                <figure className={`customDetailImage ${validSelectedImage ? `validSelectedImage` : `invalidSelectedImage`}`} style={{ maxWidth: `40%` }}>
                     <CustomImage 
                         src={image} 
                         alt={item?.name} 
@@ -322,7 +292,7 @@ export default function ItemDetail(props) {
                         className={`itemImage detailViewImage imageLoadElement`} 
                     />
                 </figure>
-            )}
+            {/* // )} */}
             {selected != null && item != null && item?.type && (
                 <form ref={formRef} onInput={(e) => refreshDetails(e)} onSubmit={(e) => saveItem(e)} className={`itemDetailsForm changeInputs flex isColumn`} data-index={index + 1}>
                     <div className={`formTop`}>

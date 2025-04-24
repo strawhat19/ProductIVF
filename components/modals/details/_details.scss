@@ -12,6 +12,12 @@
     justify-content: flex-start !important;
 }
 
+.invalidSelectedImage {
+    opacity: 0 !important;
+    max-width: 0 !important;
+    pointer-events: none !important;
+}
+
 .buttonComponent {
     display: flex;
     border-radius: 4px;
