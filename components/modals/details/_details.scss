@@ -2,6 +2,21 @@
     --detailsTasksMaxHeight: 348px;
 }
 
+.alertDetailsComponent {
+    gap: 15px;
+    width: 100%;
+    display: grid;
+}
+
+.alertTitle {
+    max-width: unset !important;
+    .itemDetailsChangeLabel {
+        width: 100%;
+        display: flex;
+        margin-left: 0px !important;
+    }
+}
+
 .createTaskButton {
     grid-gap: 6px;
     padding-left: 10px;
@@ -27,6 +42,9 @@
     color: var(--gameBlue);
     justify-content: center;
     transition: var(--transition);
+    &.detailsCloseButton {
+        min-height: 50px;
+    }
     &:hover {
         color: white !important;
         background: var(--gameBlue);
@@ -71,12 +89,15 @@
                 width: 100%;
                 height: 100%;
                 transform: translateY(0px);
-                padding: 20px 30px 20px 70px;
+                padding: 20px 15px 15px 65px;
                 background: transparent !important;
                 backdrop-filter: blur(0px) !important;
                 transition: opacity 0.3s ease-out, transform 0.3s ease-out;
                 .alertTitleRow {
                     width: 100%;
+                    grid-gap: 15px;
+                    align-items: center;
+                    padding-bottom: 12px;
                 }
                 .detailsDialogAlertInner {
                     max-width: 100%;

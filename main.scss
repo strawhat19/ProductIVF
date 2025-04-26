@@ -1035,7 +1035,7 @@ form {
     height: 100% !important;
     textarea {
         width: 100%;
-        min-height: 100px;
+        min-height: 140px;
         max-height: 100% !important;
         &::placeholder {
             opacity: 0.5;
@@ -1051,7 +1051,8 @@ form {
         transition: var(--transition);
         font-size: var(--authFormFontSize);
         border-radius: var(--borderRadius);
-        background: var(--blackGlass) !important;
+        background: var(--darkCheckBox) !important;
+        // background: var(--blackGlass) !important;
         // box-shadow: 0 0 10px var(--gameBlueSoft),0 0 20px var(--gameBlueSoft);
 
         label {

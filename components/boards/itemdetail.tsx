@@ -8,8 +8,9 @@ import { Item } from '../../shared/models/Item';
 import DetailField from './details/detail-field';
 import ToggleButtons from './details/toggle-buttons';
 import { updateDocFieldsWTimeStamp } from '../../firebase';
-import { capWords, dev, StateContext } from '../../pages/_app';
+import { capitalizeAllWords, capWords, dev, StateContext } from '../../pages/_app';
 import { useContext, useEffect, useRef, useState } from 'react';
+import { forceFieldBlurOnPressEnter, removeExtraSpacesFromString } from '../../shared/constants';
 
 export default function ItemDetail(props) {
     let formRef = useRef(null);
@@ -197,6 +198,27 @@ export default function ItemDetail(props) {
         }
     }
 
+    const changeLabel = (e, item: Item) => {
+            let elemValue = e.target.textContent;
+            let invalidValue = !elemValue || elemValue == ``;
+            let sameName = elemValue?.toLowerCase() == item?.name?.toLowerCase();
+    
+            if (invalidValue || sameName) {
+                elemValue = capitalizeAllWords(item?.name);
+                e.target.innerHTML = elemValue;
+                return;
+            } else {
+                let value = elemValue == `` ? capitalizeAllWords(item?.name) : capitalizeAllWords(elemValue);
+        
+                elemValue = removeExtraSpacesFromString(value);
+                elemValue = capitalizeAllWords(elemValue);
+                e.target.innerHTML = elemValue;
+                const name = elemValue;
+        
+                updateDocFieldsWTimeStamp(item, { name, A: name, title: `${item?.type} ${item?.rank} ${name}` });
+            }
+        }
+
     const DetailsFields = () => {
         return <>
             <div className={`itemDetailFieldMetric flexLabel`}>
@@ -230,12 +252,14 @@ export default function ItemDetail(props) {
                     <h4 className={`itemDetailType`}>{item?.data?.taskIDs?.length}</h4>
                 </div>
                 <div className={`itemDetailTasksLabel itemDetailFieldMetric flexLabel`}>
-                    <div className={`toggle-buttons`}>
-                        <button className={`taskFormToggleButton flexLabel buttonComponent`} type={`button`} onClick={(e) => onItemShowFormChange(e)}>
-                            <i className={`fas ${item?.options?.showTaskForm ? `fa-minus` : `fa-plus`}`} />
-                            Tasks
-                        </button>
-                    </div>
+                    {item?.data?.taskIDs?.length > 0 && (
+                        <div className={`toggle-buttons`}>
+                            <button className={`taskFormToggleButton flexLabel buttonComponent`} type={`button`} onClick={(e) => onItemShowFormChange(e)}>
+                                <i className={`fas ${item?.options?.showTaskForm ? `fa-minus` : `fa-plus`}`} />
+                                Tasks
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
             <ItemWrapper>
@@ -244,7 +268,7 @@ export default function ItemDetail(props) {
                     board={board}
                     column={column} 
                     tasksProp={tasks}
-                    showForm={item?.options?.showTaskForm} 
+                    showForm={item?.options?.showTaskForm || item?.data?.taskIDs?.length == 0} 
                 />
             </ItemWrapper>
         </>
@@ -252,20 +276,18 @@ export default function ItemDetail(props) {
 
     const FormFields = () => {
         return <>
-            <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
+            {/* <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
                 <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
                     Name
                 </div>
                 <input onKeyDown={(e) => formSubmitOnEnter(e)} type={`text`} name={`itemName`} className={`itemNameField`} placeholder={`Item Name`} defaultValue={item?.name} />
-            </div>
-            {dev() && (
-                <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
-                    <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
-                        Image
-                    </div>
-                    <input onKeyDown={(e) => formSubmitOnEnter(e)} type={`text`} name={`itemImageLink`} className={`itemImageLinkField`} placeholder={`Item Image`} defaultValue={item?.image} />
+            </div> */}
+            <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
+                <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
+                    Image
                 </div>
-            )}
+                <input onKeyDown={(e) => formSubmitOnEnter(e)} type={`text`} name={`itemImageLink`} className={`itemImageLinkField`} placeholder={`Item Image`} defaultValue={item?.image} />
+            </div>
             <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
                 <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
                     Description
@@ -280,9 +302,32 @@ export default function ItemDetail(props) {
         </>
     }
 
-    return (
-        <div id={`detail_view_${item?.id}`} className={`detailView flex row`}>
-            {/* {validSelectedImage && ( */}
+    return <>
+        <div className={`alertDetailsComponent`}>
+            <div className={`alertTitleRowInner`}>
+                <div className={`alertTitleRow`}>
+                    <h2 className={`alertTitle`}>
+                        <span 
+                            contentEditable 
+                            spellCheck={false}
+                            suppressContentEditableWarning 
+                            onBlur={(e) => changeLabel(e, item)} 
+                            onKeyDown={(e) => forceFieldBlurOnPressEnter(e)}
+                            className={`itemDetailsChangeLabel changeLabel stretchEditable itemChangeLabel`}
+                        >
+                            {item?.name}
+                        </span>
+                    </h2>
+                    <div className={`rightTitleField`}>
+                        {selected != null && (
+                            <button className={`detailsCloseButton buttonComponent`} onClick={() => setSelected(null)}>
+                                <i className={`fas fa-times`} />
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </div>
+            <div id={`detail_view_${item?.id}`} className={`detailView flex row`}>
                 <figure className={`customDetailImage ${validSelectedImage ? `validSelectedImage` : `invalidSelectedImage`}`} style={{ maxWidth: `40%` }}>
                     <CustomImage 
                         src={image} 
@@ -292,36 +337,36 @@ export default function ItemDetail(props) {
                         className={`itemImage detailViewImage imageLoadElement`} 
                     />
                 </figure>
-            {/* // )} */}
-            {selected != null && item != null && item?.type && (
-                <form ref={formRef} onInput={(e) => refreshDetails(e)} onSubmit={(e) => saveItem(e)} className={`itemDetailsForm changeInputs flex isColumn`} data-index={index + 1}>
-                    <div className={`formTop`}>
-                        <div className={`detailsStartContent`}>
-                            <div className={`detailsColumn detailStart detailEdge formStartData formTopLeft flexColumn gap10`} style={{ minWidth: 255 }}>
-                                {DetailsFields()}
+                {selected != null && item != null && item?.type && (
+                    <form ref={formRef} onInput={(e) => refreshDetails(e)} onSubmit={(e) => saveItem(e)} className={`itemDetailsForm changeInputs flex isColumn`} data-index={(index ?? 0) + 1}>
+                        <div className={`formTop`}>
+                            <div className={`detailsStartContent`}>
+                                <div className={`detailsColumn detailStart detailEdge formStartData formTopLeft flexColumn gap10`} style={{ minWidth: 255 }}>
+                                    {DetailsFields()}
+                                </div>
+                                <div className={`detailProgress`}>
+                                    <Progress 
+                                        item={item} 
+                                        tasks={tasks}
+                                        customInnerText={false}
+                                        classes={`detailViewProgress detailsColumn detailEdge detailEnd`} 
+                                        injectedProgress={active === `complete` ? 100 : active === `to do` ? 0 : item?.data?.taskIDs?.length == 0 ? 50 : undefined} 
+                                    />
+                                </div>
                             </div>
-                            <div className={`detailProgress`}>
-                                <Progress 
-                                    item={item} 
-                                    tasks={tasks}
-                                    customInnerText={false}
-                                    classes={`detailViewProgress detailsColumn detailEdge detailEnd`} 
-                                    injectedProgress={active === `complete` ? 100 : active === `to do` ? 0 : item?.data?.taskIDs?.length == 0 ? 50 : undefined} 
-                                />
+                            <div className={`formCenterData detailCenter formTopLeft flexColumn gap10`}>
+                                {FormFields()}
                             </div>
                         </div>
-                        <div className={`formCenterData detailCenter formTopLeft flexColumn gap10`}>
-                            {FormFields()}
+                        {(item?.data?.taskIDs?.length == 0 || item?.data?.taskIDs?.length == tasks?.filter((tsk: Task) => tsk?.options?.complete)?.length) && (
+                            <ToggleButtons item={item} toDoTasks={tasks?.filter((tsk: Task) => !tsk?.options?.active && !tsk?.options?.complete)} activeTasks={tasks?.filter((tsk: Task) => tsk?.options?.active)} completeTasks={tasks?.filter((tsk: Task) => tsk?.options?.complete)} onActiveChange={(newActive) => setActive(newActive)} />
+                        )}
+                        <div className={`tasksContainer`}>
+                            {TasksField()}
                         </div>
-                    </div>
-                    {(item?.data?.taskIDs?.length == 0 || item?.data?.taskIDs?.length == tasks?.filter((tsk: Task) => tsk?.options?.complete)?.length) && (
-                        <ToggleButtons item={item} toDoTasks={tasks?.filter((tsk: Task) => !tsk?.options?.active && !tsk?.options?.complete)} activeTasks={tasks?.filter((tsk: Task) => tsk?.options?.active)} completeTasks={tasks?.filter((tsk: Task) => tsk?.options?.complete)} onActiveChange={(newActive) => setActive(newActive)} />
-                    )}
-                    <div className={`tasksContainer`}>
-                        {TasksField()}
-                    </div>
-                </form>
-            )}
+                    </form>
+                )}
+            </div>
         </div>
-    )
+    </>
 }
