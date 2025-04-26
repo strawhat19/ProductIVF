@@ -283,15 +283,15 @@ export default function ItemDetail(props) {
                 <input onKeyDown={(e) => formSubmitOnEnter(e)} type={`text`} name={`itemName`} className={`itemNameField`} placeholder={`Item Name`} defaultValue={item?.name} />
             </div> */}
             <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
-                <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
+                {/* <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
                     Image
-                </div>
+                </div> */}
                 <input onKeyDown={(e) => formSubmitOnEnter(e)} type={`text`} name={`itemImageLink`} className={`itemImageLinkField`} placeholder={`Item Image`} defaultValue={item?.image} />
             </div>
             <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
-                <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
+                {/* <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
                     Description
-                </div>
+                </div> */}
                 <textarea name={`itemDescriptionField`} className={`itemDescriptionField`} placeholder={`Item Description`} defaultValue={item?.description} />
             </div>
             <div className={`toggle-buttons`}>

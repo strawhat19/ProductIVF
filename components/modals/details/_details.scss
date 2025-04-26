@@ -6,6 +6,11 @@
     gap: 15px;
     width: 100%;
     display: grid;
+    form {
+        input, textarea {
+            background: var(--darkCheckBox) !important;
+        }
+    }
 }
 
 .alertTitle {

@@ -1051,8 +1051,7 @@ form {
         transition: var(--transition);
         font-size: var(--authFormFontSize);
         border-radius: var(--borderRadius);
-        background: var(--darkCheckBox) !important;
-        // background: var(--blackGlass) !important;
+        background: var(--blackGlass) !important;
         // box-shadow: 0 0 10px var(--gameBlueSoft),0 0 20px var(--gameBlueSoft);
 
         label {
