@@ -716,7 +716,7 @@ export const updateDocFieldsWTimeStamp = async (
   updates: Partial<User> | Partial<Grid> | Partial<Board> | Partial<List> | Partial<Item> | Partial<Task> | any, 
   log = false,
 ) => {
-  const now = formatDate(new Date());
+  const now = formatDate(new Date(), `update`);
   let { tableName, converter } = documentTypes[document?.type];
   try {
     const docRef = await doc(db, tableName, document?.id).withConverter(converter);

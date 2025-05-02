@@ -91,11 +91,16 @@ export const formatDate = (date, specificPortion) => {
     completedDate = strTime;
   } else if (specificPortion == `date`) {
     completedDate = (date.getMonth() + 1) + `/` + date.getDate() + `/` + date.getFullYear();
+  } else if (specificPortion == `update`) {
+    let milliseconds = date.getMilliseconds();
+    let ms = Math.round(milliseconds / 10).toString().padStart(2, `0`);
+    strTime = `${hours}:${minutes}:${ms} ${ampm}`;
+    return `${strTime} ${(date.getMonth() + 1)}/${date.getDate()}/${String(date.getFullYear()).slice(2)}`;
   } else {
     completedDate = strTime + ` ` + (date.getMonth() + 1) + `/` + date.getDate() + `/` + date.getFullYear();
   }
   return completedDate;
-};
+}
 
 export const generateID = (existingIDs) => {
   let newID = Math.random().toString(36).substr(2, 9);
