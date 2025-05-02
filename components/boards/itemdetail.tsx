@@ -43,9 +43,11 @@ export default function ItemDetail(props) {
         setTasks(updatedTasks);
         const updatedItemAndTasks = { ...refreshedItem, tasks: updatedTasks };
         setItem(updatedItemAndTasks);
-        if (updatedItemAndTasks != null) {
-            setSelected(prevSelected => ({ ...prevSelected, item: updatedItemAndTasks }));
-        }
+        // if (updatedItemAndTasks != null) {
+        //     if (updatedTasks?.length == item?.data?.taskIDs?.length) {
+        //         setSelected(prevSelected => ({ ...prevSelected, item: updatedItemAndTasks }));
+        //     }
+        // }
     }, [globalUserData])
 
     // const updateFormStatus = (statusText: string = ``, clear = false) => {
@@ -105,12 +107,10 @@ export default function ItemDetail(props) {
         let { 
             itemImageLink, 
             itemDescriptionField,
-            itemName: itemNameField, 
             // itemURL: itemURLField, 
         } = form;
 
         // let itemURL = itemURLField?.value;
-        let itemName = itemNameField?.value;
         let itemDescription = itemDescriptionField?.value;
         let itemImage = itemImageLink ? itemImageLink?.value : ``;
 
@@ -121,12 +121,11 @@ export default function ItemDetail(props) {
 
         let statusChanged = activeStatusChanged || completionStatusChanged;
 
-        let nameChanged = itemName?.toLowerCase() != item?.name?.toLowerCase();
         let descriptionChanged = itemDescription?.toLowerCase() != item?.description?.toLowerCase();
         let imageChanged = itemImage && itemImage != `` && (itemImage?.toLowerCase() != item?.image?.toLowerCase());
         // let urlChanged = itemURL?.toLowerCase() != item?.data?.relatedURLs[0]?.toLowerCase() && !item?.data?.relatedURLs?.includes(itemURL);
 
-        if (statusChanged || nameChanged || imageChanged || descriptionChanged) {
+        if (statusChanged || imageChanged || descriptionChanged) {
             await updateDocFieldsWTimeStamp(item, {
                 ...(item?.data?.taskIDs?.length > 0 ? {
                     ...(completionStatusChanged && {
@@ -149,15 +148,10 @@ export default function ItemDetail(props) {
                     image: itemImage,
                     [`data.imageURLs`]: [itemImage, ...item?.data?.imageURLs],
                 }),
-                ...(nameChanged && {
-                    A: capWords(itemName),
-                    name: capWords(itemName),
-                    title: `${item?.type} ${item?.rank} ${capWords(itemName)}`,
-                }),
                 // ...(urlChanged && {
                 //     [`data.relatedURLs`]: [itemURL, ...item?.data?.relatedURLs],
                 // }),
-            })
+            });
         }
 
         if (dismissOnSave) {
@@ -199,25 +193,22 @@ export default function ItemDetail(props) {
     }
 
     const changeLabel = (e, item: Item) => {
-            let elemValue = e.target.textContent;
-            let invalidValue = !elemValue || elemValue == ``;
-            let sameName = elemValue?.toLowerCase() == item?.name?.toLowerCase();
-    
-            if (invalidValue || sameName) {
-                elemValue = capitalizeAllWords(item?.name);
-                e.target.innerHTML = elemValue;
-                return;
-            } else {
-                let value = elemValue == `` ? capitalizeAllWords(item?.name) : capitalizeAllWords(elemValue);
-        
-                elemValue = removeExtraSpacesFromString(value);
-                elemValue = capitalizeAllWords(elemValue);
-                e.target.innerHTML = elemValue;
-                const name = elemValue;
-        
-                updateDocFieldsWTimeStamp(item, { name, A: name, title: `${item?.type} ${item?.rank} ${name}` });
-            }
+        let elemValue = e.target.textContent;
+        let invalidValue = !elemValue || elemValue == ``;
+        let sameName = elemValue?.toLowerCase() == item?.name?.toLowerCase();
+        if (invalidValue || sameName) {
+            elemValue = capitalizeAllWords(item?.name);
+            e.target.innerHTML = elemValue;
+            return;
+        } else {
+            let value = elemValue == `` ? capitalizeAllWords(item?.name) : capitalizeAllWords(elemValue);
+            elemValue = removeExtraSpacesFromString(value);
+            elemValue = capitalizeAllWords(elemValue);
+            e.target.innerHTML = elemValue;
+            const name = elemValue;
+            updateDocFieldsWTimeStamp(item, { name, A: name, title: `${item?.type} ${item?.rank} ${name}` });
         }
+    }
 
     const DetailsFields = () => {
         return <>

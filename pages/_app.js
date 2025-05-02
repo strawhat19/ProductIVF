@@ -217,9 +217,11 @@ export const replaceAll = (str, search, replacement) => {
 }
 
 export const capWords = (str) => {
-  return str.replace(/\b\w/g, (match) => {
-    return match.toUpperCase();
-  });
+  if (str && typeof str == `string`) {
+    return str.replace(/\b\w/g, (match) => {
+      return match.toUpperCase();
+    });
+  }
 }
 
 export const capitalizeAllWords = (string, underScores) => {
