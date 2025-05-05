@@ -2069,6 +2069,7 @@ textarea {
                                         .taskDetailsEnd {
                                             align-items: center;
                                             flex-direction: row;
+                                            min-width: fit-content;
                                             grid-gap: 0 !important;
                                         }
                                         @media (max-width: 1120px) {
@@ -2094,6 +2095,12 @@ textarea {
                                         .detailField {
                                             justify-content: flex-end;
                                             margin-right: 10px !important;
+                                            &.taskStatus {
+                                                min-width: 44px;
+                                                text-align: left;
+                                                justify-content: flex-start;
+                                                margin-right: 5px !important;
+                                            }
                                         }
                                         input[type="checkbox"] {
                                             font-size: 8px !important;
@@ -2783,7 +2790,7 @@ footer {
                         border-radius: var(--borderRadius);
                         justify-content: flex-start !important;
                         &.itemTag {
-                            grid-gap: 3px !important;
+                            grid-gap: 2px !important;
                         }
                         &.tagTask {
                             font-size: 9px !important;

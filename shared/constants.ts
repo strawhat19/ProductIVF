@@ -11,6 +11,7 @@ import { toast } from 'react-toastify';
 
 export const maxCredits = 20_000;
 export const maxAuthAttempts = 5;
+export const pathPrefix = `https://`;
 export const defaultAuthenticateLabel = `Delete User & All Data`;
 export const userQueryFields = [`id`, `ID`, `uid`, `uuid`, `rank`, `name`, `role`, `email`, `image`, `avatar`, `phone`, `token`];
 
@@ -22,15 +23,18 @@ export const extractURLsFromText = (textArray: string[]) => {
   const URLRegex = /(?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9.-]+\.(com|net|org|io|co|gov|edu|us|uk|dev|app|info|biz|me|tv|xyz|ai|ca|in|nl|au|de)(?:[^\s]*)/gi;
   const URLsFromText = textArray.flatMap(text => text.match(URLRegex) || []);
   const lowerCasedURLsFromText = URLsFromText?.map(txt => txt?.toLowerCase());
-  return lowerCasedURLsFromText;
+  const uniqueLCURLs = Array.from(new Set(lowerCasedURLsFromText));
+  return uniqueLCURLs;
 }
 
 export const extractRootDomain = (url: string, withPath = false) => {
   if (url) {
+    url = url?.toLowerCase()?.includes(pathPrefix) ? url : pathPrefix + url;
     const parsedUrl = new URL(url);
     const checkSlash = (string: string) => string != `/` ? string : ``;
-    const hostnameParts = parsedUrl.hostname.split(`.`).filter(Boolean);
-    const domain = hostnameParts.length >= 2 ? hostnameParts.slice(-2).join(`.`) : parsedUrl.hostname;
+    const domain = parsedUrl.hostname;
+    // const hostnameParts = parsedUrl.hostname.split(`.`).filter(Boolean);
+    // const domain = hostnameParts.length >= 2 ? hostnameParts.slice(-2).join(`.`) : parsedUrl.hostname;
     return withPath ? `${domain}${checkSlash(parsedUrl.pathname)}${checkSlash(parsedUrl.search)}${checkSlash(parsedUrl.hash)}` : domain;
   }
 }

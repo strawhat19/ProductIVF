@@ -288,6 +288,15 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
     // }
 
     const onRightClick = (e: React.MouseEvent<HTMLDivElement>, item: ItemModel, column: List) => {
+        let target: any = e?.target;
+        let targetParent = target?.parentElement;
+        let tcl = target?.classList;
+        let tpcl = targetParent?.classList;
+        let classesToIgnore = [`url`, `itemURL`, `itemTags`];
+        let shouldIgnore = classesToIgnore.some(className => tcl?.contains(className) || tpcl?.contains(className));
+        
+        if (shouldIgnore) return;
+        
         e.preventDefault();
         setItemTypeMenuOpen(true);
         setMenuPosition({ x: e.clientX, y: e.clientY });

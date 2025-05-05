@@ -154,12 +154,6 @@
     }
 }
 
-// i {
-//     &.fa-trash {
-//         color: red !important;
-//     }
-// }
-
 .highlightSearchMatch {
     padding: 0 2px;
     border-radius: 2px;
@@ -195,20 +189,6 @@
                     .itemRow {
                         &:hover {
                             filter: brightness(1.15) !important;
-                            // background: var(--lightGradient) !important;
-                            // .itemName, .changeLabel, .detailField, .taskProgressCount {
-                            //     color: var(--dark) !important;
-                            // }
-                            // .progress {
-                            //     text {
-                            //         fill: var(--dark) !important;
-                            //     }
-                            // }
-                            // .itemOptions {
-                            //     button {
-                            //         background: var(--dark) !important;
-                            //     }
-                            // }
                         }
                     }
                     .boardTask {
@@ -231,22 +211,6 @@
                         }
                         &.activeItemOrTask {
                             --fontColor: var(--gameBlue) !important;
-                            // background: var(--lightGradient) !important;
-                            // &:hover {
-                            //     background: var(--whiteGradient) !important;
-                            // }
-                            // .changeLabel {
-                            //     // color: black !important;
-                            //     font-weight: var(--activeFontWeight);
-                            // }
-                            // .detailField {
-                            //     // color: black !important;
-                            //     font-style: italic !important;
-                            //     font-weight: var(--activeFontWeight) !important;
-                            // }
-                            // .deleteTaskButton {
-                            //     background: black;
-                            // }
                             input[type="checkbox"] {
                                 &::before {
                                     font-size: 11px;
@@ -256,13 +220,6 @@
                                     color: var(--fontColor) !important;
                                 }
                             }
-                            // &:hover {
-                            //     .deleteTaskButton {
-                            //         &:hover {
-                            //             background: var(--blackGlass) !important;
-                            //         }
-                            //     }
-                            // }
                         }
                     }
                     &.complete {

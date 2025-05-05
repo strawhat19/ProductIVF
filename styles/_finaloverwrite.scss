@@ -1,3 +1,21 @@
+.websiteURL {
+    height: 100%; 
+    display: flex; 
+    grid-gap: 3px; 
+    align-items: center; 
+    min-height: 15px !important;
+    max-height: 15px !important;
+    padding: 0 1px 0 4px !important;
+    .tagImage {
+        max-width: 10px;
+        max-height: 10px;
+    }
+}
+
+.itemTags {
+    min-width: fit-content;
+}
+
 .taskMainWrap {
     &:has(.status_Active) {
         &:hover {

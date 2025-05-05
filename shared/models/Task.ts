@@ -112,7 +112,7 @@ export const createTask = (
     }
 
     const taskURLs = getItemOrTaskURLs(task, [task?.name]);
-    console.log(`Task URLs`, taskURLs);
+    task.data.relatedURLs = taskURLs;
 
     return task;
 }
