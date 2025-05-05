@@ -11,7 +11,7 @@ export default function Tags({ item, className = `tagsComponent`, parentClass = 
     const Tag = (tagName = item?.rank) => {
         return (
             <span className={`detailField itemTags itemTag ${item?.type == Types.Item ? `tagItem` : `tagTask`} itemCategory itemDate itemName itemCreated itemUpdated textOverflow extended flex row ${className}`}>
-                <span className={`tagIconBadge`} style={{ color: `var(--gameBlue)`, fontSize: 9 }}>
+                <span className={`tagIconBadge`} style={{ color: `var(--gameBlue)`, fontSize: 9, position: `relative`, top: 0.2 }}>
                     {item?.type[0]}
                 </span>
                 <span className={`tagIconBadge`} style={{ fontSize: 9 }}>

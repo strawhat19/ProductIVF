@@ -36,7 +36,7 @@ export default function TagURL({ itemOrTask, url }) {
                 className={`itemURL flexLabel gap5`}
             >
                 {rootDomain != undefined && <img className={`tagImage`} src={favicon} alt={domainNameWithPath} width={16} height={16} />}
-                <span className={`useFont pointerEventsNone`} style={{ fontSize: 10, padding: `0 5px 0 0` }}>
+                <span className={`useFont pointerEventsNone`} style={{ fontSize: 10, padding: `1px 5px 0 0` }}>
                     {domainNameWithPath}
                 </span>
                 {/* <i className={`fas fa-external-link-alt useMainIconColor`} style={{ fontSize: 10 }} /> */}

@@ -7,8 +7,10 @@
     max-height: 15px !important;
     padding: 0 1px 0 4px !important;
     .tagImage {
+        top: 1px;
         max-width: 10px;
         max-height: 10px;
+        position: relative;
     }
 }
 

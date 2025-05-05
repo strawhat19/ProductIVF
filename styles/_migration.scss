@@ -57,6 +57,12 @@
 }
 
 .itemDetailsContainer {
+    grid-gap: 10px;
     align-items: center; 
     flex-direction: row;
+}
+
+.itemDateTime {
+    position: relative;
+    top: 0.2px;
 }
