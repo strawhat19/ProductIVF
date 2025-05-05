@@ -1,6 +1,6 @@
 {
   "name": "product-ivf",
-  "version": "6.0.4",
+  "version": "6.0.4.2",
   "description": "Nextra docs template",
   "scripts": {
     "dev": "next dev",
@@ -12,7 +12,7 @@
     "type": "git",
     "url": "git+https://github.com/shuding/nextra-docs-template.git"
   },
-  "author": "Shu Ding <g@shud.in>",
+  "author": "Rakib Ahmed <rakib987@gmail.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/shuding/nextra-docs-template/issues"

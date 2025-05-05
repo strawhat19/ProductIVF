@@ -80,10 +80,10 @@ export default function Board(props) {
         }
     }
 
-    const onShowSearchClick = (e?: any) => {
-        setShowSearch(!showSearch);
-        toast.info(`Board Search in Development`);
-    }
+    // const onShowSearchClick = (e?: any) => {
+    //     setShowSearch(!showSearch);
+    //     toast.info(`Board Search in Development`);
+    // }
 
     const setBoardFocused = () => {
         if (board) toggleBoardOption(`focused`);
@@ -192,9 +192,12 @@ export default function Board(props) {
             const { rank, number } = await getRankAndNumber(Types.List, globalUserData?.lists, board?.data?.listIDs, users, user);
             const listsRef = await collection(db, listsTable);
             const listsSnapshot = await getDocs(listsRef);
+            const allDBLists = listsSnapshot.docs.map(doc => doc.data());
+            const highestDbListRanks = allDBLists?.map((lst: List) => lst?.rank)?.sort((a, b) => b - a);
+            const highestDbListRank = highestDbListRanks[0] + 1;
             const listsCount = listsSnapshot.size;
             const listRank = listsCount + 1;
-            const listNumber = Math.max(rank, number, listRank);
+            const listNumber = Math.max(rank, number, listRank, highestDbListRank);
 
             const newList = createList(listNumber, name, user, listNumber, selectedGrid?.id, board?.id) as List;
 

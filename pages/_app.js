@@ -745,9 +745,12 @@ export default function ProductIVF({ Component, pageProps, router }) {
     const { rank, number } = await getRankAndNumber(Types.Board, boards, selectedGrd?.data?.boardIDs, users, user);
     const boardsRef = await collection(db, boardsTable);
     const boardsSnapshot = await getDocs(boardsRef);
+    const allDBBoards = boardsSnapshot.docs.map(doc => doc.data());
+    const highestDbBoardRanks = allDBBoards?.map(brd => brd?.rank)?.sort((a, b) => b - a);
+    const highestDbBoardRank = highestDbBoardRanks[0] + 1;
     const boardsCount = boardsSnapshot.size;
     const boardRank = boardsCount + 1;
-    const boardNumber = Math.max(rank, number, boardRank);
+    const boardNumber = Math.max(rank, number, boardRank, highestDbBoardRank);
 
     const newBoard = createBoard(boardNumber, boardName, user, titleWidth, boardNumber, selectedGrd?.id, listIDs, itemIDs);
 

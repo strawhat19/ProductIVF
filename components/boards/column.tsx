@@ -214,9 +214,12 @@ export default function Column(props) {
             const { rank, number } = await getRankAndNumber(Types.Item, globalUserData?.items, column?.data?.itemIDs, users, user);
             const itemsRef = await collection(db, itemsTable);
             const itemsSnapshot = await getDocs(itemsRef);
+            const allDBItems = itemsSnapshot.docs.map(doc => doc.data());
+            const highestDbItemRanks = allDBItems?.map((itm: ItemModel) => itm?.rank)?.sort((a, b) => b - a);
+            const highestDbItemRank = highestDbItemRanks[0] + 1;
             const itemsCount = itemsSnapshot.size;
             const itemRank = itemsCount + 1;
-            const itemNumber = Math.max(rank, number, itemRank);
+            const itemNumber = Math.max(rank, number, itemRank, highestDbItemRank);
 
             const newItem = createItem(itemNumber, name, user, itemNumber, selectedGrid?.id, board?.id, column?.id, image, video) as ItemModel;
 

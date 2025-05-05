@@ -322,9 +322,12 @@ export default function Tasks(props) {
         const { rank, number } = await getRankAndNumber(Types.Task, globalUserData?.tasks, column?.data?.taskIDs, users, user);
         const tasksRef = await collection(db, tasksTable);
         const tasksSnapshot = await getDocs(tasksRef);
+        const allDBTasks = tasksSnapshot.docs.map(doc => doc.data());
+        const highestDbTaskRanks = allDBTasks?.map((tsk: Task) => tsk?.rank)?.sort((a, b) => b - a);
+        const highestDbTaskRank = highestDbTaskRanks[0] + 1;
         const tasksCount = tasksSnapshot.size;
         const taskRank = tasksCount + 1;
-        const taskNumber = Math.max(rank, number, taskRank);
+        const taskNumber = Math.max(rank, number, taskRank, highestDbTaskRank);
   
         const newTask = createTask(taskNumber, name, user, selectedGrid?.id, item?.boardID, column?.id, item?.id, taskNumber) as Task;
   
