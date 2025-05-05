@@ -15,16 +15,21 @@
 }
 
 .urlDeleteBtn {
-    top: -3px;
     padding: 0;
     display: flex;
     min-width: 12px;
     text-align: left;
     max-height: 10.5px;
-    position: relative;
     align-items: center;
     max-width: fit-content;
     justify-content: center;
+}
+
+.tasksContainer {
+    .urlDeleteBtn {
+        top: -3px;
+        position: relative;
+    }
 }
 
 .itemTags {

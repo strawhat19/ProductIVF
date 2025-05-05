@@ -257,7 +257,7 @@ export default function ItemDetail(props) {
     }
 
     return <>
-        <div className={`alertDetailsComponent`}>
+        <div className={`detail_view alertDetailsComponent`}>
             <div className={`alertTitleRowInner`}>
                 <div className={`alertTitleRow`}>
                     <h2 className={`alertTitle`}>
@@ -315,7 +315,7 @@ export default function ItemDetail(props) {
                         {(item?.data?.taskIDs?.length == 0 || item?.data?.taskIDs?.length == tasks?.filter((tsk: Task) => tsk?.options?.complete)?.length) && (
                             <ToggleButtons item={item} toDoTasks={tasks?.filter((tsk: Task) => !tsk?.options?.active && !tsk?.options?.complete)} activeTasks={tasks?.filter((tsk: Task) => tsk?.options?.active)} completeTasks={tasks?.filter((tsk: Task) => tsk?.options?.complete)} onActiveChange={(newActive) => setActive(newActive)} />
                         )}
-                        <div className={`tasksContainer`}>
+                        <div className={`tasksContainer detailView_tasksContainer`}>
                             {TasksField()}
                         </div>
                     </form>
