@@ -41,7 +41,7 @@ export default function TagURL({ itemOrTask, url }) {
                 </span>
                 {/* <i className={`fas fa-external-link-alt useMainIconColor`} style={{ fontSize: 10 }} /> */}
             </a>
-            <button title={`Remove URL`} className={`urlDeleteBtn`} style={{ maxHeight: 10.5, maxWidth: `fit-content`, minWidth: 12, textAlign: `left` }}>
+            <button title={`Remove URL`} className={`urlDeleteBtn`}>
                 <i
                     className={`urlIcon urlDeleteIcon useMainIconColor fas fa-times`}
                     style={{ fontSize: 9, maxHeight: 10.5, maxWidth: `fit-content` }}
