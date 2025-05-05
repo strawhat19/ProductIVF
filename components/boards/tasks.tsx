@@ -81,23 +81,23 @@ const SortableSubtaskItem = ({ selected, item, task: taskProp, isLast, index, gr
           </div>
 
           <div className={`taskOptions itemOptions itemButtons customButtons taskComponentBG taskButtons ${task?.options?.complete ? `taskComplete` : `taskActive`} ${item?.options?.complete ? `itemComplete` : `itemActive`} ${(item?.options?.complete || task?.options?.complete) ? `taskButtonsComplete` : `taskButtonsActive`}`}>
-            {/* {selected != null && ( */}
-              <button
-                title={`Delete Task`}
-                onClick={(e) => deleteSubtask(e, task)}
-                onMouseDown={(e) => e.stopPropagation()}
-                onPointerDown={(e) => e.stopPropagation()}
-                className={`iconButton deleteButton deleteTaskButton wordIconButton`}
-              >
-                <i className={`fas fa-trash`} style={{ color: `var(--gameBlue)`, fontSize: 9 }} />
-              </button>
-            {/* // )} */}
+            <button
+              title={`Delete Task`}
+              onClick={(e) => deleteSubtask(e, task)}
+              onMouseDown={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
+              className={`iconButton deleteButton deleteTaskButton wordIconButton`}
+            >
+              <i className={`fas fa-trash`} style={{ color: `var(--gameBlue)`, fontSize: 9 }} />
+            </button>
             <input
               type={`checkbox`}
+              name={`task_status`}
               data-checkbox={true}
               autoComplete={`off`}
               disabled={item?.options?.complete}
               onChange={(e) => completeTask(e, task)}
+              id={`task_${task?.id}_status_checkbox`}
               onMouseDown={(e) => e.stopPropagation()}
               onPointerDown={(e) => e.stopPropagation()}
               checked={item?.options?.complete || (task?.options?.complete || task?.options?.active)}

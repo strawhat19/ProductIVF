@@ -8,22 +8,22 @@ import { Item } from '../../shared/models/Item';
 import DetailField from './details/detail-field';
 import ToggleButtons from './details/toggle-buttons';
 import { updateDocFieldsWTimeStamp } from '../../firebase';
-import { capitalizeAllWords, capWords, dev, StateContext } from '../../pages/_app';
 import { useContext, useEffect, useRef, useState } from 'react';
+import { capitalizeAllWords, StateContext } from '../../pages/_app';
 import { forceFieldBlurOnPressEnter, removeExtraSpacesFromString } from '../../shared/constants';
 
 export default function ItemDetail(props) {
     let formRef = useRef(null);
-    let { itemID, item: itemProp, index, tasks: tasksProp, activeTasks, completeTasks, board, column } = props;
 
     let { selected, setSelected, globalUserData } = useContext<any>(StateContext);
+    let { itemID, item: itemProp, index, tasks: tasksProp, activeTasks, completeTasks, board, column } = props;
 
     let [item, setItem] = useState<Item>(itemProp);
     let [formStatus, setFormStatus] = useState(``);
-    // let [imageErrorText, ] = useState(`Image Error`);
     let [tasks, setTasks] = useState<Task[]>(tasksProp);
     let [validSelectedImage, setValidSelectedImage] = useState(false);
     let [image, setImage] = useState((itemProp?.image && itemProp?.image != ``) ? itemProp?.image : undefined);
+
     let [active, setActive] = useState(
         item?.options?.complete 
         ? `complete` 
@@ -43,41 +43,31 @@ export default function ItemDetail(props) {
         setTasks(updatedTasks);
         const updatedItemAndTasks = { ...refreshedItem, tasks: updatedTasks };
         setItem(updatedItemAndTasks);
-        // if (updatedItemAndTasks != null) {
-        //     if (updatedTasks?.length == item?.data?.taskIDs?.length) {
-        //         setSelected(prevSelected => ({ ...prevSelected, item: updatedItemAndTasks }));
-        //     }
-        // }
     }, [globalUserData])
 
-    // const updateFormStatus = (statusText: string = ``, clear = false) => {
-    //     if (statusText == ``) {
-    //         setFormStatus(statusText);
-    //     } else {
-    //         if (clear) {
-    //             if (formStatus?.includes(statusText)) {
-    //                 if (formStatus?.includes(`,`)) {
-    //                     setFormStatus(prevFormStatus => prevFormStatus?.replaceAll(`, ${statusText}`, ``));
-    //                 } else {
-    //                     setFormStatus(prevFormStatus => prevFormStatus?.replaceAll(statusText, ``));
-    //                 }
-    //             }
-    //         } else {
-    //             if (formStatus == ``) {
-    //                 setFormStatus(statusText);
-    //             } else {
-    //                 setFormStatus(prevFormStatus => prevFormStatus + `, ${statusText}`);
-    //             }
-    //         }
-    //     }
-    // }
+    const changeLabel = (e, item: Item) => {
+        let elemValue = e.target.textContent;
+        let invalidValue = !elemValue || elemValue == ``;
+        let sameName = elemValue?.toLowerCase() == item?.name?.toLowerCase();
+        if (invalidValue || sameName) {
+            elemValue = capitalizeAllWords(item?.name);
+            e.target.innerHTML = elemValue;
+            return;
+        } else {
+            let value = elemValue == `` ? capitalizeAllWords(item?.name) : capitalizeAllWords(elemValue);
+            elemValue = removeExtraSpacesFromString(value);
+            elemValue = capitalizeAllWords(elemValue);
+            e.target.innerHTML = elemValue;
+            const name = elemValue;
+            updateDocFieldsWTimeStamp(item, { name, A: name, title: `${item?.type} ${item?.rank} ${name}` });
+        }
+    }
 
     const refreshDetails = (e) => {
         e.preventDefault();
         let formField = e?.target;
         if (formField?.name == `itemImageLink`) {
             const updatedImage = formField?.value;
-            // dev() && console.log(`Item Detail Form Change`, {detailViewImage, updatedImage});
             setImage(updatedImage);
             const detailViewImage: HTMLImageElement = document?.querySelector(`.detailViewImage`);
             if (detailViewImage || updatedImage == ``) {
@@ -85,23 +75,44 @@ export default function ItemDetail(props) {
                 setFormStatus(``);
             }
         }
-        // if (formRef != null) {
-        //     let form = formRef?.current;
-        //     let { itemURL: itemURLField } = form;
-        //     if (itemURLField) {
-        //         let itemURL = itemURLField?.value;
-        //         let itemURLLowercased = itemURL?.toLowerCase();
-        //         let lowercasedCurrentURLs = item?.data?.relatedURLs?.map(url => url?.toLowerCase());
-        //         let URLAlreadyLinked = itemURLLowercased != `` && lowercasedCurrentURLs?.includes(itemURLLowercased);
-        //         updateFormStatus(`URL already linked`, !URLAlreadyLinked);
-        //     }
-        // }
+    }
+
+    const onItemShowFormChange = async (e) => {
+        e?.preventDefault();
+        await updateDocFieldsWTimeStamp(selected?.item, { [`options.showTaskForm`]: !item?.options?.showTaskForm });
+    }
+
+    const formSubmitOnEnter = (e) => {
+        const queryFields = [e?.key, e?.keyCode];
+        const submitKeys = [13, `Enter`, `Return`];
+        const shouldSubmitOnEnter = queryFields?.some(fld => submitKeys?.includes(fld));
+        if (shouldSubmitOnEnter) {
+            saveItem(e);
+        }
+    }
+
+    const imageLoaded = (e) => {
+        const imageComponent = e?.target;
+        if (imageComponent?.complete && imageComponent?.naturalWidth > 0) {
+            setFormStatus(``);
+            setValidSelectedImage(true);
+        }
+    }
+  
+    const imageErrored = (e) => {
+        const imageField: any = document?.querySelector(`.itemImageLinkField`);
+        if (imageField && imageField?.value == ``) {
+            setFormStatus(``);
+            setValidSelectedImage(false);
+        } else {
+            setValidSelectedImage(false);
+            setFormStatus(`Image Error`);
+        }
     }
 
     const saveItem = async (e, dismissOnSave = false) => {
         e.preventDefault();
 
-        // let form = e?.target;
         let form = formRef?.current;
 
         let { 
@@ -159,54 +170,6 @@ export default function ItemDetail(props) {
             if (closeButton) closeButton.click();
         } else {
             form?.reset();
-        }
-    }
-
-    const onItemShowFormChange = async (e) => {
-        e?.preventDefault();
-        await updateDocFieldsWTimeStamp(selected?.item, { [`options.showTaskForm`]: !item?.options?.showTaskForm });
-    }
-
-    const imageLoaded = (e) => {
-        const imageComponent = e?.target;
-        // console.log(`Image Loaded`, { e, complete: imageComponent?.complete, width: imageComponent?.naturalWidth, height: imageComponent?.naturalHeight });
-        if (imageComponent?.complete && imageComponent?.naturalWidth > 0) {
-            setValidSelectedImage(true);
-            setFormStatus(``);
-        }
-    }
-  
-    const imageErrored = (e) => {
-        const imageComponent = e?.target;
-        dev() && console.log(`Image Errored`, { e, complete: imageComponent?.complete, width: imageComponent?.naturalWidth, height: imageComponent?.naturalHeight });
-        setValidSelectedImage(false);
-        setFormStatus(`Image Error`);
-    }
-
-    const formSubmitOnEnter = (e) => {
-        const queryFields = [e?.key, e?.keyCode];
-        const submitKeys = [13, `Enter`, `Return`];
-        const shouldSubmitOnEnter = queryFields?.some(fld => submitKeys?.includes(fld));
-        if (shouldSubmitOnEnter) {
-            saveItem(e);
-        }
-    }
-
-    const changeLabel = (e, item: Item) => {
-        let elemValue = e.target.textContent;
-        let invalidValue = !elemValue || elemValue == ``;
-        let sameName = elemValue?.toLowerCase() == item?.name?.toLowerCase();
-        if (invalidValue || sameName) {
-            elemValue = capitalizeAllWords(item?.name);
-            e.target.innerHTML = elemValue;
-            return;
-        } else {
-            let value = elemValue == `` ? capitalizeAllWords(item?.name) : capitalizeAllWords(elemValue);
-            elemValue = removeExtraSpacesFromString(value);
-            elemValue = capitalizeAllWords(elemValue);
-            e.target.innerHTML = elemValue;
-            const name = elemValue;
-            updateDocFieldsWTimeStamp(item, { name, A: name, title: `${item?.type} ${item?.rank} ${name}` });
         }
     }
 
