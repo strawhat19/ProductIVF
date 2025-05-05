@@ -26,7 +26,7 @@ export default function Tags({ item, className = `tagsComponent`, parentClass = 
 
     return <>
         <div className={`itemTags itemTagsParent ${parentClass} fit ${item?.type == Types.Item ? `tagsItem` : `tagsTask`}`}>
-            {(dev() && item?.data?.relatedURLs?.length > 0) ? <>
+            {(item?.data?.relatedURLs?.length > 0) ? <>
                 {item?.data?.relatedURLs?.map((url, urlIndex) => {
                     return <TagURL itemOrTask={item} key={urlIndex} url={url} />;
                 })}
