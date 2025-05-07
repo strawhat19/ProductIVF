@@ -69,7 +69,15 @@ export default function Column(props) {
             let queryStrings = [];
 
             let itemTags = itm?.data?.tags;
-            let itemQueryStrings = [itm?.name, itm?.description, String(itm?.rank)];
+            let itemQueryStrings = [
+                itm?.name, 
+                itm?.description, 
+                String(itm?.rank), 
+                `${itm?.type[0]}${itm?.rank}`, 
+                `${itm?.type[0]} ${itm?.rank}`, 
+                `${itm?.type[0]}-${itm?.rank}`, 
+                `${itm?.type[0]}_${itm?.rank}`,
+            ];
 
             [...itemTags, ...itemQueryStrings]?.forEach(qStr => queryStrings?.push(qStr));
 
@@ -79,6 +87,17 @@ export default function Column(props) {
                 let itemTaskRanks = itemTasks?.map((tsk: Task) => String(tsk?.rank));
                 let taskQueryStrings = [...itemTaskNames, ...itemTaskRanks];
                 taskQueryStrings?.forEach(tqStr => queryStrings?.push(tqStr));
+                itemTasks?.forEach((tsk: Task) => {
+                    let taskTags = tsk?.data?.tags || [];
+                    let taskRelatedURLs = tsk?.data?.relatedURLs || [];
+                    queryStrings.push(...taskTags, ...taskRelatedURLs);
+                    queryStrings.push(
+                        `${tsk?.type[0]}${tsk?.rank}`, 
+                        `${tsk?.type[0]} ${tsk?.rank}`, 
+                        `${tsk?.type[0]}-${tsk?.rank}`, 
+                        `${tsk?.type[0]}_${tsk?.rank}`,
+                    )
+                });
             }
 
             queryStrings = queryStrings?.map(qs => qs?.toLowerCase());
