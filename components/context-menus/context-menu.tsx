@@ -55,7 +55,8 @@ export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--
 
     const copyToClipBoard = () => {
         if (navigator.clipboard) {
-            let textToCopy = selected?.item?.name;
+            let { name, type, rank } = selected?.item;
+            let textToCopy = `${type[0]?.toLowerCase()}${rank} - ${name}`;
             navigator.clipboard.writeText(textToCopy);
             toast.success(`Copied to Clipboard`);
         }

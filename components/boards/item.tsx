@@ -2,7 +2,7 @@ import Tags from './details/tags';
 import Progress from '../progress';
 import { ItemTypes } from './boards';
 import Counts from './details/counts';
-import ItemDetail from './itemdetail';
+// import ItemDetail from './itemdetail';
 import CustomImage from '../custom-image';
 import { addBoardScrollBars } from './board';
 import { Task } from '../../shared/models/Task';
