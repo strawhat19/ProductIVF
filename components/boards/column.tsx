@@ -325,14 +325,14 @@ export default function Column(props) {
                                 </div>
                             </h3>
                             <div className={`listButtonOptions itemButtons customButtons`}>
-                                {(!forceListDetails && board?.data?.listIDs?.length <= 3) && <>
+                                {/* {(!forceListDetails && board?.data?.listIDs?.length <= 3) && <>
                                     <button id={`details_Columns_${props.column.id}`} style={{ pointerEvents: `all` }} onClick={(e) => adjustColumnsDetails(props.column)} title={`Details`} className={`columnIconButton iconButton detailsButton ${props.column?.options?.details == true ? `` : `optionActive`}`}>
                                         <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas ${props?.column?.options?.details == true ? `fa-bars` : `fa-times`}`} />
                                         <span className={`iconButtonText listTitleButtonLabel firstTitle ${renderTitleSizeClass(props.column.name)} textOverflow extended`}>
                                             {props.column?.options?.details == true ? `Expanded` : `Compact`}
                                         </span>
                                     </button>
-                                </>}
+                                </>} */}
                                 <button id={`delete_${props.column.id}`} style={{ pointerEvents: `all` }} onClick={(e) => deleteColumn(props.column.id, props.index)} title={`Delete List`} className={`columnIconButton iconButton deleteButton deleteListButton ${showConfirm ? `cancelBtnList` : ``}`}>
                                     <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`mainIcon fas fa-${showConfirm ? `ban` : `trash`}`} />
                                     <span className={`iconButtonText listTitleButtonLabel ${renderTitleSizeClass(props.column.name)} textOverflow extended`}>

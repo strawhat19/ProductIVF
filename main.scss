@@ -911,6 +911,14 @@ body {
     }
     // Menu Kicks In
     @container (max-width: 768px) {
+        .formButtonsField {
+            max-width: unset;
+            justify-content: center;
+            .authFormDelete {
+                padding: 0 !important;
+                max-width: fit-content;
+            }
+        }
         .nextra-nav-container {
             .navFormDiv {
                 display: none !important;
@@ -933,6 +941,20 @@ body {
                         .welcomeUser {
                             display: none !important;
                         }
+                        .authForm {
+                            &:has(input[type="password"]) {
+                                display: grid !important;
+                                grid-template-columns: repeat(2, 1fr);
+                                .formButtonsField {
+                                    max-width: unset !important;
+                                    justify-content: center !important;
+                                    .authFormBack {
+                                        padding: 0 !important;
+                                        max-width: fit-content;
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -942,6 +964,32 @@ body {
             .nx-sticky {
                 &:not(.nx-top-0) {
                     display: none;
+                }
+            }
+        }
+    }
+    @container (max-width: 575px) {
+        .gridRow.hasGridSelector.withSingleSelect:not(.gridsAreLoading) {
+            grid-template-rows: 1fr 1fr 1fr;
+            grid-template-columns: 1fr !important;
+            .multiSelectOptionContainer {
+                background: transparent;
+                justify-content: flex-end;
+                .multiSelectedIconLabels {
+                    width: 100%;
+                    display: grid;
+                    grid-gap: 35px;
+                    grid-template-columns: auto 1fr;
+                    .multiSelectOption {
+                        width: 100%;
+                        .gridsIconRow {
+                            width: 100%;
+                        }
+                        #selectedGridSelector {
+                            box-sizing: border-box;
+                            padding: 0 10px !important;
+                        }
+                    }
                 }
             }
         }
