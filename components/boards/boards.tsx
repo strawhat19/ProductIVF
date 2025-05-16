@@ -177,12 +177,12 @@ export default function Boards(props: any) {
                     </>}
                 </div>
                 <div className={`flex row right`} style={{ height: `var(--buttonSize)` }}>
-                    {(gridsLoading || (selectedGrid == null && (grids?.length == 0 || globalUserData?.grids?.length == 0))) ? (
+                    {(!user || (gridsLoading || (selectedGrid == null && (grids?.length == 0 || globalUserData?.grids?.length == 0)))) ? (
                         <IVFSkeleton 
                             labelSize={14}
                             showLoading={true}
-                            className={`gridsItemsSkeleton`} 
                             label={getLoadingLabel(`Grids`, authState, user)} 
+                            className={`gridsItemsSkeleton gridSelectorSkeleton`} 
                             style={{ minWidth: 300, [`--animation-delay`]: `${0.15}s` }} 
                         />
                     ) : (

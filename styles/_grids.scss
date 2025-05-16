@@ -139,11 +139,24 @@
     }
 }
 
+.gridComponent {
+    container-type: inline-size;
+    @container (max-width: 415px) {
+        .IVF_skeleton_label_container {
+            width: 92% !important;
+        }
+        .gridSelectorSkeleton_container {
+            min-width: unset !important;
+        }
+    }
+}
+
 .gridRow {
     gap: 10px;
     width: 100%;
     display: grid;
     align-items: center;
+    container-type: inline-size;
     grid-template-columns: auto 1fr;
     .selectedOptionsContainer {
         display: flex;
