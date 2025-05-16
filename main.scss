@@ -655,13 +655,13 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
     }
 }
 
-@media (max-width: 985px) {
-    .nextra-nav-container {
-        .navFormDiv {
-            display: none !important;
-        }
-    }
-}
+// @media (max-width: 985px) {
+//     .nextra-nav-container {
+//         .navFormDiv {
+//             display: none !important;
+//         }
+//     }
+// }
 
 @media (max-width: 992px) {
     .board {
@@ -879,7 +879,66 @@ section {
 
 body {
     overflow-x: hidden;
+    container-type: inline-size;
     transition: var(--transition);
+
+    @container (max-width: 1065px) {
+        .systemStatusComponent {
+            display: none;
+        }
+    }
+    @container (max-width: 995px) {
+        .timeComponent {
+            display: none;
+        }
+    }
+    @container (max-width: 905px) {
+        &:has(._projects_boards) {
+            article {
+                .board {
+                    grid-gap: 15px;
+                    flex-direction: column !important;
+                    &.lists {
+                        &.container {
+                            .column {
+                                min-width: 100% !important;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    @container (max-width: 768px) {
+        .nextra-nav-container {
+            .navFormDiv {
+                display: none !important;
+            }
+        }
+        .nx-bg-black\/80 {
+            background: transparent !important;
+        }
+        .nextra-sidebar-container {
+            max-height: fit-content;
+            border-right: none !important;
+            // backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--main) !important;
+            background: var(--darkNavAndFooterBG) !important;
+            div {
+                &:has(.navFormDiv) {
+                    padding-bottom: 1rem;
+                }
+            }
+            .nextra-scrollbar {
+                display: none;
+            }
+            .nx-sticky {
+                &:not(.nx-top-0) {
+                    display: none;
+                }
+            }
+        }
+    }
 
     article {
         div {

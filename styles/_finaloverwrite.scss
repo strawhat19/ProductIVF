@@ -33,6 +33,9 @@
 }
 
 .itemTags {
+    grid-gap: 5px;
+    display: flex;
+    flex-direction: row;
     min-width: fit-content;
 }
 
