@@ -143,10 +143,18 @@
     container-type: inline-size;
     @container (max-width: 415px) {
         .IVF_skeleton_label_container {
+            gap: 11px !important;
             width: 92% !important;
         }
         .gridSelectorSkeleton_container {
             min-width: unset !important;
+            .IVF_skeleton_label {
+                i {
+                    top: -2px;
+                    position: relative;
+                    font-size: 12px !important;
+                }
+            }
         }
     }
 }

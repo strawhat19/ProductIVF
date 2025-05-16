@@ -909,6 +909,7 @@ body {
             }
         }
     }
+    // Menu Kicks In
     @container (max-width: 768px) {
         .nextra-nav-container {
             .navFormDiv {
@@ -927,6 +928,12 @@ body {
             div {
                 &:has(.navFormDiv) {
                     padding-bottom: 1rem;
+                    container-type: inline-size;
+                    @container (max-width: 442px) {
+                        .welcomeUser {
+                            display: none !important;
+                        }
+                    }
                 }
             }
             .nextra-scrollbar {
