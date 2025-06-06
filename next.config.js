@@ -59,7 +59,7 @@ const nextConfig = {
       { source: `/about-me`, destination: `/about`, permanent: true },
       { source: `/portfolio`, destination: `/about`, permanent: true },
       // Contact
-      { source: `/messages`, destination: `/contact`, permanent: true },
+      // { source: `/messages`, destination: `/contact`, permanent: true },
       { source: `/contactus`, destination: `/contact`, permanent: true },
       { source: `/contactme`, destination: `/contact`, permanent: true },
       { source: `/contact-us`, destination: `/contact`, permanent: true },

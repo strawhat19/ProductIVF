@@ -812,6 +812,15 @@ export default function ProductIVF({ Component, pageProps, router }) {
     }
   }
 
+  const overWriteDiscordLink = () => {
+    let discordLink = document.querySelector(`a[href="https://discord.gg/gv9HnAv"]`);
+    if (discordLink) {
+      discordLink.target = `_self`;
+      discordLink.href = `/messages`;
+      discordLink.innerHTML = `<i class="messagesIcon fas fa-paper-plane"></i>`;
+    }
+  }
+
   const [showedTimeWarning, setShowedTimeWarning] = useState(false);
   useEffect(() => {
     const isRecentlyAuthenticated = recentlyAuthenticated(user);
@@ -907,6 +916,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
   useEffect(() => {
     let listenforUserGridsChanges = null;
     if (user != null) {
+      if (devEnv) overWriteDiscordLink();
       const gridsDatabase = collection(db, gridsTable)?.withConverter(gridConverter);
       const gridsQuery = query(gridsDatabase, where(`data.users`, `array-contains`, user?.email));
       if (listenforUserGridsChanges == null) listenforUserGridsChanges = onSnapshot(gridsQuery, gridsUpdates => {

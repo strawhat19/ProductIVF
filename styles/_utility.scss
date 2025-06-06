@@ -1,12 +1,22 @@
+.gap5 { grid-gap: 5px; }
+.gap10 { grid-gap: 10px; }
+.gap15 { grid-gap: 15px; }
+
 .hidden { display: none; }
 .flexThis { display: flex; }
 .fit { max-width: fit-content; }
 .blurred { filter: blur(15px); }
 .rowThis { flex-direction: row; }
 .cursorPointer { cursor: pointer; }
+.alignCenter { align-items: center; }
 .cursorAuto { cursor: auto !important; }
 .transition { transition: var(--transition); }
 .spaceBetween { justify-content: space-between !important; }
+
+.flexColumn {
+    display: flex;
+    flex-direction: column;
+}
 
 .invis, .invisible {
     // opacity: 0;
@@ -26,6 +36,18 @@
     border-radius: var(--borderRadius);
 }
 
+.useFont {
+    font-family: 'Montserrat' !important;
+}
+
+.mainColor {
+    color: var(--main);
+}
+
+.useMainIconColor {
+    color: var(--gameBlue) !important;
+}
+
 .flexLabel {
     line-height: 1;
     grid-gap: 10px;
@@ -33,19 +55,6 @@
     align-items: center;
     justify-content: center;
     display: flex !important;
-}
-
-.flexColumn {
-    display: flex;
-    flex-direction: column;
-}
-
-.useFont {
-    font-family: 'Montserrat' !important;
-}
-
-.useMainIconColor {
-    color: var(--gameBlue) !important;
 }
 
 .button {

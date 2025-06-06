@@ -9,6 +9,7 @@
 @use './shared/admin/features';
 @use './styles/itemsoverwrite';
 @use './styles/finaloverwrite';
+@use './components/messages/messages';
 @use './components/modals/details/details';
 @use './components/selector/multiselector';
 
@@ -226,6 +227,9 @@ input {
 article {
     padding: 8px 0 1em;
     min-height: calc(94vh - var(--nextra-navbar-height)) !important;
+    @media (max-width: 768px) {
+        min-height: calc(93.5vh - var(--nextra-navbar-height)) !important;
+    }
     main {
         padding: 0;
         width: 100% !important;
@@ -361,6 +365,9 @@ nav {
     overflow: hidden !important;
     white-space: nowrap !important;
     text-overflow: ellipsis !important;
+    &.wsNormal {
+        white-space: normal !important;
+    }
     &.skeleton_label {
         max-width: 550px;
     }
@@ -3147,7 +3154,3 @@ footer {
         }
     }
 }
-
-.gap5 { grid-gap: 5px; }
-.gap10 { grid-gap: 10px; }
-.gap15 { grid-gap: 15px; }

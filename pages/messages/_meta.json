@@ -1,0 +1,20 @@
+{
+    "[id]": {
+        "title": "Messages",
+        "type": "page",
+        "display": "hidden",
+        "theme": {
+            "pagination": false,
+            "layout": "full"
+        }
+    },
+    "index": {
+        "title": "Messages",
+        "type": "page",
+        "display": "hidden",
+        "theme": {
+            "pagination": false,
+            "layout": "full"
+        }
+    }
+}
