@@ -7,6 +7,7 @@ import { countPropertiesInObject, isValid, stringNoSpaces } from '../constants';
 export class Message extends Data {
     A?: any;
 
+    name: string;
     creator: string;
     senderID: string;
     senderEmail: string;
