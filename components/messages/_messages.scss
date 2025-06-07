@@ -29,38 +29,6 @@
     justify-items: center;
 }
 
-html, body {
-    &:has(._messages) {
-        // overflow-y: hidden;
-        .nextra-nav-container {
-            top: 0;
-            position: fixed;
-        }
-        ._messages {
-            article {
-                padding: 0;
-            }
-            .nx-mt-16 {
-                display: none;
-            }
-        }
-        &:has(.chatMessages) {
-            &:has(.chatSkeleton) {
-                padding-top: 50px;
-            }
-            max-height: 94.5dvh;
-            footer {
-                bottom: 0;
-                z-index: 1;
-                width: 100%;
-                position: fixed;
-                border-top: 1px solid var(--main);
-            }
-        }
-    }
-}
-
-
 a {
     &:has(.messagesIcon) {
         display: flex;
@@ -89,8 +57,16 @@ a {
     }
 }
 
-.avatarImage {
-    border-radius: 100%;
+span {
+    &:has(.avatarImage) {
+        align-items: center;
+        justify-content: center;
+        display: flex !important;
+        .avatarImage {
+            max-height: 70px;
+            border-radius: 100%;
+        }
+    }
 }
 
 .messageContent {
@@ -145,19 +121,68 @@ a {
     width: 100%;
     display: flex;
     align-items: center;
+    max-height: max-content;
     justify-content: center;
-    input {
-        width: 95%;
+    .formField {
+        width: 100%;
+        display: flex;
+        padding: 10px 0 0;
+        align-items: center;
+        justify-content: center;
+        border-top: 1px solid var(--main);
+        input {
+            width: 95%;
+        }
     }
 }
 
-// .chatSlide {
-//     height: 100%;
-//     min-height: 0;
-//     display: grid !important;
-//     grid-template-rows: 1fr auto;
-//     .messagesPreviewContainer {
-//         min-height: 0;
-//         overflow-y: hidden;
-//     }
-// }
+.chatSlide {
+    height: 100%;
+    .messagesPreviewContainer {
+        min-height: 0;
+        overflow-y: auto !important;
+        .messagePreview {
+            &:last-child {
+                border-bottom: none !important;
+            }
+        }
+    }
+}
+
+html {
+    &:has(.chatMessages) {
+        overflow-y: hidden;
+    }
+}
+
+body {
+    &:has(._messages) {
+        .nextra-nav-container {
+            top: 0;
+            position: fixed;
+        }
+        ._messages {
+            article {
+                padding: 0;
+            }
+            .nx-mt-16 {
+                display: none;
+            }
+        }
+        &:has(.chatSkeleton) {
+            article {
+                min-height: calc(93.6dvh) !important;
+            }
+        }
+        // &:has(.chatMessages) {
+            // overflow-y: hidden;
+        //     // max-height: 94.5dvh;
+        //     // footer {
+        //     //     bottom: 0;
+        //     //     z-index: 1;
+        //     //     width: 100%;
+        //     //     position: fixed;
+        //     // }
+        // }
+    }
+}
