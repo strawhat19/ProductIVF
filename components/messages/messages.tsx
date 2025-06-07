@@ -92,23 +92,17 @@ export default function Messages() {
                 </div>
             </div>
         </> : (
-            (gridsLoading || boardsLoading) ? (
-               <div style={{ padding: 15 }}>
-                    <IVFSkeleton 
-                        height={65}
-                        showLoading={true}
-                        skeletonContainerGap={15}
-                        label={`Messages Loading`} 
-                        className={`boardsSkeleton`} 
-                        skeletonContainerWidth={`92%`}
-                    />
-               </div>
-            ) : (
-                <div className={`messagesZeroState`}>
-                    <i className={`mainColor fas fa-user-slash`} />
-                    Sign in as {`>=`} Moderator to View Messages
-                </div>
-            )
+            <div style={{ padding: 15 }}>
+                <IVFSkeleton 
+                    height={65}
+                    labelSize={12}
+                    showLoading={true}
+                    skeletonContainerGap={15}
+                    className={`boardsSkeleton`} 
+                    skeletonContainerWidth={`92%`}
+                    label={user != null ? `Messages Loading` : `Sign in as >= Moderator to View Messages`} 
+                />
+            </div>
         )
     )
 }

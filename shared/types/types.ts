@@ -14,6 +14,9 @@ export enum Types {
     Feature = `Feature`,
     Preference = `Preference`,
     Notification = `Notification`,
+
+    Chat = `Chat`,
+    Message = `Message`,
 }
 
 export enum GridTypes {
