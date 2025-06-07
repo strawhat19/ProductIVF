@@ -12,11 +12,11 @@ export const newDefaultMessage = (overwrite?: any): any => {
     }
 }
 
-export default function MessagePreview({ userMessage = newDefaultMessage() }: any) {
+export default function MessagePreview({ userMessage = newDefaultMessage(), onClick = () => {} }: any) {
     let [message, setMessage] = useState(userMessage);
 
     return (
-        <div className={`messagePreview`}>
+        <div className={`messagePreview`} onClick={onClick}>
             <CustomImage 
                 src={message.image} 
                 alt={`Avatar Image`} 

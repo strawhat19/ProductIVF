@@ -12,11 +12,11 @@ import { Feature } from '../shared/admin/features';
 import { toast, ToastContainer } from 'react-toastify';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Board, createBoard } from '../shared/models/Board';
-import { User, userIsMinRole } from '../shared/models/User';
 import { addBoardScrollBars } from '../components/boards/board';
 import { createContext, useRef, useState, useEffect } from 'react';
 import ContextMenu from '../components/context-menus/context-menu';
 import { renderFirebaseAuthErrorMessage } from '../components/form';
+import { RolesMap, User, userIsMinRole } from '../shared/models/User';
 import DetailsDialog from '../components/modals/details/details-dialog';
 import { seedUserData as generateSeedUserData } from '../shared/database';
 import { AuthGrids, AuthStates, GridTypes, Types } from '../shared/types/types';
@@ -916,7 +916,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
   useEffect(() => {
     let listenforUserGridsChanges = null;
     if (user != null) {
-      if (devEnv) overWriteDiscordLink();
+      if (RolesMap[user.role] >= RolesMap.Moderator) overWriteDiscordLink();
       const gridsDatabase = collection(db, gridsTable)?.withConverter(gridConverter);
       const gridsQuery = query(gridsDatabase, where(`data.users`, `array-contains`, user?.email));
       if (listenforUserGridsChanges == null) listenforUserGridsChanges = onSnapshot(gridsQuery, gridsUpdates => {
