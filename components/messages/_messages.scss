@@ -111,7 +111,7 @@ span {
 }
 
 .chatMessages {
-    height: 93%;
+    height: 100%;
     .swiper {
         height: 100%;
     }
@@ -137,7 +137,6 @@ span {
 }
 
 .chatSlide {
-    height: 100%;
     .messagesPreviewContainer {
         min-height: 0;
         overflow-y: auto !important;
@@ -150,12 +149,20 @@ span {
 }
 
 html {
-    &:has(.chatMessages) {
+    &:has(.chatMessages):has(.chatSlideActive) {
         overflow-y: hidden;
+        footer {
+            display: none;
+        }
     }
 }
 
 body {
+    &:has(.chatMessages) {
+        article {
+            max-height: 100dvh;
+        }
+    }
     &:has(._messages) {
         .nextra-nav-container {
             top: 0;
@@ -174,15 +181,5 @@ body {
                 min-height: calc(93.6dvh) !important;
             }
         }
-        // &:has(.chatMessages) {
-            // overflow-y: hidden;
-        //     // max-height: 94.5dvh;
-        //     // footer {
-        //     //     bottom: 0;
-        //     //     z-index: 1;
-        //     //     width: 100%;
-        //     //     position: fixed;
-        //     // }
-        // }
     }
 }

@@ -45,6 +45,7 @@ const getRandomAvatar = () => {
 export default function Messages() {
     let swiperRef = useRef(null);
     let [activeSlide, setActiveSlide] = useState(0);
+    let [chatSlideActive, setChatSlideActive] = useState(false);
     let { user, boardsLoading, gridsLoading } = useContext<any>(StateContext);
 
     let [messages, setMessages] = useState(() => {
@@ -65,29 +66,19 @@ export default function Messages() {
         setActiveSlide(activeSlideIndex);
     }
 
-    const goNext = () => {
+    const goNextSwiperSlide = () => {
         if (swiperRef.current && swiperRef.current.swiper) {
             const swiperInstance = swiperRef.current?.swiper;
             const activeSlideIndex = swiperInstance?.realIndex;
             if (activeSlideIndex == 0) {
                 swiperInstance.slideNext();
+                setTimeout(() => setChatSlideActive(true), 175);
             } else {
                 swiperInstance.slidePrev();
+                setChatSlideActive(false);
             }
             setActiveSlideIndex(swiperInstance);
         }
-    };
-
-    // const goPrev = () => {
-    //     if (swiperRef.current && swiperRef.current.swiper) {
-    //         const swiperInstance = swiperRef.current?.swiper;
-    //         swiperInstance.slidePrev();
-    //         setActiveSlideIndex(swiperInstance);
-    //     }
-    // };
-
-    const getChatMessagesHeight = () => {
-        return window.innerHeight - 176;
     }
 
     return (
@@ -101,7 +92,7 @@ export default function Messages() {
                             </span> 
                             {activeSlide == 0 ? `Chat(s)` : `Messages`}
                         </h2>
-                        <i onClick={goNext} className={`mainColor fas ${activeSlide == 0 ? `fa-edit` : `fa-chevron-left`} cursorPointer`} style={{ fontSize: 14 }} />
+                        <i onClick={goNextSwiperSlide} className={`mainColor fas ${activeSlide == 0 ? `fa-edit` : `fa-chevron-left`} cursorPointer`} style={{ fontSize: 14 }} />
                     </div>
                     {/* <div className={`messagesSearch`}>
                         [Messages Search Goes Here]
@@ -127,7 +118,7 @@ export default function Messages() {
                                     return (
                                         <MessagePreview 
                                             key={msgIndex} 
-                                            onClick={goNext} 
+                                            onClick={goNextSwiperSlide} 
                                             userMessage={msg}
                                         />
                                     )
@@ -135,12 +126,12 @@ export default function Messages() {
                             </div>
                         </SwiperSlide>
                         <SwiperSlide className={`chatSlide`}>
-                            <div className={`messagesPreviewContainer`} style={{ maxHeight: getChatMessagesHeight() }}>
+                            <div className={`chatMessagesContainer messagesPreviewContainer ${chatSlideActive ? `chatSlideActive` : `chatSlideInactive`}`} style={{ maxHeight: window.innerHeight - 176 }}>
                                 {messages.map((msg: Message, msgIndex) => {
                                     return (
                                         <MessagePreview 
                                             key={msgIndex} 
-                                            onClick={goNext} 
+                                            onClick={goNextSwiperSlide} 
                                             userMessage={msg}
                                         />
                                     )
