@@ -117,6 +117,14 @@ span {
     }
 }
 
+.chatsLoader {
+    width: 100%;
+    padding: 15px;
+    &.chatsLoading {
+        padding-top: 80px;
+    }
+}
+
 .chatForm {
     width: 100%;
     display: flex;

@@ -40,7 +40,7 @@ const getRandomAvatar = () => {
     const imageUrl = avatar.images[randomImageKey];
 
     return { name: avatar.name, image: imageUrl };
-};
+}
 
 export default function Messages() {
     let swiperRef = useRef(null);
@@ -49,21 +49,38 @@ export default function Messages() {
     let { user, boardsLoading, gridsLoading } = useContext<any>(StateContext);
 
     let [messages, setMessages] = useState(() => {
-        return Array.from({ length: 7 }, (_, i) => {
+        return Array.from({ length: 0 }, (_, i) => {
             const { name, image } = getRandomAvatar();
             return new Message({
-                name: name,
-                image: image,
+                name,
+                image,
                 id: `msg-${i + 1}`,
                 date: `10:${48 - i} PM`,
                 content: `WWWWWWWWWWWWWWWWWW WWWWWWWWWWWWWWWWWW WWWWWWWWWWWWWWWWW WWWWW`,
             });
         });
-    });
+    })
 
-    const setActiveSlideIndex = (swiperInstance) => {
-        const activeSlideIndex = swiperInstance?.realIndex;
-        setActiveSlide(activeSlideIndex);
+    const chatsReady = () => {
+        let dataLoaded = !boardsLoading && !gridsLoading;
+        let userHasPermission = user != null && ((RolesMap[user.role] as any) >= RolesMap.Moderator);
+        return dataLoaded && userHasPermission;
+    }
+
+    const chatsLoader = () => {
+        return (
+            <div className={`chatsLoader ${chatsReady() ? `chatsReady` : `chatsLoading`}`}>
+                <IVFSkeleton 
+                    height={65}
+                    labelSize={12}
+                    showLoading={true}
+                    skeletonContainerGap={15}
+                    className={`chatSkeleton`} 
+                    skeletonContainerWidth={`92%`}
+                    label={getChatsLoadingLabel()} 
+                />
+            </div>
+        )
     }
 
     const goNextSwiperSlide = () => {
@@ -77,12 +94,34 @@ export default function Messages() {
                 swiperInstance.slidePrev();
                 setChatSlideActive(false);
             }
-            setActiveSlideIndex(swiperInstance);
+            setActiveSlide(swiperInstance?.realIndex);
         }
     }
 
+    const getChatsLoadingLabel = () => {
+        let defaultLoadingLabel = `Messages Loading`;
+        let loadingLabel = defaultLoadingLabel;
+        
+        if (user != null) {
+            let currentRole: any = RolesMap[user.role];
+            if (currentRole >= RolesMap.Moderator) {
+                if (messages.length > 0) {
+                    loadingLabel = defaultLoadingLabel;
+                } else {
+                    loadingLabel = `No Messages Yet`;
+                }
+            } else {
+                loadingLabel = `Role must be >= Moderator to View Messages`;
+            }
+        } else {
+            loadingLabel = `Sign in as >= Moderator to View Messages`;
+        }
+
+        return loadingLabel;
+    }
+
     return (
-        ((!boardsLoading && !gridsLoading) && (user != null && ((RolesMap[user.role] as any) >= RolesMap.Moderator))) ? <>
+        chatsReady() ? <>
             <div className={`messages`}>
                 <div className={`messagesHeader`}>
                     <div className={`messagesInfoRow`}>
@@ -98,66 +137,56 @@ export default function Messages() {
                         [Messages Search Goes Here]
                     </div> */}
                 </div>
-                <div className={`messagesContainer ${activeSlide == 0 ? `chatsContainer` : `chatMessages`}`}>                  
-                    <Swiper 
-                        loop={true}
-                        // speed={500}
-                        ref={swiperRef}
-                        spaceBetween={0} 
-                        slidesPerView={1} 
-                        navigation={false} 
-                        pagination={false} 
-                        // effect={`cards`}
-                        simulateTouch={false} 
-                        allowTouchMove={false}
-                        // modules={[EffectCards]}
-                    >
-                        <SwiperSlide>
-                            <div className={`messagesPreviewContainer`}>
-                                {messages.map((msg: Message, msgIndex) => {
-                                    return (
-                                        <MessagePreview 
-                                            key={msgIndex} 
-                                            onClick={goNextSwiperSlide} 
-                                            userMessage={msg}
-                                        />
-                                    )
-                                })}
-                            </div>
-                        </SwiperSlide>
-                        <SwiperSlide className={`chatSlide`}>
-                            <div className={`chatMessagesContainer messagesPreviewContainer ${chatSlideActive ? `chatSlideActive` : `chatSlideInactive`}`} style={{ maxHeight: window.innerHeight - 176 }}>
-                                {messages.map((msg: Message, msgIndex) => {
-                                    return (
-                                        <MessagePreview 
-                                            key={msgIndex} 
-                                            onClick={goNextSwiperSlide} 
-                                            userMessage={msg}
-                                        />
-                                    )
-                                })}
-                            </div>
-                            <form className={`chatForm`}>
-                                <div className={`formField`}>
-                                    <input type={`text`} name={`message`} placeholder={`Enter Message...`} />
+                {messages.length > 0 ? (
+                    <div className={`messagesContainer ${activeSlide == 0 ? `chatsContainer` : `chatMessages`}`}>                  
+                        <Swiper 
+                            loop={true}
+                            // speed={500}
+                            ref={swiperRef}
+                            spaceBetween={0} 
+                            slidesPerView={1} 
+                            navigation={false} 
+                            pagination={false} 
+                            // effect={`cards`}
+                            simulateTouch={false} 
+                            allowTouchMove={false}
+                            // modules={[EffectCards]}
+                        >
+                            <SwiperSlide>
+                                <div className={`messagesPreviewContainer`}>
+                                    {messages.map((msg: Message, msgIndex) => {
+                                        return (
+                                            <MessagePreview 
+                                                key={msgIndex} 
+                                                userMessage={msg}
+                                                onClick={goNextSwiperSlide} 
+                                            />
+                                        )
+                                    })}
                                 </div>
-                            </form>
-                        </SwiperSlide>
-                    </Swiper>
-                </div>
+                            </SwiperSlide>
+                            <SwiperSlide className={`chatSlide`}>
+                                <div className={`chatMessagesContainer messagesPreviewContainer ${chatSlideActive ? `chatSlideActive` : `chatSlideInactive`}`} style={{ maxHeight: window.innerHeight - 176 }}>
+                                    {messages.map((msg: Message, msgIndex) => {
+                                        return (
+                                            <MessagePreview 
+                                                key={msgIndex} 
+                                                userMessage={msg}
+                                                onClick={goNextSwiperSlide} 
+                                            />
+                                        )
+                                    })}
+                                </div>
+                                <form className={`chatForm`}>
+                                    <div className={`formField`}>
+                                        <input type={`text`} name={`message`} placeholder={`Enter Message...`} />
+                                    </div>
+                                </form>
+                            </SwiperSlide>
+                        </Swiper>
+                    </div>
+                ) : chatsLoader()}
             </div>
-        </> : (
-            <div style={{ padding: `80px 15px 15px 15px` }}>
-                <IVFSkeleton 
-                    height={65}
-                    labelSize={12}
-                    showLoading={true}
-                    skeletonContainerGap={15}
-                    className={`chatSkeleton`} 
-                    skeletonContainerWidth={`92%`}
-                    label={user != null ? `Messages Loading` : `Sign in as >= Moderator to View Messages`} 
-                />
-            </div>
-        )
+        </> : chatsLoader()
     )
 }
