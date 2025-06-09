@@ -6,8 +6,12 @@
 .messagesInfoRow {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     padding: 12px 25px 12px 30px;
+    justify-content: space-between;
+    &:has(.multiselectContainer) {
+        grid-gap: 15px;
+        padding: 10px 25px 10px 15px;
+    }
     h2 {
         font-size: 20px;
         font-weight: 600;
@@ -119,10 +123,15 @@ span {
 
 .chatsLoader {
     width: 100%;
-    padding: 0 15px;
+    padding: 15px 15px 0;
     &.chatsLoading {
         padding-top: 80px;
     }
+}
+
+.disabledFormField {
+    opacity: 0.35;
+    pointer-events: none;
 }
 
 .chatForm {
@@ -133,13 +142,23 @@ span {
     justify-content: center;
     .formField {
         width: 100%;
+        grid-gap: 8px;
         display: flex;
-        padding: 10px 0 0;
         align-items: center;
-        justify-content: center;
+        padding: 10px 10px 0;
+        justify-content: space-between;
         border-top: 1px solid var(--main);
         input {
-            width: 95%;
+            width: 90%;
+        }
+        button {
+            width: 10%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--main);
+            min-height: 33px !important;
+            max-height: 33px !important;
         }
     }
 }
@@ -148,12 +167,22 @@ span {
     .messagesPreviewContainer {
         min-height: 0;
         overflow-y: auto !important;
+        &.noChats {
+            min-height: 81dvh;
+        }
         .messagePreview {
             &:last-child {
                 border-bottom: none !important;
             }
         }
     }
+}
+
+.multiselectContainer {
+    width: 91%;
+    z-index: 10;
+    max-height: 35px;
+    overflow: visible;
 }
 
 html {
@@ -186,7 +215,13 @@ body {
         }
         &:has(.chatSkeleton) {
             article {
-                min-height: calc(93.6dvh) !important;
+                // &:has(.chatSlideInactive) {
+                    min-height: 93.6dvh !important;
+                    max-height: 93.6dvh !important;
+                // }
+                &:has(.chatSlideActive) {
+                    min-height: 100dvh !important;
+                }
             }
         }
     }

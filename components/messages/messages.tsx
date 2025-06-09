@@ -8,6 +8,7 @@ import { useContext, useRef, useState } from 'react';
 import { Message } from '../../shared/models/Message';
 import MessagePreview from './message/message-preview';
 import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
+import MultiSelect from '../selector/multiselect/multiselect';
 
 export const avatars = {
     aang: {
@@ -44,7 +45,10 @@ const getRandomAvatar = () => {
 
 export default function Messages() {
     let swiperRef = useRef(null);
+    let [message, setMessage] = useState(``);
+    let [recipients, setRecipients] = useState([]);
     let [activeSlide, setActiveSlide] = useState(0);
+    let [composing, setComposing] = useState(false);
     let [chatSlideActive, setChatSlideActive] = useState(false);
     let { user, boardsLoading, gridsLoading } = useContext<any>(StateContext);
 
@@ -61,10 +65,31 @@ export default function Messages() {
         });
     })
 
+    const onSelectedRecipients = (selectedOptions) => {
+        console.log(`Selected Options`, selectedOptions);
+        setRecipients(selectedOptions.map(opt => opt.value));
+    }
+
     const chatsReady = () => {
         let dataLoaded = !boardsLoading && !gridsLoading;
         let userHasPermission = user != null && ((RolesMap[user.role] as any) >= RolesMap.Moderator);
         return dataLoaded && userHasPermission;
+    }
+
+    const onChatFormSubmit = (onFormSubmitEvent) => {
+        onFormSubmitEvent?.preventDefault();
+        console.log(`onChatFormSubmit`, {
+            message,
+            recipients,
+            // onFormSubmitEvent,
+        });
+    }
+    
+    const onChatFormChange = (onFormChangeEvent) => {
+        onFormChangeEvent?.preventDefault();
+        let updatedValue = onFormChangeEvent?.target?.value;
+        setMessage(updatedValue);
+        console.log(`onChatFormChange`, updatedValue);
     }
 
     const chatsLoader = () => {
@@ -83,16 +108,18 @@ export default function Messages() {
         )
     }
 
-    const goNextSwiperSlide = () => {
+    const goNextSwiperSlide = (compose = false) => {
         if (swiperRef.current && swiperRef.current.swiper) {
             const swiperInstance = swiperRef.current?.swiper;
             const activeSlideIndex = swiperInstance?.realIndex;
             if (activeSlideIndex == 0) {
                 swiperInstance.slideNext();
+                setComposing(compose);
                 setTimeout(() => setChatSlideActive(true), 175);
             } else {
                 swiperInstance.slidePrev();
                 setChatSlideActive(false);
+                setComposing(false);
             }
             setActiveSlide(swiperInstance?.realIndex);
         }
@@ -108,7 +135,7 @@ export default function Messages() {
                 if (messages.length > 0) {
                     loadingLabel = defaultLoadingLabel;
                 } else {
-                    loadingLabel = `No Messages Yet`;
+                    loadingLabel = `No Chat(s) Yet`;
                 }
             } else {
                 loadingLabel = `Role must be >= Moderator to View Messages`;
@@ -125,19 +152,25 @@ export default function Messages() {
             <div className={`messages`}>
                 <div className={`messagesHeader`}>
                     <div className={`messagesInfoRow`}>
-                        <h2 className={`flexThis gap5 alignCenter`}>
-                            <span className={`mainColor`} style={{ fontSize: 14 }}>
-                                ({messages.length})
-                            </span> 
-                            {activeSlide == 0 ? `Chat(s)` : `Messages`}
-                        </h2>
-                        <i onClick={goNextSwiperSlide} className={`mainColor fas ${activeSlide == 0 ? `fa-edit` : `fa-chevron-left`} cursorPointer`} style={{ fontSize: 14 }} />
+                        {composing ? (
+                            <div className={`multiselectContainer`}>
+                                <MultiSelect userSelector={true} onChange={(selectedOptions) => onSelectedRecipients(selectedOptions)} />
+                            </div>
+                        ) : (
+                            <h2 className={`flexThis gap5 alignCenter`}>
+                                <span className={`mainColor`} style={{ fontSize: 14 }}>
+                                    ({messages.length})
+                                </span> 
+                                {activeSlide == 0 ? `Chat(s)` : `Messages`}
+                            </h2>
+                        )}
+                        <i onClick={() => goNextSwiperSlide(true)} className={`mainColor fas ${activeSlide == 0 ? `fa-edit` : `fa-chevron-left`} cursorPointer`} style={{ fontSize: 14 }} />
                     </div>
                     {/* <div className={`messagesSearch`}>
                         [Messages Search Goes Here]
                     </div> */}
                 </div>
-                {messages.length > 0 ? (
+                {/* {messages.length > 0 ? ( */}
                     <div className={`messagesContainer ${activeSlide == 0 ? `chatsContainer` : `chatMessages`}`}>                  
                         <Swiper 
                             loop={true}
@@ -152,21 +185,23 @@ export default function Messages() {
                             allowTouchMove={false}
                             // modules={[EffectCards]}
                         >
-                            <SwiperSlide>
-                                <div className={`messagesPreviewContainer`}>
-                                    {messages.map((msg: Message, msgIndex) => {
-                                        return (
-                                            <MessagePreview 
-                                                key={msgIndex} 
-                                                userMessage={msg}
-                                                onClick={goNextSwiperSlide} 
-                                            />
-                                        )
-                                    })}
-                                </div>
+                            <SwiperSlide className={`chatsScreen`}>
+                                {messages?.length > 0 ? (
+                                    <div className={`messagesPreviewContainer`}>
+                                        {messages.map((msg: Message, msgIndex) => {
+                                            return (
+                                                <MessagePreview 
+                                                    key={msgIndex} 
+                                                    userMessage={msg}
+                                                    onClick={goNextSwiperSlide} 
+                                                />
+                                            )
+                                        })}
+                                    </div>
+                                ) : chatsLoader()}
                             </SwiperSlide>
                             <SwiperSlide className={`chatSlide`}>
-                                <div className={`chatMessagesContainer messagesPreviewContainer ${chatSlideActive ? `chatSlideActive` : `chatSlideInactive`}`} style={{ maxHeight: window.innerHeight - 176 }}>
+                                <div className={`chatMessagesContainer messagesPreviewContainer ${messages.length > 0 ? `hasChats` : `noChats`} ${chatSlideActive ? `chatSlideActive` : `chatSlideInactive`}`} style={{ maxHeight: window.innerHeight - 176 }}>
                                     {messages.map((msg: Message, msgIndex) => {
                                         return (
                                             <MessagePreview 
@@ -177,15 +212,18 @@ export default function Messages() {
                                         )
                                     })}
                                 </div>
-                                <form className={`chatForm`}>
-                                    <div className={`formField`}>
-                                        <input type={`text`} name={`message`} placeholder={`Enter Message...`} />
+                                <form className={`chatForm`} onSubmit={(e) => onChatFormSubmit(e)} onChange={(e) => onChatFormChange(e)}>
+                                    <div className={`formField ${recipients.length == 0 ? `disabledFormField` : `enabledFormField`}`}>
+                                        <input disabled={recipients.length == 0} type={`text`} name={`message`} placeholder={`Enter Message...`} className={`formFielInput`} />
+                                        <button className={`iconButton ${message == `` ? `disabledFormField` : `enabledFormField`}`} type={`submit`}>
+                                            <i className={`fas fa-caret-right`} />
+                                        </button>
                                     </div>
                                 </form>
                             </SwiperSlide>
                         </Swiper>
                     </div>
-                ) : chatsLoader()}
+                {/* // ) : chatsLoader()} */}
             </div>
         </> : chatsLoader()
     )

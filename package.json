@@ -44,6 +44,7 @@
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^18.2.0",
     "react-lazy-load-image-component": "^1.6.3",
+    "react-select": "^5.10.1",
     "react-toastify": "^11.0.2",
     "sass": "^1.58.0",
     "swapy": "^1.0.5",

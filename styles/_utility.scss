@@ -98,6 +98,11 @@
     @include setWidth(var(--fullWidth));
 }
 
+.w80 {
+    --fullWidth: 80% !important;
+    @include setWidth(var(--fullWidth));
+}
+
 .stretch {
     --fullWidth: 100% !important;
     @include setHeight(var(--fullWidth));
