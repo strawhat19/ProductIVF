@@ -5,7 +5,8 @@ import { StateContext } from '../../pages/_app';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { RolesMap } from '../../shared/models/User';
 import { useContext, useRef, useState } from 'react';
-import { Message } from '../../shared/models/Message';
+import { createMessage, Message } from '../../shared/models/Message';
+import { createChat } from '../../shared/models/Chat';
 import MessagePreview from './message/message-preview';
 import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
 import MultiSelect from '../selector/multiselect/multiselect';
@@ -50,7 +51,7 @@ export default function Messages() {
     let [activeSlide, setActiveSlide] = useState(0);
     let [composing, setComposing] = useState(false);
     let [chatSlideActive, setChatSlideActive] = useState(false);
-    let { user, boardsLoading, gridsLoading } = useContext<any>(StateContext);
+    let { user, chats, boardsLoading, gridsLoading, globalUserData } = useContext<any>(StateContext);
 
     let [messages, setMessages] = useState(() => {
         return Array.from({ length: 0 }, (_, i) => {
@@ -76,13 +77,38 @@ export default function Messages() {
         return dataLoaded && userHasPermission;
     }
 
-    const onChatFormSubmit = (onFormSubmitEvent) => {
+    const onChatFormSubmit = async (onFormSubmitEvent) => {
         onFormSubmitEvent?.preventDefault();
-        console.log(`onChatFormSubmit`, {
-            message,
-            recipients,
-            // onFormSubmitEvent,
-        });
+
+        const storeNewChat = () => {
+            let maxChatRank = 0;
+            if (chats.length > 0) {
+                let chatRanks = chats.map(ch => ch.rank).sort((a, b) => b - a);
+                maxChatRank = chatRanks[0];
+            }
+
+            const chatNumber = Math.max(maxChatRank) + 1;
+            const newChat = createChat(chatNumber, recipients.join(`, `), user, recipients);
+            const newMessage = createMessage(1, message, user, newChat?.id);
+            newChat.lastMessage = newMessage;
+
+            // setChatts(prevChats => [...prevChats, newChat]);
+
+            console.log(`onChatFormSubmit`, newChat);
+        }
+
+        if (chats.length > 0) {
+            let thisChat = chats.find(ch => {
+                const sortedRec = [...recipients.map(s => s.toLowerCase())].sort();
+                const sortedUsers = [...ch.data.users.map(s => s.toLowerCase())].sort();
+                return sortedRec.length === sortedUsers.length &&
+                    sortedRec.every((val, index) => val === sortedUsers[index]);
+            });
+            
+            if (thisChat) {
+                console.log(`Has Chat`, thisChat);
+            } else storeNewChat();
+        } else storeNewChat();
     }
     
     const onChatFormChange = (onFormChangeEvent) => {
@@ -164,7 +190,9 @@ export default function Messages() {
                                 {activeSlide == 0 ? `Chat(s)` : `Messages`}
                             </h2>
                         )}
-                        <i onClick={() => goNextSwiperSlide(true)} className={`mainColor fas ${activeSlide == 0 ? `fa-edit` : `fa-chevron-left`} cursorPointer`} style={{ fontSize: 14 }} />
+                        <button className={`chatsActionIconButton iconButton`} onClick={() => goNextSwiperSlide(true)}>
+                            <i className={`mainColor fas ${activeSlide == 0 ? `fa-edit` : `fa-chevron-left`} cursorPointer`} style={{ fontSize: 14 }} />
+                        </button>
                     </div>
                     {/* <div className={`messagesSearch`}>
                         [Messages Search Goes Here]

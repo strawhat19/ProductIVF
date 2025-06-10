@@ -1,3 +1,7 @@
+:root {
+    --chatsFieldHeight: 35px;
+}
+
 .messagesHeader {
     width: 100%;
     padding-top: 65px;
@@ -150,6 +154,7 @@ span {
         border-top: 1px solid var(--main);
         input {
             width: 90%;
+            min-height: var(--chatsFieldHeight) !important;
         }
         button {
             width: 10%;
@@ -157,8 +162,8 @@ span {
             align-items: center;
             justify-content: center;
             background: var(--main);
-            min-height: 33px !important;
-            max-height: 33px !important;
+            min-height: var(--chatsFieldHeight) !important;
+            max-height: var(--chatsFieldHeight) !important;
         }
     }
 }
@@ -168,7 +173,7 @@ span {
         min-height: 0;
         overflow-y: auto !important;
         &.noChats {
-            min-height: 81dvh;
+            min-height: 80.8dvh;
         }
         .messagePreview {
             &:last-child {
@@ -181,7 +186,7 @@ span {
 .multiselectContainer {
     width: 91%;
     z-index: 10;
-    max-height: 35px;
+    max-height: var(--chatsFieldHeight);
     overflow: visible;
 }
 
@@ -192,6 +197,16 @@ html {
             display: none;
         }
     }
+}
+
+.select__input {
+    color: white !important;
+}
+
+.chatsActionIconButton {
+    width: 10% !important;
+    min-height: var(--chatsFieldHeight) !important;
+    justify-content: center !important;
 }
 
 body {

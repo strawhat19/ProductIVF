@@ -55,14 +55,14 @@ export class Message extends Data {
 
 export const createMessage = (
     rank: number,
-    name: string,
+    content = ``,
     user: User | any,
     chatID: string,
-    content = ``,
     image = ``,
     description = ``,
     color = `Default`,
     type = Types.Message,
+    name: string = content,
 ) => {
     let message: Message = new Message({
         name,

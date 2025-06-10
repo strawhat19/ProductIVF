@@ -58,12 +58,13 @@ export const createChat = (
     rank: number,
     name: string,
     user: User | any,
+    userEmails: string[] = [],
+    lastMessage?: Message | any,
     chatType: ChatTypes = ChatTypes.Direct,
     color = `Default`,
     description = ``,
     image = ``,
     type = Types.Chat,
-    userEmails: string[] = [],
 ) => {
     let chat: Chat = new Chat({
         name,
@@ -73,6 +74,7 @@ export const createChat = (
         color,
         description,
         image,
+        lastMessage,
 
         ...(user != null && {
             ownerID: user?.id,

@@ -39,6 +39,8 @@ import {
   addBoardToDatabase,
   gridDataCollectionNames,
   updateDocFieldsWTimeStamp,
+  chatsTable,
+  chatConverter,
 } from '../firebase';
 
 export const StateContext = createContext({});
@@ -460,8 +462,10 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let [year, setYear] = useState(new Date().getFullYear());
 
   // State
+  let [chats, setChats] = useState([]);
   let [features, setFeatures] = useState([]);
   let [upNextGrid, setUpNextGrid] = useState(null);
+  let [chatsLoading, setChatsLoading] = useState(false);
   let [useNavigation, setUseNavigation] = useState(false);
   let [featuresLoading, setFeaturesLoading] = useState(true);
   let [authenticateOpen, setAuthenticateOpen] = useState(false);
@@ -914,9 +918,23 @@ export default function ProductIVF({ Component, pageProps, router }) {
   }, [selectedGrid])
 
   useEffect(() => {
+    let listenforChatsChanges = null;
     let listenforUserGridsChanges = null;
     if (user != null) {
-      if (RolesMap[user.role] >= RolesMap.Moderator) overWriteDiscordLink();
+      if (RolesMap[user.role] >= RolesMap.Moderator) {
+        overWriteDiscordLink();
+        const chatsDatabase = collection(db, chatsTable)?.withConverter(chatConverter);
+        const chatsQuery = query(chatsDatabase, where(`data.users`, `array-contains`, user?.email));
+        if (listenforChatsChanges == null) listenforChatsChanges = onSnapshot(chatsQuery, chatsUpdates => {
+          setChatsLoading(true);
+          let userChats = [];
+          chatsUpdates.forEach((doc) => userChats.push({ ...doc.data() }));
+          userChats = userChats?.sort((a, b) => a?.rank - b?.rank)?.map(ch => new Chat({ ...ch, label: ch?.name, value: ch?.id }));
+          setChats(userChats);
+          setChatsLoading(false);
+          console.log(`Chats`, userChats);
+        })
+      }
       const gridsDatabase = collection(db, gridsTable)?.withConverter(gridConverter);
       const gridsQuery = query(gridsDatabase, where(`data.users`, `array-contains`, user?.email));
       if (listenforUserGridsChanges == null) listenforUserGridsChanges = onSnapshot(gridsQuery, gridsUpdates => {
@@ -952,9 +970,13 @@ export default function ProductIVF({ Component, pageProps, router }) {
         }
       })
     } else {
+      if (listenforChatsChanges != null) listenforChatsChanges();
       if (listenforUserGridsChanges != null) listenforUserGridsChanges();
     }
-    return () => {if (listenforUserGridsChanges != null) listenforUserGridsChanges();};
+    return () => {
+      if (listenforChatsChanges != null) listenforChatsChanges();
+      if (listenforUserGridsChanges != null) listenforUserGridsChanges();
+    };
   }, [user])
 
   useEffect(() => {
@@ -1145,6 +1167,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       // State
       IDs, setIDs, 
       qotd, setQotd, 
+      chats, setChats,
       focus, setFocus, 
       loading, setLoading, 
       content, setContent, 
@@ -1156,6 +1179,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       rearranging, setRearranging, 
       showLeaders, setShowLeaders, 
       currentTime, setCurrentTime,
+      chatsLoading, setChatsLoading,
       systemStatus, setSystemStatus, 
       useNavigation, setUseNavigation,
       gridSearchTerm, setGridSearchTerm,

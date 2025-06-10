@@ -5,9 +5,11 @@ import { Grid } from './shared/models/Grid';
 import { List } from './shared/models/List';
 import { Item } from './shared/models/Item';
 import { Task } from './shared/models/Task';
+import { Chat } from './shared/models/Chat';
 import { initializeApp } from 'firebase/app';
 import { Types } from './shared/types/types';
 import { Board } from './shared/models/Board';
+import { Message } from './shared/models/Message';
 import { Feature } from './shared/admin/features';
 import { countPropertiesInObject, logToast } from './shared/constants';
 import { GoogleAuthProvider, browserLocalPersistence, deleteUser, getAuth, setPersistence } from 'firebase/auth';
@@ -21,6 +23,7 @@ export enum Environments {
 
 export enum Tables {
   users = `users`,
+  chats = `chats`,
   items = `items`,
   lists = `lists`,
   tasks = `tasks`,
@@ -64,6 +67,7 @@ export const isProduction = process.env.NODE_ENV == `production`;
 // export const environment = isProduction ? Environments.alpha : Environments.beta;
 
 export const usersTable = environment + Tables.users;
+export const chatsTable = environment + Tables.chats;
 export const emailsTable = environment + Tables.emails;
 export const profilesTable = environment + Tables.profiles;
 export const gridsTable = environment + Tables.grids;
@@ -174,6 +178,26 @@ export const featureConverter = {
   }
 }
 
+export const chatConverter = {
+  toFirestore: (chat: Chat) => {
+    return JSON.parse(JSON.stringify(chat));
+  },
+  fromFirestore: (snapshot: any, options: any) => {
+    const data = snapshot.data(options);
+    return new Chat(data);
+  }
+}
+
+export const messageConverter = {
+  toFirestore: (msg: Message) => {
+    return JSON.parse(JSON.stringify(msg));
+  },
+  fromFirestore: (snapshot: any, options: any) => {
+    const data = snapshot.data(options);
+    return new Message(data);
+  }
+}
+
 export const documentTypes = {
   [Types.User]: {
     tableName: usersTable,
@@ -203,6 +227,10 @@ export const documentTypes = {
     tableName: featuresTable,
     converter: featureConverter,
   },
+  [Types.Chat]: {
+    tableName: chatsTable,
+    converter: chatConverter,
+  },
 }
 
 export const addUserToDatabase = async (usr: User) => {
@@ -211,6 +239,15 @@ export const addUserToDatabase = async (usr: User) => {
     await setDoc(userReference, usr as User);
   } catch (addUserError) {
     logToast(`Error Adding User to Database ${usersTable}`, addUserError, true);
+  }
+}
+
+export const addChatToDatabase = async (chat: Chat) => {
+  try {
+    const chatReference = await doc(db, chatsTable, chat?.id).withConverter(chatConverter);
+    await setDoc(chatReference, chat as Chat);
+  } catch (addChatError) {
+    logToast(`Error Adding Chat to Database ${chatsTable}`, addChatError, true);
   }
 }
 
