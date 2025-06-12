@@ -12,6 +12,7 @@ export class SelectorOption {
 }
 
 export default function MultiSelect({ 
+    value = [],
     onChange = () => {},
     userSelector = false,
     customOptions = [
@@ -31,15 +32,55 @@ export default function MultiSelect({
     }
 
     const CustomOption = (props: any) => {
+        const { data, isSelected, innerRef, innerProps } = props;
+
+        const handleClick = (e: any) => {
+            e.stopPropagation();
+            e.preventDefault();
+
+            const currentSelections = props.selectProps.value || [];
+            let newSelections;
+
+            if (isSelected) {
+                // Deselect
+                newSelections = currentSelections.filter((opt: any) => opt.value !== data.value);
+            } else {
+                // Select
+                newSelections = [...currentSelections, data];
+            }
+
+            props.selectProps.onChange(newSelections, {
+                action: isSelected ? 'deselect-option' : 'select-option',
+                option: data,
+            });
+        };
+
         return (
-            <components.Option {...props} className={`cursorPointer`}>
-                <span style={{ marginRight: 8 }}>
-                    {props.data.icon}
-                </span>
-                <span className={`mainColor cursorPointer`}>
-                    {props.data.label}
-                </span>
-            </components.Option>
+            <div
+                ref={innerRef}
+                {...innerProps}
+                onClick={handleClick}
+                style={{
+                    backgroundColor: isSelected ? 'rgba(0, 216, 255, 0.2)' : 'black',
+                    color: 'rgb(0, 216, 255)',
+                    padding: '8px 12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    cursor: 'pointer',
+                }}
+            >
+                <span style={{ marginRight: 8 }}>{data.icon}</span>
+                {data.label}
+                {isSelected && (
+                    <span style={{
+                        marginLeft: 'auto',
+                        fontSize: '14px',
+                        color: 'rgb(0, 216, 255)',
+                    }}>
+                        ✓
+                    </span>
+                )}
+            </div>
         );
     };
 
@@ -51,6 +92,88 @@ export default function MultiSelect({
                 </span>
                 {props.data.label}
             </components.MultiValue>
+        );
+    };
+
+    const CustomValueContainer = ({ children, ...props }: any) => {
+        const selectedOptions = props.getValue?.() || [];
+        const isMulti = props.isMulti;
+
+        if (!isMulti || selectedOptions.length <= 1) {
+            return (
+                <components.ValueContainer {...props}>
+                    {children}
+                </components.ValueContainer>
+            );
+        }
+
+        const displayValue = children.find((child: any) => {
+            return child && child.type?.name === 'Input';
+        });
+
+        const first = selectedOptions[0];
+        const moreCount = selectedOptions.length - 1;
+
+        // Click to remove first item
+        const removeFirst = (e: any) => {
+            e.stopPropagation();
+            const updated = selectedOptions.slice(1);
+            props.selectProps.onChange(updated, {
+                action: 'remove-value',
+                removedValue: first,
+            });
+        };
+
+        const firstTag = (
+            <div style={{
+                backgroundColor: 'rgba(1, 47, 74, 1)',
+                color: 'rgb(0, 216, 255)',
+                padding: '2px 8px',
+                borderRadius: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                marginRight: '4px',
+            }}>
+                <span style={{ marginRight: 8 }}>
+                    {first.icon}
+                </span>
+                {first.label}
+                <span
+                    className={`closeTag`}
+                    onClick={removeFirst}
+                    style={{
+                        marginLeft: 8,
+                        cursor: 'pointer',
+                        fontWeight: 'bold',
+                        padding: '0 3px',
+                    }}
+                    title="Remove"
+                >
+                    ×
+                </span>
+            </div>
+        );
+
+        const moreIndicator = (
+            <div style={{
+                backgroundColor: 'rgba(1, 47, 74, 1)',
+                color: 'rgb(0, 216, 255)',
+                padding: '2px 8px',
+                borderRadius: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                // fontSize: 10,
+            }}>
+                +{moreCount} <span style={{ paddingLeft: 5 }}>{first.icon}</span>
+            </div>
+        );
+
+        return (
+            <components.ValueContainer {...props}>
+                {firstTag}
+                {moreIndicator}
+                {displayValue}
+            </components.ValueContainer>
         );
     };
 
@@ -125,6 +248,7 @@ export default function MultiSelect({
     return (
         <Select
             isMulti
+            value={value}
             name={`options`}
             options={options}
             defaultValue={[]}
@@ -135,6 +259,7 @@ export default function MultiSelect({
             components={{
                 Option: CustomOption,
                 MultiValue: CustomMultiValue,
+                ValueContainer: CustomValueContainer,
             }}
         />
     )

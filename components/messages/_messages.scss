@@ -173,7 +173,7 @@ span {
         min-height: 0;
         overflow-y: auto !important;
         &.noChats {
-            min-height: 80.8dvh;
+            min-height: 730px;
         }
         .messagePreview {
             &:last-child {
@@ -186,7 +186,6 @@ span {
 .multiselectContainer {
     width: 91%;
     z-index: 10;
-    max-height: var(--chatsFieldHeight);
     overflow: visible;
 }
 
@@ -207,6 +206,14 @@ html {
     width: 10% !important;
     min-height: var(--chatsFieldHeight) !important;
     justify-content: center !important;
+}
+
+.closeTag {
+    transition: var(--transition);
+    &:hover {
+        background: var(--main);
+        color: var(--navAndFooterBG);
+    }
 }
 
 body {

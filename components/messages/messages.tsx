@@ -10,6 +10,7 @@ import { createChat } from '../../shared/models/Chat';
 import MessagePreview from './message/message-preview';
 import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
 import MultiSelect from '../selector/multiselect/multiselect';
+import { addChatToDatabase } from '../../firebase';
 
 export const avatars = {
     aang: {
@@ -51,7 +52,7 @@ export default function Messages() {
     let [activeSlide, setActiveSlide] = useState(0);
     let [composing, setComposing] = useState(false);
     let [chatSlideActive, setChatSlideActive] = useState(false);
-    let { user, chats, boardsLoading, gridsLoading, globalUserData } = useContext<any>(StateContext);
+    let { user, chats, boardsLoading, gridsLoading } = useContext<any>(StateContext);
 
     let [messages, setMessages] = useState(() => {
         return Array.from({ length: 0 }, (_, i) => {
@@ -67,8 +68,7 @@ export default function Messages() {
     })
 
     const onSelectedRecipients = (selectedOptions) => {
-        console.log(`Selected Options`, selectedOptions);
-        setRecipients(selectedOptions.map(opt => opt.value));
+        setRecipients(selectedOptions);
     }
 
     const chatsReady = () => {
@@ -95,6 +95,11 @@ export default function Messages() {
             // setChatts(prevChats => [...prevChats, newChat]);
 
             console.log(`onChatFormSubmit`, newChat);
+
+            // addChatToDatabase(newChat);
+
+            onFormSubmitEvent?.target?.reset();
+            // setRecipients([]);
         }
 
         if (chats.length > 0) {
@@ -116,6 +121,28 @@ export default function Messages() {
         let updatedValue = onFormChangeEvent?.target?.value;
         setMessage(updatedValue);
         console.log(`onChatFormChange`, updatedValue);
+    }
+
+    const getBodyHeight = () => {
+        let nextraNavContainer = document.querySelector(`.nextra-nav-container`);
+        let messagesHeader = document.querySelector(`.messagesHeader`);
+        let chatForm = document.querySelector(`.chatForm`);
+        let h = window.innerHeight - 176;
+        if (chatForm && messagesHeader && nextraNavContainer) {
+            h = window.innerHeight - (
+                messagesHeader.clientHeight 
+                // nextraNavContainer.clientHeight 
+                + chatForm.clientHeight
+            );
+            // console.log({
+            //     h,
+            //     innerHeight: window.innerHeight,
+            //     chatForm: chatForm?.clientHeight,
+            //     messagesHeader: messagesHeader?.clientHeight,
+            //     // nextraNavContainer: nextraNavContainer?.clientHeight,
+            // })
+        }
+        return h;
     }
 
     const chatsLoader = () => {
@@ -180,7 +207,7 @@ export default function Messages() {
                     <div className={`messagesInfoRow`}>
                         {composing ? (
                             <div className={`multiselectContainer`}>
-                                <MultiSelect userSelector={true} onChange={(selectedOptions) => onSelectedRecipients(selectedOptions)} />
+                                <MultiSelect value={recipients} userSelector={true} onChange={(selectedOptions) => onSelectedRecipients(selectedOptions)} />
                             </div>
                         ) : (
                             <h2 className={`flexThis gap5 alignCenter`}>
@@ -229,7 +256,7 @@ export default function Messages() {
                                 ) : chatsLoader()}
                             </SwiperSlide>
                             <SwiperSlide className={`chatSlide`}>
-                                <div className={`chatMessagesContainer messagesPreviewContainer ${messages.length > 0 ? `hasChats` : `noChats`} ${chatSlideActive ? `chatSlideActive` : `chatSlideInactive`}`} style={{ maxHeight: window.innerHeight - 176 }}>
+                                <div className={`chatMessagesContainer messagesPreviewContainer ${messages.length > 0 ? `hasChats` : `noChats`} ${chatSlideActive ? `chatSlideActive` : `chatSlideInactive`}`} style={{ maxHeight: getBodyHeight() }}>
                                     {messages.map((msg: Message, msgIndex) => {
                                         return (
                                             <MessagePreview 
@@ -242,7 +269,7 @@ export default function Messages() {
                                 </div>
                                 <form className={`chatForm`} onSubmit={(e) => onChatFormSubmit(e)} onChange={(e) => onChatFormChange(e)}>
                                     <div className={`formField ${recipients.length == 0 ? `disabledFormField` : `enabledFormField`}`}>
-                                        <input disabled={recipients.length == 0} type={`text`} name={`message`} placeholder={`Enter Message...`} className={`formFielInput`} />
+                                        <input disabled={recipients.length == 0} type={`text`} name={`message`} placeholder={`Enter Message...`} className={`formFielInput`} required />
                                         <button className={`iconButton ${message == `` ? `disabledFormField` : `enabledFormField`}`} type={`submit`}>
                                             <i className={`fas fa-caret-right`} />
                                         </button>
