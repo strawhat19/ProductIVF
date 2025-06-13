@@ -87,6 +87,11 @@ export default function Messages() {
 
     useEffect(() => {
         setMessages(setMsgChats());
+        if (chats?.length == 0) {
+            if (activeChat != null) {
+                goNextSwiperSlide();
+            }
+        }
     }, [chats])
 
     const onSelectedRecipients = (selectedOptions) => {

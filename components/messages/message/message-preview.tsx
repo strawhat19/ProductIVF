@@ -10,7 +10,7 @@ export default function MessagePreview({ userMessage, clickableMsg = true, onCli
 
     const getMessageName = (msg: Message) => {
         let msgName = msg?.name;
-        let msgSender = msg?.senderEmail;
+        let msgSender = clickableMsg ? msg?.senderEmail : msg?.creator;
         if (msgSender) {
             if (users && users.length > 0) {
                 let msgUser = users?.find(usr => usr?.email?.toLowerCase() == msgSender?.toLowerCase());
