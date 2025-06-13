@@ -1,8 +1,15 @@
+import DOMPurify from 'dompurify';
 import { useContext } from 'react';
 import Avatar from '../avatar/avatar';
 import CustomImage from '../../custom-image';
 import { StateContext } from '../../../pages/_app';
 import { Message } from '../../../shared/models/Message';
+
+export function stripHtmlTags(html: string): string {
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    return tempDiv.textContent || tempDiv.innerText || '';
+}
 
 export default function MessagePreview({ userMessage, clickableMsg = true, onClick = () => {} }: any) {
     let { user, users } = useContext<any>(StateContext);
@@ -56,9 +63,9 @@ export default function MessagePreview({ userMessage, clickableMsg = true, onCli
                         {getMessageTimeStamp(userMessage)}
                     </div>
                 </div>
-                <div className={`messageContentPreview`}>
+                <div className={`messageContentPreview renderHTML`}>
                     {clickableMsg && (userMessage?.creator?.toLowerCase() == user?.email?.toLowerCase()) ? `you: ` : ``} 
-                    {userMessage?.content}
+                    {clickableMsg ? stripHtmlTags(userMessage?.content) : <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(userMessage?.content) }} />}
                 </div>
             </div>
         </div>

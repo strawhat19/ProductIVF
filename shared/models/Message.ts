@@ -94,7 +94,7 @@ export const createMessage = (
     }) as Message;
 
     if (user != null) {
-        let title = stringNoSpaces(message?.title);
+        let title = stringNoSpaces(`${message?.type} ${message?.rank}`);
         let idTitle = user?.email + `_` + title;
         let extensionIDs = `_` + message?.uuid + `_` + user?.uid;
 

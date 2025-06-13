@@ -1,5 +1,6 @@
 import 'swiper/css';
 // import 'swiper/css/effect-cards';
+import Editor from './editor/editor';
 // import { EffectCards } from 'swiper/modules';
 import { StateContext } from '../../pages/_app';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -63,6 +64,7 @@ import { logToast } from '../../shared/constants';
 
 export default function Messages() {
     let swiperRef = useRef(null);
+    let editorRef = useRef(null);
     let chatMessagesRef = useRef(null);
     let [message, setMessage] = useState(``);
     let [recipients, setRecipients] = useState([]);
@@ -147,8 +149,20 @@ export default function Messages() {
         goNextSwiperSlide(false);
     }
 
+    // const onChatFormChange = (onFormChangeEvent) => {
+    //     onFormChangeEvent?.preventDefault();
+    //     let updatedValue = onFormChangeEvent?.target?.value;
+    //     setMessage(updatedValue);
+    // }
+
+    const onEditorChangeVal = (editorVal) => {
+        // console.log(`onEditorChangeVal`, editorVal);
+        setMessage(editorVal);
+    }
+
     const onChatFormSubmit = async (onFormSubmitEvent) => {
         onFormSubmitEvent?.preventDefault();
+        if (message == `` || message == `<p></p>`) return;
 
         if (activeChat != null) {
             const { recipients: recips } = activeChat?.lastMessage;
@@ -156,8 +170,10 @@ export default function Messages() {
             const newMessage = createMessage(newMessageIndex, message, user, activeChat?.id, recips);
             addMessageToChatSubcollection(activeChat?.id, newMessage);
             updateDocFieldsWTimeStamp(activeChat, { lastMessage: JSON.parse(JSON.stringify(newMessage)) });
-            onFormSubmitEvent?.target?.reset();
+            // console.log(`onChatFormSubmit`, newMessage);
             setMessage(``);
+            if (editorRef) editorRef.current?.clear();
+            if (onFormSubmitEvent?.target) onFormSubmitEvent?.target?.reset();
         } else {
             if (chats.length > 0) {
                 let thisChat = chats.find(ch => {
@@ -172,12 +188,6 @@ export default function Messages() {
                 } else addNewChat(onFormSubmitEvent);
             } else addNewChat(onFormSubmitEvent);
         }
-    }
-    
-    const onChatFormChange = (onFormChangeEvent) => {
-        onFormChangeEvent?.preventDefault();
-        let updatedValue = onFormChangeEvent?.target?.value;
-        setMessage(updatedValue);
     }
 
     const getBodyHeight = (extraThreshold = 0) => {
@@ -390,10 +400,10 @@ export default function Messages() {
                                         )
                                     })}
                                 </div>
-                                <form className={`chatForm`} onSubmit={(e) => onChatFormSubmit(e)} onChange={(e) => onChatFormChange(e)}>
+                                <form className={`chatForm`} onSubmit={(e) => onChatFormSubmit(e)}>
                                     <div className={`formField ${(activeChat == null && recipients.length == 0) ? `disabledFormField` : `enabledFormField`}`}>
-                                        <input disabled={(activeChat == null && recipients.length == 0)} type={`text`} name={`message`} placeholder={`Enter Message...`} className={`formFielInput`} required />
-                                        <button className={`iconButton ${message == `` ? `disabledFormField` : `enabledFormField`}`} type={`submit`}>
+                                        <Editor ref={editorRef} onChange={(editorVal) => onEditorChangeVal(editorVal)} />
+                                        <button disabled={message == `` || message == `<p></p>`} className={`iconButton ${(message == `` || message == `<p></p>`) ? `disabledFormField disabledFormFieldButton` : `enabledFormField enabledFormFieldButton`}`} type={`submit`}>
                                             <i className={`fas fa-caret-right`} />
                                         </button>
                                     </div>
