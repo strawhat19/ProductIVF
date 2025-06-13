@@ -33,6 +33,12 @@ export class Message extends Data {
     mentions;
     reactions;
     attachments;
+    
+    recipients: string[];
+
+    data?: { [key: string]: string[] } = {
+        users: [],
+    }
 
     constructor(data: Partial<Message>) {
         super(data);
@@ -58,6 +64,7 @@ export const createMessage = (
     content = ``,
     user: User | any,
     chatID: string,
+    recipients: string[],
     image = ``,
     description = ``,
     color = `Default`,
@@ -73,6 +80,7 @@ export const createMessage = (
         image,
         description,
         color,
+        recipients,
 
         ...(user != null && {
             ownerID: user?.id,
@@ -93,6 +101,11 @@ export const createMessage = (
         message.ID = idTitle + extensionIDs;
         message.uid = title + `_` + message?.uuid + `_` + user?.email;
         message.id = idTitle + `_` + stringNoSpaces(message?.meta?.created) + extensionIDs;
+
+        message.data = {
+            ...message.data,
+            users: [user?.email, ...message?.recipients],
+        }
     }
 
     return message;

@@ -5,7 +5,7 @@ import { StateContext } from '../../../pages/_app';
 import { Message } from '../../../shared/models/Message';
 
 export default function MessagePreview({ userMessage, clickableMsg = true, onClick = () => {} }: any) {
-    let { users } = useContext<any>(StateContext);
+    let { user, users } = useContext<any>(StateContext);
     let [message, setMessage] = useState(userMessage);
 
     const getMessageName = (msg: Message) => {
@@ -51,6 +51,7 @@ export default function MessagePreview({ userMessage, clickableMsg = true, onCli
                     </div>
                 </div>
                 <div className={`messageContentPreview`}>
+                    {clickableMsg && (message?.creator?.toLowerCase() == user?.email?.toLowerCase()) ? `you: ` : ``} 
                     {message?.content}
                 </div>
             </div>

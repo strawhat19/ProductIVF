@@ -159,7 +159,8 @@ span {
     width: 100%;
     display: flex;
     align-items: center;
-    max-height: max-content;
+    height: auto !important;
+    max-height: fit-content;
     justify-content: center;
     .formField {
         width: 100%;
