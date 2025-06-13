@@ -10,7 +10,7 @@ import { createChat } from '../../shared/models/Chat';
 import MessagePreview from './message/message-preview';
 import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
 import MultiSelect from '../selector/multiselect/multiselect';
-import { addChatToDatabase } from '../../firebase';
+import { addChatToDatabase, addMessageToChatSubcollection } from '../../firebase';
 
 export const avatars = {
     aang: {
@@ -88,7 +88,9 @@ export default function Messages() {
             }
 
             const chatNumber = Math.max(maxChatRank) + 1;
-            const newChat = createChat(chatNumber, recipients.join(`, `), user, recipients);
+            const recipientsEmails = recipients?.map(r => r?.value);
+            const recipientsString = recipientsEmails?.join(` `);
+            const newChat = createChat(chatNumber, recipientsString, user, recipientsEmails);
             const newMessage = createMessage(1, message, user, newChat?.id);
             newChat.lastMessage = newMessage;
 
@@ -96,7 +98,8 @@ export default function Messages() {
 
             console.log(`onChatFormSubmit`, newChat);
 
-            // addChatToDatabase(newChat);
+            addChatToDatabase(newChat);
+            addMessageToChatSubcollection(newChat?.id, newMessage);
 
             onFormSubmitEvent?.target?.reset();
             // setRecipients([]);

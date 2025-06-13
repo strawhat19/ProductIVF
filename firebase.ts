@@ -35,6 +35,7 @@ export enum Tables {
   visits = `visits`,
   metrics = `metrics`,
   columns = `columns`,
+  messages = `messages`,
   features = `features`,
   profiles = `profiles`,
   comments = `comments`,
@@ -75,6 +76,7 @@ export const boardsTable = environment + Tables.boards;
 export const listsTable = environment + Tables.lists;
 export const itemsTable = environment + Tables.items;
 export const tasksTable = environment + Tables.tasks;
+export const messagesTable = environment + Tables.messages;
 export const featuresTable = environment + Tables.features;
 
 export const boardDataCollections = {
@@ -248,6 +250,25 @@ export const addChatToDatabase = async (chat: Chat) => {
     await setDoc(chatReference, chat as Chat);
   } catch (addChatError) {
     logToast(`Error Adding Chat to Database ${chatsTable}`, addChatError, true);
+  }
+}
+
+export const addMessageToDatabase = async (message: Message) => {
+  try {
+    const messageReference = await doc(db, messagesTable, message?.id).withConverter(messageConverter);
+    await setDoc(messageReference, message as Message);
+  } catch (addMessageError) {
+    logToast(`Error Adding Message to Database ${messagesTable}`, addMessageError, true);
+  }
+}
+
+export const addMessageToChatSubcollection = async (chatID: string, message: Message) => {
+  try {
+    const chatMessagesCollection = collection(db, `${chatsTable}/${chatID}/messages`);
+    const messageRef = doc(chatMessagesCollection, message.id).withConverter(messageConverter);
+    await setDoc(messageRef, message);
+  } catch (addMessageError) {
+    logToast(`Error Adding Message to Chat ${chatID}`, addMessageError, true);
   }
 }
 

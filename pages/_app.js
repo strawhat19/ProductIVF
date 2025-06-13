@@ -42,6 +42,7 @@ import {
   chatsTable,
   chatConverter,
 } from '../firebase';
+import { Chat } from '../shared/models/Chat';
 
 export const StateContext = createContext({});
 
