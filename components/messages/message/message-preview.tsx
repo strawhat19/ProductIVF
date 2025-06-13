@@ -4,7 +4,7 @@ import CustomImage from '../../custom-image';
 import { StateContext } from '../../../pages/_app';
 import { Message } from '../../../shared/models/Message';
 
-export default function MessagePreview({ userMessage, onClick = () => {} }: any) {
+export default function MessagePreview({ userMessage, clickableMsg = true, onClick = () => {} }: any) {
     let { users } = useContext<any>(StateContext);
     let [message, setMessage] = useState(userMessage);
 
@@ -33,7 +33,7 @@ export default function MessagePreview({ userMessage, onClick = () => {} }: any)
     }
 
     return (
-        <div className={`messagePreview`} onClick={onClick}>
+        <div className={`messagePreview ${clickableMsg ? `clickableMsg` : ``}`} onClick={onClick}>
             {message?.image && message?.image != `` ? (
                 <CustomImage 
                     src={message.image} 

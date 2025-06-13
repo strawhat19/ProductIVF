@@ -13,7 +13,7 @@ import { Message } from './shared/models/Message';
 import { Feature } from './shared/admin/features';
 import { countPropertiesInObject, logToast } from './shared/constants';
 import { GoogleAuthProvider, browserLocalPersistence, deleteUser, getAuth, setPersistence } from 'firebase/auth';
-import { collection, doc, getDoc, getDocs, getFirestore, query, setDoc, updateDoc, where, WhereFilterOp, writeBatch } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDoc, getDocs, getFirestore, query, setDoc, updateDoc, where, WhereFilterOp, writeBatch } from 'firebase/firestore';
 
 export enum Environments {
   beta = `beta_`,
@@ -253,6 +253,15 @@ export const addChatToDatabase = async (chat: Chat) => {
   }
 }
 
+export const deleteChatFromDatabase = async (chat: Chat) => {
+  try {
+    const chatReference = doc(db, chatsTable, chat?.id).withConverter(chatConverter);
+    await deleteDoc(chatReference);
+  } catch (deleteChatError) {
+    logToast(`Error Deleting Chat from Database ${chatsTable}`, deleteChatError, true);
+  }
+}
+
 export const addMessageToDatabase = async (message: Message) => {
   try {
     const messageReference = await doc(db, messagesTable, message?.id).withConverter(messageConverter);
@@ -269,6 +278,41 @@ export const addMessageToChatSubcollection = async (chatID: string, message: Mes
     await setDoc(messageRef, message);
   } catch (addMessageError) {
     logToast(`Error Adding Message to Chat ${chatID}`, addMessageError, true);
+  }
+}
+
+export const deleteChatFromDatabaseBatch = async (chat: Chat) => {
+  const { date } = getIDParts();
+  const deleteChatBatchOperation = writeBatch(db);
+
+  try {
+    const chatRef = doc(db, chatsTable, chat?.id);
+    const messagesSubcollectionRef = collection(db, `${chatsTable}/${chat.id}/messages`);
+    const messagesSnapshot = await getDocs(messagesSubcollectionRef);
+
+    // Delete messages from subcollection (if any)
+    for (const msgDoc of messagesSnapshot.docs) {
+      const msgRef = doc(db, `${chatsTable}/${chat.id}/messages`, msgDoc.id);
+      deleteChatBatchOperation.delete(msgRef);
+    }
+
+    // Optionally: Also delete the message document from root messages collection if you store it there
+    const rootMessagesQuery = query(collection(db, messagesTable), where("chatID", "==", chat.id));
+    const rootMessagesSnapshot = await getDocs(rootMessagesQuery);
+
+    for (const rootMsgDoc of rootMessagesSnapshot.docs) {
+      const rootMsgRef = doc(db, messagesTable, rootMsgDoc.id);
+      deleteChatBatchOperation.delete(rootMsgRef);
+    }
+
+    // Finally, delete the chat itself
+    deleteChatBatchOperation.delete(chatRef);
+
+    await deleteChatBatchOperation.commit();
+    return chat;
+  } catch (deleteChatError) {
+    await logToast(`Error Deleting Chat ${chat?.id}`, deleteChatError, true);
+    return deleteChatError;
   }
 }
 

@@ -16,6 +16,12 @@
         grid-gap: 15px;
         padding: 10px 25px 10px 15px;
     }
+    &:has(.chatsActionDeleteIconButton) {
+        grid-gap: 5px;
+        h2 {
+            width: 100%;
+        }
+    }
     h2 {
         font-size: 20px;
         font-weight: 600;
@@ -53,15 +59,17 @@ a {
 .messagePreview {
     gap: 15px;
     display: grid;
-    cursor: pointer;
     min-height: 130px;
     align-items: center;
     padding: 12px 25px 12px 10px;
     transition: var(--transition);
     grid-template-columns: 70px 1fr;
     border-bottom: 1px solid var(--main);
-    &:hover {
-        background: rgba(0, 0, 0, 0.35);
+    &.clickableMsg {
+        cursor: pointer;
+        &:hover {
+            background: rgba(0, 0, 0, 0.35);
+        }
     }
 }
 
@@ -100,6 +108,15 @@ span {
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 3;
+    text-overflow: ellipsis;
+    -webkit-box-orient: vertical;
+}
+
+.messagesHeaderRowTitle {
+    line-clamp: 1;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
     text-overflow: ellipsis;
     -webkit-box-orient: vertical;
 }
@@ -181,7 +198,7 @@ span {
 
 .chatSlide {
     .messagesPreviewContainer {
-        min-height: 0;
+        min-height: 665px;
         overflow-y: auto !important;
         // &.noChats {
         //     min-height: 730px;
