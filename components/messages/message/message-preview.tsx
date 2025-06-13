@@ -6,7 +6,7 @@ import { Message } from '../../../shared/models/Message';
 
 export default function MessagePreview({ userMessage, clickableMsg = true, onClick = () => {} }: any) {
     let { user, users } = useContext<any>(StateContext);
-    let [message, setMessage] = useState(userMessage);
+    // let [message, setMessage] = useState(userMessage);
 
     const getMessageName = (msg: Message) => {
         let msgName = msg?.name;
@@ -23,7 +23,7 @@ export default function MessagePreview({ userMessage, clickableMsg = true, onCli
     }
 
     const getMessageTimeStamp = (msg: Message) => {
-        let msgTime = message?.meta?.updated;
+        let msgTime = userMessage?.meta?.updated;
         if (msgTime) {
             let msgTimeStampT = msgTime?.split(` `)[0];
             let msgTimeStampX = msgTime?.split(` `)[1];
@@ -34,25 +34,25 @@ export default function MessagePreview({ userMessage, clickableMsg = true, onCli
 
     return (
         <div className={`messagePreview ${clickableMsg ? `clickableMsg` : ``}`} onClick={onClick}>
-            {message?.image && message?.image != `` ? (
+            {userMessage?.image && userMessage?.image != `` ? (
                 <CustomImage 
-                    src={message.image} 
                     alt={`Avatar Image`} 
+                    src={userMessage?.image} 
                     className={`avatarImage`} 
                 />
-            ) : <Avatar name={getMessageName(message)} />}
+            ) : <Avatar name={getMessageName(userMessage)} />}
             <div className={`messageContent`}>
                 <div className={`messageContentTop`}>
                     <div className={`messageSenderName`}>
-                        <h3>{getMessageName(message)}</h3>
+                        <h3>{getMessageName(userMessage)}</h3>
                     </div>
                     <div className={`messageSentDate`}>
-                        {getMessageTimeStamp(message)}
+                        {getMessageTimeStamp(userMessage)}
                     </div>
                 </div>
                 <div className={`messageContentPreview`}>
-                    {clickableMsg && (message?.creator?.toLowerCase() == user?.email?.toLowerCase()) ? `you: ` : ``} 
-                    {message?.content}
+                    {clickableMsg && (userMessage?.creator?.toLowerCase() == user?.email?.toLowerCase()) ? `you: ` : ``} 
+                    {userMessage?.content}
                 </div>
             </div>
         </div>

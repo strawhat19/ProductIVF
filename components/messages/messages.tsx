@@ -72,9 +72,9 @@ export default function Messages() {
     let [chatSlideActive, setChatSlideActive] = useState(false);
     let { user, chats, boardsLoading, gridsLoading } = useContext<any>(StateContext);
 
-    const getUserChats = () => {
-        let msgChats = chats?.length > 0 ? [
-            ...chats.map(c => {
+    const getUserChats = (chts = chats) => {
+        let msgChats = chts?.length > 0 ? [
+            ...chts.map(c => {
                 return new Message({
                     ...c.lastMessage,
                     senderEmail: c?.lastMessage?.senderEmail?.toLowerCase() == user?.email?.toLowerCase() 
@@ -89,7 +89,8 @@ export default function Messages() {
     let [userChats, setUserChats] = useState(getUserChats());
 
     useEffect(() => {
-        setUserChats(getUserChats());
+        const updatedChats = getUserChats(chats);
+        setUserChats(updatedChats);
         if (chats?.length == 0) {
             if (activeChat != null) {
                 goNextSwiperSlide();
@@ -99,6 +100,7 @@ export default function Messages() {
 
     useEffect(() => {
         let realtimeChatMessagesListener: Unsubscribe | null = null;
+
         if (activeChat != null) {
             if (activeChat?.id) {
                 const messagesRef = collection(db, `chats/${activeChat.id}/messages`);
@@ -110,7 +112,8 @@ export default function Messages() {
                     logToast(`Error on Get Chat Messages from Database`, getChatMessagesError, true);
                 })
             }
-        }
+        } else setChatMessages([]);
+
         return () => {
             if (realtimeChatMessagesListener != null) {
                 realtimeChatMessagesListener();
