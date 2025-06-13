@@ -187,15 +187,22 @@ span {
     }
 }
 
-.avatarComponent {
-    display: flex;
-    aspect-ratio: 1;
-    font-size: 22px;
-    font-weight: 700;
-    border-radius: 100%;
-    background: black;
-    align-items: center;
-    justify-content: center;
+.messagePreview {
+    .avatarComponent {
+        display: flex;
+        aspect-ratio: 1;
+        font-size: 22px;
+        font-weight: 700;
+        border-radius: 100%;
+        background: black;
+        align-items: center;
+        justify-content: center;
+    }
+    &.msgReader {
+        .avatarComponent {
+            background: var(--gameBlueSoft);
+        }
+    }
 }
 
 .chatSlide {

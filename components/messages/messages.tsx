@@ -63,6 +63,7 @@ import { logToast } from '../../shared/constants';
 
 export default function Messages() {
     let swiperRef = useRef(null);
+    let chatMessagesRef = useRef(null);
     let [message, setMessage] = useState(``);
     let [recipients, setRecipients] = useState([]);
     let [activeSlide, setActiveSlide] = useState(0);
@@ -106,8 +107,11 @@ export default function Messages() {
                 const messagesRef = collection(db, `chats/${activeChat.id}/messages`);
                 const messagesQuery = query(messagesRef, orderBy(`rank`));
                 realtimeChatMessagesListener = onSnapshot(messagesQuery, snapshot => {
-                    const liveMessages = snapshot.docs.map(doc => new Message({ ...doc.data() }));
+                    const liveMessages = snapshot.docs.map(doc => new Message({ ...doc.data() }))?.sort((a: any, b: any) => (new Date(a.meta.updated) as any) - (new Date(b.meta.updated) as any));
                     setChatMessages(liveMessages);
+                    setTimeout(() => {
+                        scrollChatScreenDown();
+                    }, 250);
                 }, (getChatMessagesError) => {
                     logToast(`Error on Get Chat Messages from Database`, getChatMessagesError, true);
                 })
@@ -124,6 +128,12 @@ export default function Messages() {
 
     const onSelectedRecipients = (selectedOptions) => {
         setRecipients(selectedOptions);
+    }
+
+    const scrollChatScreenDown = () => {
+        if (chatMessagesRef.current) {
+            chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight;
+        }
     }
 
     const chatsReady = () => {
@@ -206,6 +216,8 @@ export default function Messages() {
             const activeSlideIndex = swiperInstance?.realIndex;
             if (activeSlideIndex == 0) {
                 swiperInstance.slideNext();
+                // let usrGridURL = `/user/${usr?.rank}/grids/${selectedGrd?.rank}`;
+                // router.replace(usrGridURL, undefined, { shallow: true });
                 setComposing(compose);
                 if (chatMsg) {
                     if (chats?.length > 0) {
@@ -215,7 +227,9 @@ export default function Messages() {
                         }
                     }
                 }
-                setTimeout(() => setChatSlideActive(true), 175);
+                setTimeout(() => {
+                    setChatSlideActive(true);
+                }, 175);
             } else {
                 swiperInstance.slidePrev();
                 setChatSlideActive(false);
@@ -358,7 +372,7 @@ export default function Messages() {
                                 ) : chatsLoader()}
                             </SwiperSlide>
                             <SwiperSlide className={`chatSlide`}>
-                                <div className={`chatMessagesContainer messagesPreviewContainer ${userChats.length > 0 ? `hasChats` : `noChats`} ${chatSlideActive ? `chatSlideActive` : `chatSlideInactive`}`} 
+                                <div ref={chatMessagesRef} className={`chatMessagesContainer messagesPreviewContainer ${userChats.length > 0 ? `hasChats` : `noChats`} ${chatSlideActive ? `chatSlideActive` : `chatSlideInactive`}`} 
                                     style={chatSlideActive ? { 
                                         [`--height`]: getBodyHeight(1) + `px`,
                                         height: `var(--height)`, 

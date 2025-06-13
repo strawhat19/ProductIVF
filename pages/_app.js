@@ -650,9 +650,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
 
         const userStartURL = `/user/${userURL}/grids/${gridURL}`;
         
-        router.replace(userStartURL, undefined, {
-          shallow: true,
-        });
+        router.replace(userStartURL, undefined, { shallow: true });
       }
     }
   }

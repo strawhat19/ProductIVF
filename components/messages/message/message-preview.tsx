@@ -1,5 +1,5 @@
+import { useContext } from 'react';
 import Avatar from '../avatar/avatar';
-import { useContext, useState } from 'react';
 import CustomImage from '../../custom-image';
 import { StateContext } from '../../../pages/_app';
 import { Message } from '../../../shared/models/Message';
@@ -12,6 +12,12 @@ export default function MessagePreview({ userMessage, clickableMsg = true, onCli
         let msgName = msg?.name;
         let msgSender = clickableMsg ? msg?.senderEmail : msg?.creator;
         if (msgSender) {
+            if (clickableMsg) {
+                if (msgSender?.toLowerCase() == user?.email?.toLowerCase()) {
+                    let uniqueRecips = msg?.recipients?.filter(r => r?.toLowerCase() != user?.email?.toLowerCase());
+                    msgSender = uniqueRecips[0];
+                }
+            }
             if (users && users.length > 0) {
                 let msgUser = users?.find(usr => usr?.email?.toLowerCase() == msgSender?.toLowerCase());
                 if (msgUser) {
@@ -33,7 +39,7 @@ export default function MessagePreview({ userMessage, clickableMsg = true, onCli
     }
 
     return (
-        <div className={`messagePreview ${clickableMsg ? `clickableMsg` : ``}`} onClick={onClick}>
+        <div className={`messagePreview ${clickableMsg ? `clickableMsg` : `nonClickableMsg`} ${userMessage?.creator?.toLowerCase() == user?.email?.toLowerCase() ? `msgCreator` : `msgReader`}`} onClick={onClick}>
             {userMessage?.image && userMessage?.image != `` ? (
                 <CustomImage 
                     alt={`Avatar Image`} 
