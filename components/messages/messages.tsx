@@ -4,21 +4,21 @@ import 'swiper/css';
 import { StateContext } from '../../pages/_app';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { RolesMap } from '../../shared/models/User';
-import { useContext, useRef, useState } from 'react';
-import { createMessage, Message } from '../../shared/models/Message';
 import { createChat } from '../../shared/models/Chat';
 import MessagePreview from './message/message-preview';
 import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
 import MultiSelect from '../selector/multiselect/multiselect';
+import { CSSProperties, useContext, useEffect, useRef, useState } from 'react';
+import { createMessage, Message } from '../../shared/models/Message';
 import { addChatToDatabase, addMessageToChatSubcollection } from '../../firebase';
 
 export const avatars = {
-    aang: {
-        name: `Aang`,
-        images: {
-            state: `https://yt3.googleusercontent.com/qGrcViAdsmfdL8NhR03s6jZVi2AP4A03XeBFShu2M4Jd88k1fNXDnpMEmHU6CvNJuMyA2z1maA0=s900-c-k-c0x00ffffff-no-rj`,
-        },
-    },
+    // aang: {
+    //     name: `Aang`,
+    //     images: {
+    //         state: `https://yt3.googleusercontent.com/qGrcViAdsmfdL8NhR03s6jZVi2AP4A03XeBFShu2M4Jd88k1fNXDnpMEmHU6CvNJuMyA2z1maA0=s900-c-k-c0x00ffffff-no-rj`,
+    //     },
+    // },
     toph: {
         name: `Toph`,
         images: {
@@ -45,6 +45,20 @@ const getRandomAvatar = () => {
     return { name: avatar.name, image: imageUrl };
 }
 
+const getArr = (num) => {
+    return Array.from({ length: num }, (_, i) => {
+        const { name, image } = getRandomAvatar();
+        return new Message({
+            name,
+            image,
+            senderEmail: name,
+            id: `msg-${i + 1}`,
+            date: `10:${48 - i} PM`,
+            content: `WWWWWWWWWWWWWWWWWW WWWWWWWWWWWWWWWWWW WWWWWWWWWWWWWWWWW WWWWW`,
+        });
+    });
+}
+
 export default function Messages() {
     let swiperRef = useRef(null);
     let [message, setMessage] = useState(``);
@@ -54,18 +68,19 @@ export default function Messages() {
     let [chatSlideActive, setChatSlideActive] = useState(false);
     let { user, chats, boardsLoading, gridsLoading } = useContext<any>(StateContext);
 
-    let [messages, setMessages] = useState(() => {
-        return Array.from({ length: 0 }, (_, i) => {
-            const { name, image } = getRandomAvatar();
-            return new Message({
-                name,
-                image,
-                id: `msg-${i + 1}`,
-                date: `10:${48 - i} PM`,
-                content: `WWWWWWWWWWWWWWWWWW WWWWWWWWWWWWWWWWWW WWWWWWWWWWWWWWWWW WWWWW`,
-            });
-        });
-    })
+    const setMsgChats = () => {
+        let msgChats = chats?.length > 0 ? [
+            ...chats.map(c => c.lastMessage), 
+            ...getArr(3),
+        ] : [];
+        return msgChats;
+    }
+    
+    let [messages, setMessages] = useState(setMsgChats());
+
+    useEffect(() => {
+        setMessages(setMsgChats());
+    }, [chats])
 
     const onSelectedRecipients = (selectedOptions) => {
         setRecipients(selectedOptions);
@@ -126,17 +141,17 @@ export default function Messages() {
         console.log(`onChatFormChange`, updatedValue);
     }
 
-    const getBodyHeight = () => {
+    const getBodyHeight = (extraThreshold = 0) => {
         let nextraNavContainer = document.querySelector(`.nextra-nav-container`);
         let messagesHeader = document.querySelector(`.messagesHeader`);
         let chatForm = document.querySelector(`.chatForm`);
         let h = window.innerHeight - 176;
         if (chatForm && messagesHeader && nextraNavContainer) {
-            h = window.innerHeight - (
+            h = window.innerHeight - ((
                 messagesHeader.clientHeight 
                 // nextraNavContainer.clientHeight 
                 + chatForm.clientHeight
-            );
+            ) + extraThreshold);
             // console.log({
             //     h,
             //     innerHeight: window.innerHeight,
@@ -244,8 +259,17 @@ export default function Messages() {
                             // modules={[EffectCards]}
                         >
                             <SwiperSlide className={`chatsScreen`}>
+                                {/* {chats?.length}
+                                {messages?.length} */}
                                 {messages?.length > 0 ? (
-                                    <div className={`messagesPreviewContainer`}>
+                                    <div className={`messagesPreviewContainer`} 
+                                        style={{ 
+                                            [`--height`]: getBodyHeight(4) + `px`,
+                                            height: `var(--height)`, 
+                                            minHeight: `var(--height)`, 
+                                            maxHeight: `var(--height)`,
+                                        } as CSSProperties}
+                                    >
                                         {messages.map((msg: Message, msgIndex) => {
                                             return (
                                                 <MessagePreview 
@@ -259,7 +283,14 @@ export default function Messages() {
                                 ) : chatsLoader()}
                             </SwiperSlide>
                             <SwiperSlide className={`chatSlide`}>
-                                <div className={`chatMessagesContainer messagesPreviewContainer ${messages.length > 0 ? `hasChats` : `noChats`} ${chatSlideActive ? `chatSlideActive` : `chatSlideInactive`}`} style={{ maxHeight: getBodyHeight() }}>
+                                <div className={`chatMessagesContainer messagesPreviewContainer ${messages.length > 0 ? `hasChats` : `noChats`} ${chatSlideActive ? `chatSlideActive` : `chatSlideInactive`}`} 
+                                    style={chatSlideActive ? { 
+                                        [`--height`]: getBodyHeight(1) + `px`,
+                                        height: `var(--height)`, 
+                                        minHeight: `var(--height)`, 
+                                        maxHeight: `var(--height)`,
+                                    } as CSSProperties : undefined}
+                                >
                                     {messages.map((msg: Message, msgIndex) => {
                                         return (
                                             <MessagePreview 

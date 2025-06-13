@@ -148,8 +148,8 @@ span {
         width: 100%;
         grid-gap: 8px;
         display: flex;
+        padding: 10px;
         align-items: center;
-        padding: 10px 10px 0;
         justify-content: space-between;
         border-top: 1px solid var(--main);
         input {
@@ -168,18 +168,29 @@ span {
     }
 }
 
+.avatarComponent {
+    display: flex;
+    aspect-ratio: 1;
+    font-size: 22px;
+    font-weight: 700;
+    border-radius: 100%;
+    background: black;
+    align-items: center;
+    justify-content: center;
+}
+
 .chatSlide {
     .messagesPreviewContainer {
         min-height: 0;
         overflow-y: auto !important;
-        &.noChats {
-            min-height: 730px;
-        }
-        .messagePreview {
-            &:last-child {
-                border-bottom: none !important;
-            }
-        }
+        // &.noChats {
+        //     min-height: 730px;
+        // }
+        // .messagePreview {
+        //     &:last-child {
+        //         border-bottom: none !important;
+        //     }
+        // }
     }
 }
 
@@ -190,6 +201,7 @@ span {
 }
 
 html {
+    background: var(--navAndFooterBG);
     &:has(.chatMessages):has(.chatSlideActive) {
         overflow-y: hidden;
         footer {
