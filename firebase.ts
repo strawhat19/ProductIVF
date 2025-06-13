@@ -271,7 +271,7 @@ export const addMessageToDatabase = async (message: Message) => {
   }
 }
 
-export const addMessageToChatSubcollection = async (chatID: string, message: Message) => {
+export const addMessageToChatSubcollection = async (chatID: string, message: Message, updateChat = false) => {
   try {
     const chatMessagesCollection = collection(db, `${chatsTable}/${chatID}/messages`);
     const messageRef = doc(chatMessagesCollection, message.id).withConverter(messageConverter);
@@ -281,40 +281,40 @@ export const addMessageToChatSubcollection = async (chatID: string, message: Mes
   }
 }
 
-export const deleteChatFromDatabaseBatch = async (chat: Chat) => {
-  const { date } = getIDParts();
-  const deleteChatBatchOperation = writeBatch(db);
+// export const deleteChatFromDatabaseBatch = async (chat: Chat) => {
+//   const { date } = getIDParts();
+//   const deleteChatBatchOperation = writeBatch(db);
 
-  try {
-    const chatRef = doc(db, chatsTable, chat?.id);
-    const messagesSubcollectionRef = collection(db, `${chatsTable}/${chat.id}/messages`);
-    const messagesSnapshot = await getDocs(messagesSubcollectionRef);
+//   try {
+//     const chatRef = doc(db, chatsTable, chat?.id);
+//     const messagesSubcollectionRef = collection(db, `${chatsTable}/${chat.id}/messages`);
+//     const messagesSnapshot = await getDocs(messagesSubcollectionRef);
 
-    // Delete messages from subcollection (if any)
-    for (const msgDoc of messagesSnapshot.docs) {
-      const msgRef = doc(db, `${chatsTable}/${chat.id}/messages`, msgDoc.id);
-      deleteChatBatchOperation.delete(msgRef);
-    }
+//     // Delete messages from subcollection (if any)
+//     for (const msgDoc of messagesSnapshot.docs) {
+//       const msgRef = doc(db, `${chatsTable}/${chat.id}/messages`, msgDoc.id);
+//       deleteChatBatchOperation.delete(msgRef);
+//     }
 
-    // Optionally: Also delete the message document from root messages collection if you store it there
-    const rootMessagesQuery = query(collection(db, messagesTable), where("chatID", "==", chat.id));
-    const rootMessagesSnapshot = await getDocs(rootMessagesQuery);
+//     // Optionally: Also delete the message document from root messages collection if you store it there
+//     const rootMessagesQuery = query(collection(db, messagesTable), where("chatID", "==", chat.id));
+//     const rootMessagesSnapshot = await getDocs(rootMessagesQuery);
 
-    for (const rootMsgDoc of rootMessagesSnapshot.docs) {
-      const rootMsgRef = doc(db, messagesTable, rootMsgDoc.id);
-      deleteChatBatchOperation.delete(rootMsgRef);
-    }
+//     for (const rootMsgDoc of rootMessagesSnapshot.docs) {
+//       const rootMsgRef = doc(db, messagesTable, rootMsgDoc.id);
+//       deleteChatBatchOperation.delete(rootMsgRef);
+//     }
 
-    // Finally, delete the chat itself
-    deleteChatBatchOperation.delete(chatRef);
+//     // Finally, delete the chat itself
+//     deleteChatBatchOperation.delete(chatRef);
 
-    await deleteChatBatchOperation.commit();
-    return chat;
-  } catch (deleteChatError) {
-    await logToast(`Error Deleting Chat ${chat?.id}`, deleteChatError, true);
-    return deleteChatError;
-  }
-}
+//     await deleteChatBatchOperation.commit();
+//     return chat;
+//   } catch (deleteChatError) {
+//     await logToast(`Error Deleting Chat ${chat?.id}`, deleteChatError, true);
+//     return deleteChatError;
+//   }
+// }
 
 export const deleteUserAuth = async (usr: User) => {
   const currentUser = auth.currentUser;
@@ -814,8 +814,8 @@ export const deleteDatabaseData = async (
 }
 
 export const updateDocFieldsWTimeStamp = async (
-  document: Partial<User> | Partial<Grid> | Partial<Board> | Partial<List> | Partial<Item> | Partial<Task>, 
-  updates: Partial<User> | Partial<Grid> | Partial<Board> | Partial<List> | Partial<Item> | Partial<Task> | any, 
+  document: Partial<User> | Partial<Grid> | Partial<Board> | Partial<List> | Partial<Item> | Partial<Task> | Partial<Chat> | Partial<Message>, 
+  updates: Partial<User> | Partial<Grid> | Partial<Board> | Partial<List> | Partial<Item> | Partial<Task> | Partial<Chat> | Partial<Message> | any, 
   log = false,
 ) => {
   const now = formatDate(new Date(), `update`);

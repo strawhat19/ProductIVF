@@ -104,7 +104,8 @@ span {
 .messageContentPreview {
     line-clamp: 3;
     max-width: 95%;
-    font-size: 12px;
+    font-size: 14px;
+    font-weight: 600;
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 3;
@@ -201,14 +202,6 @@ span {
     .messagesPreviewContainer {
         min-height: 665px;
         overflow-y: auto !important;
-        // &.noChats {
-        //     min-height: 730px;
-        // }
-        // .messagePreview {
-        //     &:last-child {
-        //         border-bottom: none !important;
-        //     }
-        // }
     }
 }
 
@@ -233,9 +226,10 @@ html {
 }
 
 .chatsActionIconButton {
-    width: 10% !important;
-    min-height: var(--chatsFieldHeight) !important;
+    max-width: 35px !important;
+    min-width: 35px !important;
     justify-content: center !important;
+    min-height: var(--chatsFieldHeight) !important;
 }
 
 .closeTag {

@@ -9,8 +9,10 @@ import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
 import MultiSelect from '../selector/multiselect/multiselect';
 import { createMessage, Message } from '../../shared/models/Message';
 import { Chat, ChatTypes, createChat } from '../../shared/models/Chat';
-import { addChatToDatabase, deleteChatFromDatabase } from '../../firebase';
 import { CSSProperties, useContext, useEffect, useRef, useState } from 'react';
+import { addChatToDatabase, addMessageToChatSubcollection, db, deleteChatFromDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
+import { collection, onSnapshot, orderBy, query, Unsubscribe } from 'firebase/firestore';
+import { logToast } from '../../shared/constants';
 
 // export const avatars = {
 //     // aang: {
@@ -66,10 +68,11 @@ export default function Messages() {
     let [activeSlide, setActiveSlide] = useState(0);
     let [composing, setComposing] = useState(false);
     let [activeChat, setActiveChat] = useState(null);
+    let [chatMessages, setChatMessages] = useState([]);
     let [chatSlideActive, setChatSlideActive] = useState(false);
     let { user, chats, boardsLoading, gridsLoading } = useContext<any>(StateContext);
 
-    const setMsgChats = () => {
+    const getUserChats = () => {
         let msgChats = chats?.length > 0 ? [
             ...chats.map(c => {
                 return new Message({
@@ -83,16 +86,38 @@ export default function Messages() {
         return msgChats;
     }
     
-    let [userChats, setMessages] = useState(setMsgChats());
+    let [userChats, setUserChats] = useState(getUserChats());
 
     useEffect(() => {
-        setMessages(setMsgChats());
+        setUserChats(getUserChats());
         if (chats?.length == 0) {
             if (activeChat != null) {
                 goNextSwiperSlide();
             }
         }
     }, [chats])
+
+    useEffect(() => {
+        let realtimeChatMessagesListener: Unsubscribe | null = null;
+        if (activeChat != null) {
+            if (activeChat?.id) {
+                const messagesRef = collection(db, `chats/${activeChat.id}/messages`);
+                const messagesQuery = query(messagesRef, orderBy(`rank`));
+                realtimeChatMessagesListener = onSnapshot(messagesQuery, snapshot => {
+                    const liveMessages = snapshot.docs.map(doc => new Message({ ...doc.data() }));
+                    setChatMessages(liveMessages);
+                }, (getChatMessagesError) => {
+                    logToast(`Error on Get Chat Messages from Database`, getChatMessagesError, true);
+                })
+            }
+        }
+        return () => {
+            if (realtimeChatMessagesListener != null) {
+                realtimeChatMessagesListener();
+                realtimeChatMessagesListener = null;
+            }
+        }
+    }, [activeChat])
 
     const onSelectedRecipients = (selectedOptions) => {
         setRecipients(selectedOptions);
@@ -112,54 +137,34 @@ export default function Messages() {
     const onChatFormSubmit = async (onFormSubmitEvent) => {
         onFormSubmitEvent?.preventDefault();
 
-        const storeNewChat = () => {
-            let maxChatRank = 0;
-            if (chats.length > 0) {
-                let chatRanks = chats.map(ch => ch.rank).sort((a, b) => b - a);
-                maxChatRank = chatRanks[0];
-            }
-
-            const chatNumber = Math.max(maxChatRank) + 1;
-            const nonUserRecips = recipients?.filter(r => r?.value?.toLowerCase() != user?.email?.toLowerCase());
-            const chatType = nonUserRecips?.length > 1 ? ChatTypes.Group : (nonUserRecips?.length == 1 ? ChatTypes.Direct : ChatTypes.Self);
-
-            const recipientsEmails = recipients?.map(r => r?.value);
-            const recipientsString = recipientsEmails?.join(` `)?.trim();
-            const uniqueRecipientEmails = Array.from(new Set([...[user?.email, ...recipientsEmails]]));
-
-            const newChat = createChat(chatNumber, recipientsString, user, uniqueRecipientEmails, chatType);
-            const newMessage = createMessage(1, message, user, newChat?.id, uniqueRecipientEmails);
-            newChat.lastMessage = newMessage;
-
-            // setChatts(prevChats => [...prevChats, newChat]);
-
-            addChatToDatabase(newChat);
-            // addMessageToChatSubcollection(newChat?.id, newMessage);
-            setActiveChat(newChat);
-
+        if (activeChat != null) {
+            const { recipients: recips } = activeChat?.lastMessage;
+            const newMessageIndex = activeChat?.lastMessage?.rank + 1;
+            const newMessage = createMessage(newMessageIndex, message, user, activeChat?.id, recips);
+            addMessageToChatSubcollection(activeChat?.id, newMessage);
+            updateDocFieldsWTimeStamp(activeChat, { lastMessage: JSON.parse(JSON.stringify(newMessage)) });
             onFormSubmitEvent?.target?.reset();
-            setRecipients([]);
+            setMessage(``);
+        } else {
+            if (chats.length > 0) {
+                let thisChat = chats.find(ch => {
+                    const sortedRec = [...recipients.map(s => s.toLowerCase())].sort();
+                    const sortedUsers = [...ch.data.users.map(s => s.toLowerCase())].sort();
+                    return sortedRec.length === sortedUsers.length &&
+                        sortedRec.every((val, index) => val === sortedUsers[index]);
+                });
+                
+                if (thisChat) {
+                    console.log(`Has Chat`, thisChat);
+                } else addNewChat(onFormSubmitEvent);
+            } else addNewChat(onFormSubmitEvent);
         }
-
-        if (chats.length > 0) {
-            let thisChat = chats.find(ch => {
-                const sortedRec = [...recipients.map(s => s.toLowerCase())].sort();
-                const sortedUsers = [...ch.data.users.map(s => s.toLowerCase())].sort();
-                return sortedRec.length === sortedUsers.length &&
-                    sortedRec.every((val, index) => val === sortedUsers[index]);
-            });
-            
-            if (thisChat) {
-                console.log(`Has Chat`, thisChat);
-            } else storeNewChat();
-        } else storeNewChat();
     }
     
     const onChatFormChange = (onFormChangeEvent) => {
         onFormChangeEvent?.preventDefault();
         let updatedValue = onFormChangeEvent?.target?.value;
         setMessage(updatedValue);
-        console.log(`onChatFormChange`, updatedValue);
     }
 
     const getBodyHeight = (extraThreshold = 0) => {
@@ -170,16 +175,8 @@ export default function Messages() {
         if (chatForm && messagesHeader && nextraNavContainer) {
             h = window.innerHeight - ((
                 messagesHeader.clientHeight 
-                // nextraNavContainer.clientHeight 
                 + chatForm.clientHeight
             ) + extraThreshold);
-            // console.log({
-            //     h,
-            //     innerHeight: window.innerHeight,
-            //     chatForm: chatForm?.clientHeight,
-            //     messagesHeader: messagesHeader?.clientHeight,
-            //     // nextraNavContainer: nextraNavContainer?.clientHeight,
-            // })
         }
         return h;
     }
@@ -246,6 +243,34 @@ export default function Messages() {
         }
 
         return loadingLabel;
+    }
+
+    const addNewChat = (onFormSubmitEvent = null) => {
+        let maxChatRank = 0;
+        if (chats.length > 0) {
+            let chatRanks = chats.map(ch => ch.rank).sort((a, b) => b - a);
+            maxChatRank = chatRanks[0];
+        }
+
+        const chatNumber = Math.max(maxChatRank) + 1;
+        const nonUserRecips = recipients?.filter(r => r?.value?.toLowerCase() != user?.email?.toLowerCase());
+        const chatType = nonUserRecips?.length > 1 ? ChatTypes.Group : (nonUserRecips?.length == 1 ? ChatTypes.Direct : ChatTypes.Self);
+
+        const recipientsEmails = recipients?.map(r => r?.value);
+        const recipientsString = recipientsEmails?.join(` `)?.trim();
+        const uniqueRecipientEmails = Array.from(new Set([...[user?.email, ...recipientsEmails]]));
+
+        const newChat = createChat(chatNumber, recipientsString, user, uniqueRecipientEmails, chatType);
+        const newMessage = createMessage(1, message, user, newChat?.id, uniqueRecipientEmails);
+        newChat.lastMessage = newMessage;
+
+        addChatToDatabase(newChat);
+        addMessageToChatSubcollection(newChat?.id, newMessage);
+        setActiveChat(newChat);
+
+        if (onFormSubmitEvent != null) onFormSubmitEvent?.target?.reset();
+        setRecipients([]);
+        setMessage(``);
     }
 
     return (
@@ -338,7 +363,7 @@ export default function Messages() {
                                         maxHeight: `var(--height)`,
                                     } as CSSProperties : undefined}
                                 >
-                                    {userChats.map((msg: Message, msgIndex) => {
+                                    {chatMessages.map((msg: Message, msgIndex) => {
                                         return (
                                             <MessagePreview 
                                                 key={msgIndex} 

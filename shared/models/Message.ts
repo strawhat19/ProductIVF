@@ -104,7 +104,7 @@ export const createMessage = (
 
         message.data = {
             ...message.data,
-            users: [user?.email, ...message?.recipients],
+            users: [user?.email, ...message?.recipients?.filter(r => r?.toLowerCase() != user?.email?.toLowerCase())],
         }
     }
 
