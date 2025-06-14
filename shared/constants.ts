@@ -20,12 +20,14 @@ export const sortDescending = (arr: (string | number)[]): number[] => {
 }
 
 export const isMobileDevice = () => {
-  if (navigator) {
-    const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
-    const platform = navigator.platform;
-    const mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
-    const isIOS = /iPad|iPhone|iPod/.test(platform) || (platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-    return mobileRegex.test(userAgent) || isIOS;
+  if (navigator && window && window?.navigator) {
+    const userAgent = navigator?.userAgent || navigator?.vendor || (window as any)?.opera;
+    const platform = navigator?.platform;
+    if (userAgent && platform) {
+      const mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+      const isIOS = /iPad|iPhone|iPod/.test(platform) || (platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      return mobileRegex.test(userAgent) || isIOS;
+    }
   }
 }
 
