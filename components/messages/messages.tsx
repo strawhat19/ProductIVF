@@ -3,6 +3,7 @@ import 'swiper/css';
 import Editor from './editor/editor';
 // import { EffectCards } from 'swiper/modules';
 import { StateContext } from '../../pages/_app';
+import { isMobileDevice, logToast } from '../../shared/constants';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { RolesMap } from '../../shared/models/User';
 import MessagePreview from './message/message-preview';
@@ -11,9 +12,8 @@ import MultiSelect from '../selector/multiselect/multiselect';
 import { createMessage, Message } from '../../shared/models/Message';
 import { Chat, ChatTypes, createChat } from '../../shared/models/Chat';
 import { CSSProperties, useContext, useEffect, useRef, useState } from 'react';
-import { addChatToDatabase, addMessageToChatSubcollection, db, deleteChatFromDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
 import { collection, onSnapshot, orderBy, query, Unsubscribe } from 'firebase/firestore';
-import { logToast } from '../../shared/constants';
+import { addChatToDatabase, addMessageToChatSubcollection, db, deleteChatFromDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
 
 // export const avatars = {
 //     // aang: {
@@ -206,6 +206,8 @@ export default function Messages() {
         let messagesHeader = document.querySelector(`.messagesHeader`);
         let chatForm = document.querySelector(`.chatForm`);
         let h = window.innerHeight - 176;
+        let onMobile = isMobileDevice();
+        if (onMobile) return;
         if (chatForm && messagesHeader && nextraNavContainer) {
             h = window.innerHeight - ((
                 messagesHeader.clientHeight 

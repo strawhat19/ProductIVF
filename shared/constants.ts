@@ -19,6 +19,14 @@ export const sortDescending = (arr: (string | number)[]): number[] => {
   return arr.map(item => (typeof item === `number` ? item : parseFloat(item))).filter(item => !isNaN(item)).sort((a, b) => b - a);
 }
 
+export const isMobileDevice = () => {
+  const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+  const platform = navigator.platform;
+  const mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+  const isIOS = /iPad|iPhone|iPod/.test(platform) || (platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  return mobileRegex.test(userAgent) || isIOS;
+}
+
 export const extractURLsFromText = (textArray: string[]) => {
   const URLRegex = /(?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9.-]+\.(com|net|org|io|co|gov|edu|us|uk|dev|app|info|biz|me|tv|xyz|ai|ca|in|nl|au|de)(?:[^\s]*)/gi;
   const URLsFromText = textArray.flatMap(text => text.match(URLRegex) || []);

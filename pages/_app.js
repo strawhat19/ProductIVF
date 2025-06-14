@@ -24,7 +24,7 @@ import { collection, getDocs, onSnapshot, query, where  } from 'firebase/firesto
 import { getBoardTitleWidth, recentlyAuthenticated } from '../components/boards/boards';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import AuthenticationDialog from '../components/modals/authenticate/authenticate-dialog';
-import { defaultAuthenticateLabel, getRankAndNumber, isValid, logToast } from '../shared/constants';
+import { defaultAuthenticateLabel, getRankAndNumber, isMobileDevice, isValid, logToast } from '../shared/constants';
 
 import { 
   db, 
@@ -512,10 +512,12 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let [globalUserDataLoading, setGlobalUserDataLoading] = useState(true);
 
   const getPageContainerClasses = () => {
+    let isMobile = isMobileDevice();
     let route = rte == `_` ? `root` : rte;
+    let platformClasses = `platform_${isMobile ? `mobile` : `web`}`;
     let pageName = isValid(page.toUpperCase()) ? page.toUpperCase() : `home_Page`;
     let userClasses = `${user != null ? `signed_in` : `signed_out`} ${usersLoading ? `users_loading` : `users_loaded`}`;
-    let classes = `pageWrapContainer ${route} ${pageName} ${userClasses}`;
+    let classes = `pageWrapContainer ${route} ${pageName} ${userClasses} ${platformClasses}`;
     return classes;
   }
 
