@@ -45,6 +45,14 @@ export default function MessagePreview({ userMessage, clickableMsg = true, onCli
         }
     }
 
+    const cleanHTML = (htmlString: string) => {
+        return DOMPurify.sanitize(htmlString, {
+            ADD_ATTR: [`target`, `rel`, `id`, `class`],
+            ALLOWED_ATTR: [`href`, `src`, `alt`, `target`, `rel`, `id`, `class`],
+            ALLOWED_TAGS: [`a`, `img`, `p`, `strong`, `em`, `ul`, `li`, `ol`, `br`],
+        });
+    }
+
     return (
         <div className={`messagePreview ${clickableMsg ? `clickableMsg` : `nonClickableMsg`} ${userMessage?.creator?.toLowerCase() == user?.email?.toLowerCase() ? `msgCreator` : `msgReader`}`} onClick={onClick}>
             {userMessage?.image && userMessage?.image != `` ? (
@@ -66,7 +74,9 @@ export default function MessagePreview({ userMessage, clickableMsg = true, onCli
                 <div className={`messageContentContainer`}>
                     <div className={`messageContentPreview renderHTML ${clickableMsg ? `clippedText` : `fullText`}`}>
                         {clickableMsg && (userMessage?.creator?.toLowerCase() == user?.email?.toLowerCase()) ? `you: ` : ``} 
-                        {clickableMsg ? stripHtmlTags(userMessage?.content) : <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(userMessage?.content) }} />}
+                        {clickableMsg ? stripHtmlTags(userMessage?.content) : (
+                            <span dangerouslySetInnerHTML={{ __html: cleanHTML(userMessage?.content) }} />
+                        )}
                     </div>
                     {/* {!clickableMsg && (userMessage?.creator?.toLowerCase() == user?.email?.toLowerCase()) && (
                         <div className={`messageEndColumn`}>

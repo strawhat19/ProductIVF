@@ -165,6 +165,11 @@ span {
     pointer-events: none;
 }
 
+.msgImg {
+    width: auto;
+    max-height: 250px;
+}
+
 .renderHTML {
     h1 {
         font-size: 3em;
@@ -174,6 +179,13 @@ span {
     }
     h3 {
         font-size: 1.5em;
+    }
+    span {
+        &:first-child {
+            display: flex;
+            grid-gap: 5px;
+            flex-direction: column;
+        }
     }
 }
 
@@ -337,6 +349,10 @@ html {
         background: var(--main);
         color: var(--navAndFooterBG);
     }
+}
+
+.msgLnk {
+    color: var(--main);
 }
 
 body {

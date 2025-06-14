@@ -3,17 +3,47 @@ import 'swiper/css';
 import Editor from './editor/editor';
 // import { EffectCards } from 'swiper/modules';
 import { StateContext } from '../../pages/_app';
-import { isMobileDevice, logToast } from '../../shared/constants';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { RolesMap } from '../../shared/models/User';
 import MessagePreview from './message/message-preview';
 import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
 import MultiSelect from '../selector/multiselect/multiselect';
+import { isMobileDevice, logToast } from '../../shared/constants';
 import { createMessage, Message } from '../../shared/models/Message';
 import { Chat, ChatTypes, createChat } from '../../shared/models/Chat';
 import { CSSProperties, useContext, useEffect, useRef, useState } from 'react';
 import { collection, onSnapshot, orderBy, query, Unsubscribe } from 'firebase/firestore';
 import { addChatToDatabase, addMessageToChatSubcollection, db, deleteChatFromDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
+
+export const convertURLsToHTML = (html: string): string => {
+  // Create a DOM parser to handle the HTML string safely
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, `text/html`);
+
+  const imageExtensions = [`.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`, `.bmp`, `.svg`];
+
+  // Walk through all <strong> tags that contain URLs
+  doc.querySelectorAll(`p`).forEach(p => {
+    const text = p.textContent?.trim() || ``;
+    try {
+      const url = new URL(text); // validate URL
+
+      const isImage = imageExtensions.some(ext => url.pathname.toLowerCase().endsWith(ext));
+      const replacement = isImage
+        ? `<img src="${url.href}" class="msgImg" />`
+        : `<a href="${url.href}" class="msgLnk" target="_blank" rel="noopener noreferrer">
+            ${url.href}
+           </a>`;
+
+      // Replace the text content with HTML (note: innerHTML is safe here because it's your own validated content)
+      p.innerHTML = replacement;
+    } catch {
+      // Not a valid URL — skip it
+    }
+  });
+
+  return doc.body.innerHTML;
+}
 
 // export const avatars = {
 //     // aang: {
@@ -162,8 +192,9 @@ export default function Messages() {
     // }
 
     const onEditorChangeVal = (editorVal) => {
-        // console.log(`onEditorChangeVal`, editorVal);
-        setMessage(editorVal);
+        let output = convertURLsToHTML(editorVal);
+        console.log(`onEditorChangeVal`, {editorVal, output});
+        setMessage(output);
     }
 
     const resetEditor = (onFormSubmitEvent = null) => {
