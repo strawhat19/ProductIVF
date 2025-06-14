@@ -94,6 +94,12 @@ export default function Messages() {
     useEffect(() => {
         const updatedChats = getUserChats(chats);
         setUserChats(updatedChats);
+        if (activeChat != null) {
+            let thisChat = chats?.find(ch => ch?.id == activeChat?.id);
+            if (thisChat) {
+                setActiveChat(thisChat);
+            }
+        }
         if (chats?.length == 0) {
             if (activeChat != null) {
                 goNextSwiperSlide();
@@ -160,20 +166,25 @@ export default function Messages() {
         setMessage(editorVal);
     }
 
+    const resetEditor = (onFormSubmitEvent = null) => {
+        setMessage(``);
+        if (editorRef) editorRef.current?.clear();
+        if (onFormSubmitEvent != null) {
+            if (onFormSubmitEvent?.target) onFormSubmitEvent?.target?.reset();
+        }
+    }
+
     const onChatFormSubmit = async (onFormSubmitEvent) => {
         onFormSubmitEvent?.preventDefault();
         if (message == `` || message == `<p></p>`) return;
 
         if (activeChat != null) {
-            const { recipients: recips } = activeChat?.lastMessage;
-            const newMessageIndex = activeChat?.lastMessage?.rank + 1;
+            const { rank, recipients: recips } = activeChat?.lastMessage;
+            const newMessageIndex = parseFloat(rank) + 1;
             const newMessage = createMessage(newMessageIndex, message, user, activeChat?.id, recips);
             addMessageToChatSubcollection(activeChat?.id, newMessage);
             updateDocFieldsWTimeStamp(activeChat, { lastMessage: JSON.parse(JSON.stringify(newMessage)) });
-            // console.log(`onChatFormSubmit`, newMessage);
-            setMessage(``);
-            if (editorRef) editorRef.current?.clear();
-            if (onFormSubmitEvent?.target) onFormSubmitEvent?.target?.reset();
+            resetEditor(onFormSubmitEvent);
         } else {
             if (chats.length > 0) {
                 let thisChat = chats.find(ch => {
@@ -295,9 +306,8 @@ export default function Messages() {
         addMessageToChatSubcollection(newChat?.id, newMessage);
         setActiveChat(newChat);
 
-        if (onFormSubmitEvent != null) onFormSubmitEvent?.target?.reset();
         setRecipients([]);
-        setMessage(``);
+        resetEditor(onFormSubmitEvent);
     }
 
     return (
@@ -403,7 +413,7 @@ export default function Messages() {
                                 <form className={`chatForm`} onSubmit={(e) => onChatFormSubmit(e)}>
                                     <div className={`formField ${(activeChat == null && recipients.length == 0) ? `disabledFormField` : `enabledFormField`}`}>
                                         <Editor ref={editorRef} onChange={(editorVal) => onEditorChangeVal(editorVal)} />
-                                        <button disabled={message == `` || message == `<p></p>`} className={`iconButton ${(message == `` || message == `<p></p>`) ? `disabledFormField disabledFormFieldButton` : `enabledFormField enabledFormFieldButton`}`} type={`submit`}>
+                                        <button disabled={message == `` || message == `<p></p>`} className={`chatsActionIconButton messageActionButton iconButton ${(message == `` || message == `<p></p>`) ? `disabledFormField disabledFormFieldButton` : `enabledFormField enabledFormFieldButton`}`} type={`submit`}>
                                             <i className={`fas fa-caret-right`} />
                                         </button>
                                     </div>

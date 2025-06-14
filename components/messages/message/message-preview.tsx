@@ -63,9 +63,21 @@ export default function MessagePreview({ userMessage, clickableMsg = true, onCli
                         {getMessageTimeStamp(userMessage)}
                     </div>
                 </div>
-                <div className={`messageContentPreview renderHTML`}>
-                    {clickableMsg && (userMessage?.creator?.toLowerCase() == user?.email?.toLowerCase()) ? `you: ` : ``} 
-                    {clickableMsg ? stripHtmlTags(userMessage?.content) : <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(userMessage?.content) }} />}
+                <div className={`messageContentContainer`}>
+                    <div className={`messageContentPreview renderHTML ${clickableMsg ? `clippedText` : `fullText`}`}>
+                        {clickableMsg && (userMessage?.creator?.toLowerCase() == user?.email?.toLowerCase()) ? `you: ` : ``} 
+                        {clickableMsg ? stripHtmlTags(userMessage?.content) : <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(userMessage?.content) }} />}
+                    </div>
+                    {/* {!clickableMsg && (userMessage?.creator?.toLowerCase() == user?.email?.toLowerCase()) && (
+                        <div className={`messageEndColumn`}>
+                            <button title={`Delete Message`} className={`messageActionButton iconButton`}>
+                                <i className={`fas fa-trash`} />
+                            </button>
+                            <button title={`Edit Message`} className={`messageActionButton iconButton`}>
+                                <i className={`fas fa-edit`} />
+                            </button>
+                        </div>
+                    )} */}
                 </div>
             </div>
         </div>

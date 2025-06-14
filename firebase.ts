@@ -255,10 +255,17 @@ export const addChatToDatabase = async (chat: Chat) => {
 
 export const deleteChatFromDatabase = async (chat: Chat) => {
   try {
-    const chatReference = doc(db, chatsTable, chat?.id).withConverter(chatConverter);
-    await deleteDoc(chatReference);
-  } catch (deleteChatError) {
-    logToast(`Error Deleting Chat from Database ${chatsTable}`, deleteChatError, true);
+    const chatRef = doc(db, chatsTable, chat.id).withConverter(chatConverter);
+    const messagesRef = collection(db, `${chatsTable}/${chat.id}/messages`);
+    const messagesSnapshot = await getDocs(messagesRef);
+    const batch = writeBatch(db);
+    messagesSnapshot.forEach((docSnap) => {
+      batch.delete(docSnap.ref);
+    });
+    batch.delete(chatRef);
+    await batch.commit();
+  } catch (error) {
+    logToast(`Error deleting chat and messages`, error, true);
   }
 }
 

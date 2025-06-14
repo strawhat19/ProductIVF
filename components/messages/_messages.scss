@@ -91,6 +91,7 @@ span {
     flex-direction: column;
     .messageContentTop {
         display: flex;
+        grid-gap: 5px;
         color: var(--main);
         align-items: center;
         justify-content: space-between;
@@ -99,18 +100,26 @@ span {
             font-weight: 600;
         }
     }
+    .messageContentContainer {
+        display: flex;
+        grid-gap: 5px;
+        align-items: center;
+        justify-content: space-between;
+    }
 }
 
 .messageContentPreview {
-    line-clamp: 3;
     max-width: 95%;
     font-size: 14px;
     font-weight: 600;
     overflow: hidden;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
     text-overflow: ellipsis;
     -webkit-box-orient: vertical;
+    &.clippedText {
+        line-clamp: 3;
+        -webkit-line-clamp: 3;
+    }
 }
 
 .messagesHeaderRowTitle {
@@ -219,23 +228,36 @@ span {
     .formField {
         width: 100%;
         grid-gap: 8px;
-        display: flex;
+        display: grid;
         padding: 10px;
         align-items: center;
         justify-content: space-between;
         border-top: 1px solid var(--main);
+        grid-template-columns: 1fr minmax(75px, auto);
         input {
             width: 90%;
             min-height: var(--chatsFieldHeight) !important;
         }
         button {
-            width: 10%;
+            width: 100%;
             display: flex;
             align-items: center;
-            justify-content: center;
+            align-self: stretch;
+            container-type: size;
             background: var(--main);
-            min-height: var(--chatsFieldHeight) !important;
-            max-height: var(--chatsFieldHeight) !important;
+            justify-content: center;
+            height: 100% !important;
+            min-width: 100% !important;
+            min-height: 100% !important;
+            max-height: 100% !important;
+            i {
+                font-size: 1.5rem;
+            }
+            @container (min-height: 40px) {
+                  i {
+                    font-size: 2.5rem;
+                }
+            }
         }
     }
 }
@@ -266,8 +288,8 @@ span {
 }
 
 .multiselectContainer {
-    width: 91%;
     z-index: 10;
+    width: 96.5%;
     overflow: visible;
 }
 
@@ -283,6 +305,23 @@ html {
 
 .select__input {
     color: white !important;
+}
+
+.messageEndColumn {
+    width: 100%;
+    display: flex;
+    grid-gap: 15px;
+    max-width: 35px;
+    flex-direction: column;
+    button {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        i {
+            color: var(--main);
+        }
+    }
 }
 
 .chatsActionIconButton {

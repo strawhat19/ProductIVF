@@ -21,10 +21,28 @@ export default function MultiSelect({
         new SelectorOption({ value: `strawberry`, label: `Strawberry` }),
     ], 
 }: any) {
-    let { users } = useContext<any>(StateContext);
     // let [useSingleSelect, ] = useState(true);
+    let { user, users } = useContext<any>(StateContext);
+
+    const getUsersNotUser = () => {
+        let usersNotUser = [];
+        if (users?.length > 0) {
+            if (user != null) {
+                let userEmails = users?.every(u => u?.email);
+                if (userEmails) {
+                    let usersNotUsr = users?.filter(u => u?.email?.toLowerCase() != user?.email?.toLowerCase());
+                    if (usersNotUsr?.length > 0) {
+                        usersNotUser = usersNotUsr?.map(usr => new SelectorOption({ value: usr?.email, label: usr?.name }));
+                    }
+                }
+            }
+        } 
+        return usersNotUser;
+    }
+
     let [options, setOptions] = useState<SelectorOption[]>(userSelector ? (
-        users.map(usr => new SelectorOption({ value: usr?.email, label: usr?.name }))
+        getUsersNotUser()
+        // users?.map(usr => new SelectorOption({ value: usr?.email, label: usr?.name }))?.filter(so => so?.value?.toLowerCase() != user?.email?.toLowerCase())
     ): customOptions);
 
     const handleChange = (selectedOptions: any) => {
