@@ -89,6 +89,9 @@ button {
 
 .pageWrapContainer {
     &.signed_out {
+        .createBoard {
+            display: none !important;
+        }
         &.users_loading {
             .nav_Form {
                 width: 100%;

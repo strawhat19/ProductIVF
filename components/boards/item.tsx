@@ -354,7 +354,7 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
             {item?.image && (
                 <CustomImage className={`itemImage boardItemImage`} src={item?.image} alt={item?.content} />
             )}
-            <div className={`itemDetailsContainer`}>
+            <div className={`itemDetailsContainer ${item?.name?.length > 145 ? `extendedItemName` : ``}`}>
                 <div className={`itemContents`}>
                     <span className={`flex row itemContent boardItemContent itemName ${item?.options?.active ? `isActiveItem` : ``} textOverflow extended`}>
                         <span 

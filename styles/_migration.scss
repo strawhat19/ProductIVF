@@ -54,6 +54,17 @@
     grid-gap: 10px;
     align-items: center; 
     flex-direction: row;
+    container-type: inline-size;
+    &.extendedItemName {
+        .itemContents {
+            margin-right: auto;
+            max-width: calc(100cqw - 38cqw);
+        }
+        .altTagsContainer {
+            margin-right: 0;
+            max-width: fit-content;
+        }
+    }
 }
 
 .itemDateTime {

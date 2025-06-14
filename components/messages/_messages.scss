@@ -168,6 +168,9 @@ span {
 .msgImg {
     width: auto;
     max-height: 250px;
+    @media (max-width: 768px) {
+        max-height: 200px;
+    }
 }
 
 .renderHTML {
