@@ -5,7 +5,7 @@ export const faviconOverwrites = {
     atlassian: `atlassian.com`,
 }
 
-export default function TagURL({ itemOrTask, url }) {
+export default function TagURL({ url, itemOrTask = null, extraClasses = `tagURLComponent` }) {
     let rootDomain = extractRootDomain(url) ?? `google.com`;
     const domainNameWithPath = extractRootDomain(url, true);
 
@@ -22,13 +22,15 @@ export default function TagURL({ itemOrTask, url }) {
     // const domainName = rootDomain.replace(/\.(com|net|org|io|co|gov|edu|us|uk|dev|app|info|biz|me|tv|xyz|ai|ca|in|nl|au|de)$/, ``).replace(/^[a-z]/, c => c.toUpperCase());
 
     const removeURL = async (e, url) => {
-        const itemTaskURLs = itemOrTask?.data?.relatedURLs;
-        const updatedItemTaskURLs = itemTaskURLs?.filter(ur => ur?.toLowerCase() != url?.toLowerCase());
-        await updateDocFieldsWTimeStamp(itemOrTask, { [`data.relatedURLs`]: updatedItemTaskURLs });
+        if (itemOrTask != null) {
+            const itemTaskURLs = itemOrTask?.data?.relatedURLs;
+            const updatedItemTaskURLs = itemTaskURLs?.filter(ur => ur?.toLowerCase() != url?.toLowerCase());
+            await updateDocFieldsWTimeStamp(itemOrTask, { [`data.relatedURLs`]: updatedItemTaskURLs });
+        }
     }
 
     return (
-        <div title={url} className={`url websiteURL button hoverBright`} onClick={(e) => removeURL(e, url)}>
+        <span title={url} className={`url websiteURL button hoverBright ${extraClasses}`} onClick={(e) => removeURL(e, url)}>
             <a
                 href={url}
                 target={`_blank`}
@@ -41,12 +43,14 @@ export default function TagURL({ itemOrTask, url }) {
                 </span>
                 {/* <i className={`fas fa-external-link-alt useMainIconColor`} style={{ fontSize: 10 }} /> */}
             </a>
-            <button title={`Remove URL`} className={`urlDeleteBtn`}>
-                <i
-                    className={`urlIcon urlDeleteIcon useMainIconColor fas fa-times`}
-                    style={{ fontSize: 9, maxHeight: 10.5, maxWidth: `fit-content` }}
-                />
-            </button>
-        </div>
+            {itemOrTask != null && (
+                <button title={`Remove URL`} className={`urlDeleteBtn`}>
+                    <i
+                        className={`urlIcon urlDeleteIcon useMainIconColor fas fa-times`}
+                        style={{ fontSize: 9, maxHeight: 10.5, maxWidth: `fit-content` }}
+                    />
+                </button>
+            )}
+        </span>
     )
 }

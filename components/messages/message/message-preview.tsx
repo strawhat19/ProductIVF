@@ -5,6 +5,7 @@ import CustomImage from '../../custom-image';
 import { StateContext } from '../../../pages/_app';
 import parse, { Element } from 'html-react-parser';
 import { Message } from '../../../shared/models/Message';
+import TagURL from '../../boards/details/url';
 
 export function stripHtmlTags(html: string): string {
     const tempDiv = document.createElement(`div`);
@@ -42,15 +43,20 @@ export default function MessagePreview({ userMessage, clickableMsg = true, onCli
         let cleanedHTML =  cleanHTML(htmlString);
         let renderedContent = parse(cleanedHTML, {
             replace: (domNode) => {
-                if (domNode instanceof Element && domNode.name === `img`) {
-                    const { src, alt, class: className } = domNode.attribs;
-                    return (
-                        <CustomImage
-                            src={src}
-                            alt={alt || `Message Image`}
-                            className={className || `msgImg`}
-                        />
-                    );
+                if (domNode instanceof Element) {
+                    if (domNode.name === `img`) {
+                        const { src, alt, class: className } = domNode.attribs;
+                        return (
+                            <CustomImage
+                                src={src}
+                                alt={alt || `Message Image`}
+                                className={className || `msgImg`}
+                            />
+                        );
+                    } else if (domNode.name === `a`) {
+                        const { href, class: className } = domNode.attribs;
+                        return <TagURL url={href} extraClasses={className} />
+                    }
                 }
             },
         });

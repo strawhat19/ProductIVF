@@ -32,7 +32,7 @@ export const convertURLsToHTML = (html: string): string => {
       const replacement = isImage
         // ? `<CustomImage src="${url.href}" class="msgImg" alt="Message Image" />`
         ? `<img src="${url.href}" class="msgImg" alt="Message Image" />`
-        : `<a href="" class="msgLnk" target="_blank" rel="noopener noreferrer">
+        : `<a href="${url.href}" class="msgLnk" target="_blank" rel="noopener noreferrer">
             ${url.href}
            </a>`;
 
