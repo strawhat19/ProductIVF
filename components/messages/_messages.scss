@@ -216,6 +216,11 @@ span {
             flex-direction: column;
         }
     }
+    p {
+        &:has(.lazy-load-image-loaded) {
+            margin-top: 5px;
+        }
+    }
 }
 
 .formField {
