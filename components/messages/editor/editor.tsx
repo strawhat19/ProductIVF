@@ -65,7 +65,34 @@ const Editor = forwardRef(function Editor({ onChange, placeholder = `Enter Messa
 
     if (!showEditor || !editor) return null;
 
-    return <EditorContent editor={editor} />
+    return (
+        // <div className={`editorWrapper`}>
+        //     <div className={`toolbar`}>
+        //         <button onClick={() => editor.chain().focus().toggleBold().run()} className={editor.isActive(`bold`) ? `active` : ``}>
+        //             Bold
+        //         </button>
+        //         <button onClick={() => editor.chain().focus().toggleItalic().run()} className={editor.isActive(`italic`) ? `active` : ``}>
+        //             Italic
+        //         </button>
+        //         <button onClick={() => editor.chain().focus().toggleStrike().run()} className={editor.isActive(`strike`) ? `active` : ``}>
+        //             Strike
+        //         </button>
+        //         <button onClick={() => editor.chain().focus().setParagraph().run()} className={editor.isActive(`paragraph`) ? `active` : ``}>
+        //             P
+        //         </button>
+        //         <button onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} className={editor.isActive(`heading`, { level: 1 }) ? `active` : ``}>
+        //             H1
+        //         </button>
+        //         <button onClick={() => editor.chain().focus().toggleBulletList().run()} className={editor.isActive(`bulletList`) ? `active` : ``}>
+        //             • List
+        //         </button>
+        //         <button onClick={() => editor.chain().focus().toggleOrderedList().run()} className={editor.isActive(`orderedList`) ? `active` : ``}>
+        //             1. List
+        //         </button>
+        //     </div>
+            <EditorContent editor={editor} />
+        // </div>
+    )
 })
 
 export default Editor;

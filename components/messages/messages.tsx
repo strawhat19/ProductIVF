@@ -30,8 +30,9 @@ export const convertURLsToHTML = (html: string): string => {
 
       const isImage = imageExtensions.some(ext => url.pathname.toLowerCase().endsWith(ext));
       const replacement = isImage
-        ? `<img src="${url.href}" class="msgImg" />`
-        : `<a href="${url.href}" class="msgLnk" target="_blank" rel="noopener noreferrer">
+        // ? `<CustomImage src="${url.href}" class="msgImg" alt="Message Image" />`
+        ? `<img src="${url.href}" class="msgImg" alt="Message Image" />`
+        : `<a href="" class="msgLnk" target="_blank" rel="noopener noreferrer">
             ${url.href}
            </a>`;
 
@@ -357,7 +358,7 @@ export default function Messages() {
                                 <span className={`mainColor`} style={{ fontSize: 14 }}>
                                     ({userChats.length})
                                 </span> 
-                                <span className={`messagesHeaderRowTitle`} title={activeChat == null ? `` : activeChat?.name}>
+                                <span className={`messagesHeaderRowTitle ${activeChat == null ? `chatsTitleRow` : `chatTitleRow`}`} title={activeChat == null ? `` : activeChat?.name}>
                                     {activeSlide == 0 
                                         ? `Chat(s)` : (
                                             activeChat == null 
