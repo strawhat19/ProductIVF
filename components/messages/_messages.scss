@@ -50,7 +50,7 @@
             font-size: 0.85em;
         }
         .messagePreview {
-            grid-template-columns: 35px 1fr;
+            grid-template-columns: 35px 93%;
         }
         .renderHTML {
             span {
@@ -254,12 +254,13 @@ span {
                 display: flex;
                 color: white;
                 min-width: 100%;
+                max-width: 75dvw;
                 min-height: 35px;
                 overflow-y: auto;
-                max-height: 100px;
                 border-radius: 6px;
                 padding-left: 10px;
                 background: black;
+                // max-height: 100px;
                 flex-direction: column;
                 justify-content: center;
                 align-items: flex-start;
