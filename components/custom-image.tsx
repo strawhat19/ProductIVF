@@ -1,7 +1,7 @@
 import 'react-lazy-load-image-component/src/effects/blur.css';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 
-export default function CustomImage({ useLazyLoad = true, alt = `Image`, width, height, effect = `blur`, className = `customImageComponent`, id, src, onImageLoad = (e) => {}, onImageError = (e) => {}, borderRadius = 0 }: any) {
+export default function CustomImage({ useLazyLoad = true, alt = `Image`, width, height, effect = `blur`, className = `customImageComponent`, id, src, onImageLoad = (e) => {}, onImageError = (e) => {}, borderRadius = 0, style = { opacity: 1 }, }: any) {
     return useLazyLoad ? (
         <LazyLoadImage 
             id={id} 
@@ -10,9 +10,9 @@ export default function CustomImage({ useLazyLoad = true, alt = `Image`, width, 
             width={width}
             height={height} 
             effect={effect} 
-            style={{ borderRadius }}
             onLoad={(e) => onImageLoad(e)}
             onError={(e) => onImageError(e)}
+            style={{ borderRadius, ...style }}
             className={`imageComponent ${className}`} 
         />
     ) : (
@@ -22,9 +22,9 @@ export default function CustomImage({ useLazyLoad = true, alt = `Image`, width, 
             src={src} 
             width={width}
             height={height} 
-            style={{ borderRadius }}
             onLoad={(e) => onImageLoad(e)}
             onError={(e) => onImageError(e)}
+            style={{ borderRadius, ...style }}
             className={`imageComponent ${className}`}
         />
     )

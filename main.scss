@@ -2912,6 +2912,7 @@ footer {
                         border-radius: var(--borderRadius);
                         justify-content: flex-start !important;
                         &.itemTag {
+                            max-height: fit-content;
                             grid-gap: 2px !important;
                         }
                         &.tagTask {

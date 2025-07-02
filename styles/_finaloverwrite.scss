@@ -33,10 +33,21 @@
 }
 
 .itemTags {
-    grid-gap: 5px;
     display: flex;
+    grid-gap: 10px;
+    align-items: center;
     flex-direction: row;
     min-width: fit-content;
+}
+
+.itemTagURLs {
+    display: flex;
+    grid-gap: 10px;
+    align-items: center;
+    flex-direction: column;
+    @container (min-width: 740px) {
+        flex-direction: row;
+    }
 }
 
 .taskMainWrap {

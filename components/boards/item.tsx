@@ -352,7 +352,7 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
                 </i>
             </span>
             {item?.image && (
-                <CustomImage className={`itemImage boardItemImage`} src={item?.image} alt={item?.content} />
+                <CustomImage style={{ borderRadius: `0 4px 4px 0` }} className={`itemImage boardItemImage`} src={item?.image} alt={item?.content} />
             )}
             <div className={`itemDetailsContainer ${item?.name?.length > 145 ? `extendedItemName` : ``}`}>
                 <div className={`itemContents`}>

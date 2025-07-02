@@ -937,19 +937,19 @@ export default function ProductIVF({ Component, pageProps, router }) {
   }, [selectedGrid])
 
   useEffect(() => {
-    let listenforPostsChanges = null;
     let listenforChatsChanges = null;
+    // let listenforPostsChanges = null;
     let listenforUserGridsChanges = null;
     if (user != null) {
-      const postsDatabase = collection(db, postsTable)?.withConverter(postConverter);
-      const postsQuery = query(postsDatabase, where(`data.users`, `array-contains`, user?.email));
-      if (listenforPostsChanges == null) listenforPostsChanges = onSnapshot(postsQuery, postsUpdates => {
-        let allPosts = [];
-        postsUpdates.forEach((doc) => allPosts.push({ ...doc.data() }));
-        allPosts = allPosts?.sort((a, b) => a?.rank - b?.rank)?.map(p => new Post({ ...p, label: p?.name, value: p?.id }));
-        setPosts(allPosts);
-        dev() && console.log(`Posts`, postsUpdates);
-      })
+      // const postsDatabase = collection(db, postsTable)?.withConverter(postConverter);
+      // const postsQuery = query(postsDatabase, where(`data.users`, `array-contains`, user?.email));
+      // if (listenforPostsChanges == null) listenforPostsChanges = onSnapshot(postsQuery, postsUpdates => {
+      //   let allPosts = [];
+      //   postsUpdates.forEach((doc) => allPosts.push({ ...doc.data() }));
+      //   allPosts = allPosts?.sort((a, b) => a?.rank - b?.rank)?.map(p => new Post({ ...p, label: p?.name, value: p?.id }));
+      //   setPosts(allPosts);
+      //   dev() && console.log(`Posts`, postsUpdates);
+      // })
       if (RolesMap[user.role] >= RolesMap.Moderator) {
         overWriteDiscordLink();
         const chatsDatabase = collection(db, chatsTable)?.withConverter(chatConverter);
@@ -961,7 +961,6 @@ export default function ProductIVF({ Component, pageProps, router }) {
           userChats = userChats?.sort((a, b) => a?.rank - b?.rank)?.map(ch => new Chat({ ...ch, label: ch?.name, value: ch?.id }));
           setChats(userChats);
           setChatsLoading(false);
-          dev() && console.log(`Chats`, userChats);
         })
       }
       const gridsDatabase = collection(db, gridsTable)?.withConverter(gridConverter);
@@ -1000,12 +999,12 @@ export default function ProductIVF({ Component, pageProps, router }) {
       })
     } else {
       if (listenforChatsChanges != null) listenforChatsChanges();
-      if (listenforPostsChanges != null) listenforPostsChanges();
+      // if (listenforPostsChanges != null) listenforPostsChanges();
       if (listenforUserGridsChanges != null) listenforUserGridsChanges();
     }
     return () => {
       if (listenforChatsChanges != null) listenforChatsChanges();
-      if (listenforPostsChanges != null) listenforPostsChanges();
+      // if (listenforPostsChanges != null) listenforPostsChanges();
       if (listenforUserGridsChanges != null) listenforUserGridsChanges();
     };
   }, [user])

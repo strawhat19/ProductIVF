@@ -285,6 +285,7 @@ export default function ItemDetail(props) {
                 <figure className={`customDetailImage ${validSelectedImage ? `validSelectedImage` : `invalidSelectedImage`}`} style={{ maxWidth: `40%` }}>
                     <CustomImage 
                         src={image} 
+                        borderRadius={4}
                         alt={item?.name} 
                         onImageLoad={(e) => imageLoaded(e)} 
                         onImageError={(e) => imageErrored(e)} 
