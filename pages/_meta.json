@@ -5,5 +5,12 @@
       "pagination": false,
       "layout": "full"
     }
+  },
+  "gallery": {
+    "title": "Gallery",
+    "theme": {
+      "pagination": false,
+      "layout": "full"
+    }
   }
 }

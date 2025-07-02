@@ -7,6 +7,7 @@ import { FeatureIDs } from '../../shared/admin/features';
 import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
 import { updateDocFieldsWTimeStamp } from '../../firebase';
 import { replaceAll, StateContext } from '../../pages/_app';
+import UploadFiles from '../forms/upload-files/upload-files';
 import { useState, useEffect, useContext, useRef } from 'react';
 import { AuthGrids, GridTypes } from '../../shared/types/types';
 import { Board as BoardModel } from '../../shared/models/Board';

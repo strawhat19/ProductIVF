@@ -41,6 +41,8 @@ import {
   updateDocFieldsWTimeStamp,
   chatsTable,
   chatConverter,
+  postsTable,
+  postConverter,
 } from '../firebase';
 import { Chat } from '../shared/models/Chat';
 
@@ -82,27 +84,42 @@ export const extractIDDetails = (ID) => {
 }
 
 export const formatDate = (date, specificPortion) => {
+  let datesObject = {};
+
   let hours = date.getHours();
   let minutes = date.getMinutes();
   let ampm = hours >= 12 ? `PM` : `AM`;
+
   hours = hours % 12;
   hours = hours ? hours : 12;
   minutes = minutes < 10 ? `0` + minutes : minutes;
+
   let strTime = hours + `:` + minutes + ` ` + ampm;
   let completedDate = strTime + ` ` + (date.getMonth() + 1) + `/` + date.getDate() + `/` + date.getFullYear();
+
   if (specificPortion == `time`) {
     completedDate = strTime;
+    datesObject.time = completedDate;
   } else if (specificPortion == `date`) {
     completedDate = (date.getMonth() + 1) + `/` + date.getDate() + `/` + date.getFullYear();
+    datesObject.date = completedDate;
   } else if (specificPortion == `update`) {
     let milliseconds = date.getMilliseconds();
     let ms = Math.round(milliseconds / 10).toString().padStart(2, `0`);
     strTime = `${hours}:${minutes}:${ms} ${ampm}`;
     return `${strTime} ${(date.getMonth() + 1)}/${date.getDate()}/${String(date.getFullYear()).slice(2)}`;
+    // completedDate = `${strTime} ${(date.getMonth() + 1)}/${date.getDate()}/${String(date.getFullYear()).slice(2)}`;
+    // datesObject.update = completedDate;
   } else {
     completedDate = strTime + ` ` + (date.getMonth() + 1) + `/` + date.getDate() + `/` + date.getFullYear();
+    datesObject.datetime = completedDate;
   }
-  return completedDate;
+
+  // if (obj) {
+    // return datesObject;
+  // } else {
+    return completedDate;
+  // }
 }
 
 export const generateID = (existingIDs) => {
@@ -477,6 +494,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let [currentTime, setCurrentTime] = useState(getIDParts()?.date);
 
   let [user, setUser] = useState(null);
+  let [posts, setPosts] = useState([]);
   let [users, setUsers] = useState([]);
   let [grids, setGrids] = useState([]);
   let [lists, setLists] = useState([]);
@@ -664,7 +682,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
         if (existingUser) {
           const { date } = getIDParts();
           await updateDocFieldsWTimeStamp(existingUser, { [`auth.signedIn`]: false, [`auth.lastSignIn`]: date, [`auth.lastAuthenticated`]: date });
-          signInUser(existingUser, true);
+          signInUser(existingUser);
           toast.success(`Successfully Signed In`);
           setTimeout(() => {
             setSystemStatus(`Signed In`);
@@ -919,9 +937,19 @@ export default function ProductIVF({ Component, pageProps, router }) {
   }, [selectedGrid])
 
   useEffect(() => {
+    let listenforPostsChanges = null;
     let listenforChatsChanges = null;
     let listenforUserGridsChanges = null;
     if (user != null) {
+      const postsDatabase = collection(db, postsTable)?.withConverter(postConverter);
+      const postsQuery = query(postsDatabase, where(`data.users`, `array-contains`, user?.email));
+      if (listenforPostsChanges == null) listenforPostsChanges = onSnapshot(postsQuery, postsUpdates => {
+        let allPosts = [];
+        postsUpdates.forEach((doc) => allPosts.push({ ...doc.data() }));
+        allPosts = allPosts?.sort((a, b) => a?.rank - b?.rank)?.map(p => new Post({ ...p, label: p?.name, value: p?.id }));
+        setPosts(allPosts);
+        dev() && console.log(`Posts`, postsUpdates);
+      })
       if (RolesMap[user.role] >= RolesMap.Moderator) {
         overWriteDiscordLink();
         const chatsDatabase = collection(db, chatsTable)?.withConverter(chatConverter);
@@ -933,7 +961,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
           userChats = userChats?.sort((a, b) => a?.rank - b?.rank)?.map(ch => new Chat({ ...ch, label: ch?.name, value: ch?.id }));
           setChats(userChats);
           setChatsLoading(false);
-          console.log(`Chats`, userChats);
+          dev() && console.log(`Chats`, userChats);
         })
       }
       const gridsDatabase = collection(db, gridsTable)?.withConverter(gridConverter);
@@ -972,10 +1000,12 @@ export default function ProductIVF({ Component, pageProps, router }) {
       })
     } else {
       if (listenforChatsChanges != null) listenforChatsChanges();
+      if (listenforPostsChanges != null) listenforPostsChanges();
       if (listenforUserGridsChanges != null) listenforUserGridsChanges();
     }
     return () => {
       if (listenforChatsChanges != null) listenforChatsChanges();
+      if (listenforPostsChanges != null) listenforPostsChanges();
       if (listenforUserGridsChanges != null) listenforUserGridsChanges();
     };
   }, [user])
@@ -1168,6 +1198,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       // State
       IDs, setIDs, 
       qotd, setQotd, 
+      posts, setPosts,
       chats, setChats,
       focus, setFocus, 
       loading, setLoading, 

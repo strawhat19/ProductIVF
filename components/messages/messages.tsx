@@ -1,8 +1,8 @@
 import 'swiper/css';
 // import 'swiper/css/effect-cards';
 import Editor from './editor/editor';
-// import { EffectCards } from 'swiper/modules';
 import { StateContext } from '../../pages/_app';
+// import { EffectCards } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { RolesMap } from '../../shared/models/User';
 import MessagePreview from './message/message-preview';

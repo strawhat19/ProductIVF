@@ -9,11 +9,13 @@ import { Chat } from './shared/models/Chat';
 import { initializeApp } from 'firebase/app';
 import { Types } from './shared/types/types';
 import { Board } from './shared/models/Board';
+import { getDownloadURL, getStorage, listAll, ref } from 'firebase/storage';
 import { Message } from './shared/models/Message';
 import { Feature } from './shared/admin/features';
 import { countPropertiesInObject, logToast } from './shared/constants';
 import { GoogleAuthProvider, browserLocalPersistence, deleteUser, getAuth, setPersistence } from 'firebase/auth';
-import { collection, deleteDoc, doc, getDoc, getDocs, getFirestore, query, setDoc, updateDoc, where, WhereFilterOp, writeBatch } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, getFirestore, query, setDoc, updateDoc, where, WhereFilterOp, writeBatch } from 'firebase/firestore';
+import { Post } from './shared/models/Post';
 
 export enum Environments {
   beta = `beta_`,
@@ -23,6 +25,7 @@ export enum Environments {
 
 export enum Tables {
   users = `users`,
+  posts = `posts`,
   chats = `chats`,
   items = `items`,
   lists = `lists`,
@@ -58,6 +61,7 @@ const firebaseConfig = {
 };
 
 const firebaseApp = initializeApp(firebaseConfig);
+export const storage = getStorage(firebaseApp);
 export const db = getFirestore(firebaseApp);
 export const auth = getAuth(firebaseApp);
 
@@ -68,6 +72,7 @@ export const isProduction = process.env.NODE_ENV == `production`;
 // export const environment = isProduction ? Environments.alpha : Environments.beta;
 
 export const usersTable = environment + Tables.users;
+export const postsTable = environment + Tables.posts;
 export const chatsTable = environment + Tables.chats;
 export const emailsTable = environment + Tables.emails;
 export const profilesTable = environment + Tables.profiles;
@@ -180,6 +185,16 @@ export const featureConverter = {
   }
 }
 
+export const postConverter = {
+  toFirestore: (post: Post) => {
+    return JSON.parse(JSON.stringify(post));
+  },
+  fromFirestore: (snapshot: any, options: any) => {
+    const data = snapshot.data(options);
+    return new Post(data);
+  }
+}
+
 export const chatConverter = {
   toFirestore: (chat: Chat) => {
     return JSON.parse(JSON.stringify(chat));
@@ -233,6 +248,67 @@ export const documentTypes = {
     tableName: chatsTable,
     converter: chatConverter,
   },
+  [Types.Post]: {
+    tableName: postsTable,
+    converter: postConverter,
+  },
+}
+
+export async function listAllImagesInPath(path: string): Promise<string[]> {
+  const folderRef = ref(storage, path);
+  const result = await listAll(folderRef);
+
+  const urls = await Promise.all(
+    result.items.map((itemRef) => getDownloadURL(itemRef))
+  );
+
+  return urls;
+}
+
+type FolderTree = {
+  [key: string]: FolderTree | string[];
+};
+
+// Recursively builds the folder structure
+async function buildFolderTree(path: string): Promise<FolderTree | string[]> {
+  const rootRef = ref(storage, path);
+  const result = await listAll(rootRef);
+
+  const tree: FolderTree = {};
+
+  // Recursively process subfolders
+  for (const prefix of result.prefixes) {
+    const name = prefix.name;
+    tree[name] = await buildFolderTree(`${path}/${name}`);
+  }
+
+  // If there are files and no folders, return an array of paths
+  if (result.items.length > 0 && result.prefixes.length === 0) {
+    return result.items.map(item => item.fullPath);
+  }
+
+  // If there are both folders and files, include files directly at this level
+  if (result.items.length > 0) {
+    tree[``] = result.items.map(item => item.fullPath); // empty string key to differentiate files
+  }
+
+  return tree;
+}
+
+// Top-level function to group by userID
+export async function buildUserStructuredTree(path: string): Promise<FolderTree> {
+  const rootRef = ref(storage, path);
+  const result = await listAll(rootRef);
+
+  const tree: FolderTree = {};
+
+  for (const userFolder of result.prefixes) {
+    const userID = userFolder.name;
+    const userTree = await buildFolderTree(`${path}/${userID}`);
+    tree[userID] = userTree;
+  }
+
+  return tree;
 }
 
 export const addUserToDatabase = async (usr: User) => {

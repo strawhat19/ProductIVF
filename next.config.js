@@ -1,10 +1,3 @@
-// /** @type {import('next').NextConfig} */
-// const withPWA = require('next-pwa')({
-//   dest: 'public',
-//   register: true,
-//   skipWaiting: true,
-// });
-
 const withNextra = require('nextra')({
   theme: 'nextra-theme-docs',
   themeConfig: './theme.config.tsx',
@@ -17,17 +10,6 @@ const nextConfig = {
       'media.discordapp.net',
     ],
   },
-  // async rewrites() {
-  //   return [
-  //     { source: `/about`, destination: `/pages/about` },
-  //     { source: `/signin`, destination: `/pages/signin` },
-  //     { source: `/signup`, destination: `/pages/signup` },
-  //     { source: `/contact`, destination: `/pages/contact` },
-  //     { source: `/profile`, destination: `/pages/profile` },
-  //     { source: `/settings`, destination: `/pages/settings` },
-  //     { source: `/notifications`, destination: `/pages/notifications` },
-  //   ];
-  // },
   async redirects() {
     return [
       // Sign In
@@ -66,6 +48,10 @@ const nextConfig = {
       { source: `/contact-me`, destination: `/contact`, permanent: true },
       { source: `/getintouch`, destination: `/contact`, permanent: true },
       { source: `/get-in-touch`, destination: `/contact`, permanent: true },
+      // Gallery
+      { source: `/pictures`, destination: `/gallery`, permanent: true },
+      { source: `/upload`, destination: `/gallery`, permanent: true },
+      { source: `/pics`, destination: `/gallery`, permanent: true },
     ];
   }
 };

@@ -2,15 +2,15 @@ import DOMPurify from 'dompurify';
 import { useContext } from 'react';
 import Avatar from '../avatar/avatar';
 import CustomImage from '../../custom-image';
+import TagURL from '../../boards/details/url';
 import { StateContext } from '../../../pages/_app';
 import parse, { Element } from 'html-react-parser';
 import { Message } from '../../../shared/models/Message';
-import TagURL from '../../boards/details/url';
 
 export function stripHtmlTags(html: string): string {
     const tempDiv = document.createElement(`div`);
     tempDiv.innerHTML = html;
-    return tempDiv.textContent || tempDiv.innerText || ``;
+    return tempDiv.textContent || tempDiv.innerText || `image`;
 }
 
 export default function MessagePreview({ userMessage, clickableMsg = true, onClick = () => {} }: any) {

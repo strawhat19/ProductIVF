@@ -16,6 +16,8 @@ export enum Types {
     Notification = `Notification`,
 
     Chat = `Chat`,
+    Post = `Post`,
+    Upload = `Upload`,
     Message = `Message`,
 }
 

@@ -10,6 +10,19 @@
     margin-right: -10px;
 }
 
+.MuiButton-root {
+    width: 100%;
+    display: flex;
+    line-height: 1.8;
+    font-weight: bold;
+    color: var(--main);
+    align-items: center;
+    background: black !important;
+    &:hover {
+        background: white !important;
+    }
+}
+
 .MuiDialog-root {
     &:has(.authConfirmForm) {
         --authFormSpacing: 10px;

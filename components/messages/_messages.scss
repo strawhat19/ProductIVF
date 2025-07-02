@@ -108,6 +108,9 @@ span {
     display: flex;
     grid-gap: 5px;
     flex-direction: column;
+    @media (max-width: 768px) {
+        width: 95%;
+    }
     .messageContentTop {
         display: flex;
         grid-gap: 5px;
@@ -120,6 +123,7 @@ span {
         }
     }
     .messageContentContainer {
+        width: 100%;
         display: flex;
         grid-gap: 5px;
         align-items: center;
@@ -128,6 +132,7 @@ span {
 }
 
 .messageContentPreview {
+    width: 100%;
     max-width: 95%;
     font-size: 14px;
     font-weight: 600;

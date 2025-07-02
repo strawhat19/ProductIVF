@@ -15,6 +15,8 @@ export const pathPrefix = `https://`;
 export const defaultAuthenticateLabel = `Delete User & All Data`;
 export const userQueryFields = [`id`, `ID`, `uid`, `uuid`, `rank`, `name`, `role`, `email`, `image`, `avatar`, `phone`, `token`];
 
+export const months = [`January`, `February`, `March`, `April`, `May`, `June`, `July`, `August`, `September`, `October`, `November`, `December`];
+
 export const sortDescending = (arr: (string | number)[]): number[] => {
   return arr.map(item => (typeof item === `number` ? item : parseFloat(item))).filter(item => !isNaN(item)).sort((a, b) => b - a);
 }
@@ -228,6 +230,69 @@ export const countPropertiesInObject = (obj) => {
     }
   }
   return count;
+}
+
+export const getDateObj = (newDate: any = new Date()) => {
+  let datesObject: any = {};
+
+  let hour = newDate.getHours();
+  let minutes = newDate.getMinutes();
+  let ampmxm = hour >= 12 ? `PM` : `AM`;
+
+  hour = hour % 12;
+  hour = hour ? hour : 12;
+  minutes = minutes < 10 ? `0` + minutes : minutes;
+
+  let strTime = hour + `:` + minutes + ` ` + ampmxm;
+
+  let day = newDate.getDate();
+  let year = newDate.getFullYear();
+  let month = newDate.getMonth() + 1;
+  let monthName = months[newDate.getMonth()];
+
+  let time = strTime + ` ` + month + `/` + day + `/` + year;
+  let date = month + `/` + day + `/` + year;
+
+  let ms = newDate.getMilliseconds();
+  let millisecondsStr = Math.round(ms / 10).toString().padStart(2, `0`);
+  let milliseconds = parseFloat(millisecondsStr);
+  let updStrTime = `${hour}:${minutes}:${millisecondsStr} ${ampmxm}`;
+
+  let datetime = `${updStrTime} ${month}/${day}/${String(year).slice(2)}`;
+
+  datesObject = {
+    ...datesObject,
+    day,
+    time,
+    year,
+    hour,
+    date,
+    month,
+    ampmxm,
+    minutes,
+    datetime,
+    monthName,
+    milliseconds,
+  }
+  
+  return datesObject;
+}
+
+export const flattenURLs = (obj: any): string[] => {
+  let result: string[] = [];
+
+  function recurse(value: any) {
+    if (Array.isArray(value)) {
+      result.push(...value);
+    } else if (typeof value === 'object' && value !== null) {
+      for (const key in value) {
+        recurse(value[key]);
+      }
+    }
+  }
+
+  recurse(obj);
+  return result;
 }
 
 export const getRankAndNumber = async (type: Types, docs: any[], docIDs: string[], users, user, IDs?) => {
