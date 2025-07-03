@@ -1,9 +1,9 @@
-import { storage } from '../../firebase';
-import { useContext, useState } from 'react';
+import { storage, updateDocFieldsWTimeStamp } from '../../firebase';
 import { StateContext } from '../../pages/_app';
-import { ref, uploadBytes } from 'firebase/storage';
+import { useContext, useRef, useState } from 'react';
 import { Button, CircularProgress } from '@mui/material';
 import { getDateObj, logToast } from '../../shared/constants';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
 const isPublic = true;
 
@@ -27,7 +27,8 @@ export const dropZoneStyles = {
         marginRight: 5,
         color: `black`,
         alignSelf: `center`,
-        padding: `0 0 0 5px`,
+        padding: `0 5px 0 5px`,
+        minWidth: `fit-content`,
         background: `var(--white) !important`,
     },
     buttonContentContainer: {
@@ -40,7 +41,8 @@ export const dropZoneStyles = {
 
 const styles = dropZoneStyles;
 
-export default function DropZone() {
+export default function DropZone({ item }) {
+    const uploaderRef = useRef(null);
     const { user } = useContext<any>(StateContext);
     
     const [files, setFiles] = useState<File[]>([]);
@@ -50,7 +52,6 @@ export default function DropZone() {
         const { files: selectedFiles } = e?.target;
         const filesArray: File[] = Array.from(selectedFiles);
         setFiles(filesArray);
-        console.log(`On Change`, filesArray);
     }
 
     const handleUpload = async () => {
@@ -64,11 +65,33 @@ export default function DropZone() {
         try {
             await Promise.all(files.map(async (file) => {
                 const { hour, minutes, ampmxm } = getDateObj();
+
                 const filename = `${hour}_${minutes}_${ampmxm}-${file?.name}`;
                 const filePath = `${userID}/${year}/${month}/${filename}`;
+
                 const path = `uploads/${isPublic ? `public` : `private`}/${filePath}`;
+                
                 const fileRef = ref(storage, path);
                 await uploadBytes(fileRef, file);
+
+                if (uploaderRef && uploaderRef?.current) {
+                    uploaderRef.current.value = ``;
+                }
+
+                const downloadURL = await getDownloadURL(fileRef);
+
+                if (isPublic) {
+                    const [cleanedDownloadURL] = downloadURL?.split(`&token`);
+                    const attachmentUrls = [item?.image, ...(item?.attachments || []), cleanedDownloadURL].filter(Boolean);
+                    const uniqueAttachmentUrls = Array.from(new Set(attachmentUrls));
+                    updateDocFieldsWTimeStamp(item, {
+                        ...(item?.image == `` ? {
+                            image: cleanedDownloadURL,
+                        } : {
+                            attachments: uniqueAttachmentUrls,
+                        }),
+                    });
+                }
             }));
 
             logToast(`All Files Uploaded Successfully`, files);
@@ -85,6 +108,7 @@ export default function DropZone() {
             <input
                 multiple
                 type={`file`}
+                ref={uploaderRef}
                 className={`uploadInput`}
                 style={styles.uploadInput}
                 onChange={(e) => onChange(e)} 
@@ -92,7 +116,13 @@ export default function DropZone() {
             <Button className={`mui_btn`} onClick={handleUpload} disabled={files?.length == 0 || uploading} style={{ ...styles.button, textTransform: `none` }}>
                 <div className={`buttonContentContainer`} style={styles.buttonContentContainer}>
                     <i className={`fas fa-plus mainColor`} />
-                    {uploading ? <CircularProgress size={20} /> : `${files?.length > 0 ? `Upload ` : ``}${files?.length} File(s)`}
+                    {uploading ? (
+                        <CircularProgress size={20} />
+                    ) : (
+                        <span>
+                            {files?.length > 0 ? `Upload ` : ``}{files?.length} File(s)
+                        </span>
+                    )}
                 </div>
             </Button>
         </div>

@@ -5,6 +5,18 @@
     --skeletonSweepColor: var(--skeletonSweepDarkBlue);
 }
 
+.MuiTooltip-arrow {
+    color: var(--main) !important;
+}
+
+.MuiTooltip-tooltip {
+    background: var(--main) !important;
+}
+
+.MuiTouchRipple-root {
+    transition: var(--transition);
+}
+
 .MuiSwitch-root {
     margin: 0;
     margin-right: -10px;
@@ -167,7 +179,7 @@
 .MuiStepLabel-label {
     color: white !important;
     font-size: 0.65em !important;
-    font-family: 'Montserrat' !important;
+    font-family: var(--font) !important;
 }
 
 .MuiStepLabel-root {
@@ -184,7 +196,7 @@
 .MuiTypography-root {
     color: white;
     margin-bottom: 10px;
-    font-family: 'Montserrat' !important;
+    font-family: var(--font) !important;
 }
 
 .MuiButton-containedPrimary {

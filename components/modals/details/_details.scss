@@ -1,5 +1,32 @@
 :root {
-    --detailsTasksMaxHeight: 348px;
+    --detailsTasksMaxHeight: 45cqh;
+}
+
+.detailView_Tasks {
+    --detailsTasksMaxHeight: 75cqh;
+}
+
+.media {
+    position: relative;
+    .mediaOverlay {
+        top: 0;
+        left: 0;
+        z-index: 1;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        .removeAttachmentButton {
+            opacity: 0;
+            float: right;
+            pointer-events: none;
+            transition: var(--transition);
+        }
+        &:hover {
+            .removeAttachmentButton {
+                opacity: 1;
+            }
+        }
+    }
 }
 
 .alertDetailsComponent {
@@ -118,7 +145,13 @@
     display: flex;
     .subTaskItems {
         overflow: auto;
+        transition: var(--transition);
         max-height: var(--detailsTasksMaxHeight);
+    }
+    &:has(.attachmentSlide) {
+        .detailViewImage {
+            max-height: 400px;
+        }
     }
     &.overflowingTasks {
         .formTop {

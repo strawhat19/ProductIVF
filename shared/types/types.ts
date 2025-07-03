@@ -37,6 +37,13 @@ export enum Views {
     Context = `Context Menu`,
 }
 
+export enum DetailViews {
+    Summary = `Summary`,
+    Tasks = `Tasks`,
+    // Gallery = `Gallery`,
+    // Settings = `Settings`,
+}
+
 export enum TasksFilterStates {
     All_On = `All On`,
     Tasks = `Tasks`,

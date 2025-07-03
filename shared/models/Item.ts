@@ -24,6 +24,7 @@ export class Item extends Data {
     image = ``;
     video = ``;
     description = ``;
+    attachments = [];
     color = `Default`;
     
     tasks?: any;

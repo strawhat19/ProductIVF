@@ -1,3 +1,32 @@
+.attachmentsSliderWrapper {
+    max-width: 400px;
+}
+
+.attachmentsContainer {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.attachments {
+    gap: 15px;
+    width: 100%;
+    display: grid;
+    align-items: center;
+    grid-template-columns: repeat(auto-fit, minmax(0, 170px));
+}
+
+.attachmentSlide {
+    &.multiSlides {
+        cursor: grab;
+        &:active {
+            cursor: grabbing;
+        }
+    }
+}
+
 .websiteURL {
     height: 100%; 
     display: flex; 
@@ -89,6 +118,7 @@ input {
 }
 
 button {
+    font-family: var(--font) !important;
     &.hoverGlow {
         @include hoverGlow;
     }

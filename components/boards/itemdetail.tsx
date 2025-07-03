@@ -1,20 +1,36 @@
+import 'swiper/css';
+// import 'swiper/css/effect-cards';
+
 import Tasks from './tasks';
 import Tags from './details/tags';
 import Progress from '../progress';
 import ItemWrapper from './itemwrapper';
 import CustomImage from '../custom-image';
 import DropZone from '../drop-zone/drop-zone';
+// import { EffectCards } from 'swiper/modules';
 import { Task } from '../../shared/models/Task';
 import { Item } from '../../shared/models/Item';
 import DetailField from './details/detail-field';
+import { Swiper, SwiperSlide } from 'swiper/react';
 import ToggleButtons from './details/toggle-buttons';
+import { DetailViews } from '../../shared/types/types';
 import { updateDocFieldsWTimeStamp } from '../../firebase';
+import { IconButton, ToggleButton, ToggleButtonGroup, Tooltip } from '@mui/material';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { capitalizeAllWords, StateContext } from '../../pages/_app';
 import { forceFieldBlurOnPressEnter, removeExtraSpacesFromString } from '../../shared/constants';
+import { Close } from '@mui/icons-material';
+
+export const detailViews = {
+    [DetailViews.Tasks]: `fas fa-stream`,
+    // [DetailViews.Settings]: `fas fa-cogs`,
+    // [DetailViews.Gallery]: `fas fa-images`,
+    [DetailViews.Summary]: `fas fa-align-left`,
+}
 
 export default function ItemDetail(props) {
     let formRef = useRef(null);
+    let swiperRef = useRef(null);
 
     let { devEnv, selected, setSelected, globalUserData } = useContext<any>(StateContext);
     let { itemID, item: itemProp, index, tasks: tasksProp, activeTasks, completeTasks, board, column } = props;
@@ -22,6 +38,7 @@ export default function ItemDetail(props) {
     let [item, setItem] = useState<Item>(itemProp);
     let [formStatus, setFormStatus] = useState(``);
     let [tasks, setTasks] = useState<Task[]>(tasksProp);
+    let [view, setView] = useState<DetailViews>(DetailViews.Summary);
     let [validSelectedImage, setValidSelectedImage] = useState(false);
     let [image, setImage] = useState((itemProp?.image && itemProp?.image != ``) ? itemProp?.image : undefined);
 
@@ -43,7 +60,17 @@ export default function ItemDetail(props) {
         })
         setTasks(updatedTasks);
         const updatedItemAndTasks = { ...refreshedItem, tasks: updatedTasks };
+        devEnv && console.log(`Item Details`, updatedItemAndTasks);
         setItem(updatedItemAndTasks);
+        if (updatedItemAndTasks?.image != `` && updatedItemAndTasks?.image != image) {
+            setImage(updatedItemAndTasks?.image);
+        }
+        setTimeout(() => {
+            const swiper = swiperRef?.current?.swiper;
+            if (swiper && updatedItemAndTasks?.attachments?.length > 3) {
+                swiper.slideTo(swiper.slides.length - 1);
+            }
+        }, 500)
     }, [globalUserData])
 
     const changeLabel = (e, item: Item) => {
@@ -82,6 +109,10 @@ export default function ItemDetail(props) {
         e?.preventDefault();
         await updateDocFieldsWTimeStamp(selected?.item, { [`options.showTaskForm`]: !item?.options?.showTaskForm });
     }
+
+    const handleTabsChange = (event: React.MouseEvent<HTMLElement>, newView: DetailViews) => {
+        setView(newView);
+    };
 
     const formSubmitOnEnter = (e) => {
         const queryFields = [e?.key, e?.keyCode];
@@ -134,10 +165,10 @@ export default function ItemDetail(props) {
         let statusChanged = activeStatusChanged || completionStatusChanged;
 
         let descriptionChanged = itemDescription?.toLowerCase() != item?.description?.toLowerCase();
-        let imageChanged = itemImage && itemImage != `` && (itemImage?.toLowerCase() != item?.image?.toLowerCase());
+        // let imageChanged = itemImage?.toLowerCase() != item?.image?.toLowerCase();
         // let urlChanged = itemURL?.toLowerCase() != item?.data?.relatedURLs[0]?.toLowerCase() && !item?.data?.relatedURLs?.includes(itemURL);
 
-        if (statusChanged || imageChanged || descriptionChanged) {
+        if (statusChanged || descriptionChanged) {
             await updateDocFieldsWTimeStamp(item, {
                 ...(item?.data?.taskIDs?.length > 0 ? {
                     ...(completionStatusChanged && {
@@ -153,13 +184,14 @@ export default function ItemDetail(props) {
                         }),
                     }),
                 }),
+                image: itemImage,
                 ...(descriptionChanged && {
                     description: itemDescription,
                 }),
-                ...(imageChanged && {
-                    image: itemImage,
-                    [`data.imageURLs`]: [itemImage, ...item?.data?.imageURLs],
-                }),
+                // ...(imageChanged && {
+                    // image: itemImage,
+                    // [`data.imageURLs`]: [itemImage, ...item?.data?.imageURLs],
+                // }),
                 // ...(urlChanged && {
                 //     [`data.relatedURLs`]: [itemURL, ...item?.data?.relatedURLs],
                 // }),
@@ -177,24 +209,50 @@ export default function ItemDetail(props) {
     const DetailsFields = () => {
         return <>
             <div className={`itemDetailFieldMetric flexLabel`}>
-                <h4 className={`itemDetailType`}><strong>ID:</strong></h4>
+                <h4 className={`itemDetailType`}>
+                    <strong>ID:</strong>
+                </h4>
                 <h4 className={`itemDetailType`}>
                     <ItemWrapper cursorGrab={false}>    
                         <Tags item={item} extend={true} parentClass={`itemDetailContentsTagParent itemContents`} className={`IDTag`} />
                     </ItemWrapper>
                 </h4>
             </div>
-            <div className={`itemDetailFieldMetric flexLabel`}>
-                <h4 className={`itemDetailType`}><strong>Status:</strong></h4>
-                <DetailField item={item} tasks={tasks} />
+            <div className={`itemDetailFieldMetricRow`}>
+                <div className={`itemDetailFieldMetric flexLabel`}>
+                    <h4 className={`itemDetailType`}>
+                        <strong>Status:</strong>
+                    </h4>
+                    <DetailField item={item} tasks={tasks} />
+                </div>
+                {item?.attachments?.length > 0 && (
+                    <Tooltip title={`Attachments`} arrow>
+                        <div className={`itemDetailFieldMetric flexLabel`} style={{ marginLeft: 5, maxWidth: `fit-content` }}>
+                            <h4 className={`itemDetailType`}>
+                                <i className={`fas fa-paperclip mainColor`} />
+                            </h4>
+                            <h4 className={`itemDetailType`}>
+                                {item?.attachments?.length}
+                            </h4>
+                        </div>
+                    </Tooltip>
+                )}
             </div>
             <div className={`itemDetailFieldMetric flexLabel`}>
-                <h4 className={`itemDetailType`}><strong>Created:</strong></h4>
-                <h4 className={`itemDetailType`}>{item?.meta?.created}</h4>
+                <h4 className={`itemDetailType`}>
+                    <strong>Created:</strong>
+                </h4>
+                <h4 className={`itemDetailType`}>
+                    {item?.meta?.created}
+                </h4>
             </div>
             <div className={`itemDetailFieldMetric flexLabel`}>
-                <h4 className={`itemDetailType`}><strong>Updated:</strong></h4>
-                <h4 className={`itemDetailType`}>{item?.meta?.updated}</h4>
+                <h4 className={`itemDetailType`}>
+                    <strong>Updated:</strong>
+                </h4>
+                <h4 className={`itemDetailType`}>
+                    {item?.meta?.updated}
+                </h4>
             </div>
         </>
     }
@@ -203,8 +261,12 @@ export default function ItemDetail(props) {
         return <>
             <div className={`itemDetailTasksRow flexLabel spaceBetween`}>
                 <div className={`itemDetailTasksLabel itemDetailFieldMetric flexLabel`}>
-                    <h4 className={`itemDetailType`}><strong>Tasks:</strong></h4>
-                    <h4 className={`itemDetailType`}>{item?.data?.taskIDs?.length}</h4>
+                    <h4 className={`itemDetailType`}>
+                        <strong>Tasks:</strong>
+                    </h4>
+                    <h4 className={`itemDetailType`}>
+                        {item?.data?.taskIDs?.length}
+                    </h4>
                 </div>
                 <div className={`itemDetailTasksLabel itemDetailFieldMetric flexLabel`}>
                     {item?.data?.taskIDs?.length > 0 && (
@@ -242,7 +304,7 @@ export default function ItemDetail(props) {
                     Image
                 </div> */}
                 <input onKeyDown={(e) => formSubmitOnEnter(e)} type={`text`} name={`itemImageLink`} className={`itemImageLinkField`} placeholder={`Item Image`} defaultValue={item?.image} />
-                {devEnv && <DropZone />}
+                <DropZone item={item} />
             </div>
             <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
                 {/* <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
@@ -258,8 +320,49 @@ export default function ItemDetail(props) {
         </>
     }
 
+    const Media = (children) => {
+        return (
+            <div className={`media`}>
+                <div className={`mediaOverlay`}>
+                    <IconButton className={`removeAttachmentButton`}>
+                        <Close />
+                    </IconButton>
+                </div>
+                {children}
+            </div>
+        )
+    }
+
+    const AttachmentsSlider = (
+        refToUse = swiperRef, 
+        slidesPerView = item?.attachments?.length >= 3 ? 2 : 1, 
+        attachmentsArray = item?.attachments?.slice(1, item?.attachments.length)
+    ) => {
+        return (
+            <div className={`attachmentsSliderWrapper`}>
+                <Swiper 
+                    loop={true}
+                    ref={refToUse}
+                    spaceBetween={15} 
+                    navigation={true} 
+                    pagination={true} 
+                    simulateTouch={true} 
+                    allowTouchMove={true}
+                    slidesPerView={slidesPerView} 
+                    className={`attachmentsSlider`}
+                >
+                    {attachmentsArray?.map((att, attIndx) => (
+                        <SwiperSlide key={attIndx} className={`attachmentSlide ${(slidesPerView == 1 && attachmentsArray?.length >= 2) || (item?.attachments?.length > 3) ? `multiSlides` : `staticSlides`}`}>
+                            {Media(<CustomImage src={att} borderRadius={`var(--borderRadius)`} />)}
+                        </SwiperSlide>
+                    ))}
+                </Swiper>
+            </div>
+        )
+    }
+
     return <>
-        <div className={`detail_view alertDetailsComponent`}>
+        <div className={`detail_view alertDetailsComponent detailView_${view}`}>
             <div className={`alertTitleRowInner`}>
                 <div className={`alertTitleRow`}>
                     <h2 className={`alertTitle`}>
@@ -275,6 +378,24 @@ export default function ItemDetail(props) {
                         </span>
                     </h2>
                     <div className={`rightTitleField`}>
+                        <div className={`itemDetailTabs`}>
+                            <ToggleButtonGroup
+                                exclusive
+                                value={view}
+                                color={`primary`}
+                                aria-label={`View`}
+                                onChange={handleTabsChange}
+                                className={`detailViewTabs`}
+                                style={{ minHeight: 50, gridGap: 2 }}
+                            >
+                                {Object.values(DetailViews).map((v, vi) => (
+                                    <ToggleButton key={vi} value={v} className={`detailViewTabButton flex gap5 alignCenter`} style={{ background: `white` }}>
+                                        <i className={`detailViewTabIcon ${detailViews[v]}`} style={{ color: `var(--gameBlue)` }} />
+                                        <strong>{v}</strong>
+                                    </ToggleButton>
+                                ))}
+                            </ToggleButtonGroup>
+                        </div>
                         {selected != null && (
                             <button className={`detailsCloseButton buttonComponent`} onClick={() => setSelected(null)}>
                                 <i className={`fas fa-times`} />
@@ -283,38 +404,50 @@ export default function ItemDetail(props) {
                     </div>
                 </div>
             </div>
+
             <div id={`detail_view_${item?.id}`} className={`detailView flex row`}>
-                <figure className={`customDetailImage ${validSelectedImage ? `validSelectedImage` : `invalidSelectedImage`}`} style={{ maxWidth: `40%` }}>
-                    <CustomImage 
-                        src={image} 
-                        alt={item?.name} 
-                        onImageLoad={(e) => imageLoaded(e)} 
-                        borderRadius={`var(--borderRadius)`}
-                        onImageError={(e) => imageErrored(e)} 
-                        className={`itemImage detailViewImage imageLoadElement`} 
-                    />
-                </figure>
+                <div className={`attachmentsContainer`} style={{ maxWidth: `40%` }}>
+                    <figure className={`customDetailImage ${validSelectedImage ? `validSelectedImage` : `invalidSelectedImage`}`}>
+                        {view == DetailViews.Summary && (image != `` || item?.attachments?.length >= 1) ? (
+                            Media(
+                                <CustomImage 
+                                    src={image} 
+                                    alt={item?.name} 
+                                    onImageLoad={(e) => imageLoaded(e)} 
+                                    borderRadius={`var(--borderRadius)`}
+                                    onImageError={(e) => imageErrored(e)} 
+                                    className={`itemImage detailViewImage imageLoadElement`} 
+                                />
+                            )
+                        ) : AttachmentsSlider(null, 1, item?.attachments)}
+                    </figure>
+                    {view == DetailViews.Summary && item?.attachments?.length > 1 && (
+                        AttachmentsSlider()
+                    )}
+                </div>
                 {selected != null && item != null && item?.type && (
                     <form ref={formRef} onInput={(e) => refreshDetails(e)} onSubmit={(e) => saveItem(e)} className={`itemDetailsForm changeInputs flex isColumn`} data-index={(index ?? 0) + 1}>
-                        <div className={`formTop`}>
-                            <div className={`detailsStartContent`}>
-                                <div className={`detailsColumn detailStart detailEdge formStartData formTopLeft flexColumn gap10`} style={{ minWidth: 255 }}>
-                                    {DetailsFields()}
+                        {view != DetailViews.Tasks && (
+                            <div className={`formTop`}>
+                                <div className={`detailsStartContent`}>
+                                    <div className={`detailsColumn detailStart detailEdge formStartData formTopLeft flexColumn gap10`} style={{ minWidth: 255 }}>
+                                        {DetailsFields()}
+                                    </div>
+                                    <div className={`detailProgress`}>
+                                        <Progress 
+                                            item={item} 
+                                            tasks={tasks}
+                                            customInnerText={false}
+                                            classes={`detailViewProgress detailsColumn detailEdge detailEnd`} 
+                                            injectedProgress={active === `complete` ? 100 : active === `to do` ? 0 : item?.data?.taskIDs?.length == 0 ? 50 : undefined} 
+                                        />
+                                    </div>
                                 </div>
-                                <div className={`detailProgress`}>
-                                    <Progress 
-                                        item={item} 
-                                        tasks={tasks}
-                                        customInnerText={false}
-                                        classes={`detailViewProgress detailsColumn detailEdge detailEnd`} 
-                                        injectedProgress={active === `complete` ? 100 : active === `to do` ? 0 : item?.data?.taskIDs?.length == 0 ? 50 : undefined} 
-                                    />
+                                <div className={`formCenterData detailCenter formTopLeft flexColumn gap10`}>
+                                    {FormFields()}
                                 </div>
                             </div>
-                            <div className={`formCenterData detailCenter formTopLeft flexColumn gap10`}>
-                                {FormFields()}
-                            </div>
-                        </div>
+                        )}
                         {(item?.data?.taskIDs?.length == 0 || item?.data?.taskIDs?.length == tasks?.filter((tsk: Task) => tsk?.options?.complete)?.length) && (
                             <ToggleButtons item={item} toDoTasks={tasks?.filter((tsk: Task) => !tsk?.options?.active && !tsk?.options?.complete)} activeTasks={tasks?.filter((tsk: Task) => tsk?.options?.active)} completeTasks={tasks?.filter((tsk: Task) => tsk?.options?.complete)} onActiveChange={(newActive) => setActive(newActive)} />
                         )}

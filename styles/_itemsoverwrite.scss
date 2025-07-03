@@ -117,6 +117,13 @@
     }
 }
 
+.itemDetailFieldMetricRow {
+    gap: 5px;
+    display: grid;
+    align-items: center;
+    grid-template-columns: repeat(2, 1fr);
+}
+
 .itemDetailFieldMetric {
     max-height: 20px;
     justify-content: flex-start;

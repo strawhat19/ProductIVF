@@ -100,6 +100,8 @@ export default function Column(props) {
                 });
             }
 
+            queryStrings = [...queryStrings, ...itm?.attachments, itm?.image];
+
             queryStrings = queryStrings?.map(qs => qs?.toLowerCase());
             itemInCurrentSearchFilters = queryStrings?.join(``)?.includes(gridSearchTerm?.trim()?.toLowerCase());
         }
