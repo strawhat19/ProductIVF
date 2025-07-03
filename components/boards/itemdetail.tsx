@@ -150,13 +150,8 @@ export default function ItemDetail(props) {
 
         let form = formRef?.current;
 
-        let { 
-            itemImageLink, 
-            itemDescriptionField,
-            // itemURL: itemURLField, 
-        } = form;
+        let { itemImageLink, itemDescriptionField } = form;
 
-        // let itemURL = itemURLField?.value;
         let itemDescription = itemDescriptionField?.value;
         let itemImage = itemImageLink ? itemImageLink?.value : ``;
 
@@ -168,10 +163,8 @@ export default function ItemDetail(props) {
         let statusChanged = activeStatusChanged || completionStatusChanged;
 
         let descriptionChanged = itemDescription?.toLowerCase() != item?.description?.toLowerCase();
-        // let imageChanged = itemImage?.toLowerCase() != item?.image?.toLowerCase();
-        // let urlChanged = itemURL?.toLowerCase() != item?.data?.relatedURLs[0]?.toLowerCase() && !item?.data?.relatedURLs?.includes(itemURL);
 
-        if (statusChanged || descriptionChanged) {
+        if (itemImage != `` || statusChanged || descriptionChanged) {
             await updateDocFieldsWTimeStamp(item, {
                 ...(itemImage != `` && {
                     ...(item?.image == `` && { image: itemImage, }),
@@ -194,13 +187,6 @@ export default function ItemDetail(props) {
                         }),
                     }),
                 }),
-                // ...(imageChanged && {
-                    // image: itemImage,
-                    // [`data.imageURLs`]: [itemImage, ...item?.data?.imageURLs],
-                // }),
-                // ...(urlChanged && {
-                //     [`data.relatedURLs`]: [itemURL, ...item?.data?.relatedURLs],
-                // }),
             });
         }
 
@@ -345,7 +331,7 @@ export default function ItemDetail(props) {
                 }),
             });
 
-            logToast(`Attachment removed successfully`, attachmentURL?.replaceAll(uploadsBaseURL, ``));
+            logToast(`Attachment removed successfully`, {attachmentURL});
         } catch (err) {
             logToast(`Failed to remove attachment`, err, true);
         }
@@ -374,16 +360,18 @@ export default function ItemDetail(props) {
                             <Close className={`hoverGlow`} style={{ color: `var(--gameBlue)` }} />
                         </IconButton>
                     </Tooltip>
-                    <Tooltip title={`Make Cover`} arrow>
-                        <IconButton 
-                            size={`small`}
-                            onClick={() => makeCover(attachmentURL)} 
-                            className={`attachmentActionButton hoverBright`} 
-                            style={{ background: `white`, margin: `5px 5px 0 0` }}
-                        >
-                            <Image className={`hoverGlow`} style={{ color: `var(--gameBlue)` }} />
-                        </IconButton>
-                    </Tooltip>
+                    {item?.image != attachmentURL && (
+                        <Tooltip title={`Make Cover`} arrow>
+                            <IconButton 
+                                size={`small`}
+                                onClick={() => makeCover(attachmentURL)} 
+                                className={`attachmentActionButton hoverBright`} 
+                                style={{ background: `white`, margin: `5px 5px 0 0` }}
+                            >
+                                <Image className={`hoverGlow`} style={{ color: `var(--gameBlue)` }} />
+                            </IconButton>
+                        </Tooltip>
+                    )}
                 </div>
                 {children}
             </div>
@@ -410,7 +398,7 @@ export default function ItemDetail(props) {
                 >
                     {attachmentsArray?.map((att, attIndx) => (
                         <SwiperSlide key={attIndx} className={`attachmentSlide ${(slidesPerView == 1 && attachmentsArray?.length >= 2) || (item?.attachments?.length > 3) ? `multiSlides` : `staticSlides`}`}>
-                            {Media(att, <CustomImage src={att} alt={item?.name} borderRadius={`var(--borderRadius)`} />)}
+                            {Media(att, <CustomImage src={att} alt={item?.name} className={`attachmentMedia ${view == DetailViews.Summary ? `attachmentMediaShort` : ``}`} borderRadius={`var(--borderRadius)`} />)}
                         </SwiperSlide>
                     ))}
                 </Swiper>

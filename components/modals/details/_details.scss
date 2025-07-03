@@ -17,6 +17,15 @@
 
 .media {
     position: relative;
+    &:has(.attachmentMediaShort) {
+        max-height: 255px;
+        .attachmentMediaShort {
+            max-height: 255px;
+        }
+        .mediaOverlay {
+            max-width: 193px;
+        }
+    }
     .mediaOverlay {
         top: 0;
         left: 0;

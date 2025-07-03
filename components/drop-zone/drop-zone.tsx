@@ -85,10 +85,9 @@ export default function DropZone({ item }) {
                     const attachmentUrls = [item?.image, ...(item?.attachments || []), cleanedDownloadURL].filter(Boolean);
                     const uniqueAttachmentUrls = Array.from(new Set(attachmentUrls));
                     updateDocFieldsWTimeStamp(item, {
-                        ...(item?.image == `` ? {
+                        attachments: uniqueAttachmentUrls,
+                        ...(item?.image == `` && {
                             image: cleanedDownloadURL,
-                        } : {
-                            attachments: uniqueAttachmentUrls,
                         }),
                     });
                 }
