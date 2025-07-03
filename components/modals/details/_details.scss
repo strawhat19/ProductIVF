@@ -6,6 +6,15 @@
     --detailsTasksMaxHeight: 75cqh;
 }
 
+// .detailViewTabs {
+//     .detailViewTabButton {
+//         &.Mui-selected {
+//             color: black !important;
+//             background: var(--gameBlue) !important;
+//         }
+//     }
+// }
+
 .media {
     position: relative;
     .mediaOverlay {
@@ -24,6 +33,7 @@
         &:hover {
             .removeAttachmentButton {
                 opacity: 1;
+                pointer-events: auto;
             }
         }
     }

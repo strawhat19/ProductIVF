@@ -6,6 +6,7 @@ import Tags from './details/tags';
 import Progress from '../progress';
 import ItemWrapper from './itemwrapper';
 import CustomImage from '../custom-image';
+import { Close } from '@mui/icons-material';
 import DropZone from '../drop-zone/drop-zone';
 // import { EffectCards } from 'swiper/modules';
 import { Task } from '../../shared/models/Task';
@@ -13,13 +14,15 @@ import { Item } from '../../shared/models/Item';
 import DetailField from './details/detail-field';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import ToggleButtons from './details/toggle-buttons';
+import { deleteObject, ref } from 'firebase/storage';
 import { DetailViews } from '../../shared/types/types';
-import { updateDocFieldsWTimeStamp } from '../../firebase';
-import { IconButton, ToggleButton, ToggleButtonGroup, Tooltip } from '@mui/material';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { capitalizeAllWords, StateContext } from '../../pages/_app';
-import { forceFieldBlurOnPressEnter, removeExtraSpacesFromString } from '../../shared/constants';
-import { Close } from '@mui/icons-material';
+import { storage, updateDocFieldsWTimeStamp } from '../../firebase';
+import { IconButton, ToggleButton, ToggleButtonGroup, Tooltip } from '@mui/material';
+import { forceFieldBlurOnPressEnter, logToast, removeExtraSpacesFromString } from '../../shared/constants';
+
+export const uploadsBaseURL = `https://firebasestorage.googleapis.com/v0/b/productivf.firebasestorage.app/o/`;
 
 export const detailViews = {
     [DetailViews.Tasks]: `fas fa-stream`,
@@ -229,7 +232,7 @@ export default function ItemDetail(props) {
                     <Tooltip title={`Attachments`} arrow>
                         <div className={`itemDetailFieldMetric flexLabel`} style={{ marginLeft: 5, maxWidth: `fit-content` }}>
                             <h4 className={`itemDetailType`}>
-                                <i className={`fas fa-paperclip mainColor`} />
+                                <i className={`fas fa-paperclip`} style={{ color: `var(--gameBlue)` }} />
                             </h4>
                             <h4 className={`itemDetailType`}>
                                 {item?.attachments?.length}
@@ -320,12 +323,42 @@ export default function ItemDetail(props) {
         </>
     }
 
-    const Media = (children) => {
+    const removeAttachment = async (attachmentURL) => {
+        try {
+            if (attachmentURL?.includes(uploadsBaseURL)) {
+                const decodedUrl = decodeURIComponent(attachmentURL.split(`?`)[0]);
+                const pathStartIndex = decodedUrl.indexOf(`/o/`) + 3;
+                const storagePath = decodedUrl.substring(pathStartIndex);
+    
+                const fileRef = ref(storage, storagePath);
+                await deleteObject(fileRef);
+            }
+
+            const updatedAttachments = item.attachments.filter(att => att !== attachmentURL);
+            await updateDocFieldsWTimeStamp(item, { 
+                attachments: updatedAttachments,
+                ...(item?.image == attachmentURL && {
+                    image: updatedAttachments?.length > 0 ? updatedAttachments[0] : ``,
+                }),
+            });
+
+            logToast(`Attachment removed successfully`, attachmentURL?.replaceAll(uploadsBaseURL, ``));
+        } catch (err) {
+            logToast(`Failed to remove attachment`, err, true);
+        }
+    }
+
+    const Media = (attachmentURL, children) => {
         return (
             <div className={`media`}>
                 <div className={`mediaOverlay`}>
-                    <IconButton className={`removeAttachmentButton`}>
-                        <Close />
+                    <IconButton 
+                        size={`small`}
+                        onClick={() => removeAttachment(attachmentURL)} 
+                        className={`removeAttachmentButton hoverBright`} 
+                        style={{ background: `white`, margin: `5px 5px 0 0` }}
+                    >
+                        <Close className={`hoverGlow`} style={{ color: `var(--gameBlue)` }} />
                     </IconButton>
                 </div>
                 {children}
@@ -353,7 +386,7 @@ export default function ItemDetail(props) {
                 >
                     {attachmentsArray?.map((att, attIndx) => (
                         <SwiperSlide key={attIndx} className={`attachmentSlide ${(slidesPerView == 1 && attachmentsArray?.length >= 2) || (item?.attachments?.length > 3) ? `multiSlides` : `staticSlides`}`}>
-                            {Media(<CustomImage src={att} borderRadius={`var(--borderRadius)`} />)}
+                            {Media(att, <CustomImage src={att} alt={item?.name} borderRadius={`var(--borderRadius)`} />)}
                         </SwiperSlide>
                     ))}
                 </Swiper>
@@ -410,6 +443,7 @@ export default function ItemDetail(props) {
                     <figure className={`customDetailImage ${validSelectedImage ? `validSelectedImage` : `invalidSelectedImage`}`}>
                         {view == DetailViews.Summary && (image != `` || item?.attachments?.length >= 1) ? (
                             Media(
+                                image,
                                 <CustomImage 
                                     src={image} 
                                     alt={item?.name} 

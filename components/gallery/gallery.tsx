@@ -1,9 +1,8 @@
 import CustomImage from '../custom-image';
 import { useEffect, useState } from 'react';
+import { uploadsBaseURL } from '../boards/itemdetail';
 import { buildUserStructuredTree } from '../../firebase';
 import { flattenURLs, logToast } from '../../shared/constants';
-
-export const uploadsBaseURL = `https://firebasestorage.googleapis.com/v0/b/productivf.firebasestorage.app/o/`;
 
 export default function Gallery() {
   const [loading, setLoading] = useState(true);
