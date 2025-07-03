@@ -24,14 +24,14 @@
         width: 100%;
         height: 100%;
         position: absolute;
-        .removeAttachmentButton {
+        .attachmentActionButton {
             opacity: 0;
             float: right;
             pointer-events: none;
             transition: var(--transition);
         }
         &:hover {
-            .removeAttachmentButton {
+            .attachmentActionButton {
                 opacity: 1;
                 pointer-events: auto;
             }

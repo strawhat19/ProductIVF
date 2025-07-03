@@ -111,6 +111,7 @@ export default function DropZone({ item }) {
                 ref={uploaderRef}
                 className={`uploadInput`}
                 style={styles.uploadInput}
+                accept={`image/*,video/*`}
                 onChange={(e) => onChange(e)} 
             />
             <Button className={`mui_btn`} onClick={handleUpload} disabled={files?.length == 0 || uploading} style={{ ...styles.button, textTransform: `none` }}>

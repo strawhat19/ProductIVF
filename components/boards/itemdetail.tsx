@@ -6,7 +6,7 @@ import Tags from './details/tags';
 import Progress from '../progress';
 import ItemWrapper from './itemwrapper';
 import CustomImage from '../custom-image';
-import { Close } from '@mui/icons-material';
+import { Close, Image } from '@mui/icons-material';
 import DropZone from '../drop-zone/drop-zone';
 // import { EffectCards } from 'swiper/modules';
 import { Task } from '../../shared/models/Task';
@@ -173,6 +173,13 @@ export default function ItemDetail(props) {
 
         if (statusChanged || descriptionChanged) {
             await updateDocFieldsWTimeStamp(item, {
+                ...(itemImage != `` && {
+                    ...(item?.image == `` && { image: itemImage, }),
+                    attachments: Array.from(new Set([...[...item?.attachments, itemImage]])),
+                }),
+                ...(descriptionChanged && {
+                    description: itemDescription,
+                }),
                 ...(item?.data?.taskIDs?.length > 0 ? {
                     ...(completionStatusChanged && {
                         [`options.complete`]: itemComplete,
@@ -186,10 +193,6 @@ export default function ItemDetail(props) {
                             [`options.complete`]: itemComplete,
                         }),
                     }),
-                }),
-                image: itemImage,
-                ...(descriptionChanged && {
-                    description: itemDescription,
                 }),
                 // ...(imageChanged && {
                     // image: itemImage,
@@ -306,7 +309,7 @@ export default function ItemDetail(props) {
                 {/* <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
                     Image
                 </div> */}
-                <input onKeyDown={(e) => formSubmitOnEnter(e)} type={`text`} name={`itemImageLink`} className={`itemImageLinkField`} placeholder={`Item Image`} defaultValue={item?.image} />
+                <input onKeyDown={(e) => formSubmitOnEnter(e)} type={`text`} name={`itemImageLink`} className={`itemImageLinkField`} placeholder={`Item Image URL`} />
                 <DropZone item={item} />
             </div>
             <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
@@ -348,18 +351,39 @@ export default function ItemDetail(props) {
         }
     }
 
+    const makeCover = async (attachmentURL) => {
+        try {
+            const updatedAttachments = [attachmentURL, ...item.attachments.filter(att => att !== attachmentURL)];
+            await updateDocFieldsWTimeStamp(item, { image: attachmentURL, attachments: updatedAttachments });
+        } catch (err) {
+            logToast(`Failed to Make Cover`, err, true);
+        }
+    }
+
     const Media = (attachmentURL, children) => {
         return (
             <div className={`media`}>
                 <div className={`mediaOverlay`}>
-                    <IconButton 
-                        size={`small`}
-                        onClick={() => removeAttachment(attachmentURL)} 
-                        className={`removeAttachmentButton hoverBright`} 
-                        style={{ background: `white`, margin: `5px 5px 0 0` }}
-                    >
-                        <Close className={`hoverGlow`} style={{ color: `var(--gameBlue)` }} />
-                    </IconButton>
+                    <Tooltip title={`Remove Attachment`} arrow>
+                        <IconButton 
+                            size={`small`}
+                            onClick={() => removeAttachment(attachmentURL)} 
+                            className={`attachmentActionButton hoverBright`} 
+                            style={{ background: `white`, margin: `5px 5px 0 0` }}
+                        >
+                            <Close className={`hoverGlow`} style={{ color: `var(--gameBlue)` }} />
+                        </IconButton>
+                    </Tooltip>
+                    <Tooltip title={`Make Cover`} arrow>
+                        <IconButton 
+                            size={`small`}
+                            onClick={() => makeCover(attachmentURL)} 
+                            className={`attachmentActionButton hoverBright`} 
+                            style={{ background: `white`, margin: `5px 5px 0 0` }}
+                        >
+                            <Image className={`hoverGlow`} style={{ color: `var(--gameBlue)` }} />
+                        </IconButton>
+                    </Tooltip>
                 </div>
                 {children}
             </div>
