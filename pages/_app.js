@@ -4,6 +4,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import moment from 'moment-timezone';
 import ReactDOM from 'react-dom/client';
 import { getIDParts } from '../shared/ID';
+import { Chat } from '../shared/models/Chat';
 import { Grid } from '../shared/models/Grid';
 import { List } from '../shared/models/List';
 import { Item } from '../shared/models/Item';
@@ -31,7 +32,9 @@ import {
   auth, 
   usersTable,
   gridsTable,
+  chatsTable,
   boardsTable,
+  chatConverter,
   userConverter,
   gridConverter,
   featuresTable,
@@ -39,12 +42,7 @@ import {
   addBoardToDatabase,
   gridDataCollectionNames,
   updateDocFieldsWTimeStamp,
-  chatsTable,
-  chatConverter,
-  postsTable,
-  postConverter,
 } from '../firebase';
-import { Chat } from '../shared/models/Chat';
 
 export const StateContext = createContext({});
 

@@ -74,11 +74,13 @@
     --toastify-color-info: var(--gameBlue) !important;
 
     // Semi Transparent
+    --white: white !important;
     --authGlass: rgba(0, 0, 0, 0.05);
     --mainTeal: rgba(32, 143, 163, 1);
     --blackGlass: rgba(0, 0, 0, 0.75);
     --silverGlass: rgba(0, 0, 0, 0.35);
     --piratechsBlue: rgba(1, 47, 74, 1);
+    --transparent: transparent !important;
     --mainGlass: rgba(255, 28, 11, 0.75);
     --dangerColor: rgba(255, 28, 11, 0.75);
     --softWhite: rgba(255, 255, 255, 0.87);

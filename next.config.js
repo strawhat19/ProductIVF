@@ -49,9 +49,9 @@ const nextConfig = {
       { source: `/getintouch`, destination: `/contact`, permanent: true },
       { source: `/get-in-touch`, destination: `/contact`, permanent: true },
       // Gallery
-      { source: `/pictures`, destination: `/gallery`, permanent: true },
-      { source: `/upload`, destination: `/gallery`, permanent: true },
-      { source: `/pics`, destination: `/gallery`, permanent: true },
+      // { source: `/pictures`, destination: `/gallery`, permanent: true },
+      // { source: `/upload`, destination: `/gallery`, permanent: true },
+      // { source: `/pics`, destination: `/gallery`, permanent: true },
     ];
   }
 };

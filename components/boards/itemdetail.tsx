@@ -3,6 +3,7 @@ import Tags from './details/tags';
 import Progress from '../progress';
 import ItemWrapper from './itemwrapper';
 import CustomImage from '../custom-image';
+import DropZone from '../drop-zone/drop-zone';
 import { Task } from '../../shared/models/Task';
 import { Item } from '../../shared/models/Item';
 import DetailField from './details/detail-field';
@@ -15,7 +16,7 @@ import { forceFieldBlurOnPressEnter, removeExtraSpacesFromString } from '../../s
 export default function ItemDetail(props) {
     let formRef = useRef(null);
 
-    let { selected, setSelected, globalUserData } = useContext<any>(StateContext);
+    let { devEnv, selected, setSelected, globalUserData } = useContext<any>(StateContext);
     let { itemID, item: itemProp, index, tasks: tasksProp, activeTasks, completeTasks, board, column } = props;
 
     let [item, setItem] = useState<Item>(itemProp);
@@ -241,6 +242,7 @@ export default function ItemDetail(props) {
                     Image
                 </div> */}
                 <input onKeyDown={(e) => formSubmitOnEnter(e)} type={`text`} name={`itemImageLink`} className={`itemImageLinkField`} placeholder={`Item Image`} defaultValue={item?.image} />
+                {devEnv && <DropZone />}
             </div>
             <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
                 {/* <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
@@ -285,9 +287,9 @@ export default function ItemDetail(props) {
                 <figure className={`customDetailImage ${validSelectedImage ? `validSelectedImage` : `invalidSelectedImage`}`} style={{ maxWidth: `40%` }}>
                     <CustomImage 
                         src={image} 
-                        borderRadius={4}
                         alt={item?.name} 
                         onImageLoad={(e) => imageLoaded(e)} 
+                        borderRadius={`var(--borderRadius)`}
                         onImageError={(e) => imageErrored(e)} 
                         className={`itemImage detailViewImage imageLoadElement`} 
                     />

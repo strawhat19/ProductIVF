@@ -50,6 +50,10 @@
     }
 }
 
+.itemDescriptionField {
+    resize: none;
+}
+
 .taskMainWrap {
     &:has(.status_Active) {
         &:hover {
