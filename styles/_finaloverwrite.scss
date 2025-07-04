@@ -19,10 +19,43 @@
 }
 
 .attachmentSlide {
+    max-width: fit-content;
     &.multiSlides {
         cursor: grab;
         &:active {
             cursor: grabbing;
+        }
+    }
+}
+
+.itemDescriptionEditorField {
+    width: 100%;
+    height: 100%;
+    border: none !important;
+    background: var(--darkCheckBox) !important;
+    div {
+        &:has(.customRichTextEditor) {
+            height: 100%;
+            .customRichTextEditor {
+                height: 100%;
+                max-height: 82px;
+                border-radius: var(--borderRadius);
+                p {
+                    padding: 5px;
+                    text-align: left;
+                }
+                &:focus-visible {
+                    --tw-ring-opacity: 0 !important;
+                    --tw-ring-color: transparent !important;
+                    --tw-ring-offset-color: transparent !important;
+                }
+            }
+        }
+    }
+    .toolbar {
+        button {
+            width: 100%;
+            border-radius: var(--borderRadius);
         }
     }
 }

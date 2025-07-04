@@ -6,24 +6,22 @@
     --detailsTasksMaxHeight: 75cqh;
 }
 
-// .detailViewTabs {
-//     .detailViewTabButton {
+.detailViewTabs {
+    .detailViewTabButton {
+        color: black !important;
 //         &.Mui-selected {
-//             color: black !important;
 //             background: var(--gameBlue) !important;
 //         }
-//     }
-// }
+    }
+}
 
 .media {
     position: relative;
     &:has(.attachmentMediaShort) {
         max-height: 255px;
+        max-width: fit-content;
         .attachmentMediaShort {
             max-height: 255px;
-        }
-        .mediaOverlay {
-            max-width: 193px;
         }
     }
     .mediaOverlay {

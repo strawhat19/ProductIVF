@@ -7,7 +7,7 @@ import Placeholder from '@tiptap/extension-placeholder';
 import { EditorContent, useEditor } from '@tiptap/react';
 import { useEffect, useImperativeHandle, useState, forwardRef } from 'react';
 
-const Editor = forwardRef(function Editor({ onChange, placeholder = `Enter Message Here` }: any, ref) {
+const Editor = forwardRef(function Editor({ className = `richTextEditorComponent`, onChange, placeholder = `Enter Message Here` }: any, ref) {
     const [showEditor, setShowEditor] = useState(false);
 
     useEffect(() => {
@@ -15,7 +15,7 @@ const Editor = forwardRef(function Editor({ onChange, placeholder = `Enter Messa
     }, [])
 
     const editor = useEditor({
-        content: ``,
+        content: placeholder,
         immediatelyRender: false,
         onUpdate: (changeEvent) => {
             // console.log(`changeEvent`, changeEvent);
@@ -64,21 +64,21 @@ const Editor = forwardRef(function Editor({ onChange, placeholder = `Enter Messa
     if (!showEditor || !editor) return null;
 
     return (
-        <div className={`editorWrapper`}>
+        <div className={`richTextEditor editorWrapper ${className}`}>
             <div className={`toolbar`}>
                 <button 
                     type={`button`}
                     onClick={() => editor.chain().focus().toggleBold().run()}
-                    className={`chatToolbarButton ${editor.isActive(`bold`) ? `active` : ``}`} 
+                    className={`chatToolbarButton hoverBright ${editor.isActive(`bold`) ? `active` : ``}`} 
                 >
-                    <i className={`fas fa-bold`} /> Bold
+                    <i className={`fas fa-bold`} style={{ color: `var(--gameBlue)` }} /> Bold
                 </button>
                 <button 
                     type={`button`}
                     onClick={() => editor.chain().focus().toggleItalic().run()}
-                    className={`chatToolbarButton ${editor.isActive(`italic`) ? `active` : ``}`} 
+                    className={`chatToolbarButton hoverBright ${editor.isActive(`italic`) ? `active` : ``}`} 
                 >
-                    <i className={`fas fa-italic`} /> Italic
+                    <i className={`fas fa-italic`} style={{ color: `var(--gameBlue)` }} /> Italic
                 </button>
             </div>
             <EditorContent editor={editor} />

@@ -8,6 +8,7 @@ import ItemWrapper from './itemwrapper';
 import Gallery from '../gallery/gallery';
 import CustomImage from '../custom-image';
 import DropZone from '../drop-zone/drop-zone';
+import Editor from '../messages/editor/editor';
 import { Task } from '../../shared/models/Task';
 import { Item } from '../../shared/models/Item';
 import DetailField from './details/detail-field';
@@ -19,6 +20,7 @@ import { useContext, useEffect, useRef, useState } from 'react';
 import { capitalizeAllWords, StateContext } from '../../pages/_app';
 import { ToggleButton, ToggleButtonGroup, Tooltip } from '@mui/material';
 import { forceFieldBlurOnPressEnter, removeExtraSpacesFromString } from '../../shared/constants';
+import { convertURLsToHTML } from '../messages/messages';
 
 export const uploadsBaseURL = `https://firebasestorage.googleapis.com/v0/b/productivf.firebasestorage.app/o/`;
 
@@ -32,12 +34,14 @@ export const detailViews = {
 export default function ItemDetail(props) {
     let formRef = useRef(null);
     let swiperRef = useRef(null);
+    let editorRef = useRef(null);
 
     let { devEnv, selected, setSelected, globalUserData } = useContext<any>(StateContext);
     let { itemID, item: itemProp, index, tasks: tasksProp, activeTasks, completeTasks, board, column } = props;
 
     let [item, setItem] = useState<Item>(itemProp);
     let [formStatus, setFormStatus] = useState(``);
+    let [description, setDescription] = useState(``);
     let [tasks, setTasks] = useState<Task[]>(tasksProp);
     let [view, setView] = useState<DetailViews>(DetailViews.Summary);
     let [validSelectedImage, setValidSelectedImage] = useState(false);
@@ -150,6 +154,12 @@ export default function ItemDetail(props) {
             setValidSelectedImage(false);
             setFormStatus(`Image Error`);
         }
+    }
+
+    const onEditorChangeVal = (editorVal) => {
+        let output = convertURLsToHTML(editorVal);
+        console.log(`onEditorChangeVal`, {editorVal, output});
+        setDescription(output);
     }
 
     const saveItem = async (e, dismissOnSave = false) => {
@@ -309,7 +319,13 @@ export default function ItemDetail(props) {
                 {/* <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
                     Description
                 </div> */}
-                <textarea name={`itemDescriptionField`} className={`itemDescriptionField`} placeholder={`Item Description`} defaultValue={item?.description} />
+                {/* <textarea name={`itemDescriptionField`} className={`itemDescriptionField`} placeholder={`Item Description`} defaultValue={item?.description} /> */}
+                <Editor 
+                    ref={editorRef} 
+                    placeholder={`Enter Item Description`} 
+                    className={`itemDescriptionEditorField`} 
+                    onChange={(editorVal) => onEditorChangeVal(editorVal)} 
+                />
             </div>
             <div className={`toggle-buttons`}>
                 <button onClick={(e) => saveItem(e)} type={`button`} title={formStatus != `` ? formStatus : undefined} disabled={formStatus != ``} className={`iconButton saveButton ${formStatus != `` ? `pointerEventsNone` : ``}`} style={{ color: formStatus != `` ? `red` : `black` }}>
@@ -328,7 +344,7 @@ export default function ItemDetail(props) {
                 <Swiper 
                     loop={true}
                     ref={swiperRef}
-                    spaceBetween={15} 
+                    spaceBetween={7} 
                     navigation={true} 
                     pagination={true} 
                     simulateTouch={true} 

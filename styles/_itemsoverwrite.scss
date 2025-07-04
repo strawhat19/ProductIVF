@@ -56,7 +56,10 @@
 
 .formCenterData {
     width: 100%;
-    align-self: flex-start;
+    height: 100%;
+    display: grid;
+    align-self: center;
+    grid-template-rows: auto 1fr auto;
     .itemDetailURLs {
         flex-wrap: wrap;
     }

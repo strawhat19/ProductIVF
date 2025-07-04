@@ -1,10 +1,14 @@
 import Media from '../media';
-import { useState } from 'react';
 import CustomImage from '../custom-image';
+import { useEffect, useState } from 'react';
 import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
 
 export default function Gallery({ item }) {
   const [images, setImages] = useState<string[]>(item?.attachments?.slice(1, item?.attachments?.length) || []);
+
+  useEffect(() => {
+    setImages(item?.attachments?.slice(1, item?.attachments?.length) || []);
+  }, [item])
 
   const imagesComponent = () => {
     return (
