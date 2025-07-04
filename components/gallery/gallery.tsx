@@ -1,50 +1,37 @@
+import Media from '../media';
+import { useState } from 'react';
 import CustomImage from '../custom-image';
-import { useEffect, useState } from 'react';
-import { uploadsBaseURL } from '../boards/itemdetail';
-import { buildUserStructuredTree } from '../../firebase';
-import { flattenURLs, logToast } from '../../shared/constants';
+import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
 
-export default function Gallery() {
-  const [loading, setLoading] = useState(true);
-  const [images, setImages] = useState<string[]>([]);
+export default function Gallery({ item }) {
+  const [images, setImages] = useState<string[]>(item?.attachments?.slice(1, item?.attachments?.length) || []);
 
-    useEffect(() => {
-      async function fetchTree() {
-        const privateUploads = [];
-        const publicUploads = await buildUserStructuredTree(`uploads/public`);
-        // const privateUploads = await buildUserStructuredTree(`uploads/private`);
-        if (publicUploads && privateUploads) {
-          const uploads = { public: publicUploads, private: privateUploads };
-          const uploadURLs = flattenURLs(uploads);
-          const publicUploadURLs = uploadURLs?.map(up => (
-            uploadsBaseURL + up?.replaceAll(`/`, `%2F`) + `?alt=media`
-          ));
-          setImages(publicUploadURLs);
-          console.log(`Uploads`, {
-            uploads,
-            uploadURLs,
-            publicUploadURLs,
-          });
-        } else {
-          logToast(`Error on Get Uploads`, publicUploads, true);
-        }
-        setLoading(false);
-      }
-
-      fetchTree();
-    }, []);
+  const imagesComponent = () => {
+    return (
+      images.length > 0 ? (
+        images.map((img, imgIndx) => (
+          <Media key={imgIndx} item={item} attachmentURL={img}>
+            <CustomImage src={img} alt={item?.name} borderRadius={`var(--borderRadius)`} />
+          </Media>
+        ))
+      ) : (
+        <IVFSkeleton 
+          height={65}
+          labelSize={14}
+          showLoading={true}
+          label={`No Attachments`} 
+          skeletonContainerGap={15}
+          skeletonContainerWidth={`100%`}
+          className={`attachmentsLoader`} 
+          skeletonContainerPadding={`5px 12px`}
+        />
+      )
+    )
+  }
 
   return (
     <div className={`gallery ${images?.length > 0 ? (images?.length == 1 ? `single_gallery` : `double_gallery`) : `empty_gallery`}`}>
-      {loading ? (
-        <>Loading...</>
-      ) : images.length > 0 ? (
-        images.map((img, imgIndx) => (
-          <CustomImage key={imgIndx} src={img} borderRadius={4} />
-        ))
-      ) : (
-        <>No Images</>
-      )}
+      {imagesComponent()}
     </div>
   );
 }

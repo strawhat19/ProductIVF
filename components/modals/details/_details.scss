@@ -36,6 +36,9 @@
         .attachmentActionButton {
             opacity: 0;
             float: right;
+            max-width: 35px; 
+            background: white; 
+            margin: 5px 5px 0 0;
             pointer-events: none;
             transition: var(--transition);
         }

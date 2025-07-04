@@ -1,33 +1,31 @@
 import 'swiper/css';
-// import 'swiper/css/effect-cards';
 
 import Tasks from './tasks';
+import Media from '../media';
 import Tags from './details/tags';
 import Progress from '../progress';
 import ItemWrapper from './itemwrapper';
+import Gallery from '../gallery/gallery';
 import CustomImage from '../custom-image';
-import { Close, Image } from '@mui/icons-material';
 import DropZone from '../drop-zone/drop-zone';
-// import { EffectCards } from 'swiper/modules';
 import { Task } from '../../shared/models/Task';
 import { Item } from '../../shared/models/Item';
 import DetailField from './details/detail-field';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import ToggleButtons from './details/toggle-buttons';
-import { deleteObject, ref } from 'firebase/storage';
 import { DetailViews } from '../../shared/types/types';
+import { updateDocFieldsWTimeStamp } from '../../firebase';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { capitalizeAllWords, StateContext } from '../../pages/_app';
-import { storage, updateDocFieldsWTimeStamp } from '../../firebase';
-import { IconButton, ToggleButton, ToggleButtonGroup, Tooltip } from '@mui/material';
-import { forceFieldBlurOnPressEnter, logToast, removeExtraSpacesFromString } from '../../shared/constants';
+import { ToggleButton, ToggleButtonGroup, Tooltip } from '@mui/material';
+import { forceFieldBlurOnPressEnter, removeExtraSpacesFromString } from '../../shared/constants';
 
 export const uploadsBaseURL = `https://firebasestorage.googleapis.com/v0/b/productivf.firebasestorage.app/o/`;
 
 export const detailViews = {
     [DetailViews.Tasks]: `fas fa-stream`,
+    [DetailViews.Gallery]: `fas fa-images`,
     // [DetailViews.Settings]: `fas fa-cogs`,
-    // [DetailViews.Gallery]: `fas fa-images`,
     [DetailViews.Summary]: `fas fa-align-left`,
 }
 
@@ -53,6 +51,14 @@ export default function ItemDetail(props) {
         : `to do`
     );
 
+    const slideTo = (position: number = 0, last = false) => {
+        const swiper = swiperRef?.current?.swiper;
+        if (swiper) {
+            if (last) position = swiper.slides.length - 1;
+            swiper.slideTo(position);
+        }
+    }
+
     useEffect(() => {
         const updatedTasks = [];
         const refreshedItem = globalUserData?.items?.find((itm: Item) => itm?.id == itemID);
@@ -69,9 +75,8 @@ export default function ItemDetail(props) {
             setImage(updatedItemAndTasks?.image);
         }
         setTimeout(() => {
-            const swiper = swiperRef?.current?.swiper;
-            if (swiper && updatedItemAndTasks?.attachments?.length > 3) {
-                swiper.slideTo(swiper.slides.length - 1);
+            if (updatedItemAndTasks?.attachments?.length > 3) {
+                slideTo(undefined, true);
             }
         }, 500)
     }, [globalUserData])
@@ -115,7 +120,9 @@ export default function ItemDetail(props) {
 
     const handleTabsChange = (event: React.MouseEvent<HTMLElement>, newView: DetailViews) => {
         setView(newView);
-    };
+        // let isGallery = newView == DetailViews.Gallery;
+        // if (isGallery) slideTo();
+    }
 
     const formSubmitOnEnter = (e) => {
         const queryFields = [e?.key, e?.keyCode];
@@ -312,82 +319,15 @@ export default function ItemDetail(props) {
         </>
     }
 
-    const removeAttachment = async (attachmentURL) => {
-        try {
-            if (attachmentURL?.includes(uploadsBaseURL)) {
-                const decodedUrl = decodeURIComponent(attachmentURL.split(`?`)[0]);
-                const pathStartIndex = decodedUrl.indexOf(`/o/`) + 3;
-                const storagePath = decodedUrl.substring(pathStartIndex);
-    
-                const fileRef = ref(storage, storagePath);
-                await deleteObject(fileRef);
-            }
-
-            const updatedAttachments = item.attachments.filter(att => att !== attachmentURL);
-            await updateDocFieldsWTimeStamp(item, { 
-                attachments: updatedAttachments,
-                ...(item?.image == attachmentURL && {
-                    image: updatedAttachments?.length > 0 ? updatedAttachments[0] : ``,
-                }),
-            });
-
-            logToast(`Attachment removed successfully`, {attachmentURL});
-        } catch (err) {
-            logToast(`Failed to remove attachment`, err, true);
-        }
-    }
-
-    const makeCover = async (attachmentURL) => {
-        try {
-            const updatedAttachments = [attachmentURL, ...item.attachments.filter(att => att !== attachmentURL)];
-            await updateDocFieldsWTimeStamp(item, { image: attachmentURL, attachments: updatedAttachments });
-        } catch (err) {
-            logToast(`Failed to Make Cover`, err, true);
-        }
-    }
-
-    const Media = (attachmentURL, children) => {
-        return (
-            <div className={`media`}>
-                <div className={`mediaOverlay`}>
-                    <Tooltip title={`Remove Attachment`} arrow>
-                        <IconButton 
-                            size={`small`}
-                            onClick={() => removeAttachment(attachmentURL)} 
-                            className={`attachmentActionButton hoverBright`} 
-                            style={{ background: `white`, margin: `5px 5px 0 0` }}
-                        >
-                            <Close className={`hoverGlow`} style={{ color: `var(--gameBlue)` }} />
-                        </IconButton>
-                    </Tooltip>
-                    {item?.image != attachmentURL && (
-                        <Tooltip title={`Make Cover`} arrow>
-                            <IconButton 
-                                size={`small`}
-                                onClick={() => makeCover(attachmentURL)} 
-                                className={`attachmentActionButton hoverBright`} 
-                                style={{ background: `white`, margin: `5px 5px 0 0` }}
-                            >
-                                <Image className={`hoverGlow`} style={{ color: `var(--gameBlue)` }} />
-                            </IconButton>
-                        </Tooltip>
-                    )}
-                </div>
-                {children}
-            </div>
-        )
-    }
-
     const AttachmentsSlider = (
-        refToUse = swiperRef, 
         slidesPerView = item?.attachments?.length >= 3 ? 2 : 1, 
-        attachmentsArray = item?.attachments?.slice(1, item?.attachments.length)
+        attachmentsArray = item?.attachments?.slice(1, item?.attachments.length),
     ) => {
         return (
             <div className={`attachmentsSliderWrapper`}>
                 <Swiper 
                     loop={true}
-                    ref={refToUse}
+                    ref={swiperRef}
                     spaceBetween={15} 
                     navigation={true} 
                     pagination={true} 
@@ -397,8 +337,10 @@ export default function ItemDetail(props) {
                     className={`attachmentsSlider`}
                 >
                     {attachmentsArray?.map((att, attIndx) => (
-                        <SwiperSlide key={attIndx} className={`attachmentSlide ${(slidesPerView == 1 && attachmentsArray?.length >= 2) || (item?.attachments?.length > 3) ? `multiSlides` : `staticSlides`}`}>
-                            {Media(att, <CustomImage src={att} alt={item?.name} className={`attachmentMedia ${view == DetailViews.Summary ? `attachmentMediaShort` : ``}`} borderRadius={`var(--borderRadius)`} />)}
+                        <SwiperSlide key={attIndx} className={`attachmentSlide ${(active && (slidesPerView == 1 && attachmentsArray?.length >= 2) || (item?.attachments?.length > 3)) ? `multiSlides` : `staticSlides`}`}>
+                            <Media item={item} attachmentURL={att} onCoverChange={() => slideTo()}>
+                                <CustomImage src={att} alt={item?.name} className={`attachmentMedia ${view == DetailViews.Summary ? `attachmentMediaShort` : ``}`} borderRadius={`var(--borderRadius)`} />
+                            </Media>
                         </SwiperSlide>
                     ))}
                 </Swiper>
@@ -451,11 +393,11 @@ export default function ItemDetail(props) {
             </div>
 
             <div id={`detail_view_${item?.id}`} className={`detailView flex row`}>
-                <div className={`attachmentsContainer`} style={{ maxWidth: `40%` }}>
+
+                {<div className={`attachmentsContainer`} style={{ maxWidth: `40%` }}>
                     <figure className={`customDetailImage ${validSelectedImage ? `validSelectedImage` : `invalidSelectedImage`}`}>
-                        {view == DetailViews.Summary && (image != `` || item?.attachments?.length >= 1) ? (
-                            Media(
-                                image,
+                        {(view == DetailViews.Summary || view == DetailViews.Gallery) && (image != `` || item?.attachments?.length >= 1) ? (
+                            <Media item={item} attachmentURL={image}>
                                 <CustomImage 
                                     src={image} 
                                     alt={item?.name} 
@@ -464,13 +406,14 @@ export default function ItemDetail(props) {
                                     onImageError={(e) => imageErrored(e)} 
                                     className={`itemImage detailViewImage imageLoadElement`} 
                                 />
-                            )
-                        ) : AttachmentsSlider(null, 1, item?.attachments)}
+                            </Media>
+                        ) : AttachmentsSlider(1, item?.attachments)}
                     </figure>
                     {view == DetailViews.Summary && item?.attachments?.length > 1 && (
                         AttachmentsSlider()
                     )}
-                </div>
+                </div>}
+
                 {selected != null && item != null && item?.type && (
                     <form ref={formRef} onInput={(e) => refreshDetails(e)} onSubmit={(e) => saveItem(e)} className={`itemDetailsForm changeInputs flex isColumn`} data-index={(index ?? 0) + 1}>
                         {view != DetailViews.Tasks && (
@@ -494,12 +437,14 @@ export default function ItemDetail(props) {
                                 </div>
                             </div>
                         )}
-                        {(item?.data?.taskIDs?.length == 0 || item?.data?.taskIDs?.length == tasks?.filter((tsk: Task) => tsk?.options?.complete)?.length) && (
-                            <ToggleButtons item={item} toDoTasks={tasks?.filter((tsk: Task) => !tsk?.options?.active && !tsk?.options?.complete)} activeTasks={tasks?.filter((tsk: Task) => tsk?.options?.active)} completeTasks={tasks?.filter((tsk: Task) => tsk?.options?.complete)} onActiveChange={(newActive) => setActive(newActive)} />
-                        )}
-                        <div className={`tasksContainer detailView_tasksContainer`}>
-                            {TasksField()}
-                        </div>
+                        {view == DetailViews.Gallery ? <Gallery item={item} /> : <>
+                            {(item?.data?.taskIDs?.length == 0 || item?.data?.taskIDs?.length == tasks?.filter((tsk: Task) => tsk?.options?.complete)?.length) && (
+                                <ToggleButtons item={item} toDoTasks={tasks?.filter((tsk: Task) => !tsk?.options?.active && !tsk?.options?.complete)} activeTasks={tasks?.filter((tsk: Task) => tsk?.options?.active)} completeTasks={tasks?.filter((tsk: Task) => tsk?.options?.complete)} onActiveChange={(newActive) => setActive(newActive)} />
+                            )}
+                            <div className={`tasksContainer detailView_tasksContainer`}>
+                                {TasksField()}
+                            </div>
+                        </>}
                     </form>
                 )}
             </div>

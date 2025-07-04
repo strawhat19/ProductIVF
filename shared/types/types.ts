@@ -39,8 +39,8 @@ export enum Views {
 
 export enum DetailViews {
     Summary = `Summary`,
+    Gallery = `Gallery`,
     Tasks = `Tasks`,
-    // Gallery = `Gallery`,
     // Settings = `Settings`,
 }
 

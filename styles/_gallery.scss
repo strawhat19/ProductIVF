@@ -1,9 +1,12 @@
 .gallery {
-  --cols: 2;
-  gap: 15px;
-  display: grid; 
-  grid-template-columns: repeat(var(--cols), 1fr);
-  &.focused_gallery {
-    --cols: 1;   
+  width: 100%;
+  &:not(.empty_gallery) {
+    --cols: 5;
+    gap: 15px;
+    display: grid; 
+    grid-template-columns: repeat(var(--cols), 1fr);
+    &.focused_gallery {
+      --cols: 1;   
+    }
   }
 }

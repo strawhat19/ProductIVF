@@ -1,6 +1,6 @@
 import { storage } from '../../../firebase';
-import Gallery from '../../gallery/gallery';
 import { useContext, useState } from 'react';
+// import Gallery from '../../gallery/gallery';
 import { StateContext } from '../../../pages/_app';
 import { ref, uploadBytes } from 'firebase/storage';
 import { Button, CircularProgress } from '@mui/material';
@@ -83,9 +83,9 @@ export default function UploadFiles() {
                     </Button>
                 </div>
             </>}
-            <div className={`uploadResult`}>
+            {/* <div className={`uploadResult`}>
                 <Gallery />
-            </div>
+            </div> */}
         </div>
     )
 }
