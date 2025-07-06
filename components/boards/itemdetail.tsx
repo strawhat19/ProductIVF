@@ -2,8 +2,10 @@ import 'swiper/css';
 
 import Tasks from './tasks';
 import Media from '../media';
+import DOMPurify from 'dompurify';
 import Tags from './details/tags';
 import Progress from '../progress';
+import TagURL from './details/url';
 import ItemWrapper from './itemwrapper';
 import Gallery from '../gallery/gallery';
 import CustomImage from '../custom-image';
@@ -13,14 +15,15 @@ import { Task } from '../../shared/models/Task';
 import { Item } from '../../shared/models/Item';
 import DetailField from './details/detail-field';
 import { Swiper, SwiperSlide } from 'swiper/react';
+import parse, { Element } from 'html-react-parser';
 import ToggleButtons from './details/toggle-buttons';
 import { DetailViews } from '../../shared/types/types';
+import { convertURLsToHTML } from '../messages/messages';
 import { updateDocFieldsWTimeStamp } from '../../firebase';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { capitalizeAllWords, StateContext } from '../../pages/_app';
 import { ToggleButton, ToggleButtonGroup, Tooltip } from '@mui/material';
 import { forceFieldBlurOnPressEnter, removeExtraSpacesFromString } from '../../shared/constants';
-import { convertURLsToHTML } from '../messages/messages';
 
 export const uploadsBaseURL = `https://firebasestorage.googleapis.com/v0/b/productivf.firebasestorage.app/o/`;
 
@@ -39,12 +42,14 @@ export default function ItemDetail(props) {
     let { devEnv, selected, setSelected, globalUserData } = useContext<any>(StateContext);
     let { itemID, item: itemProp, index, tasks: tasksProp, activeTasks, completeTasks, board, column } = props;
 
+    let [editing, setEditing] = useState(false);
     let [item, setItem] = useState<Item>(itemProp);
     let [formStatus, setFormStatus] = useState(``);
-    let [description, setDescription] = useState(``);
     let [tasks, setTasks] = useState<Task[]>(tasksProp);
     let [view, setView] = useState<DetailViews>(DetailViews.Summary);
+    let [saveButtonDisabled, setSaveButtonDisabled] = useState(true);
     let [validSelectedImage, setValidSelectedImage] = useState(false);
+    let [description, setDescription] = useState(itemProp?.description || `Enter Item Description`);
     let [image, setImage] = useState((itemProp?.image && itemProp?.image != ``) ? itemProp?.image : undefined);
 
     let [active, setActive] = useState(
@@ -62,6 +67,10 @@ export default function ItemDetail(props) {
             swiper.slideTo(position);
         }
     }
+
+    // const onEditorBlur = (e) => {
+    //     setEditing(false);
+    // }
 
     useEffect(() => {
         const updatedTasks = [];
@@ -115,6 +124,8 @@ export default function ItemDetail(props) {
                 setFormStatus(``);
             }
         }
+        let saveDisabled = formStatus != `` || (description == `` || description == item?.description);
+        setSaveButtonDisabled(saveDisabled);
     }
 
     const onItemShowFormChange = async (e) => {
@@ -158,8 +169,45 @@ export default function ItemDetail(props) {
 
     const onEditorChangeVal = (editorVal) => {
         let output = convertURLsToHTML(editorVal);
-        console.log(`onEditorChangeVal`, {editorVal, output});
+        console.log(`onEditorChangeVal`, output);
         setDescription(output);
+    }
+
+    const resetEditor = () => {
+        if (editorRef) editorRef.current?.clear();
+        setEditing(false);
+    }
+
+    const cleanHTML = (htmlString: string) => {
+        return DOMPurify.sanitize(htmlString, {
+            ADD_ATTR: [`target`, `rel`, `id`, `class`],
+            ALLOWED_ATTR: [`href`, `src`, `alt`, `target`, `rel`, `id`, `class`],
+            ALLOWED_TAGS: [`a`, `img`, `p`, `strong`, `em`, `ul`, `li`, `ol`, `br`],
+        });
+    }
+
+    const renderContent = (htmlString: string) => {
+        let cleanedHTML =  cleanHTML(htmlString);
+        let renderedContent = parse(cleanedHTML, {
+            replace: (domNode) => {
+                if (domNode instanceof Element) {
+                    if (domNode.name === `img`) {
+                        const { src, alt, class: className } = domNode.attribs;
+                        return (
+                            <CustomImage
+                                src={src}
+                                alt={alt || `Message Image`}
+                                className={className || `msgImg`}
+                            />
+                        );
+                    } else if (domNode.name === `a`) {
+                        const { href, class: className } = domNode.attribs;
+                        return <TagURL url={href} extraClasses={className} />
+                    }
+                }
+            },
+        });
+        return renderedContent;
     }
 
     const saveItem = async (e, dismissOnSave = false) => {
@@ -167,9 +215,8 @@ export default function ItemDetail(props) {
 
         let form = formRef?.current;
 
-        let { itemImageLink, itemDescriptionField } = form;
+        let { itemImageLink } = form;
 
-        let itemDescription = itemDescriptionField?.value;
         let itemImage = itemImageLink ? itemImageLink?.value : ``;
 
         let itemActive = active == `active`;
@@ -179,16 +226,12 @@ export default function ItemDetail(props) {
 
         let statusChanged = activeStatusChanged || completionStatusChanged;
 
-        let descriptionChanged = itemDescription?.toLowerCase() != item?.description?.toLowerCase();
-
-        if (itemImage != `` || statusChanged || descriptionChanged) {
+        if (itemImage != `` || statusChanged || !saveButtonDisabled) {
             await updateDocFieldsWTimeStamp(item, {
+                description,
                 ...(itemImage != `` && {
                     ...(item?.image == `` && { image: itemImage, }),
                     attachments: Array.from(new Set([...[...item?.attachments, itemImage]])),
-                }),
-                ...(descriptionChanged && {
-                    description: itemDescription,
                 }),
                 ...(item?.data?.taskIDs?.length > 0 ? {
                     ...(completionStatusChanged && {
@@ -213,6 +256,8 @@ export default function ItemDetail(props) {
         } else {
             form?.reset();
         }
+
+        resetEditor();
     }
 
     const DetailsFields = () => {
@@ -320,16 +365,23 @@ export default function ItemDetail(props) {
                     Description
                 </div> */}
                 {/* <textarea name={`itemDescriptionField`} className={`itemDescriptionField`} placeholder={`Item Description`} defaultValue={item?.description} /> */}
-                <Editor 
-                    ref={editorRef} 
-                    placeholder={`Enter Item Description`} 
-                    className={`itemDescriptionEditorField`} 
-                    onChange={(editorVal) => onEditorChangeVal(editorVal)} 
-                />
+                {editing ? (
+                    <Editor 
+                        ref={editorRef} 
+                        // onBlur={(e) => onEditorBlur(e)}
+                        className={`itemDescriptionEditorField`} 
+                        placeholder={description || `Enter Item Description`} 
+                        onChange={(editorVal) => onEditorChangeVal(editorVal)} 
+                    />
+                ) : (
+                    <div className={`itemDescriptionPreview messageContentPreview renderHTML fullText`} onClick={() => setEditing(!editing)}>
+                        {renderContent(description)}
+                    </div>
+                )}
             </div>
             <div className={`toggle-buttons`}>
-                <button onClick={(e) => saveItem(e)} type={`button`} title={formStatus != `` ? formStatus : undefined} disabled={formStatus != ``} className={`iconButton saveButton ${formStatus != `` ? `pointerEventsNone` : ``}`} style={{ color: formStatus != `` ? `red` : `black` }}>
-                    {formStatus != `` ? formStatus : `Save`}
+                <button onClick={(e) => saveItem(e)} type={`button`} title={saveButtonDisabled ? formStatus : undefined} disabled={saveButtonDisabled} className={`iconButton saveButton ${saveButtonDisabled ? `pointerEventsNone` : ``}`} style={{ color: saveButtonDisabled && formStatus != `` ? `red` : `black` }}>
+                    {saveButtonDisabled && formStatus != `` ? formStatus : `Save`}
                 </button>
             </div>
         </>

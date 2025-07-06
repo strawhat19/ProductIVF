@@ -7,12 +7,16 @@ import Placeholder from '@tiptap/extension-placeholder';
 import { EditorContent, useEditor } from '@tiptap/react';
 import { useEffect, useImperativeHandle, useState, forwardRef } from 'react';
 
-const Editor = forwardRef(function Editor({ className = `richTextEditorComponent`, onChange, placeholder = `Enter Message Here` }: any, ref) {
+const Editor = forwardRef(function Editor({ className = `richTextEditorComponent`, onChange = () => {}, onBlur = () => {}, placeholder = `Enter Message Here` }: any, ref) {
     const [showEditor, setShowEditor] = useState(false);
 
     useEffect(() => {
         setShowEditor(true);
     }, [])
+
+    const onEditorBlur = (e) => {
+        onBlur(e);
+    }
 
     const editor = useEditor({
         content: placeholder,
@@ -81,7 +85,7 @@ const Editor = forwardRef(function Editor({ className = `richTextEditorComponent
                     <i className={`fas fa-italic`} style={{ color: `var(--gameBlue)` }} /> Italic
                 </button>
             </div>
-            <EditorContent editor={editor} />
+            <EditorContent editor={editor} onBlur={(e) => onEditorBlur(e)} />
         </div>
     )
 })
