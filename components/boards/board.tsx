@@ -43,7 +43,7 @@ export const addBoardScrollBars = () => {
 
 export default function Board(props) {
     let { board } = props;
-    let boardNameRef = useRef();
+    let boardNameRef = useRef(undefined);
     
     let [showSearch, setShowSearch] = useState(false);
     let [showConfirm, setShowConfirm] = useState(false);

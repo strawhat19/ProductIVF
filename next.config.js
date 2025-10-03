@@ -1,18 +1,14 @@
-// next.config.js  (CJS)
-
-const nextra = require('nextra').default || require('nextra')
-const withNextra = nextra({
+const withNextra = require('nextra')({
   theme: 'nextra-theme-docs',
   themeConfig: './theme.config.tsx',
 })
 
-const nextPWA = require('next-pwa').default || require('next-pwa')
-const withPWA = nextPWA({
+const withPWA = require('next-pwa')({
   dest: 'public',
-  disable: process.env.NODE_ENV === 'development',
   register: true,
   skipWaiting: true,
   fallbacks: { document: '/_offline' },
+  disable: process.env.NODE_ENV === 'development',
   runtimeCaching: [
     {
       urlPattern: ({ sameOrigin, request }) =>
@@ -41,31 +37,31 @@ const withPWA = nextPWA({
 })
 
 const routes = {
-  settings: { redirects: ['config','general'], icons: { fontAwesome: 'fa-cog', mui: 'Settings' } },
-  gallery: { redirects: ['pictures','images'], icons: { fontAwesome: 'fa-images', mui: 'PremMedia' } },
-  messages: { redirects: ['chat','chats','message'], icons: { fontAwesome: 'fa-paper-plane', mui: 'Chat' } },
-  notifications: { redirects: ['alerts','notification'], icons: { fontAwesome: 'fa-bell', mui: 'Notifications' } },
-  projects: { redirects: ['apps','featured','applications','repositories'], icons: { fontAwesome: 'fa-user', mui: 'Person' } },
-  board: { redirects: ['items','tasks','lists','list'], icons: { fontAwesome: 'fa-list-check', mui: 'Checklist' } },
-  profile: { redirects: ['edit','account','preferences','account'], icons: { fontAwesome: 'fa-user', mui: 'Person' } },
-  events: { redirects: ['event','schedule','calendar','booking'], icons: { fontAwesome: 'fa-paint-brush', mui: 'Brush' } },
-  signin: { redirects: ['log','sign','login','log-in','sign-in'], icons: { fontAwesome: 'fa-sign-in-alt', mui: 'Login' } },
-  signup: { redirects: ['new','sign-up','register','subscribe'], icons: { fontAwesome: 'fa-user-plus', mui: 'PersonAdd' } },
-  styles: { redirects: ['theme','design','components','typography'], icons: { fontAwesome: 'fa-paint-brush', mui: 'Brush' } },
-  stocks: { redirects: ['investing','invest','portfolio','stock','holdings'], icons: { fontAwesome: 'fa-info-circle', mui: 'Info' } },
-  about: { redirects: ['info','aboutus','company','aboutme','about-us','about-me'], icons: { fontAwesome: 'fa-info-circle', mui: 'Info' } },
-  contact: { redirects: ['contactme','contactus','getintouch','get-in-touch','contact-me'], icons: { fontAwesome: 'fa-envelope', mui: 'Mail' } },
+  settings: { redirects: [`config`,`general`], icons: { fontAwesome: `fa-cog`, mui: `Settings` } },
+  gallery: { redirects: [`pictures`,`images`], icons: { fontAwesome: `fa-images`, mui: `PremMedia` } },
+  messages: { redirects: [`chat`,`chats`,`message`], icons: { fontAwesome: `fa-paper-plane`, mui: `Chat` } },
+  notifications: { redirects: [`alerts`,`notification`], icons: { fontAwesome: `fa-bell`, mui: `Notifications` } },
+  board: { redirects: [`items`,`tasks`,`lists`,`list`], icons: { fontAwesome: `fa-list-check`, mui: `Checklist` } },
+  profile: { redirects: [`edit`,`account`,`preferences`,`account`], icons: { fontAwesome: `fa-user`, mui: `Person` } },
+  events: { redirects: [`event`,`schedule`,`calendar`,`booking`], icons: { fontAwesome: `fa-paint-brush`, mui: `Brush` } },
+  signin: { redirects: [`log`,`sign`,`login`,`log-in`,`sign-in`], icons: { fontAwesome: `fa-sign-in-alt`, mui: `Login` } },
+  signup: { redirects: [`new`,`sign-up`,`register`,`subscribe`], icons: { fontAwesome: `fa-user-plus`, mui: `PersonAdd` } },
+  styles: { redirects: [`theme`,`design`,`components`,`typography`], icons: { fontAwesome: `fa-paint-brush`, mui: `Brush` } },
+  projects: { redirects: [`apps`,`featured`,`applications`,`repositories`], icons: { fontAwesome: `fa-user`, mui: `Person` } },
+  stocks: { redirects: [`investing`,`invest`,`portfolio`,`stock`,`holdings`], icons: { fontAwesome: `fa-info-circle`, mui: `Info` } },
+  about: { redirects: [`info`,`aboutus`,`company`,`aboutme`,`about-us`,`about-me`], icons: { fontAwesome: `fa-info-circle`, mui: `Info` } },
+  contact: { redirects: [`contactme`,`contactus`,`getintouch`,`get-in-touch`,`contact-me`], icons: { fontAwesome: `fa-envelope`, mui: `Mail` } },
 }
 
 const nextConfig = {
   reactStrictMode: true,
-  images: { domains: ['i.ytimg.com', 'media.discordapp.net'] },
+  images: { domains: [`i.ytimg.com`, `media.discordapp.net`] },
   async redirects() {
     return Object.entries(routes).flatMap(([key, route]) =>
       route.redirects.map(alias => ({
+        permanent: true,
         source: `/${alias}`,
         destination: `/${key}`,
-        permanent: true
       }))
     )
   }

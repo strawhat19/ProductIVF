@@ -55,9 +55,9 @@ const getGridIconOption = (option) => {
 }
 
 function Tag(props: TagProps) {
-  const { option, label, onDelete, className, isMultiSelect, ...other } = props;
+  const { option, label, onDelete, className, isMultiSelect, key, ...other } = props;
   return (
-    <div id={`selectedGridSelector`} {...other} style={{ minWidth: 120 }} {...isMultiSelect && { onClick: onDelete }} className={`selectedOptionTag selectorOptionHookTag ${className} hoverBright`}>
+    <div id={`selectedGridSelector`} key={key} {...other} style={{ minWidth: 120 }} {...isMultiSelect && { onClick: onDelete }} className={`selectedOptionTag selectorOptionHookTag ${className} hoverBright`}>
       <i className={`selectedOptionIcon ${getGridIconOption(option)}`} style={{ fontSize: 16 }} />
       <span className={`selectedOptionTagLabel selectorOptionLabel`}>
         {label}
@@ -254,7 +254,7 @@ const MultiSelector = forwardRef((props: any, ref) => {
               <div className={`selectedOptionsContainer ${single ? `singleSelectedOptionsContainer` : `multiSelectedOptionsContainer`}`}>
                 {getActiveOptions(activeOptions, value).map((option: any, index: number) => (
                   <div key={index} className={`multiSelectOption hoverBright styledTagWithProps selectedOptions${activeOptions.length}`}>
-                    <StyledTag className={`multiSelectedOption ${index == 0 ? `isFirst` : (index == activeOptions.length - 1) ? `isLast` : `isMiddle`}`} {...getTagProps({ index })} label={option?.label} option={option} isMultiSelect={!single} />
+                    <StyledTag key={index} className={`multiSelectedOption ${index == 0 ? `isFirst` : (index == activeOptions.length - 1) ? `isLast` : `isMiddle`}`} {...getTagProps({ index })} label={option?.label} option={option} isMultiSelect={!single} />
                   </div>
                 ))}
               </div>
