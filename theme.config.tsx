@@ -7,7 +7,6 @@ import Status from './components/status';
 import Footer from './components/footer';
 import AuthState from './components/auth-state';
 import { AuthStates } from './shared/types/types';
-import { DocsThemeConfig } from 'nextra-theme-docs';
 
 const logo = () => <Logo title={`ProductIVF`} color={`hsl(var(--nextra-primary-hue)100% 50%/1)`} />;
 const footer = () => <Footer style={{ minHeight: `fit-content` }} />;
@@ -63,7 +62,7 @@ const setToc = (e) => {
   }
 }
 
-const config: DocsThemeConfig = {
+const config = {
   head: head(),
   logo: logo(),
   primaryHue: 195,
