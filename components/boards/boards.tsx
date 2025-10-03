@@ -274,7 +274,7 @@ export default function Boards(props: any) {
                                         {boards && boards?.length > 0 && getBoardsInCurrentSearchFilters(boards)?.map((bord, bordIndex) => {
                                             if (bord?.id) {
                                                 return (
-                                                    <Draggable key={`${bordIndex + 1}_${bord?.id}_bord_key`} draggableId={`${bordIndex + 1}_${bord?.id}_draggable_bord`} index={bordIndex} isDragDisabled={gridSearchTerm != ``}>
+                                                    <Draggable key={`${bord?.id}_bord_key`} draggableId={`${bord?.id}_draggable_bord`} index={bordIndex} isDragDisabled={gridSearchTerm != ``}>
                                                         {(provided, snapshot) => (
                                                             <div id={`bord_${bord?.id}`} key={bordIndex} className={`draggableDroppableBoard bord ${bord?.options?.focused == true ? `focusBoard` : `unfocusedBoard`} ${bordIndex == 0 ? `firstBoard` : ``}`} {...provided.draggableProps} ref={provided.innerRef}>
                                                                 <Board board={bord} provided={provided} index={bordIndex} drag={onDragEnd} />
