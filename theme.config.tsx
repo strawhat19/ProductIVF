@@ -14,8 +14,13 @@ const footer = () => <Footer style={{ minHeight: `fit-content` }} />;
 
 const head = () => {
   return <>
+    <meta name={`theme-color`} content={`#012F4A`} />
+    <link rel={`manifest`} href={`/manifest.webmanifest`} />
+    <link rel={`apple-touch-icon`} href={`icon-192x192.png`} />
+    <meta name={`apple-mobile-web-app-capable`} content={`yes`} />
     <link rel={`preconnect`} href={`https://fonts.gstatic.com`} />
     <link rel={`preconnect`} href={`https://fonts.googleapis.com`} />
+    <meta name={`apple-mobile-web-app-status-bar-style`} content={`black-translucent`} />
     <link rel={`icon`} href={`https://next-13-vite-comparison.vercel.app/piratechs.svg`} type={`image/x-icon`} />
     <meta name={`viewport`} content={`width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no`} />
   </>
