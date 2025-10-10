@@ -998,6 +998,13 @@ body {
             }
         }
     }
+    @container (max-width: 625px) {
+        &:has(._projects_boards) {
+            article {
+                padding: 15px !important;
+            }
+        }
+    }
     @container (max-width: 575px) {
         .gridRow.hasGridSelector.withSingleSelect:not(.gridsAreLoading) {
             grid-template-columns: minmax(0, auto) 1fr !important;
@@ -1015,7 +1022,7 @@ body {
                 .multiSelectedIconLabels {
                     width: 100%;
                     display: grid;
-                    grid-gap: 35px;
+                    grid-gap: 23px;
                     grid-template-columns: auto 1fr;
                     .multiSelectOption {
                         width: 100%;

@@ -1,6 +1,6 @@
 {
   "name": "product-ivf",
-  "version": "6.4.0.5",
+  "version": "6.4.0.6",
   "description": "Nextra docs template",
   "engines": {
     "node": ">=22 <23",
