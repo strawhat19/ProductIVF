@@ -6,8 +6,13 @@ export const faviconOverwrites = {
 }
 
 export default function TagURL({ url, itemOrTask = null, extraClasses = `tagURLComponent` }) {
-    let rootDomain = extractRootDomain(url) ?? `google.com`;
-    const domainNameWithPath = extractRootDomain(url, true);
+    let urlParts: any = extractRootDomain(url, undefined, true);
+    let domainNameWithPath: any = extractRootDomain(url, true);
+    let rootDomain: any = extractRootDomain(url) ?? `google.com`;
+
+    let [host] = urlParts?.host?.split(`.`);
+    let pathParts = urlParts?.pathname?.split(`/`) || [];
+    let path = pathParts?.pop();
 
     for (const key in faviconOverwrites) {
         if (rootDomain.includes(key)) {
@@ -30,7 +35,7 @@ export default function TagURL({ url, itemOrTask = null, extraClasses = `tagURLC
     }
 
     return (
-        <span title={url} className={`url websiteURL button hoverBright ${extraClasses}`} onClick={(e) => removeURL(e, url)}>
+        <span title={url} className={`url taskTag websiteURL button hoverBright ${extraClasses}`} onClick={(e) => removeURL(e, url)}>
             <a
                 href={url}
                 target={`_blank`}
@@ -39,7 +44,7 @@ export default function TagURL({ url, itemOrTask = null, extraClasses = `tagURLC
             >
                 {rootDomain != undefined && <img className={`tagImage`} src={favicon} alt={domainNameWithPath} width={16} height={16} />}
                 <span className={`useFont pointerEventsNone`} style={{ fontSize: 10, padding: `1px 5px 0 0` }}>
-                    {domainNameWithPath}
+                    {host} <span className={`slashes`}>//</span> {path}
                 </span>
                 {/* <i className={`fas fa-external-link-alt useMainIconColor`} style={{ fontSize: 10 }} /> */}
             </a>

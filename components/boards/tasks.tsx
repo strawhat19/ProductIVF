@@ -59,7 +59,7 @@ const SortableSubtaskItem = ({ selected, item, task: taskProp, isLast, index, gr
             </i>
           </span>
 
-          <div className={`subtaskActions flex row taskComponentBG ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`}`}>
+          <div className={`subtaskActions flex row taskComponentBG ${task?.name?.length >= 30 ? `longTaskName` : `shortTaskName`} ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`}`}>
             <span
               contentEditable
               spellCheck={false}

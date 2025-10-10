@@ -565,7 +565,7 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
 
 @media (max-width: 437px) {
     .itemButtons {
-        &:not(.addBoardForm) {
+        &:not(.addBoardForm):not(.listButtonOptions) {
             button {
                 span {
                     display: none !important;
@@ -898,6 +898,17 @@ body {
     overflow-x: hidden;
     container-type: inline-size;
     transition: var(--transition);
+    
+    .nextra-sidebar-container {
+        transition: var(--transition);
+    }
+
+    &:not(:has(.nextra-hamburger .open)) {
+        .nextra-sidebar-container {
+            opacity: 0;
+            pointer-events: none;
+        }
+    }
 
     @container (max-width: 1065px) {
         .systemStatusComponent {
@@ -2212,6 +2223,36 @@ textarea {
                                             min-width: fit-content;
                                             grid-gap: 0 !important;
                                         }
+                                        .simplifiedLinksTag {
+                                            display: none;
+                                        }
+                                        @container (max-width: 515px) {
+                                            &.longTaskName {
+                                                .url {
+                                                    display: none !important;
+                                                }
+                                                .simplifiedLinksTag {
+                                                    display: flex;
+                                                }
+                                            }
+                                        }
+                                        @container (max-width: 480px) {
+                                            .url {
+                                                display: none !important;
+                                            }
+                                            .simplifiedLinksTag {
+                                                display: flex;
+                                            }
+                                        }
+                                        @container (max-width: 360px) {
+                                            // .simplifiedLinksTag {
+                                            //     display: none;
+                                            // }
+                                            .rankTag {
+                                                padding-right: 0 !important;
+                                                margin-right: -5px !important;
+                                            }
+                                        }
                                         @media (max-width: 1120px) {
                                             @container (max-width: 347px) {
                                                 .taskDetailsEnd {
@@ -3005,11 +3046,9 @@ footer {
     }
 }
 
-@media (max-width: 405px) {
-    .filterFormDiv {
-       button {
+@media (max-width: 385px) {
+    .createBoardButton {
         display: none;
-       }
     }
 }
 

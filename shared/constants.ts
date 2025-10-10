@@ -41,15 +41,17 @@ export const extractURLsFromText = (textArray: string[]) => {
   return uniqueLCURLs;
 }
 
-export const extractRootDomain = (url: string, withPath = false) => {
+export const extractRootDomain = (url: string, withPath = false, returnObj = false) => {
   if (url) {
     url = url?.toLowerCase()?.includes(pathPrefix) ? url : pathPrefix + url;
     const parsedUrl = new URL(url);
     const checkSlash = (string: string) => string != `/` ? string : ``;
-    const domain = parsedUrl.hostname;
-    // const hostnameParts = parsedUrl.hostname.split(`.`).filter(Boolean);
-    // const domain = hostnameParts.length >= 2 ? hostnameParts.slice(-2).join(`.`) : parsedUrl.hostname;
-    return withPath ? `${domain}${checkSlash(parsedUrl.pathname)}${checkSlash(parsedUrl.search)}${checkSlash(parsedUrl.hash)}` : domain;
+    const domain = parsedUrl?.hostname;
+    if (returnObj) {
+      return parsedUrl;
+    } else {
+      return withPath ? `${domain}${checkSlash(parsedUrl?.pathname)}${checkSlash(parsedUrl?.search)}${checkSlash(parsedUrl?.hash)}` : domain;
+    }
   }
 }
 
