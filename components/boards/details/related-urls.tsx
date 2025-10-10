@@ -17,15 +17,17 @@ const SortableURL = ({ url, onRemove }) => {
     transform: CSS.Transform.toString(transform),
   };
 
-  const rootDomain = extractRootDomain(url);
-  const domainNameWithPath = extractRootDomain(url, true);
+  const rootDomain: any = extractRootDomain(url);
+  const domainNameWithPath: any = extractRootDomain(url, true);
   const favicon = `https://www.google.com/s2/favicons?domain=${rootDomain}`;
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="url websiteURL button hoverBright">
       <a href={url} target="_blank" rel="noopener noreferrer" className="itemURL flexLabel gap5">
         <img src={favicon} alt="favicon" width={16} height={16} />
-        <span className="useFont" style={{ padding: '0 5px 0 0' }}>{domainNameWithPath}</span>
+        <span className="useFont" style={{ padding: '0 5px 0 0' }}>
+          {domainNameWithPath}
+        </span>
         <i className="fas fa-external-link-alt useMainIconColor" style={{ fontSize: 10 }} />
       </a>
       <i

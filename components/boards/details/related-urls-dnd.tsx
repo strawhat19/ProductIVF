@@ -39,8 +39,8 @@ export default function RelatedURLsDND({ item }) {
         {(provided) => (
           <div {...provided.droppableProps} ref={provided.innerRef} className={`relatedURLs flexLabel`}>
             {urls.map((url, index) => {
-              const rootDomain = extractRootDomain(url);
-              const domainNameWithPath = extractRootDomain(url, true);
+              const rootDomain: any = extractRootDomain(url);
+              const domainNameWithPath: any = extractRootDomain(url, true);
               const favicon = `https://www.google.com/s2/favicons?domain=${rootDomain}`;
               return (
                 <Draggable key={url} draggableId={url} index={index} isDragDisabled={urls?.length == 1}>
