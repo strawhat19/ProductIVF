@@ -4,6 +4,12 @@
     --authFormButtonBG: var(--blackGlass);
 }
 
+.boardDragDropContext {
+    display: flex;
+    grid-gap: 15px;
+    flex-direction: column;
+}
+
 .archivedBoardTitle {
     padding-top: 0;
 }

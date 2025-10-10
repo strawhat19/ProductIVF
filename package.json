@@ -1,6 +1,6 @@
 {
   "name": "product-ivf",
-  "version": "6.4",
+  "version": "6.4.0.2",
   "description": "Nextra docs template",
   "engines": {
     "node": ">=22 <23",
@@ -47,8 +47,8 @@
     "moment-timezone": "^0.5.47",
     "next": "^13.0.6",
     "next-pwa": "^5.6.0",
-    "nextra": "latest",
-    "nextra-theme-docs": "latest",
+    "nextra": "^2.13.4",
+    "nextra-theme-docs": "^2.13.4",
     "react": "^18.2.0",
     "react-beautiful-dnd": "^13.1.1",
     "react-circular-progressbar": "^2.1.0",

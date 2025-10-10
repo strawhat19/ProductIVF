@@ -1,19 +1,21 @@
 import { NextSeo } from 'next-seo';
 import { toast } from 'react-toastify';
+import { getIDParts } from '../../shared/ID';
+import { List } from '../../shared/models/List';
+import { Item } from '../../shared/models/Item';
 import { User } from '../../shared/models/User';
 import Board, { addBoardScrollBars } from './board';
 import MultiSelector from '../selector/multi-selector';
 import { FeatureIDs } from '../../shared/admin/features';
 import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
-import { updateDocFieldsWTimeStamp } from '../../firebase';
 import { replaceAll, StateContext } from '../../pages/_app';
-import UploadFiles from '../forms/upload-files/upload-files';
 import { useState, useEffect, useContext, useRef } from 'react';
-import { AuthGrids, GridTypes } from '../../shared/types/types';
 import { Board as BoardModel } from '../../shared/models/Board';
 import { generateArray, withinXTime } from '../../shared/constants';
+import { AuthGrids, GridTypes, Types } from '../../shared/types/types';
 // import FeatureFlagBadge from '../../shared/admin/feature-flag-badge';
 import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
+import { dragItemToNewList, updateDocFieldsWTimeStamp } from '../../firebase';
 
 export enum ItemTypes {
     Item = `Item`,
@@ -54,6 +56,7 @@ export default function Boards(props: any) {
         globalUserData,
         setActiveOptions,
         isFeatureEnabled,
+        setGlobalUserData,
         switchSelectedGrid,
         rte, router, setRte,
         openAuthenticationForm,
@@ -126,11 +129,142 @@ export default function Boards(props: any) {
         return boardsInCurrentSearchFilters;
     }
 
-    const onDragEnd = (dragEndEvent) => {
-        const { destination, source } = dragEndEvent;
+    const updateBoardInState = (updatedBoardData: Partial<BoardModel>, board?) => {
+        let { date } = getIDParts();
+        if (!board) board = globalUserData?.boards?.find(b => b?.id == updatedBoardData?.id);
+        setBoards(prevBoards =>
+          prevBoards.map(prevBrd =>
+            prevBrd.id === board?.id ? new BoardModel({ ...prevBrd, ...updatedBoardData, meta: { ...board?.meta, updated: date } }) : new BoardModel(prevBrd)
+          )
+        )
+    }
+
+    const onDragEnd = async (dragEndEvent) => {
+        const { destination, source, draggableId, type } = dragEndEvent;
 
         if (!destination) return;
         if (destination.droppableId === source.droppableId && destination.index === source.index) return;
+
+        if (type == Types.List || type == Types.Item) {
+            let lists = globalUserData?.lists;
+            let items = globalUserData?.items;
+
+            if (type == Types.List) {                  
+                let destBoard = boards?.find(b => destination?.droppableId?.includes(b?.id));      
+
+                const listIDs = destBoard?.data?.listIDs;
+                const updatedListIDs = [...listIDs];
+                updatedListIDs.splice(source.index, 1);
+                updatedListIDs.splice(destination.index, 0, draggableId);
+
+                if (destBoard) {
+                    const brd: BoardModel = new BoardModel({ ...destBoard });
+                    brd.data.listIDs = updatedListIDs;
+                    updateBoardInState({ ...brd, id: destBoard?.id });
+                }
+
+                await updateDocFieldsWTimeStamp(destBoard, { [`data.listIDs`]: updatedListIDs });
+                
+                return;
+            }
+
+            if (type == Types.Item) {
+                const thisList = globalUserData?.lists?.find(lst => lst?.id == source?.droppableId);
+                const sameListDrop = thisList?.id == destination?.droppableId;
+    
+                if (thisList) {
+                    const sameListItemIDs = thisList?.data?.itemIDs;
+                    const updatedSameListItemIDs = [...sameListItemIDs];
+                    const thisItem = globalUserData?.items?.find(itm => itm?.id == draggableId);
+    
+                    if (sameListDrop) {
+                        updatedSameListItemIDs.splice(source.index, 1);
+                        updatedSameListItemIDs.splice(destination.index, 0, draggableId);
+    
+                        if (thisItem) {
+                            setGlobalUserData(prevGlobalUserData => {
+                                let globalUserLists = [...prevGlobalUserData.lists];
+                                let updatedGlobalUserLists = globalUserLists?.map((lst: List) => {
+                                    if (lst?.id == thisList?.id) {
+                                        return new List({
+                                            ...lst,
+                                            data: {
+                                                ...lst?.data,
+                                                itemIDs: updatedSameListItemIDs,
+                                            },
+                                        })
+                                    } else return lst;
+                                })
+                                return {
+                                    ...prevGlobalUserData,
+                                    lists: updatedGlobalUserLists,
+                                }
+                            })
+                        }
+        
+                        await updateDocFieldsWTimeStamp(thisList, { [`data.itemIDs`]: updatedSameListItemIDs });
+                        return;
+                    } else {
+                        const newList = globalUserData?.lists?.find(lst => lst?.id == destination?.droppableId);
+                        if (newList) {
+                            const newListItemIDs = newList?.data?.itemIDs;
+                            const updatedNewListItemIDs = [...newListItemIDs];
+    
+                            updatedNewListItemIDs.splice(destination.index, 0, draggableId);
+            
+                            if (thisItem) {
+                                setGlobalUserData(prevGlobalUserData => {
+                                    let globalUserItems = [...prevGlobalUserData.items];
+                                    let globalUserLists = [...prevGlobalUserData.lists];
+                                    let updatedGlobalUserItems = globalUserItems?.map((itm: Item) => {
+                                        if (itm?.id == thisItem?.id) {
+                                            return new Item({
+                                                ...itm,
+                                                listID: newList?.id,
+                                            })
+                                        } else return itm;
+                                    })
+                                    let updatedGlobalUserLists = globalUserLists?.map((lst: List) => {
+                                        if (lst?.id == thisList?.id) {
+                                            let prevSourceListItemIDs = [...lst?.data?.itemIDs];
+                                            let updatedSourceListItemIDs = prevSourceListItemIDs?.filter(itmID => itmID != thisItem?.id);
+                                            return new List({
+                                                ...lst,
+                                                data: {
+                                                    ...lst?.data,
+                                                    itemIDs: updatedSourceListItemIDs,
+                                                },
+                                            })
+                                        } else if (lst?.id == newList?.id) {
+                                            return new List({
+                                                ...lst,
+                                                data: {
+                                                    ...lst?.data,
+                                                    itemIDs: updatedNewListItemIDs,
+                                                },
+                                            })
+                                        } else return lst;
+                                    })
+                                    return {
+                                        ...prevGlobalUserData,
+                                        items: updatedGlobalUserItems,
+                                        lists: updatedGlobalUserLists,
+                                    }
+                                })
+
+                                await dragItemToNewList(thisItem, thisList, newList, updatedNewListItemIDs);
+
+                                return;
+                            }
+                        }
+                    }
+                }
+                
+                return;
+            }
+            
+            return;
+        }
 
         const updatedBoards = [...boards];
         const [reorderedBoard] = updatedBoards.splice(source.index, 1);
@@ -274,10 +408,10 @@ export default function Boards(props: any) {
                                         {boards && boards?.length > 0 && getBoardsInCurrentSearchFilters(boards)?.map((bord, bordIndex) => {
                                             if (bord?.id) {
                                                 return (
-                                                    <Draggable key={`${bordIndex + 1}_${bord?.id}_bord_key`} draggableId={`${bordIndex + 1}_${bord?.id}_draggable_bord`} index={bordIndex} isDragDisabled={gridSearchTerm != ``}>
+                                                    <Draggable key={`${bord?.id}_bord_key`} draggableId={`${bord?.id}_draggable_bord`} index={bordIndex} isDragDisabled={gridSearchTerm != ``}>
                                                         {(provided, snapshot) => (
                                                             <div id={`bord_${bord?.id}`} key={bordIndex} className={`draggableDroppableBoard bord ${bord?.options?.focused == true ? `focusBoard` : `unfocusedBoard`} ${bordIndex == 0 ? `firstBoard` : ``}`} {...provided.draggableProps} ref={provided.innerRef}>
-                                                                <Board board={bord} provided={provided} index={bordIndex} drag={onDragEnd} />
+                                                                <Board board={bord} provided={provided} index={bordIndex} drag={onDragEnd} updateBoardInState={updateBoardInState} />
                                                             </div>
                                                         )}
                                                     </Draggable>
