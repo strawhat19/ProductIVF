@@ -189,6 +189,7 @@ const MultiSelector = forwardRef((props: any, ref) => {
       <div className={`multiSelectOptionInputField`}>  
         <input 
           {...getInputProps()} 
+          readOnly={inputDisabled}
           placeholder={placeholder} 
           {...inputDisabled && { onInput: (e) => { e?.preventDefault(); e?.stopPropagation(); } }}
           {...inputDisabled && { onInput: (e) => { e?.preventDefault(); e?.stopPropagation(); } }}
