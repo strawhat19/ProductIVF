@@ -145,10 +145,10 @@ export default function Column(props) {
         updateDocFieldsWTimeStamp(list, { name, A: name, title: `${list?.type} ${list?.rank} ${name}` });
     }
 
-    const adjustColumnsDetails = (column) => {
-        let showingDetails = column?.options?.details && column?.options?.details == true;
-        updateDocFieldsWTimeStamp(column, { [`options.details`]: !showingDetails });
-    }
+    // const adjustColumnsDetails = (column) => {
+    //     let showingDetails = column?.options?.details && column?.options?.details == true;
+    //     updateDocFieldsWTimeStamp(column, { [`options.details`]: !showingDetails });
+    // }
 
     const deleteColumn = (columnId, index, initialConfirm = true) => {
         if (showConfirm == true) {
