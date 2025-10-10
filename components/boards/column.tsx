@@ -169,7 +169,7 @@ export default function Column(props) {
         if (useDB == true) {
             const brd: Board = new Board({ ...board });
             brd.data.listIDs = brd.data.listIDs?.filter(lstid => lstid != columnId);
-            updateBoardInState(brd);
+            updateBoardInState({ ...brd, id: board?.id });
             const deleteListToast = toast.info(`Deleting List ${column?.name}`);
             await deleteListFromDatabase(column)?.then(lst => {
                 setTimeout(() => toast.dismiss(deleteListToast), 1500);
@@ -251,7 +251,7 @@ export default function Column(props) {
             const brd: Board = new Board({ ...board });
             brd.data.itemIDs = [...brd.data.itemIDs, newItem?.id];
 
-            await updateBoardInState(brd);
+            await updateBoardInState({ ...brd, id: board?.id });
 
             if (newItemIDs?.length > 5) addBoardScrollBars();
 
@@ -289,7 +289,7 @@ export default function Column(props) {
     }
 
     return (
-        <Draggable draggableId={props.column.id} index={props.index} isDragDisabled={gridSearchTerm != ``}>
+        <Draggable key={props.column.id} draggableId={props.column.id} index={props.index} isDragDisabled={gridSearchTerm != ``}>
             {(provided, snapshot) => (
                 <div id={props.column.id} className={`container column list columns_${getListsLength()} ${(getListsLength() > 2 || !dev()) ? `multiCol` : ``} ${getListsLength() >= 4 ? `multiColExtended` : ``} layoutCols_${props?.column?.layoutCols ? props?.column?.layoutCols : ``} ${snapshot.isDragging ? `dragging` : ``}`} {...provided.draggableProps} ref={provided.innerRef}>
                     <div className={`columnItemsContainer outerColumn`}>
@@ -358,34 +358,36 @@ export default function Column(props) {
                                             })
                                             item.tasks = tasks;
                                         }
-                                        return (
-                                            <Draggable key={item?.id} draggableId={item?.id} index={itemIndex} isDragDisabled={gridSearchTerm != ``}>
-                                                {provided => (
-                                                    <div id={item?.id} className={`item boardItem ${hoverItemForm ? `itemHoverToExpand` : ``} completeItem ${(item?.options?.complete) ? `complete completeBoardItem` : `activeBoardItem`} ${(item?.options?.active && (getItemTasks(item, `active`)?.length > 0 || item?.data?.taskIDs?.length == 0)) ? `activeItemBoard` : ``} ${gridSearchTerm != `` ? `wSearchTerm` : ``} container ${snapshot.isDragging ? `dragging` : ``} ${(itemTypeMenuOpen || isSelected(selected, Views.Context)) ? `unfocus` : ``}`} title={item?.name} {...provided.draggableProps} ref={provided.innerRef}>
-                                                        <div onClick={(e) => openItemDetails(e, item, itemIndex)} {...provided.dragHandleProps} className={`itemDraggableWrapper itemRow flex row ${item?.options?.complete ? `completed` : `incomplete`} ${item?.tasks.length > 0 ? `hasTasksRow` : `noTasksRow`}`}>
-                                                            <Item 
-                                                                item={item} 
-                                                                count={count} 
-                                                                board={board} 
-                                                                column={props.column} 
-                                                                itemIndex={itemIndex} 
-                                                                setBoard={props.setBoard} 
-                                                                forceListDetails={forceListDetails}
-                                                                setForceListDetails={setForceListDetails}
-                                                            />
+                                        if (item?.id) {
+                                            return (
+                                                <Draggable key={item?.id} draggableId={item?.id} index={itemIndex} isDragDisabled={gridSearchTerm != ``}>
+                                                    {provided => (
+                                                        <div id={item?.id} className={`item boardItem ${hoverItemForm ? `itemHoverToExpand` : ``} completeItem ${(item?.options?.complete) ? `complete completeBoardItem` : `activeBoardItem`} ${(item?.options?.active && (getItemTasks(item, `active`)?.length > 0 || item?.data?.taskIDs?.length == 0)) ? `activeItemBoard` : ``} ${gridSearchTerm != `` ? `wSearchTerm` : ``} container ${snapshot.isDragging ? `dragging` : ``} ${(itemTypeMenuOpen || isSelected(selected, Views.Context)) ? `unfocus` : ``}`} title={item?.name} {...provided.draggableProps} ref={provided.innerRef}>
+                                                            <div onClick={(e) => openItemDetails(e, item, itemIndex)} {...provided.dragHandleProps} className={`itemDraggableWrapper itemRow flex row ${item?.options?.complete ? `completed` : `incomplete`} ${item?.tasks.length > 0 ? `hasTasksRow` : `noTasksRow`}`}>
+                                                                <Item 
+                                                                    item={item} 
+                                                                    count={count} 
+                                                                    board={board} 
+                                                                    column={props.column} 
+                                                                    itemIndex={itemIndex} 
+                                                                    setBoard={props.setBoard} 
+                                                                    forceListDetails={forceListDetails}
+                                                                    setForceListDetails={setForceListDetails}
+                                                                />
+                                                            </div>
+                                                            {!hideAllTasks && item.tasks && (
+                                                                <Tasks 
+                                                                    item={item} 
+                                                                    board={board}
+                                                                    column={props.column} 
+                                                                    showForm={(item?.options?.showTaskForm || board?.options?.tasksFilterState == TasksFilterStates.All_On)} 
+                                                                />
+                                                            )}
                                                         </div>
-                                                        {!hideAllTasks && item.tasks && (
-                                                            <Tasks 
-                                                                item={item} 
-                                                                board={board}
-                                                                column={props.column} 
-                                                                showForm={(item?.options?.showTaskForm || board?.options?.tasksFilterState == TasksFilterStates.All_On)} 
-                                                            />
-                                                        )}
-                                                    </div>
-                                                )}
-                                            </Draggable>
-                                        )}
+                                                    )}
+                                                </Draggable>
+                                            )}
+                                        }
                                     )}
                                     {provided.placeholder}
                                     {props.items.filter(itm => itemActiveFilters(itm))?.length == 0 && <>
