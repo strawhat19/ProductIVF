@@ -1027,6 +1027,23 @@ export default function ProductIVF({ Component, pageProps, router }) {
   }, [users]);
 
   useEffect(() => {
+    let resizeTimeout;
+
+    const handleResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        setWidth(window.innerWidth);
+      }, 200);
+    };
+
+    window.addEventListener(`resize`, handleResize);
+    return () => {
+      clearTimeout(resizeTimeout);
+      window.removeEventListener(`resize`, handleResize);
+    };
+  }, []);
+
+  useEffect(() => {
     const usersDatabase = collection(db, usersTable)?.withConverter(userConverter);
     const usersDatabaseRealtimeListener = onSnapshot(usersDatabase, async usersUpdates => {
       // On Users Database Update

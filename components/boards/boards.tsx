@@ -281,7 +281,7 @@ export default function Boards(props: any) {
         <div className={`boardsTitleRow flex row _projects_boards`}>
             <div className={`row gridRow ${gridsLoading ? `gridsAreLoading` : `gridsLoaded`} ${(gridsLoading || (selectedGrid == null || (grids?.length == 0 || globalUserData?.grids?.length == 0)) || (grids?.length > 1 || globalUserData?.grids?.length > 1)) ? `hasGridSelector ${useSingleSelect ? `withSingleSelect` : ``}` : ``}`} style={{ padding: 0, paddingBottom: 7 }}>
                 <div className={`flex row left`} style={{ height: `var(--buttonSize)` }}>
-                    <h1 className={`nx-mt-2 nx-text-4xl nx-font-bold nx-tracking-tight nx-text-slate-900 dark:nx-text-slate-100`} style={{ maxWidth: `unset` }}>
+                    <h1 className={`gridTitleTextField textOverflow extended nx-mt-2 nx-text-4xl nx-font-bold nx-tracking-tight nx-text-slate-900 dark:nx-text-slate-100`} style={{ maxWidth: `unset` }} title={selectedGrid?.options?.nameLabel == true ? selectedGrid?.name : ((user != null ? user?.name + `s ` : ``) + ((!gridsLoading && selectedGrids.length == 1) ? selectedGrids[0]?.name + (!useGridSearchCreate ? ` Grid` : ``) : `Grids`))}>
                         {selectedGrid?.options?.nameLabel == true ? selectedGrid?.name : <>
                             {user != null ? user?.name + `s ` : ``}{(!gridsLoading && selectedGrids.length == 1) ? selectedGrids[0]?.name + (!useGridSearchCreate ? ` Grid` : ``) : `Grids`}
                         </>}
@@ -363,7 +363,7 @@ export default function Boards(props: any) {
                                             <span style={{ fontSize: 12 }}>
                                                 Create Board
                                             </span>
-                                            <span className={`itemLength index`} style={{ fontSize: 14, fontWeight: 700, padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content` }}>
+                                            <span className={`boardLengthIndex itemLength index`} style={{ fontSize: 14, fontWeight: 700, padding: `0 5px`, color: `var(--gameBlue)`, maxWidth: `fit-content` }}>
                                                 {boards && boards?.length + 1}
                                             </span>
                                         </span>

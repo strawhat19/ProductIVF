@@ -565,9 +565,11 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
 
 @media (max-width: 437px) {
     .itemButtons {
-        button {
-            span {
-                display: none !important;
+        &:not(.addBoardForm) {
+            button {
+                span {
+                    display: none !important;
+                }
             }
         }
     }
@@ -582,7 +584,9 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
     .itemButtons {
         button {
             .index {
-                display: none !important;
+                &:not(.boardLengthIndex) {
+                    display: none !important;
+                }
             }
         }
     }
@@ -983,8 +987,15 @@ body {
     }
     @container (max-width: 575px) {
         .gridRow.hasGridSelector.withSingleSelect:not(.gridsAreLoading) {
-            grid-template-rows: 1fr 1fr 1fr;
-            grid-template-columns: 1fr !important;
+            grid-template-columns: minmax(0, auto) 1fr !important;
+            grid-template-areas: 
+                "gridTitle gridSearch"
+                "gridSelector gridSelector";
+                .left { grid-area: gridTitle; }
+                .middle { grid-area: gridSearch; }
+                .right { grid-area: gridSelector; }
+            // grid-template-rows: 1fr 1fr 1fr;
+            // grid-template-columns: 1fr !important;
             .multiSelectOptionContainer {
                 background: transparent;
                 justify-content: flex-end;
