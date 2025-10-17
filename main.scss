@@ -941,6 +941,35 @@ body {
     }
     // Menu Kicks In
     @container (max-width: 768px) {
+        .boardItem {
+            --buttonSize: 30px !important;
+            min-height: min-content !important;
+            --lightGradient: linear-gradient(90deg, var(--blackGlass) var(--buttonSize), rgba(255, 255, 255, 0.75) var(--buttonSize)) !important;
+            .itemInnerRow {
+                grid-gap: 5px !important;
+            }
+            .subTasks {
+                --buttonSize: 20px !important;
+                --lightGradient: linear-gradient(90deg, var(--blackGlass) var(--buttonSize), rgba(255, 255, 255, 0.75) var(--buttonSize)) !important;
+            }
+            &:has(.boardItemImage) {
+                &:has(.circleProgress) {
+                    .boardItemImage {
+                        max-width: 65px !important;
+                        margin-left: -6px !important;
+                        max-height: unset !important;
+                        &.imageComponent {
+                            height: auto !important;
+                        }
+                    }
+                    &:has(.itemStatusActionIconButton) {
+                        .deleteItemButton {
+                            display: none;
+                        }
+                    }
+                }
+            }
+        }
         .formButtonsField {
             max-width: unset;
             justify-content: center;
@@ -1906,11 +1935,11 @@ textarea {
                 display: flex;
                 grid-gap: 0px;
                 font-size: 0.8em;
-                min-height: var(--buttonSize);
                 position: relative;
                 align-items: center;
                 padding: 0em !important;
                 background: var(--blackGlass);
+                min-height: var(--buttonSize);
                 justify-content: space-between;
                 border-radius: var(--borderRadius);
                 transition: filter, opacity var(--transition);
@@ -2714,11 +2743,11 @@ footer {
             }
         }
         h3 {
-            display: inline-flex;
-            flex-direction: row !important;
-            max-width: min-content;
-            align-items: center;
             grid-gap: 7px;
+            align-items: center;
+            display: inline-flex;
+            max-width: min-content;
+            flex-direction: row !important;
         }
         .itemButtons {
             padding: 0 !important;
@@ -2888,7 +2917,7 @@ footer {
             padding: 0 !important;
             .item {
                 overflow: hidden;
-                min-height: min-content;
+                min-height: min-content !important;
                 background: transparent !important;
                 .itemRow {
                     background: linear-gradient(90deg, var(--whiteGlass) var(--buttonSize), var(--blackGlass) var(--buttonSize));

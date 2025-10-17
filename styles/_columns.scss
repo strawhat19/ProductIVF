@@ -203,6 +203,21 @@
 }
 
 .boardItem {
+    .itemFooterInner {
+        grid-gap: 0;
+        max-height: 100%;
+        align-items: center;
+        flex-direction: row;
+        container-type: inline-size;
+        @container (max-width: 140px) {
+            .itemStatus {
+                min-width: fit-content;
+            }
+            .itemDetailsEnd {
+                display: none;
+            }
+        }
+    }
     &.activeBoardItem {
         &:hover {
             .itemButtons {

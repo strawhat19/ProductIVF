@@ -25,7 +25,7 @@ import { collection, getDocs, onSnapshot, query, where  } from 'firebase/firesto
 import { getBoardTitleWidth, recentlyAuthenticated } from '../components/boards/boards';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import AuthenticationDialog from '../components/modals/authenticate/authenticate-dialog';
-import { defaultAuthenticateLabel, getRankAndNumber, isValid, logToast } from '../shared/constants';
+import { defaultAuthenticateLabel, getRankAndNumber, isInStandaloneMode, isMobileDevice, isValid, logToast } from '../shared/constants';
 
 import { 
   db, 
@@ -479,6 +479,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
 
   // State
   let [chats, setChats] = useState([]);
+  let [isPWA, setIsPWA] = useState(false);
   let [features, setFeatures] = useState([]);
   let [upNextGrid, setUpNextGrid] = useState(null);
   let [chatsLoading, setChatsLoading] = useState(false);
@@ -528,12 +529,18 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let [globalUserDataLoading, setGlobalUserDataLoading] = useState(true);
 
   const getPageContainerClasses = () => {
-    // let isMobile = isMobileDevice();
+    let isMobile = isMobileDevice();
+    let isOnPWA = isInStandaloneMode();
     let route = rte == `_` ? `root` : rte;
-    // let platformClasses = `platform_${isMobile ? `mobile` : `web`}`;
+    let ua = navigator.userAgent.toLowerCase();
+    let platformClasses = `platform_class_${isMobile ? `mobile` : `web`}`;
+    let isPortrait = typeof window != `undefined` ? window.matchMedia(`(orientation: portrait)`).matches : false;
+    let isTablet = /ipad|tablet|playbook|silk|(android(?!.*mobi))/i.test(ua);
+    let deviceTypeClasses = isTablet ? `device_type_tablet` : `device_type_phone`;
     let pageName = isValid(page.toUpperCase()) ? page.toUpperCase() : `home_Page`;
+    let orientationClasses = isPortrait ? `portrait_orientation` : `landscape_orientation`;
     let userClasses = `${user != null ? `signed_in` : `signed_out`} ${usersLoading ? `users_loading` : `users_loaded`}`;
-    let classes = `pageWrapContainer ${route} ${pageName} ${userClasses}`;
+    let classes = `pageWrapContainer ${isOnPWA ? `pwa` : `nwa`} ${route} ${pageName} ${userClasses} ${platformClasses} ${orientationClasses} ${deviceTypeClasses}`;
     return classes;
   }
 
@@ -1118,7 +1125,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
     setOnMac(navigator.platform.includes(`Mac`));
     setPage(window.location.pathname.replace(`/`,``));
     setLists(JSON.parse(localStorage.getItem(`lists`)) || defaultLists);
-    setMobile((typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1));
+    setMobile((typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1) || isMobileDevice());
 
     if (cachedBoard) {
       if (!cachedBoard.name) cachedBoard.name = `Board`;
@@ -1184,6 +1191,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       rte, setRte, 
       year, setYear,
       page, setPage, 
+      isPWA, setIsPWA,
       width, setWidth, 
       mobile, setMobile,
       devEnv, setDevEnv, 

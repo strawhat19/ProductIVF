@@ -21,14 +21,21 @@ export const sortDescending = (arr: (string | number)[]): number[] => {
   return arr.map(item => (typeof item === `number` ? item : parseFloat(item))).filter(item => !isNaN(item)).sort((a, b) => b - a);
 }
 
+export const isInStandaloneMode = () => {
+  if (typeof window === `undefined`) return false;
+  return window.matchMedia(`(display-mode: standalone)`).matches;
+}
+
 export const isMobileDevice = () => {
-  if (navigator && window && window?.navigator) {
-    const userAgent = navigator?.userAgent || navigator?.vendor || (window as any)?.opera;
-    const platform = navigator?.platform;
-    if (userAgent && platform) {
-      const mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
-      const isIOS = /iPad|iPhone|iPod/.test(platform) || (platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-      return mobileRegex.test(userAgent) || isIOS;
+  if (typeof window != `undefined` && window != undefined) {
+    if (navigator && window && window?.navigator) {
+      const userAgent = navigator?.userAgent || navigator?.vendor || (window as any)?.opera;
+      const platform = navigator?.platform;
+      if (userAgent && platform) {
+        const mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+        const isIOS = /iPad|iPhone|iPod/.test(platform) || (platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        return mobileRegex.test(userAgent) || isIOS;
+      }
     }
   }
 }

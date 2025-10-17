@@ -371,13 +371,15 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
                     {(item?.image || showItemDetails() == true) ? <>
                         <hr className={`itemSep`} style={{height: 1, borderColor: `var(--gameBlue)`}} />
                         <div className={`itemFooter flex row`}>
-                            <div className={`itemDetailsStart itemDetails`}>
-                                <DetailField item={item} tasks={getItemTasks()} />
-                                <Tags item={item} />
-                                {/* {devEnv && <RelatedURLsDND item={{ ...item, data: { ...item?.data, relatedURLs: [item?.data?.relatedURLs[0]] } }} />} */}
-                            </div>
-                            <div className={`itemDetailsEnd fit`}>
-                                <Counts item={item} activeTasks={getItemTasks(`active`)} completedTasks={getItemTasks(`complete`)} />
+                            <div className={`itemFooterInner`}>
+                                <div className={`itemDetailsStart itemDetails`}>
+                                    <DetailField item={item} tasks={getItemTasks()} />
+                                    <Tags item={item} />
+                                    {/* {devEnv && <RelatedURLsDND item={{ ...item, data: { ...item?.data, relatedURLs: [item?.data?.relatedURLs[0]] } }} />} */}
+                                </div>
+                                <div className={`itemDetailsEnd fit`}>
+                                    <Counts item={item} activeTasks={getItemTasks(`active`)} completedTasks={getItemTasks(`complete`)} />
+                                </div>
                             </div>
                         </div>
                     </> : <></>}
@@ -402,7 +404,7 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
                         )}
                     </button>
                     {(item?.data?.taskIDs?.length == 0 || (item?.data?.taskIDs?.length == getItemTasks(`complete`)?.length)) && (
-                        <button id={`complete_${item?.id}`} onClick={(e) => onCompleteItem(e)} title={`Complete Item`} className={`iconButton wordIconButton completeButton`}>
+                        <button id={`complete_${item?.id}`} onClick={(e) => onCompleteItem(e)} title={`Complete Item`} className={`iconButton wordIconButton completeButton itemStatusActionIconButton`}>
                             <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`itemStatusIcon ${item?.options?.complete ? `fas fa-history` : ((item?.data?.taskIDs?.length == 0 && item?.options?.active) || item?.data?.taskIDs?.length > 0) ? `fas fa-check-circle` : `fas fa-play-circle`}`} />
                         </button>
                     )}
