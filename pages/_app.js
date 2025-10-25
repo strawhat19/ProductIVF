@@ -529,18 +529,36 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let [globalUserDataLoading, setGlobalUserDataLoading] = useState(true);
 
   const getPageContainerClasses = () => {
+    if (!loaded.current) return ``;
     let isMobile = isMobileDevice();
     let isOnPWA = isInStandaloneMode();
     let route = rte == `_` ? `root` : rte;
     let ua = navigator.userAgent.toLowerCase();
+
+    // let isTabletUA = /ipad|android(?!.*mobile)|tablet|playbook|silk/.test(ua);
+    // let isPhoneUA  = /iphone|ipod|android.*mobile|windows phone|blackberry|bb10/.test(ua);
+    // let isiPadOS = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+
+    // let w = window.innerWidth;
+    // let h = window.innerHeight;
+    // let isSmallScreen  = Math.min(w, h) <= 768;
+    // let isMediumScreen = !isSmallScreen && Math.min(w,h) <= 1024;
+
+    // let hasCoarsePointer = (() => {
+    //   try { return window.matchMedia('(pointer: coarse)').matches; } catch { return false; }
+    // })();
+
+    // let isDevice = hasCoarsePointer;
+
     let platformClasses = `platform_class_${isMobile ? `mobile` : `web`}`;
     let isPortrait = typeof window != `undefined` ? window.matchMedia(`(orientation: portrait)`).matches : false;
     let isTablet = /ipad|tablet|playbook|silk|(android(?!.*mobi))/i.test(ua);
+    let isPhoneOrTablet = isMobile || isTablet || isOnPWA;
     let deviceTypeClasses = isTablet ? `device_type_tablet` : `device_type_phone`;
     let pageName = isValid(page.toUpperCase()) ? page.toUpperCase() : `home_Page`;
     let orientationClasses = isPortrait ? `portrait_orientation` : `landscape_orientation`;
     let userClasses = `${user != null ? `signed_in` : `signed_out`} ${usersLoading ? `users_loading` : `users_loaded`}`;
-    let classes = `pageWrapContainer ${isOnPWA ? `pwa` : `nwa`} ${route} ${pageName} ${userClasses} ${platformClasses} ${orientationClasses} ${deviceTypeClasses}`;
+    let classes = `pageWrapContainer ${isPhoneOrTablet ? `isPhoneOrTablet` : `isLaptopDesktop`} ${isOnPWA ? `pwa` : `nwa`} ${route} ${pageName} ${userClasses} ${platformClasses} ${orientationClasses} ${deviceTypeClasses}`;
     return classes;
   }
 
@@ -602,6 +620,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
     await setAuthState(AuthStates.Next);
     await setEmailField(false);
     await resetGridsBoards();
+    await toggleMenuIfMobile();
   }
 
   const onSignOut = async (navigateToHome = true) => {
@@ -680,6 +699,18 @@ export default function ProductIVF({ Component, pageProps, router }) {
     }
   }
 
+  const toggleMenuIfMobile = () => {
+    if (width < 770) {
+      let menuButton = document.querySelector(`.nextra-hamburger`);
+      if (menuButton) {
+        let menuIsOpenElement = menuButton?.querySelector(`.open`);
+        if (menuIsOpenElement) {
+          menuButton?.click();
+        }
+      }
+    }
+  }
+
   const onSignIn = async (email, password) => {
     signInWithEmailAndPassword(auth, email, password).then(async (userCredential) => {
       if (userCredential != null) {
@@ -692,6 +723,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
           setTimeout(() => {
             setSystemStatus(`Signed In`);
             setLoading(false);
+            toggleMenuIfMobile();
           }, 500);
         } else {
           setEmailField(true);
@@ -1253,6 +1285,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       signOutReset,
       getGridsBoards,
       isFeatureEnabled,
+      toggleMenuIfMobile,
       switchSelectedGrid,
       setUsersGridsState,
       hardSetSelectedGrid,
@@ -1290,7 +1323,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
     }}>
       {(browser != `chrome` || onMac) ? (
         <AnimatePresence mode={`wait`}>
-          <motion.div className={getPageContainerClasses()} key={router.route} initial="pageInitial" animate="pageAnimate" exit="pageExit" transition={{ duration: 0.35 }} variants={{
+          <motion.div className={`motionDivMain ${getPageContainerClasses()} ${loaded?.current ? `dataIsLoaded` : `notLoadedYet`}`} key={router.route} initial="pageInitial" animate="pageAnimate" exit="pageExit" transition={{ duration: 0.35 }} variants={{
             pageInitial: {
               opacity: 0,
               clipPath: `polygon(0 0, 100% 0, 100% 100%, 0% 100%)`,
@@ -1308,7 +1341,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
           </motion.div>
         </AnimatePresence>
       ) : (
-        <div className={getPageContainerClasses()}>
+        <div className={`noMotionDivMain ${getPageContainerClasses()} ${loaded?.current ? `dataIsLoaded` : `notLoadedYet`}`}>
           <Component {...pageProps} />
         </div>
       )}

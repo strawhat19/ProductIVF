@@ -1,7 +1,7 @@
 .Toastify__toast-container {
+    --toastify-toast-min-height: auto;
     --toastify-color-dark: var(--blackGlass);
     --toastify-container-width: calc(auto + 20px);
-    --toastify-toast-min-height: auto;
     .Toastify__toast {
         width: 100%;
         display: flex;

@@ -10,7 +10,7 @@ export default function Counts({ item, activeTasks, completedTasks }) {
                         /
                     </span>
                     </>} <span className={`slashes`}>
-                        ✔
+                        ✓
                     </span> {item?.options?.complete ? item?.data?.taskIDs.length : completedTasks?.length}
                     {/* {!item?.options?.complete && <>
                         <span className={`slashes slashesSymbol`}>

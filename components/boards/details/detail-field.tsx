@@ -20,7 +20,7 @@ export const getStatSymbol = (stat: Statuses) => {
         [Statuses.Next]: `o`,
         // [Statuses.Active]: `✧`,
         [Statuses.Active]: `▶`,
-        [Statuses.Complete]: `✔`,
+        [Statuses.Complete]: `✓`,
     }
     let statSymbol = statSymbols[stat];
     return statSymbol;

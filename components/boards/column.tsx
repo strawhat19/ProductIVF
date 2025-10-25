@@ -313,14 +313,14 @@ export default function Column(props) {
                                         <span className={`subscript`} style={{display: `contents`,}}>
                                             <span className={`slashes`}>
                                                 {props.items.filter(itm => itemActiveFilters(itm) && itm?.options?.complete).length}
-                                            </span> ✔ <div className={`slashes`} style={{display: `contents`}}> // </div> <span className={`slashes`}>
+                                            </span> ✓ <div className={`slashes`} style={{display: `contents`}}> // </div> <span className={`slashes`}>
                                                 {props.items.filter(itm => itemActiveFilters(itm)).length}
                                             </span> ☰</span>
                                             <span className={`subscript`} style={{display: `contents`,}}> <span className={`slashes`}>
                                                 {[].concat(...props.items.filter(itm => itemActiveFilters(itm)).filter(itm => itm?.options?.complete).map(itm => itm?.tasks)).length 
                                                 + [].concat(...props.items.filter(itm => itemActiveFilters(itm)).filter(itm => !itm?.options?.complete).map(itm => itm?.tasks)).filter(tsk => tsk?.options?.complete).length}
                                                 {/* {[].concat(...props.items.filter(itm => itemActiveFilters(itm)).map(itm => itm?.subtasks)).filter(tsk => tsk?.complete).length} */}
-                                            </span> ✔ <div className={`slashes`} style={{display: `contents`}}> // </div> <span className={`slashes`}>
+                                            </span> ✓ <div className={`slashes`} style={{display: `contents`}}> // </div> <span className={`slashes`}>
                                                 {[].concat(...props.items.filter(itm => itemActiveFilters(itm)).map(itm => itm?.tasks)).length}
                                             </span> ☰</span>
                                     </div>

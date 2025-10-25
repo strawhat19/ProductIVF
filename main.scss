@@ -50,6 +50,7 @@
     --navAndFooterBG: var(--darkNavAndFooterBG);
     --darkInputLightBG: rgba(249, 250, 251, .1);
     
+    --pdd: 15px;
     --bg: #010000;
     --posterH: 250px;
     --posterW: 165px;
@@ -165,6 +166,20 @@ input {
     
     footer {
         border-top: solid 1px rgba(229, 231, 235, 1);
+    }
+}
+
+.pageWrapContainer {
+    &:not(.isPhoneOrTablet) {
+        .board {
+            .column {
+                .items {
+                    .item {
+                        overflow: hidden;
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -672,14 +687,6 @@ html[class~=dark] .dark\:nx-text-neutral-500, html[class~=dark] .dark\:nx-text-g
     }
 }
 
-// @media (max-width: 985px) {
-//     .nextra-nav-container {
-//         .navFormDiv {
-//             display: none !important;
-//         }
-//     }
-// }
-
 @media (max-width: 992px) {
     .board {
         &.lists {
@@ -940,7 +947,51 @@ body {
         }
     }
     // Menu Kicks In
+    @container (max-width: 770px) {
+        .md\:nx-hidden {
+            display: flex !important;
+        }
+    }
+    @container (min-width: 769px) {
+        .md\:nx-hidden {
+            display: none !important;
+        }
+        .motion-reduce\:nx-transition-none.\[transition\:background-color_1\.5s_ease\].nx-fixed.nx-inset-0.nx-z-10.nx-bg-black\/80.dark\:nx-bg-black\/60 {
+            z-index: -1;
+            pointer-events: none;
+            background: transparent;
+        }
+    }
     @container (max-width: 768px) {
+        &:has(svg.open) {
+            .nextra-sidebar-container {
+                top: 0;
+                bottom: 0;
+                z-index: 15;                        
+                position: fixed;
+                width: 100% !important;
+                display: flex !important;                            
+                padding-top: calc(var(--nextra-navbar-height));          
+            }
+        }
+        .Toastify__toast-container {
+            .Toastify__toast {
+                width: 95%;
+                margin: 0 auto;
+            }
+        }
+        &:has(._projects_boards) {
+            .nav_Form {
+                width: 100%;
+            }
+            nav {
+                padding-left: var(--pdd);
+                padding-right: var(--pdd);
+            }
+            article {
+                padding: var(--pdd) !important;
+            }
+        }
         .boardItem {
             --buttonSize: 30px !important;
             min-height: min-content !important;
@@ -994,6 +1045,7 @@ body {
             background: var(--darkNavAndFooterBG) !important;
             div {
                 &:has(.navFormDiv) {
+                    padding-right: 5px;
                     padding-bottom: 1rem;
                     container-type: inline-size;
                     @container (max-width: 442px) {
@@ -1024,13 +1076,6 @@ body {
                 &:not(.nx-top-0) {
                     display: none;
                 }
-            }
-        }
-    }
-    @container (max-width: 625px) {
-        &:has(._projects_boards) {
-            article {
-                padding: 15px !important;
             }
         }
     }
@@ -2429,7 +2474,7 @@ textarea {
                                 }
                                 &:checked {
                                     &::before {
-                                        content: "✔";
+                                        content: "✓";
                                         color: #fff;
                                         background: transparent;
                                         position: absolute;
@@ -2916,7 +2961,6 @@ footer {
             min-height: 350px;
             padding: 0 !important;
             .item {
-                overflow: hidden;
                 min-height: min-content !important;
                 background: transparent !important;
                 .itemRow {
@@ -3168,6 +3212,24 @@ footer {
 .column.dragging {
     .columnStats {
         display: none !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .alert {
+        .alertTitleRow {
+            flex-direction: column;
+            align-items: flex-start !important;
+            .alertTitle {
+                font-size: 20px;
+            }
+            .rightTitleField {
+                flex-direction: column;
+                .detailsCloseButton {
+                    width: 100%;
+                }
+            }
+        }
     }
 }
 

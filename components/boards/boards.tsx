@@ -35,9 +35,11 @@ export const getBoardTitleWidth = (wordOrArrayOfLetters: string | string[]) => {
     return titleWidth;
 }
 
-export const getLoadingLabel = (lbl: string, authState, user) => {
+export const getLoadingLabel = (lbl: string, authState, user, wLoading = true) => {
     let nonFormAuthStates = [`Next`, `Back`, `Save`];
-    return user != null ? `${lbl} Loading` : `${!nonFormAuthStates.includes(authState) ? authState : `Register`} to View ${lbl}`;
+    let userLoadingLabel = `${lbl}${wLoading ? ` Loading` : ``}`;
+    let nonUserLoadingLabel = `${!nonFormAuthStates.includes(authState) ? authState : `Register`} to View ${lbl}`;
+    return user != null ? userLoadingLabel : nonUserLoadingLabel;
 }
 
 export const recentlyAuthenticated = (usr: User, interval = 5, timePass = `minutes`) => {
@@ -51,6 +53,7 @@ export const recentlyAuthenticated = (usr: User, interval = 5, timePass = `minut
 export default function Boards(props: any) {
     let { 
         user, 
+        width,
         authState,
         addNewBoard,
         globalUserData,
@@ -281,9 +284,9 @@ export default function Boards(props: any) {
         <div className={`boardsTitleRow flex row _projects_boards`}>
             <div className={`row gridRow ${gridsLoading ? `gridsAreLoading` : `gridsLoaded`} ${(gridsLoading || (selectedGrid == null || (grids?.length == 0 || globalUserData?.grids?.length == 0)) || (grids?.length > 1 || globalUserData?.grids?.length > 1)) ? `hasGridSelector ${useSingleSelect ? `withSingleSelect` : ``}` : ``}`} style={{ padding: 0, paddingBottom: 7 }}>
                 <div className={`flex row left`} style={{ height: `var(--buttonSize)` }}>
-                    <h1 className={`gridTitleTextField textOverflow extended nx-mt-2 nx-text-4xl nx-font-bold nx-tracking-tight nx-text-slate-900 dark:nx-text-slate-100`} style={{ maxWidth: `unset` }} title={selectedGrid?.options?.nameLabel == true ? selectedGrid?.name : ((user != null ? user?.name + `s ` : ``) + ((!gridsLoading && selectedGrids.length == 1) ? selectedGrids[0]?.name + (!useGridSearchCreate ? ` Grid` : ``) : `Grids`))}>
+                    <h1 className={`gridTitleTextField textOverflow extended nx-mt-2 nx-text-4xl nx-font-bold nx-tracking-tight nx-text-slate-900 dark:nx-text-slate-100`} style={{ maxWidth: `unset` }} title={selectedGrid?.options?.nameLabel == true ? selectedGrid?.name : ((user != null ? user?.name + `s ` : ``) + ((user != null && (!gridsLoading && selectedGrids.length == 1)) ? selectedGrids[0]?.name + (!useGridSearchCreate ? ` Grid` : ``) : `Grids`))}>
                         {selectedGrid?.options?.nameLabel == true ? selectedGrid?.name : <>
-                            {user != null ? user?.name + `s ` : ``}{(!gridsLoading && selectedGrids.length == 1) ? selectedGrids[0]?.name + (!useGridSearchCreate ? ` Grid` : ``) : `Grids`}
+                            {user != null ? user?.name + `s ` : ``}{(user != null && (!gridsLoading && selectedGrids.length == 1)) ? selectedGrids[0]?.name + (!useGridSearchCreate ? ` Grid` : ``) : `Grids`}
                         </>}
                     </h1>
                 </div>
@@ -316,9 +319,9 @@ export default function Boards(props: any) {
                         <IVFSkeleton 
                             labelSize={14}
                             showLoading={true}
-                            label={getLoadingLabel(`Grids`, authState, user)} 
                             className={`gridsItemsSkeleton gridSelectorSkeleton`} 
                             style={{ minWidth: 300, [`--animation-delay`]: `${0.15}s` }} 
+                            label={getLoadingLabel(`Grids`, authState, user, width > 768)} 
                         />
                     ) : (
                         <MultiSelector 

@@ -33,8 +33,9 @@ export const isMobileDevice = () => {
       const platform = navigator?.platform;
       if (userAgent && platform) {
         const mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+        const isPhoneUA  = /iphone|ipod|android.*mobile|windows phone|blackberry|bb10/.test(userAgent);
         const isIOS = /iPad|iPhone|iPod/.test(platform) || (platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-        return mobileRegex.test(userAgent) || isIOS;
+        return mobileRegex.test(userAgent) || isIOS || isPhoneUA;
       }
     }
   }

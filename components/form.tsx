@@ -83,6 +83,7 @@ export default function Form(props?: any) {
     setUpNextGrid,
     setSystemStatus,
     isFeatureEnabled,
+    toggleMenuIfMobile,
     updates, setUpdates, 
     setAuthenticateOpen,
     setOnAuthenticateLabel,
@@ -216,6 +217,7 @@ export default function Form(props?: any) {
           form.reset();
           await batchFirestore_InitialUserData.commit();
           await toast.success(`Set Default Grids & Boards for: ${seeded_User?.name}`);
+          toggleMenuIfMobile();
         }).catch(signUpAndSeedError => {
           let errorMessage = `Error on Sign Up & Set Default Data`;
           console.log(errorMessage, signUpAndSeedError);

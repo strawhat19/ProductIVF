@@ -125,6 +125,18 @@
     justify-content: flex-start;
 }
 
+body {
+    &:has(.isPhoneOrTablet) {
+        .MuiDialog-root {
+            &:has(.detailsDialog) {
+                .MuiDialog-container {
+                    height: unset;
+                }
+            }
+        }
+    }
+}
+
 .MuiDialog-root {
     &:has(.detailsDialog) {
         backdrop-filter: blur(10px);
