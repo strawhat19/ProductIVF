@@ -1,7 +1,7 @@
 import Column from './column';
 import { toast } from 'react-toastify';
 import { getBoardTitleWidth } from './boards';
-import { Droppable } from 'react-beautiful-dnd';
+import { Droppable } from '@hello-pangea/dnd';
 import { collection, getDocs } from 'firebase/firestore';
 import ConfirmAction from '../context-menus/confirm-action';
 import React, { useState, useContext, useRef } from 'react';

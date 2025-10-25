@@ -10,7 +10,7 @@ export default function TagURL({ url, itemOrTask = null, extraClasses = `tagURLC
     let domainNameWithPath: any = extractRootDomain(url, true);
     let rootDomain: any = extractRootDomain(url) ?? `google.com`;
 
-    let [host] = urlParts?.host?.split(`.`);
+    let [host] = urlParts && urlParts?.host && urlParts?.host?.length > 0 ? urlParts?.host?.split(`.`) : ``;
     let pathParts = urlParts?.pathname?.split(`/`) || [];
     let path = pathParts?.pop();
 

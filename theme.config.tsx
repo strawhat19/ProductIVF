@@ -14,6 +14,7 @@ const footer = () => <Footer style={{ minHeight: `fit-content` }} />;
 const head = () => {
   return <>
     <meta name={`theme-color`} content={`#012F4A`} />
+    <meta name={`mobile-web-app-capable`} content={`yes`} />
     <link rel={`manifest`} href={`/manifest.webmanifest`} />
     <link rel={`apple-touch-icon`} href={`icon-192x192.png`} />
     <meta name={`apple-mobile-web-app-capable`} content={`yes`} />

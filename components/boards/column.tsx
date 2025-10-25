@@ -7,7 +7,7 @@ import { Task } from '../../shared/models/Task';
 import { Board } from '../../shared/models/Board';
 import React, { useContext, useState } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
-import { Droppable, Draggable } from 'react-beautiful-dnd';
+import { Droppable, Draggable } from '@hello-pangea/dnd';
 import IVFSkeleton from '../loaders/skeleton/ivf_skeleton';
 import ConfirmAction from '../context-menus/confirm-action';
 import { createItem, Item as ItemModel } from '../../shared/models/Item';

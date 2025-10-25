@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { updateDocFieldsWTimeStamp } from '../../../firebase';
 import { extractRootDomain } from '../../../shared/constants';
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 
 const reorder = (list: string[], startIndex: number, endIndex: number) => {
   const result = Array.from(list);

@@ -60,7 +60,7 @@ export const extractRootDomain = (url: string, withPath = false, returnObj = fal
     } else {
       return withPath ? `${domain}${checkSlash(parsedUrl?.pathname)}${checkSlash(parsedUrl?.search)}${checkSlash(parsedUrl?.hash)}` : domain;
     }
-  }
+  } else return url;
 }
 
 export const getItemOrTaskURLs = (itemOrTask: Item | Task, textArrayOfFields: string[], wPrefix = true) => {

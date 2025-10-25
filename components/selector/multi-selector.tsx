@@ -26,7 +26,13 @@ const InputWrapper = styled(`div`)(
 `,
 );
 
-interface TagProps extends ReturnType<AutocompleteGetTagProps> {
+const omitKey = <T extends { key?: any }>(obj: T) => {
+  const { key, ...rest } = obj as any;
+  return rest as Omit<T, 'key'>;
+};
+
+type MUITagProps = ReturnType<AutocompleteGetTagProps>;
+type TagProps = Omit<MUITagProps, `key`> | any & {
   option: any;
   label: string;
   className: string;
@@ -55,9 +61,9 @@ const getGridIconOption = (option) => {
 }
 
 function Tag(props: TagProps) {
-  const { option, label, onDelete, className, isMultiSelect, key, ...other } = props;
+  const { option, label, onDelete, className, isMultiSelect, ...other } = props;
   return (
-    <div id={`selectedGridSelector`} key={key} {...other} style={{ minWidth: 120 }} {...isMultiSelect && { onClick: onDelete }} className={`selectedOptionTag selectorOptionHookTag ${className} hoverBright`}>
+    <div id={`selectedGridSelector`} {...other} style={{ minWidth: 120 }} {...(isMultiSelect && { onClick: onDelete })} className={`selectedOptionTag selectorOptionHookTag ${className} hoverBright`}>
       <i className={`selectedOptionIcon ${getGridIconOption(option)}`} style={{ fontSize: 16 }} />
       <span className={`selectedOptionTagLabel selectorOptionLabel`}>
         {label}
@@ -202,8 +208,16 @@ const MultiSelector = forwardRef((props: any, ref) => {
             {groupedOptions.map((option, index) => {
               let isFirst = index == 0;
               let isLast = index == groupedOptions.length - 1;
+              let raw = getOptionProps({ option, index }) as any;
+              let optKey = raw.key;
+              let safe = omitKey(raw);
               return (
-                <li className={`multiSelectorOption customHookOption ${isFirst ? `isFirst` : isLast ? `isLast` : `isMiddle`}`} key={index} {...getOptionProps({ option, index })} aria-selected={option?.id == user?.lastSelectedGridID}>
+                <li
+                  {...safe}
+                  key={option?.id ?? optKey ?? index}
+                  aria-selected={option?.id == user?.lastSelectedGridID}
+                  className={`multiSelectorOption customHookOption ${isFirst ? `isFirst` : isLast ? `isLast` : `isMiddle`}`}
+                >
                   <div className={`listedOptionContainer`}>
                     <div className={`listedOptionIndexField`}> 
                       <i className={`listedOptionIcon selectedOptionIcon ${getGridIconOption(option)}`} style={{ fontSize: 16 }} />
@@ -253,11 +267,23 @@ const MultiSelector = forwardRef((props: any, ref) => {
             <div className={`selectedOptionsElement ${single ? `singleSelectedOptionsElement` : `multiSelectedOptionsElement`}`}>
               {single ? multiSelectorAutoComplete() : <></>}
               <div className={`selectedOptionsContainer ${single ? `singleSelectedOptionsContainer` : `multiSelectedOptionsContainer`}`}>
-                {getActiveOptions(activeOptions, value).map((option: any, index: number) => (
-                  <div key={index} className={`multiSelectOption hoverBright styledTagWithProps selectedOptions${activeOptions.length}`}>
-                    <StyledTag key={index} className={`multiSelectedOption ${index == 0 ? `isFirst` : (index == activeOptions.length - 1) ? `isLast` : `isMiddle`}`} {...getTagProps({ index })} label={option?.label} option={option} isMultiSelect={!single} />
-                  </div>
-                ))}
+                {getActiveOptions(activeOptions, value).map((option: any, index: number) => {
+                  const raw = getTagProps({ index }) as any;
+                  const tagKey = raw.key;                 // take key out
+                  const safe = omitKey(raw);              // strip it from the spread
+                  return (
+                    <div key={option?.id ?? tagKey ?? index} className={`multiSelectOption hoverBright styledTagWithProps selectedOptions${activeOptions.length}`}>
+                      <StyledTag
+                        key={tagKey}
+                        className={`multiSelectedOption ${index === 0 ? `isFirst` : (index === activeOptions.length - 1) ? `isLast` : `isMiddle`}`}
+                        {...safe}
+                        label={option?.label}
+                        option={option}
+                        isMultiSelect={!single}
+                      />
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>

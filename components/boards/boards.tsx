@@ -14,7 +14,7 @@ import { Board as BoardModel } from '../../shared/models/Board';
 import { generateArray, withinXTime } from '../../shared/constants';
 import { AuthGrids, GridTypes, Types } from '../../shared/types/types';
 // import FeatureFlagBadge from '../../shared/admin/feature-flag-badge';
-import { Droppable, Draggable, DragDropContext } from 'react-beautiful-dnd';
+import { Droppable, Draggable, DragDropContext } from '@hello-pangea/dnd';
 import { dragItemToNewList, updateDocFieldsWTimeStamp } from '../../firebase';
 
 export enum ItemTypes {

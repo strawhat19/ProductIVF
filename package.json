@@ -1,6 +1,6 @@
 {
   "name": "product-ivf",
-  "version": "6.4.0.9",
+  "version": "6.4.1.0",
   "description": "Nextra docs template",
   "engines": {
     "node": ">=22 <23",
@@ -30,6 +30,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@hello-pangea/dnd": "^18.0.1",
     "@mui/icons-material": "^6.4.4",
     "@mui/material": "^6.4.4",
     "@tiptap/extension-image": "^2.14.0",
