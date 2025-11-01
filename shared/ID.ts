@@ -1,10 +1,9 @@
 import { Types } from './types/types';
-import { formatDate } from '../pages/_app';
-import { stringNoSpaces } from './constants';
+import { formatDateMain, stringNoSpaces } from './constants';
 
 export const generateUniqueIDwDate = (date, position, type, uuid) => {
   let newID = uuid || generateID();
-  let dateNoSpaces = formatDate(date);
+  let dateNoSpaces = formatDateMain(date);
   let uniqueID = `${position}_${type}_${dateNoSpaces}_${newID}`;
   let uniqueIDFormatted = uniqueID?.replace(/\s+/g, `_`).replace(/[:/]/g, `_`);
   return uniqueIDFormatted;
@@ -35,7 +34,7 @@ export class ID {
 
 export const getIDParts = () => {
   let uuid = generateID();
-  let date = formatDate(new Date());
+  let date = formatDateMain(new Date());
   return { uuid, date };
 }
 

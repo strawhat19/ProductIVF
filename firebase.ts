@@ -1,21 +1,20 @@
 import { getIDParts } from './shared/ID';
-import { formatDate } from './pages/_app';
 import { User } from './shared/models/User';
 import { Grid } from './shared/models/Grid';
 import { List } from './shared/models/List';
 import { Item } from './shared/models/Item';
 import { Task } from './shared/models/Task';
 import { Chat } from './shared/models/Chat';
+import { Post } from './shared/models/Post';
 import { initializeApp } from 'firebase/app';
 import { Types } from './shared/types/types';
 import { Board } from './shared/models/Board';
-import { getDownloadURL, getStorage, listAll, ref } from 'firebase/storage';
 import { Message } from './shared/models/Message';
 import { Feature } from './shared/admin/features';
-import { countPropertiesInObject, logToast } from './shared/constants';
+import { getDownloadURL, getStorage, listAll, ref } from 'firebase/storage';
+import { countPropertiesInObject, formatDateMain, logToast } from './shared/constants';
 import { GoogleAuthProvider, browserLocalPersistence, deleteUser, getAuth, setPersistence } from 'firebase/auth';
 import { collection, doc, getDoc, getDocs, getFirestore, query, setDoc, updateDoc, where, WhereFilterOp, writeBatch } from 'firebase/firestore';
-import { Post } from './shared/models/Post';
 
 export enum Environments {
   beta = `beta_`,
@@ -412,6 +411,51 @@ export const deleteUserAuth = async (usr: User) => {
     await logToast(`Error Deleting User ${usr?.email} from Authentication`, deleteUserError, true);
   }
 }
+
+// export const addGridToDatabase = async (grid: Grid, userID: string) => {
+//   const { date } = getIDParts();
+//   const addGridBatchOperation = await writeBatch(db);
+//   try {
+//     const gridRef = await doc(db, gridsTable, grid.id);
+//     const userRef = await doc(db, usersTable, userID);
+
+//     await addGridBatchOperation.set(gridRef, { ...grid });
+
+//     const userDoc = await getDoc(userRef);
+//     if (userDoc.exists()) {
+//       const userData = userDoc.data();
+//       const userBoardIDsToUse = userData.data?.boardIDs ?? [];
+//       const updatedUsersBoardIDs = newestBoardsOnTop
+//         ? [board.id, ...userBoardIDsToUse]
+//         : [...userBoardIDsToUse, board.id];
+//       addBoardBatchOperation.update(userRef, {
+//         [`meta.updated`]: date,
+//         [`data.boardIDs`]: updatedUsersBoardIDs,
+//         properties: countPropertiesInObject({ ...userData, data: { ...userData?.data, boardIDs: updatedUsersBoardIDs } }),
+//       });
+//     }
+
+//     const gridDoc = await getDoc(gridRef);
+//     if (gridDoc.exists()) {
+//       const gridData = gridDoc.data();
+//       const gridBoardIDsToUse = gridData.data?.boardIDs ?? [];
+//       const updatedGridsBoardIDs = newestBoardsOnTop
+//         ? [board.id, ...gridBoardIDsToUse]
+//         : [...gridBoardIDsToUse, board.id];
+//       addBoardBatchOperation.update(gridRef, {
+//         [`meta.updated`]: date,
+//         [`data.boardIDs`]: updatedGridsBoardIDs,
+//         properties: countPropertiesInObject({ ...gridData, data: { ...gridData?.data, boardIDs: updatedGridsBoardIDs } }),
+//       });
+//     }
+
+//     await addBoardBatchOperation.commit();
+//     return board;
+//   } catch (addBoardError) {
+//     await logToast(`Error Adding Board ${board?.name}`, addBoardError, true);
+//     return addBoardError;
+//   }
+// }
 
 export const addBoardToDatabase = async (board: Board, gridID: string, userID: string, newestBoardsOnTop: boolean = true) => {
   const { date } = getIDParts();
@@ -901,7 +945,7 @@ export const updateDocFieldsWTimeStamp = async (
   updates: Partial<User> | Partial<Grid> | Partial<Board> | Partial<List> | Partial<Item> | Partial<Task> | Partial<Chat> | Partial<Message> | any, 
   log = false,
 ) => {
-  const now = formatDate(new Date(), `update`);
+  const now = formatDateMain(new Date(), `update`);
   let { tableName, converter } = documentTypes[document?.type];
   try {
     const docRef = await doc(db, tableName, document?.id).withConverter(converter);

@@ -5,7 +5,7 @@ import moment from 'moment-timezone';
 import ReactDOM from 'react-dom/client';
 import { getIDParts } from '../shared/ID';
 import { Chat } from '../shared/models/Chat';
-import { Grid } from '../shared/models/Grid';
+import { createGrid, Grid } from '../shared/models/Grid';
 import { List } from '../shared/models/List';
 import { Item } from '../shared/models/Item';
 import { Task } from '../shared/models/Task';
@@ -25,7 +25,7 @@ import { collection, getDocs, onSnapshot, query, where  } from 'firebase/firesto
 import { getBoardTitleWidth, recentlyAuthenticated } from '../components/boards/boards';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import AuthenticationDialog from '../components/modals/authenticate/authenticate-dialog';
-import { defaultAuthenticateLabel, getRankAndNumber, isInStandaloneMode, isMobileDevice, isValid, logToast } from '../shared/constants';
+import { defaultAuthenticateLabel, formatDateMain, getRankAndNumber, isInStandaloneMode, isMobileDevice, isValid, logToast } from '../shared/constants';
 
 import { 
   db, 
@@ -82,42 +82,7 @@ export const extractIDDetails = (ID) => {
 }
 
 export const formatDate = (date, specificPortion) => {
-  let datesObject = {};
-
-  let hours = date.getHours();
-  let minutes = date.getMinutes();
-  let ampm = hours >= 12 ? `PM` : `AM`;
-
-  hours = hours % 12;
-  hours = hours ? hours : 12;
-  minutes = minutes < 10 ? `0` + minutes : minutes;
-
-  let strTime = hours + `:` + minutes + ` ` + ampm;
-  let completedDate = strTime + ` ` + (date.getMonth() + 1) + `/` + date.getDate() + `/` + date.getFullYear();
-
-  if (specificPortion == `time`) {
-    completedDate = strTime;
-    datesObject.time = completedDate;
-  } else if (specificPortion == `date`) {
-    completedDate = (date.getMonth() + 1) + `/` + date.getDate() + `/` + date.getFullYear();
-    datesObject.date = completedDate;
-  } else if (specificPortion == `update`) {
-    let milliseconds = date.getMilliseconds();
-    let ms = Math.round(milliseconds / 10).toString().padStart(2, `0`);
-    strTime = `${hours}:${minutes}:${ms} ${ampm}`;
-    return `${strTime} ${(date.getMonth() + 1)}/${date.getDate()}/${String(date.getFullYear()).slice(2)}`;
-    // completedDate = `${strTime} ${(date.getMonth() + 1)}/${date.getDate()}/${String(date.getFullYear()).slice(2)}`;
-    // datesObject.update = completedDate;
-  } else {
-    completedDate = strTime + ` ` + (date.getMonth() + 1) + `/` + date.getDate() + `/` + date.getFullYear();
-    datesObject.datetime = completedDate;
-  }
-
-  // if (obj) {
-    // return datesObject;
-  // } else {
-    return completedDate;
-  // }
+  return formatDateMain(date, specificPortion);
 }
 
 export const generateID = (existingIDs) => {
@@ -785,6 +750,40 @@ export default function ProductIVF({ Component, pageProps, router }) {
       router.replace(usrGridURL, undefined, { shallow: true });
     }
   }
+
+  // const addNewGrid = async (e, nameOfNewGrid = `New Grid`) => {
+  //   e.preventDefault();
+    
+  //   setLoading(true);
+
+  //   let gridName = capWords(nameOfNewGrid);
+    
+  //   setSystemStatus(`Creating Grid ${gridName}.`);
+
+  //   const { rank, number } = await getRankAndNumber(Types.Grid, grids, grids?.map(g => g?.id), users, user);
+  //   const gridsRef = await collection(db, gridsTable);
+  //   const gridsSnapshot = await getDocs(gridsRef);
+  //   const allDBGrids = gridsSnapshot.docs.map(doc => doc.data());
+  //   const highestDbGridRanks = allDBGrids?.map(brd => brd?.rank)?.sort((a, b) => b - a);
+  //   const highestDbGridRank = highestDbGridRanks[0] + 1;
+  //   const gridsCount = gridsSnapshot.size;
+  //   const gridRank = gridsCount + 1;
+  //   const gridNumber = Math.max(rank, number, gridRank, highestDbGridRank);
+
+  //   const newGrid = createGrid(gridNumber, gridName, user, undefined, undefined, gridNumber);
+
+  //   setLoading(false);
+  //   const addGridToast = toast.info(`Adding Grid`);
+  //   await addGridToDatabase(newBoard, selectedGrd?.id, user?.id, selectedGrd?.options?.newestBoardsOnTop)?.then(bord => {
+  //     if (bord?.type && bord?.type == Types.Board) {
+  //       setTimeout(() => toast.dismiss(addBoardToast), 1500);
+  //       logToast(`Successfully Added Board`, bord);
+  //       if (nameOfNewBoard == ``) e.target.reset();
+  //     }
+  //   })?.catch(addBordError => {
+  //     logToast(`Failed to Add Board`, addBordError, true);
+  //   });
+  // }
 
   const addNewBoard = async (e, nameOfNewBoard = ``, selectedGrd = selectedGrid, listIDs = [], itemIDs = []) => {
     e.preventDefault();

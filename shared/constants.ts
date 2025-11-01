@@ -340,3 +340,42 @@ export const getRankAndNumber = async (type: Types, docs: any[], docIDs: string[
     number,
   }
 }
+
+export const formatDateMain = (date, specificPortion?) => {
+  let datesObject: any = {};
+
+  let hours = date.getHours();
+  let minutes = date.getMinutes();
+  let ampm = hours >= 12 ? `PM` : `AM`;
+
+  hours = hours % 12;
+  hours = hours ? hours : 12;
+  minutes = minutes < 10 ? `0` + minutes : minutes;
+
+  let strTime = hours + `:` + minutes + ` ` + ampm;
+  let completedDate = strTime + ` ` + (date.getMonth() + 1) + `/` + date.getDate() + `/` + date.getFullYear();
+
+  if (specificPortion == `time`) {
+    completedDate = strTime;
+    datesObject.time = completedDate;
+  } else if (specificPortion == `date`) {
+    completedDate = (date.getMonth() + 1) + `/` + date.getDate() + `/` + date.getFullYear();
+    datesObject.date = completedDate;
+  } else if (specificPortion == `update`) {
+    let milliseconds = date.getMilliseconds();
+    let ms = Math.round(milliseconds / 10).toString().padStart(2, `0`);
+    strTime = `${hours}:${minutes}:${ms} ${ampm}`;
+    return `${strTime} ${(date.getMonth() + 1)}/${date.getDate()}/${String(date.getFullYear()).slice(2)}`;
+    // completedDate = `${strTime} ${(date.getMonth() + 1)}/${date.getDate()}/${String(date.getFullYear()).slice(2)}`;
+    // datesObject.update = completedDate;
+  } else {
+    completedDate = strTime + ` ` + (date.getMonth() + 1) + `/` + date.getDate() + `/` + date.getFullYear();
+    datesObject.datetime = completedDate;
+  }
+
+  // if (obj) {
+    // return datesObject;
+  // } else {
+    return completedDate;
+  // }
+}

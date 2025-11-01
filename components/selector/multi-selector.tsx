@@ -6,6 +6,7 @@ import { GridTypes, Types } from '../../shared/types/types';
 import { autocompleteClasses } from '@mui/material/Autocomplete';
 import { AutocompleteGetTagProps, useAutocomplete } from '@mui/material';
 import { forwardRef, useContext, useImperativeHandle, useState } from 'react';
+import { newGridOption } from '../boards/boards';
 
 const InputWrapper = styled(`div`)(
   ({ theme }) => `
@@ -49,12 +50,14 @@ const getGridIconOption = (option) => {
       let briefcaseIcon = `fas fa-briefcase`;
       let globeIcon = `fas fa-globe-americas`;
       let folderOpenIcon = `fas fa-folder-open`;
+      let circlePlusIcon = `fas fa-plus-circle`;
       if (option?.gridType == GridTypes.Personal) gridTypeIcon = userIcon;
       if (option?.gridType == GridTypes.Work) gridTypeIcon = briefcaseIcon;
       if (option?.gridType == GridTypes.Shared) gridTypeIcon = shareIcon;
       if (option?.gridType == GridTypes.Public) gridTypeIcon = globeIcon;
       if (option?.gridType == GridTypes.Private) gridTypeIcon = lockIcon;
       if (option?.gridType == GridTypes.Archived) gridTypeIcon = folderOpenIcon;
+      if (option?.id == newGridOption?.id) gridTypeIcon = circlePlusIcon;
     }
   }
   return gridTypeIcon;
@@ -146,6 +149,12 @@ const MultiSelector = forwardRef((props: any, ref) => {
     if (single) val = isValid(val) && val?.length > 0 ? [val[val.length - 1]] : [];
     if (single && val?.length == 0) return;
 
+    let selection = val[0];
+    if (selection && selection?.id == newGridOption?.id) {
+      console.log(`Selection`, selection);
+      return;
+    }
+
     const updateSelection = () => {
       setActiveOptions(val);
       onChange(val);
@@ -221,9 +230,11 @@ const MultiSelector = forwardRef((props: any, ref) => {
                   <div className={`listedOptionContainer`}>
                     <div className={`listedOptionIndexField`}> 
                       <i className={`listedOptionIcon selectedOptionIcon ${getGridIconOption(option)}`} style={{ fontSize: 16 }} />
-                      <div className={`listedOptionIndexBadge`}>
-                        {index + 1}
-                      </div>
+                      {option?.id != newGridOption?.id && (
+                        <div className={`listedOptionIndexBadge`}>
+                          {index + 1}
+                        </div>
+                      )}
                     </div>
                     <span className={`listedOptionLabel`}>
                       {option?.label}

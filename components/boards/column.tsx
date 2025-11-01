@@ -16,7 +16,7 @@ import { formatDate, StateContext, capitalizeAllWords, dev, capWords } from '../
 import { addItemToDatabase, db, deleteListFromDatabase, itemsTable, updateDocFieldsWTimeStamp } from '../../firebase';
 import { forceFieldBlurOnPressEnter, getRankAndNumber, logToast, removeExtraSpacesFromString } from '../../shared/constants';
 
-export const isSelected = (selected, selectedType: Views) => selected != null && selected?.type == selectedType;
+export const isSelected = (selected, selectedTypes: Views[]) => selected != null && selectedTypes?.includes(selected?.type);
 
 export default function Column(props) {
     let count = 0;
@@ -362,7 +362,7 @@ export default function Column(props) {
                                             return (
                                                 <Draggable key={item?.id} draggableId={item?.id} index={itemIndex} isDragDisabled={gridSearchTerm != ``}>
                                                     {provided => (
-                                                        <div id={item?.id} className={`item boardItem ${hoverItemForm ? `itemHoverToExpand` : ``} completeItem ${(item?.options?.complete) ? `complete completeBoardItem` : `activeBoardItem`} ${(item?.options?.active && (getItemTasks(item, `active`)?.length > 0 || item?.data?.taskIDs?.length == 0)) ? `activeItemBoard` : ``} ${gridSearchTerm != `` ? `wSearchTerm` : ``} container ${snapshot.isDragging ? `dragging` : ``} ${(itemTypeMenuOpen || isSelected(selected, Views.Context)) ? `unfocus` : ``}`} title={item?.name} {...provided.draggableProps} ref={provided.innerRef}>
+                                                        <div id={item?.id} className={`item boardItem ${hoverItemForm ? `itemHoverToExpand` : ``} completeItem ${(item?.options?.complete) ? `complete completeBoardItem` : `activeBoardItem`} ${(item?.options?.active && (getItemTasks(item, `active`)?.length > 0 || item?.data?.taskIDs?.length == 0)) ? `activeItemBoard` : ``} ${gridSearchTerm != `` ? `wSearchTerm` : ``} container ${snapshot.isDragging ? `dragging` : ``} ${(itemTypeMenuOpen || isSelected(selected, [Views.Context])) ? `unfocus` : ``}`} title={item?.name} {...provided.draggableProps} ref={provided.innerRef}>
                                                             <div onClick={(e) => openItemDetails(e, item, itemIndex)} {...provided.dragHandleProps} className={`itemDraggableWrapper itemRow flex row ${item?.options?.complete ? `completed` : `incomplete`} ${item?.tasks.length > 0 ? `hasTasksRow` : `noTasksRow`}`}>
                                                                 <Item 
                                                                     item={item} 

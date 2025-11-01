@@ -34,6 +34,7 @@ export const AuthGrids = [GridTypes.Private];
 
 export enum Views {
     Details = `Details`,
+    NewGrid = `New Grid`,
     Context = `Context Menu`,
 }
 

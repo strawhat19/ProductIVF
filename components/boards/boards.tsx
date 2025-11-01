@@ -1,6 +1,7 @@
 import { NextSeo } from 'next-seo';
 import { toast } from 'react-toastify';
 import { getIDParts } from '../../shared/ID';
+import { Grid } from '../../shared/models/Grid';
 import { List } from '../../shared/models/List';
 import { Item } from '../../shared/models/Item';
 import { User } from '../../shared/models/User';
@@ -12,7 +13,7 @@ import { replaceAll, StateContext } from '../../pages/_app';
 import { useState, useEffect, useContext, useRef } from 'react';
 import { Board as BoardModel } from '../../shared/models/Board';
 import { generateArray, withinXTime } from '../../shared/constants';
-import { AuthGrids, GridTypes, Types } from '../../shared/types/types';
+import { AuthGrids, GridTypes, Types, Views } from '../../shared/types/types';
 // import FeatureFlagBadge from '../../shared/admin/feature-flag-badge';
 import { Droppable, Draggable, DragDropContext } from '@hello-pangea/dnd';
 import { dragItemToNewList, updateDocFieldsWTimeStamp } from '../../firebase';
@@ -29,6 +30,8 @@ export enum BoardTypes {
     ToDoList = `To Do List`,
     Spreadsheet = `Spreadsheet`,
 }
+
+export const newGridOption = new Grid({ id: `newGrid`, name: `New Grid` });
 
 export const getBoardTitleWidth = (wordOrArrayOfLetters: string | string[]) => {
     let titleWidth = `${(wordOrArrayOfLetters.length * 6.5) + (69 + wordOrArrayOfLetters?.length)}px`;
@@ -55,6 +58,7 @@ export default function Boards(props: any) {
         user, 
         width,
         authState,
+        setSelected,
         addNewBoard,
         globalUserData,
         setActiveOptions,
@@ -333,7 +337,7 @@ export default function Boards(props: any) {
                             placeholder={`Search Grids to View`}
                             hostClass={`gridsMultiSelectorContainer`}
                             onChange={(val) => updateSelectedGrids(val)} 
-                            options={grids?.length > 1 ? grids : globalUserData?.grids} 
+                            options={grids?.length > 1 ? [...grids, newGridOption] : [...globalUserData?.grids, newGridOption]} 
                         />
                     )}
                 </div>

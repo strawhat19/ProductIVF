@@ -17,7 +17,7 @@ export default function DetailsDialog({ }: any) {
 
     return (
         <Dialog
-            open={isSelected(selected, Views.Details)}
+            open={isSelected(selected, [Views.Details, Views.NewGrid])}
             slotProps={{
                 paper: {
                     component: `div`,
