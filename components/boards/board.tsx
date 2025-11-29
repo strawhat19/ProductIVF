@@ -10,7 +10,7 @@ import { Board as BoardModel } from '../../shared/models/Board';
 import { capitalizeAllWords, StateContext } from '../../pages/_app';
 import { GridTypes, TasksFilterStates, Types } from '../../shared/types/types';
 import { forceFieldBlurOnPressEnter, getRankAndNumber, logToast } from '../../shared/constants';
-import { addListToDatabase, db, deleteBoardFromDatabase, listsTable, updateDocFieldsWTimeStamp } from '../../firebase';
+import { addListToDatabase, archiveBoardInDatabase, db, deleteBoardFromDatabase, listsTable, updateDocFieldsWTimeStamp } from '../../firebase';
 
 export const taskFilterStateTransitions = {
     [TasksFilterStates.All_On]: TasksFilterStates.Tasks,
@@ -121,10 +121,11 @@ export default function Board(props) {
     }
 
     const deleteBoard = (e, initialConfirm = true) => {
+        let isArch = selectedGrid?.gridType == GridTypes.Archived;
         if (board) {
             if (showConfirm == true) {
                 if (!initialConfirm) {
-                    finallyDeleteBoard();
+                    finallyDeleteBoard(isArch);
                 }
                 setShowConfirm(false);
             } else {
@@ -132,7 +133,7 @@ export default function Board(props) {
                 if (boardsListsLn?.length > 0) {
                     setShowConfirm(true);
                 } else {
-                    finallyDeleteBoard();
+                    finallyDeleteBoard(isArch);
                 }
             }
         }
@@ -151,19 +152,22 @@ export default function Board(props) {
         }
     }
 
-    const finallyDeleteBoard = async (useDB = true) => {
+    const finallyDeleteBoard = async (archived = false, useDB = true) => {
+        let action = archived ? `Delet` : `Archiv`;
+        let fnToExec = archived ? deleteBoardFromDatabase : archiveBoardInDatabase;
         if (board) {
             if (useDB == true) {
-                const deleteBoardToast = toast.info(`Deleting Board ${board?.name}`);
-                await deleteBoardFromDatabase(board)?.then(brd => {
+                const deleteBoardToast = toast.info(`${action}ing Board ${board?.name}`);
+                await fnToExec(user, board)?.then(brd => {
+                    brd = brd ? brd : board;
                     setTimeout(() => toast.dismiss(deleteBoardToast), 1500);
-                    logToast(`Successfully Deleted Board #${brd?.number}`, brd);
+                    logToast(`Successfully ${action}ed Board #${brd?.number}`, brd);
                 })?.catch(deleteBrdError => {
-                    logToast(`Failed to Delete Board #${board?.number}`, deleteBrdError, true);
+                    logToast(`Failed to ${action}e Board #${board?.number}`, deleteBrdError, true);
                 })?.finally(() => {
                     setTimeout(() => {
                         setLoading(false);
-                        setSystemStatus(`Deleted Board #${board?.number}`);
+                        setSystemStatus(`${action}ed Board #${board?.number}`);
                     }, 1000);
                 });
             } else deleteBoardNoDB();
@@ -374,10 +378,10 @@ export default function Board(props) {
                                     {(boards?.length > 1 || selectedGrid?.gridType == GridTypes.Archived) && (
                                         <div className={`itemButtons customButtons`}>
                                             {user?.uid == board?.ownerUID && (
-                                                <button id={`delete_${board?.id}`} onClick={(e) => deleteBoard(e)} title={`Delete Board`} className={`iconButton deleteButton deleteBoardButton ${showConfirm ? `cancelBtn` : ``}`}>
-                                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`mainIcon fas fa-${showConfirm ? `ban` : `trash`}`} />
+                                                <button id={`delete_${board?.id}`} onClick={(e) => deleteBoard(e)} title={`${(selectedGrid?.gridType == GridTypes.Archived ? `Delete` : `Archive`)} Board`} className={`iconButton deleteButton deleteBoardButton ${showConfirm ? `cancelBtn` : ``}`}>
+                                                    <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`mainIcon fas fa-${showConfirm ? `ban` : (selectedGrid?.gridType == GridTypes.Archived ? `trash` : `folder`)}`} />
                                                     <span className={`iconButtonText textOverflow extended`}>
-                                                        {showConfirm ? `Cancel` : `Delete`}
+                                                        {showConfirm ? `Cancel` : (selectedGrid?.gridType == GridTypes.Archived ? `Delete` : `Archive`)}
                                                     </span>
                                                     {showConfirm && (
                                                         <ConfirmAction onConfirm={(e) => deleteBoard(e, false)} />

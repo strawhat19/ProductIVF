@@ -7,14 +7,14 @@ import { Task } from './shared/models/Task';
 import { Chat } from './shared/models/Chat';
 import { Post } from './shared/models/Post';
 import { initializeApp } from 'firebase/app';
-import { Types } from './shared/types/types';
+import { GridTypes, Types } from './shared/types/types';
 import { Board } from './shared/models/Board';
 import { Message } from './shared/models/Message';
 import { Feature } from './shared/admin/features';
 import { getDownloadURL, getStorage, listAll, ref } from 'firebase/storage';
 import { countPropertiesInObject, formatDateMain, logToast } from './shared/constants';
 import { GoogleAuthProvider, browserLocalPersistence, deleteUser, getAuth, setPersistence } from 'firebase/auth';
-import { collection, doc, getDoc, getDocs, getFirestore, query, setDoc, updateDoc, where, WhereFilterOp, writeBatch } from 'firebase/firestore';
+import { arrayRemove, arrayUnion, collection, doc, getDoc, getDocs, getFirestore, increment, query, setDoc, updateDoc, where, WhereFilterOp, writeBatch } from 'firebase/firestore';
 
 export enum Environments {
   beta = `beta_`,
@@ -503,7 +503,79 @@ export const addBoardToDatabase = async (board: Board, gridID: string, userID: s
   }
 }
 
-export const deleteBoardFromDatabase = async (board: Board) => {
+export const archiveBoardInDatabase = async (user: User, board: Board) => {
+  const { date } = getIDParts();
+  const archiveBoardBatchOperation = await writeBatch(db);
+  try {
+    const brdID = board?.id;
+    const grdID = board?.gridID;
+    
+    const archGridQry = query(collection(db, gridsTable), where(`ownerID`, `==`, user?.id), where(`gridType`, `==`, GridTypes.Archived));
+    const archGridSnpShot = await getDocs(archGridQry);
+    const archGrid = archGridSnpShot?.docs.length ? archGridSnpShot?.docs[0].data() : null;
+    
+    if (archGrid) {
+      const archGridID = archGrid.id;
+
+      const brdRef = await doc(db, boardsTable, brdID);
+      if (brdRef) {
+        archiveBoardBatchOperation.update(brdRef, {
+          prevGridID: grdID,
+          gridID: archGridID,
+          [`meta.updated`]: date,
+          ...(!board?.prevGridID && { properties: increment(1), })
+        })
+      }
+
+      const gridRef = await doc(db, gridsTable, grdID);
+      if (gridRef) {
+        archiveBoardBatchOperation.update(gridRef, {
+          [`meta.updated`]: date,
+          properties: increment(-1),
+          [`data.boardIDs`]: arrayRemove(brdID),
+        });
+      }
+
+      const archGridRef = doc(db, gridsTable, archGridID);
+      if (archGridRef) {
+        archiveBoardBatchOperation.update(archGridRef, {
+          [`meta.updated`]: date,
+          properties: increment(1),
+          [`data.boardIDs`]: arrayUnion(brdID),
+        })
+      }
+
+      const listsQuery = query(collection(db, listsTable), where(`boardID`, `==`, brdID));
+      const listsSnapshot = await getDocs(listsQuery);
+      for (const listDoc of listsSnapshot.docs) {
+        const listRef = doc(db, listsTable, listDoc.id);
+        archiveBoardBatchOperation.update(listRef, { gridID: archGrid?.id });
+      }
+
+      const itemsQuery = query(collection(db, itemsTable), where(`boardID`, `==`, brdID));
+      const itemsSnapshot = await getDocs(itemsQuery);
+      for (const itemDoc of itemsSnapshot.docs) {
+        const itemRef = doc(db, itemsTable, itemDoc.id);
+        archiveBoardBatchOperation.update(itemRef, { gridID: archGrid?.id });
+      }
+
+      const tasksQuery = query(collection(db, tasksTable), where(`boardID`, `==`, brdID));
+      const tasksSnapshot = await getDocs(tasksQuery);
+      for (const taskDoc of tasksSnapshot.docs) {
+        const taskRef = doc(db, tasksTable, taskDoc.id);
+        archiveBoardBatchOperation.update(taskRef, { gridID: archGrid?.id });
+      }
+
+      await archiveBoardBatchOperation.commit();
+      return board;
+    }
+  } catch (archiveBoardError) {
+    await logToast(`Error Archiving Board ${board?.name}`, archiveBoardError, true);
+    return archiveBoardError;
+  }
+}
+
+export const deleteBoardFromDatabase = async (user: User, board: Board) => {
   const { date } = getIDParts();
   const deleteBoardBatchOperation = await writeBatch(db);
   try {
@@ -511,7 +583,6 @@ export const deleteBoardFromDatabase = async (board: Board) => {
 
     const listsQuery = query(collection(db, listsTable), where(`boardID`, `==`, board.id));
     const listsSnapshot = await getDocs(listsQuery);
-
     for (const listDoc of listsSnapshot.docs) {
       const listRef = doc(db, listsTable, listDoc.id);
       deleteBoardBatchOperation.delete(listRef);
@@ -519,15 +590,13 @@ export const deleteBoardFromDatabase = async (board: Board) => {
     
     const itemsQuery = query(collection(db, itemsTable), where(`boardID`, `==`, board.id));
     const itemsSnapshot = await getDocs(itemsQuery);
-
     for (const itemDoc of itemsSnapshot.docs) {
       const itemRef = doc(db, itemsTable, itemDoc.id);
       deleteBoardBatchOperation.delete(itemRef);
     }
-
+  
     const tasksQuery = query(collection(db, tasksTable), where(`boardID`, `==`, board.id));
     const tasksSnapshot = await getDocs(tasksQuery);
-
     for (const taskDoc of tasksSnapshot.docs) {
       const taskRef = doc(db, tasksTable, taskDoc.id);
       deleteBoardBatchOperation.delete(taskRef);

@@ -10,6 +10,7 @@ export class Board extends Data {
     number: number;
     gridID: string;
     titleWidth: any;
+    prevGridID: string;
 
     creator: string;
 
