@@ -58,7 +58,6 @@ export default function Boards(props: any) {
         user, 
         width,
         authState,
-        setSelected,
         addNewBoard,
         globalUserData,
         setActiveOptions,
@@ -392,7 +391,7 @@ export default function Boards(props: any) {
         {selectedGrid?.options?.newestBoardsOnTop ? ((boardsLoading || user?.uid != selectedGrid?.ownerUID) ? <></> : createBoardComponent()) : <></>}
 
         <DragDropContext onDragEnd={onDragEnd}>
-            <div id={`allBoards`} className={`boards transition ${AuthGrids?.includes(selectedGrid?.gridType) && !userRecentlyAuthenticated ? `blurred pointerEventsNone` : ``}`}>
+            <div id={`allBoards`} className={`boards ${selectedGrid?.gridType == GridTypes.Archived ? `archivedGrid` : `unArchivedGrid`} transition ${AuthGrids?.includes(selectedGrid?.gridType) && !userRecentlyAuthenticated ? `authenticatedGrid blurred pointerEventsNone` : ``}`}>
                 <div className={`flex ${boards && boards?.length > 0 ? `hasBoards` : `noBoards`} ${boards && boards?.length == 1 ? `oneBoard` : ``}`}>
                     {(boardsLoading || selectedGrid == null) ? <>
                         <div className={`flex isColumn`} style={{ paddingTop: 5 }}>

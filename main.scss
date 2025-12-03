@@ -1591,6 +1591,14 @@ textarea {
     }
 }
 
+.archivedGrid {
+    .all_boards_div  {
+        display: flex;
+        grid-gap: 15px;
+        flex-direction: column;
+    }
+}
+
 .all_boards_div  {
     width: 100%;
     .bord {

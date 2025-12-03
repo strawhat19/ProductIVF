@@ -509,36 +509,40 @@ export const archiveBoardInDatabase = async (user: User, board: Board) => {
   try {
     const brdID = board?.id;
     const grdID = board?.gridID;
+    const prvGrdID = board?.prevGridID;
     
     const archGridQry = query(collection(db, gridsTable), where(`ownerID`, `==`, user?.id), where(`gridType`, `==`, GridTypes.Archived));
     const archGridSnpShot = await getDocs(archGridQry);
-    const archGrid = archGridSnpShot?.docs.length ? archGridSnpShot?.docs[0].data() : null;
+    const archGrid = archGridSnpShot?.docs.length ? archGridSnpShot?.docs[0]?.data() : null;
     
     if (archGrid) {
-      const archGridID = archGrid.id;
+      const archGridID = archGrid?.id;
+      const gridIDToSet = prvGrdID ? prvGrdID : archGridID;
+      const archived = gridIDToSet == archGridID;
 
       const brdRef = await doc(db, boardsTable, brdID);
       if (brdRef) {
         archiveBoardBatchOperation.update(brdRef, {
           prevGridID: grdID,
-          gridID: archGridID,
+          gridID: gridIDToSet,
           [`meta.updated`]: date,
+          [`options.archived`]: archived,
           ...(!board?.prevGridID && { properties: increment(1), })
         })
       }
 
-      const gridRef = await doc(db, gridsTable, grdID);
-      if (gridRef) {
-        archiveBoardBatchOperation.update(gridRef, {
+      const prvGridRef = await doc(db, gridsTable, grdID);
+      if (prvGridRef) {
+        archiveBoardBatchOperation.update(prvGridRef, {
           [`meta.updated`]: date,
           properties: increment(-1),
           [`data.boardIDs`]: arrayRemove(brdID),
         });
       }
 
-      const archGridRef = doc(db, gridsTable, archGridID);
-      if (archGridRef) {
-        archiveBoardBatchOperation.update(archGridRef, {
+      const newGridRef = doc(db, gridsTable, gridIDToSet);
+      if (newGridRef) {
+        archiveBoardBatchOperation.update(newGridRef, {
           [`meta.updated`]: date,
           properties: increment(1),
           [`data.boardIDs`]: arrayUnion(brdID),
@@ -547,23 +551,23 @@ export const archiveBoardInDatabase = async (user: User, board: Board) => {
 
       const listsQuery = query(collection(db, listsTable), where(`boardID`, `==`, brdID));
       const listsSnapshot = await getDocs(listsQuery);
-      for (const listDoc of listsSnapshot.docs) {
-        const listRef = doc(db, listsTable, listDoc.id);
-        archiveBoardBatchOperation.update(listRef, { gridID: archGrid?.id });
+      for (const listDoc of listsSnapshot?.docs) {
+        const listRef = doc(db, listsTable, listDoc?.id);
+        archiveBoardBatchOperation.update(listRef, { gridID: gridIDToSet, [`options.archived`]: archived, });
       }
 
       const itemsQuery = query(collection(db, itemsTable), where(`boardID`, `==`, brdID));
       const itemsSnapshot = await getDocs(itemsQuery);
-      for (const itemDoc of itemsSnapshot.docs) {
-        const itemRef = doc(db, itemsTable, itemDoc.id);
-        archiveBoardBatchOperation.update(itemRef, { gridID: archGrid?.id });
+      for (const itemDoc of itemsSnapshot?.docs) {
+        const itemRef = doc(db, itemsTable, itemDoc?.id);
+        archiveBoardBatchOperation.update(itemRef, { gridID: gridIDToSet, [`options.archived`]: archived, });
       }
 
       const tasksQuery = query(collection(db, tasksTable), where(`boardID`, `==`, brdID));
       const tasksSnapshot = await getDocs(tasksQuery);
-      for (const taskDoc of tasksSnapshot.docs) {
-        const taskRef = doc(db, tasksTable, taskDoc.id);
-        archiveBoardBatchOperation.update(taskRef, { gridID: archGrid?.id });
+      for (const taskDoc of tasksSnapshot?.docs) {
+        const taskRef = doc(db, tasksTable, taskDoc?.id);
+        archiveBoardBatchOperation.update(taskRef, { gridID: gridIDToSet, [`options.archived`]: archived, });
       }
 
       await archiveBoardBatchOperation.commit();

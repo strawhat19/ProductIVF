@@ -120,20 +120,26 @@ export default function Board(props) {
         }
     }
 
-    const deleteBoard = (e, initialConfirm = true) => {
+    const deleteBoard = (e, initialConfirm = true, finalDelete = false) => {
         let isArch = selectedGrid?.gridType == GridTypes.Archived;
         if (board) {
-            if (showConfirm == true) {
-                if (!initialConfirm) {
-                    finallyDeleteBoard(isArch);
-                }
-                setShowConfirm(false);
+            let grdID = board?.gridID;
+            let archivedGrdID = isArch ? selectedGrid?.id : globalUserData?.grids?.find(g => g?.gridType == GridTypes.Archived)?.id;
+            if (!finalDelete && grdID == archivedGrdID) {
+                finallyDeleteBoard(isArch, finalDelete);
             } else {
-                let boardsListsLn = board?.data?.listIDs;
-                if (boardsListsLn?.length > 0) {
-                    setShowConfirm(true);
+                if (showConfirm == true) {
+                    if (!initialConfirm) {
+                        finallyDeleteBoard(isArch, finalDelete);
+                    }
+                    setShowConfirm(false);
                 } else {
-                    finallyDeleteBoard(isArch);
+                    let boardsListsLn = board?.data?.listIDs;
+                    if (boardsListsLn?.length > 0) {
+                        setShowConfirm(true);
+                    } else {
+                        finallyDeleteBoard(isArch, finalDelete);
+                    }
                 }
             }
         }
@@ -152,9 +158,9 @@ export default function Board(props) {
         }
     }
 
-    const finallyDeleteBoard = async (archived = false, useDB = true) => {
-        let action = archived ? `Delet` : `Archiv`;
-        let fnToExec = archived ? deleteBoardFromDatabase : archiveBoardInDatabase;
+    const finallyDeleteBoard = async (archived = false, finalDelete = false, useDB = true) => {
+        let action = archived ? (finalDelete ? `Delet` : `Unarchiv`) : `Archiv`;
+        let fnToExec = action?.includes(`Del`) ? deleteBoardFromDatabase : archiveBoardInDatabase;
         if (board) {
             if (useDB == true) {
                 const deleteBoardToast = toast.info(`${action}ing Board ${board?.name}`);
@@ -243,6 +249,13 @@ export default function Board(props) {
         return showExpandedBoardOptions;
     }
 
+    const getPrevGridName = (gridID: string) => {
+        let grdName = `Grid`;
+        let grd = globalUserData?.grids?.find(g => g?.id == gridID);
+        if (grd) grdName = grd?.name;
+        return grdName;
+    }
+
     return (
         <div id={`${board?.id}_dndContext`} className={`boardDragDropContext`}>
             <section className={`boardsTitle boards ${props.index == 0 ? `isFirstBoardSection` : selectedGrid?.data?.boardIDs?.length == props.index - 1 ? `isLastBoardSection` : `isMiddleBoardSection`} ${selectedGrid?.options?.newestBoardsOnTop ? `newestBoardsOnTop` : `newestBoardsOnBottom`} ${selectedGrid?.gridType == GridTypes.Archived ? `archivedBoardTitle` : `unarchivedBoardTitle`}`} style={{ paddingBottom: 0 }}>
@@ -267,7 +280,7 @@ export default function Board(props) {
                                         onChange={(e) => changeLabel(e)}
                                         onKeyDown={(e) => forceFieldBlurOnPressEnter(e)}
                                         style={{ width: showExpandedBoard() ? (board.titleWidth ? board.titleWidth : `75px`) : `100%` }} 
-                                        className={`boardNameField changeLabel textOverflow ${showExpandedBoard() ? `expandedBoardChangeLabel` : `stretch collapsedBoardChangeLabel`} ${selectedGrid?.gridType == GridTypes.Archived ? `pointerEventsNone` : ``}`} 
+                                        className={`boardNameField changeLabel textOverflow ${showExpandedBoard() ? `expandedBoardChangeLabel` : `stretch collapsedBoardChangeLabel`}`} 
                                     />
                                 </h2>
                                 {showExpandedBoard() && <>
@@ -377,17 +390,28 @@ export default function Board(props) {
                                     </>}
                                     {(boards?.length > 1 || selectedGrid?.gridType == GridTypes.Archived) && (
                                         <div className={`itemButtons customButtons`}>
-                                            {user?.uid == board?.ownerUID && (
-                                                <button id={`delete_${board?.id}`} onClick={(e) => deleteBoard(e)} title={`${(selectedGrid?.gridType == GridTypes.Archived ? `Delete` : `Archive`)} Board`} className={`iconButton deleteButton deleteBoardButton ${showConfirm ? `cancelBtn` : ``}`}>
+                                            {user?.uid == board?.ownerUID && <>
+                                                {selectedGrid?.gridType == GridTypes.Archived && <>
+                                                    <span style={{ position: `relative`, top: 3, right: 5, minWidth: `fit-content` }}>
+                                                        Prev Grid: {getPrevGridName(board?.prevGridID)}
+                                                    </span>
+                                                    <button id={`delete_${board?.id}`} onClick={(e) => deleteBoard(e)} title={`${(selectedGrid?.gridType == GridTypes.Archived ? `Delete` : `Archive`)} Board`} className={`iconButton deleteButton deleteBoardButton`}>
+                                                        <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`mainIcon fas fa-folder-open`} />
+                                                        <span className={`iconButtonText textOverflow extended`}>
+                                                            Unarchive
+                                                        </span>
+                                                    </button>
+                                                </>}
+                                                <button id={`delete_${board?.id}`} onClick={(e) => deleteBoard(e, true, selectedGrid?.gridType == GridTypes.Archived)} title={`${(selectedGrid?.gridType == GridTypes.Archived ? `Delete` : `Archive`)} Board`} className={`iconButton deleteButton deleteBoardButton ${showConfirm ? `cancelBtn` : ``}`}>
                                                     <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`mainIcon fas fa-${showConfirm ? `ban` : (selectedGrid?.gridType == GridTypes.Archived ? `trash` : `folder`)}`} />
                                                     <span className={`iconButtonText textOverflow extended`}>
                                                         {showConfirm ? `Cancel` : (selectedGrid?.gridType == GridTypes.Archived ? `Delete` : `Archive`)}
                                                     </span>
                                                     {showConfirm && (
-                                                        <ConfirmAction onConfirm={(e) => deleteBoard(e, false)} />
+                                                        <ConfirmAction onConfirm={(e) => deleteBoard(e, false, selectedGrid?.gridType == GridTypes.Archived)} />
                                                     )}
                                                 </button>
-                                            )}
+                                            </>}
                                             {boards?.length > 1 ? <>
                                                 <button onClick={(e) => expandCollapseBoard(e)} className={`iconButton`}>
                                                     <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-chevron-${showExpandedBoard(false) ? `up` : `down`}`} />
