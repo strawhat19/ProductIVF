@@ -3,6 +3,7 @@ import { toast } from 'react-toastify';
 import { StateContext } from '../../pages/_app';
 import { addBoardScrollBars } from '../boards/board';
 import { updateDocFieldsWTimeStamp } from '../../firebase';
+import { Types } from '../../shared/types/types';
 // import { fontAwesomeIcons } from '../../shared/constants';
 
 export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--gameBlue)` }: any) {
@@ -17,6 +18,11 @@ export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--
 
     const onClose = () => {
         onDismiss();
+    }
+
+    const getName = () => {
+        let name = selected?.task ? selected?.task?.name : selected?.item?.name?.toUpperCase();
+        return name;
     }
 
     // const onArchiveItem = (e) => {
@@ -55,7 +61,9 @@ export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--
 
     const copyToClipBoard = () => {
         if (navigator.clipboard) {
-            let { name, type, rank } = selected?.item;
+            let name = getName();
+            let itmToUse = selected?.task ? selected?.task : selected?.item;
+            let { type, rank } = itmToUse;
             let textToCopy = `${type[0]?.toLowerCase()}${rank} - ${name}`;
             navigator.clipboard.writeText(textToCopy);
             toast.success(`Copied to Clipboard`);
@@ -100,31 +108,35 @@ export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--
             <ul className={`customContextMenuOptions`}>
                 <li title={selected?.item?.name} className={`menuTitleRow customContextMenuOption flex gap15 disabledOption`} onClick={() => onClose()}>
                     <span style={{ maxWidth: 120 }} className={`textOverflow`}>
-                        {selected?.item?.name?.toUpperCase()}
+                        {getName()}
                     </span>
                 </li>
                 <li className={`customContextMenuOption flex gap15`} onClick={() => onClose()}>
                     <i className={`fas fa-times`} style={{ color: iconColor }} /> <span>Close</span>
                 </li>
-                <li className={`customContextMenuOption flex gap15`} onClick={() => setItemTaskForm(selected?.item?.options?.showTaskForm)}>
-                    <i className={`fas ${selected?.item?.options?.showTaskForm ? `fa-minus` : `fa-plus`}`} style={{ color: iconColor, fontSize: selected?.item?.options?.showTaskForm ? 14 : undefined }} /> <span>{selected?.item?.options?.showTaskForm ? `` : ``}Tasks</span>
-                </li>
-                <li className={`customContextMenuOption flex gap15`} onClick={() => sortTasks()}>
-                    <i className={`fas fa-sort`} style={{ color: iconColor, fontSize: 20 }} /> <span>Sort</span>
-                </li>
+                {!selected?.task && <>
+                    <li className={`customContextMenuOption flex gap15`} onClick={() => setItemTaskForm(selected?.item?.options?.showTaskForm)}>
+                        <i className={`fas ${selected?.item?.options?.showTaskForm ? `fa-minus` : `fa-plus`}`} style={{ color: iconColor, fontSize: selected?.item?.options?.showTaskForm ? 14 : undefined }} /> <span>{selected?.item?.options?.showTaskForm ? `` : ``}Tasks</span>
+                    </li>
+                    <li className={`customContextMenuOption flex gap15`} onClick={() => sortTasks()}>
+                        <i className={`fas fa-sort`} style={{ color: iconColor, fontSize: 20 }} /> <span>Sort</span>
+                    </li>
+                </>}
                 <li className={`customContextMenuOption flex gap15`} onClick={() => copyToClipBoard()}>
                     <i className={`fas fa-copy`} style={{ color: iconColor }} /> <span>Copy</span>
                 </li>
-                {ids?.indexOf(selected?.item?.id) > 0 && (
-                    <li className={`customContextMenuOption flex gap15`} onClick={() => moveItemToPosition()}>
-                        <i className={`fas fa-sort-amount-up`} style={{ color: iconColor }} /> <span>To Top</span>
-                    </li>
-                )}
-                {(ids?.indexOf(selected?.item?.id) < ids?.length - 1) && (
-                    <li className={`customContextMenuOption flex gap15`} onClick={() => moveItemToPosition(false)}>
-                        <i className={`fas fa-sort-amount-down`} style={{ color: iconColor }} /> <span>To Bottom</span>
-                    </li>
-                )}
+                {!selected?.task && <>
+                    {ids?.indexOf(selected?.item?.id) > 0 && (
+                        <li className={`customContextMenuOption flex gap15`} onClick={() => moveItemToPosition()}>
+                            <i className={`fas fa-sort-amount-up`} style={{ color: iconColor }} /> <span>To Top</span>
+                        </li>
+                    )}
+                    {(ids?.indexOf(selected?.item?.id) < ids?.length - 1) && (
+                        <li className={`customContextMenuOption flex gap15`} onClick={() => moveItemToPosition(false)}>
+                            <i className={`fas fa-sort-amount-down`} style={{ color: iconColor }} /> <span>To Bottom</span>
+                        </li>
+                    )}
+                </>}
                 {/* {devEnv && (
                     <li className={`customContextMenuOption flex gap15`} onClick={onArchiveItem}>
                         <i className={`archivedIcon ${fontAwesomeIcons.folder}`} style={{ color: iconColor }} /> <span>Archive</span>

@@ -2,21 +2,16 @@ import Tags from './details/tags';
 import Progress from '../progress';
 import { ItemTypes } from './boards';
 import Counts from './details/counts';
-// import ItemDetail from './itemdetail';
 import CustomImage from '../custom-image';
 import { addBoardScrollBars } from './board';
 import { Task } from '../../shared/models/Task';
 import { List } from '../../shared/models/List';
 import DetailField from './details/detail-field';
 import { Views } from '../../shared/types/types';
-// import { GridTypes } from '../../shared/types/types';
-// import ToggleButtons from './details/toggle-buttons';
-// import RelatedURLsDND from './details/related-urls-dnd';
 import ConfirmAction from '../context-menus/confirm-action';
 import { Item as ItemModel } from '../../shared/models/Item';
 import React, { useContext, useEffect, useState } from 'react';
-// import { collection, getDocs, query, where } from 'firebase/firestore';
-import { showAlert, StateContext, capitalizeAllWords } from '../../pages/_app';
+import { StateContext, capitalizeAllWords } from '../../pages/_app';
 import { deleteItemFromDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
 import { forceFieldBlurOnPressEnter, isValid, removeExtraSpacesFromString } from '../../shared/constants';
 
@@ -57,14 +52,10 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
     let [windowWidth, setWindowWidth] = useState(typeof window !== undefined ? window.innerWidth : 1920);
 
     let { 
-        // user,
         menuRef, 
-        // devEnv, 
         setLoading, 
         setSelected, 
-        // addNewBoard,
         globalUserData,
-        // selectedGrid,
         setSystemStatus, 
         setMenuPosition, 
         setItemTypeMenuOpen, 
@@ -298,8 +289,10 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
         if (shouldIgnore) return;
         
         e.preventDefault();
+
         setItemTypeMenuOpen(true);
         setMenuPosition({ x: e.clientX, y: e.clientY });
+        
         setSelected({ 
             item,
             column,

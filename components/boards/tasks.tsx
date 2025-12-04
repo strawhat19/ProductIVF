@@ -2,11 +2,12 @@ import Tags from './details/tags';
 import { CSS } from '@dnd-kit/utilities';
 import { addBoardScrollBars } from './board';
 import { getIDParts } from '../../shared/ID';
-import { Types } from '../../shared/types/types';
+import { Item } from '../../shared/models/Item';
 import DetailField from './details/detail-field';
+import { Types, Views } from '../../shared/types/types';
 import { collection, getDocs } from 'firebase/firestore';
-import { capWords, StateContext } from '../../pages/_app';
 import { createTask, Task } from '../../shared/models/Task';
+import { capWords, dev, StateContext } from '../../pages/_app';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { DndContext, PointerSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
@@ -19,8 +20,8 @@ const reorder = (list, oldIndex, newIndex) => arrayMove(list, oldIndex, newIndex
 const SortableSubtaskItem = ({ 
   item, 
   index, 
-  isLast, 
-  selected, 
+  isLast,  
+  selected,
   changeLabel, 
   completeTask, 
   deleteSubtask, 
@@ -28,8 +29,8 @@ const SortableSubtaskItem = ({
   task: taskProp, 
   searchFilterTasks, 
 }) => {
-  let { globalUserData } = useContext<any>(StateContext);
   let { listeners, transform, attributes, setNodeRef, transition, isDragging } = useSortable({ id: taskProp?.id });
+  let { menuRef, globalUserData, setMenuPosition, setItemTypeMenuOpen, setSelected } = useContext<any>(StateContext);
 
   let [task, setTask] = useState<Task>(taskProp);
 
@@ -60,8 +61,61 @@ const SortableSubtaskItem = ({
   //   );
   // }
 
+  const onRightClick = (e: React.MouseEvent<HTMLDivElement>, tsk: Task, itm: Item) => {
+    let target: any = e?.target;
+    let targetParent = target?.parentElement;
+    let tcl = target?.classList;
+    let tpcl = targetParent?.classList;
+    let classesToIgnore = [];
+    let shouldIgnore = classesToIgnore.some(className => tcl?.contains(className) || tpcl?.contains(className));
+
+    dev() && console.log(`onRightClick Task`, {
+      e,
+      tcl,
+      tpcl,
+      target,
+      selected,
+      task: tsk,
+      item: itm,
+      targetParent,
+      shouldIgnore,
+      classesToIgnore,
+    });
+    
+    if (shouldIgnore) return;
+    
+    e.preventDefault();
+
+    let column = globalUserData?.lists?.find(l => l?.id == tsk?.listID);
+    let board = globalUserData?.boards?.find(b => b?.id == tsk?.boardID);
+
+    setItemTypeMenuOpen(true);
+    setMenuPosition({ x: e.clientX, y: e.clientY });
+
+    setSelected({ 
+      board,
+      column,
+      item: itm,
+      task: tsk,
+      type: Views.Context,
+    });
+  }
+
+  const handleClickOutside = (event: MouseEvent) => {
+    if (menuRef?.current && !menuRef?.current?.contains(event?.target as Node)) {
+      setSelected(null);
+      setMenuPosition(null);
+      setItemTypeMenuOpen(false);
+    }
+  }
+
+  useEffect(() => {
+    document.addEventListener(`click`, handleClickOutside);
+    return () => document.removeEventListener(`click`, handleClickOutside);
+  }, []);
+
   return (
-    <div ref={setNodeRef} title={task?.name} style={style} {...attributes} {...listeners} className={`draggableTask boardTaskDraggableWrap ${isLast ? `dndLastTask` : index == 0 ? `dndFirstTask` : `dndMiddleTask`}`}>
+    <div ref={setNodeRef} title={task?.name} style={style} {...attributes} {...listeners} onContextMenu={(e) => onRightClick(e, task, item)} className={`draggableTask boardTaskDraggableWrap ${isLast ? `dndLastTask` : index == 0 ? `dndFirstTask` : `dndMiddleTask`}`}>
       <div className={`task_${task?.id} boardTask taskMainWrap subTaskItem ${item?.options?.complete ? `taskItemComplete` : `taskItemNotComplete`} ${!item?.options?.complete && (isValid(task?.options?.active) && task?.options?.active == true) ? `activeItemOrTask` : ``} ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`} ${isLast ? `dndLast` : index == 0 ? `dndFirst` : `dndMiddle`}`}>
         <div className={`boardTaskHandle ${searchFilterTasks && gridSearchTerm != `` ? `cursorAuto` : `cursorGrab`} draggableItem item subtaskHandle ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`}`}>
           <span className={`itemOrder taskComponentBG`}>
