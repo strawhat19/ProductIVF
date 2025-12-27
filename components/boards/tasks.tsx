@@ -13,7 +13,7 @@ import { DndContext, PointerSensor, useSensor, useSensors, closestCenter } from 
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { addTaskToDatabase, db, deleteTaskFromDatabase, tasksTable, updateDocFieldsWTimeStamp } from '../../firebase';
 import { restrictToFirstScrollableAncestor, restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers';
-import { forceFieldBlurOnPressEnter, getItemOrTaskURLs, getRankAndNumber, isValid, removeExtraSpacesFromString } from '../../shared/constants';
+import { forceFieldBlurOnPressEnter, getItemOrTaskURLs, getRankAndNumber, isValid, removeExtraSpacesFromString, stripURLsFromString } from '../../shared/constants';
 
 const reorder = (list, oldIndex, newIndex) => arrayMove(list, oldIndex, newIndex);
 
@@ -220,7 +220,7 @@ export default function Tasks(props) {
   );
 
   const updateTaskInState = (task: Task, updates: Partial<Task>) => {
-    const getUpdatedTasks = (taskArray: Task[]) => taskArray?.map(tsk => tsk?.id == task?.id ? ({ ...task, ...updates }) : tsk);
+    const getUpdatedTasks = (taskArray: Task[]) => taskArray?.map(tsk => tsk?.id == task?.id ? ({ ...tsk, ...updates }) : tsk);
     item.tasks = getUpdatedTasks(item.tasks);
     setTasks(prevTasks => getUpdatedTasks(prevTasks));
     setGlobalUserData(prevGlobalUserData => ({
@@ -236,9 +236,9 @@ export default function Tasks(props) {
     
     e.target.innerHTML = cleanedValue;
     
-    const name = cleanedValue;
-    const updatedTaskURLs = getItemOrTaskURLs(task, [name]);
-    // const updates = { name, A: name, title: `${task?.type} ${task?.rank} ${name}` };
+    const rawName = cleanedValue;
+    const updatedTaskURLs = getItemOrTaskURLs(task, [rawName]);
+    const name = stripURLsFromString(rawName, updatedTaskURLs);
     const updates = { name, A: name, [`data.relatedURLs`]: updatedTaskURLs, title: `${task?.type} ${task?.rank} ${name}` };
 
     updateTaskInState(task, updates);

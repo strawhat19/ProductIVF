@@ -2,7 +2,7 @@ import { Data } from './Data';
 import { User } from './User';
 import { genID } from '../ID';
 import { Types } from '../types/types';
-import { countPropertiesInObject, getItemOrTaskURLs, isValid, stringNoSpaces } from '../constants';
+import { countPropertiesInObject, stripURLsFromString, getItemOrTaskURLs, isValid, stringNoSpaces } from '../constants';
 
 export class Task extends Data {
     ID: any;
@@ -114,13 +114,10 @@ export const createTask = (
     let currentTaskNameWURLS = task?.name ?? ``;
     const taskURLs = getItemOrTaskURLs(task, [currentTaskNameWURLS]);
     task.data.relatedURLs = taskURLs;
+    
+    task.name = stripURLsFromString(currentTaskNameWURLS, taskURLs);
 
-    if (taskURLs?.length > 0) {
-        taskURLs?.forEach((tURL: string) => {
-            currentTaskNameWURLS = currentTaskNameWURLS?.replaceAll(tURL, ``)
-        });
-        task.name = currentTaskNameWURLS;
-    }
+    console.log(`New Task from Create`, { task, taskURLs });
 
     return task;
 }

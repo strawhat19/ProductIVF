@@ -41,6 +41,18 @@ export const isMobileDevice = () => {
   }
 }
 
+export const stripURLsFromString = (str: string, urls: string[]): string => {
+  if (urls?.length > 0) {
+    urls?.forEach((tURL: string) => {
+      const escapedURL = tURL.replace(/[.*+?^${}()|[\]\\]/g, `\\$&`);
+      const regex = new RegExp(escapedURL, `gi`);
+      str = str.replace(regex, ``);
+    });
+    let newTaskNameNoURLs = str?.replace(/\s+/g, ` `).trim();
+    return newTaskNameNoURLs;
+  } else return str;
+}
+
 export const extractURLsFromText = (textArray: string[]) => {
   const URLRegex = /(?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9.-]+\.(com|net|org|io|co|gov|edu|us|uk|dev|app|info|biz|me|tv|xyz|ai|ca|in|nl|au|de)(?:[^\s]*)/gi;
   const URLsFromText = textArray.flatMap(text => text.match(URLRegex) || []);
