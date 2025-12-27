@@ -111,8 +111,16 @@ export const createTask = (
         }
     }
 
-    const taskURLs = getItemOrTaskURLs(task, [task?.name]);
+    let currentTaskNameWURLS = task?.name ?? ``;
+    const taskURLs = getItemOrTaskURLs(task, [currentTaskNameWURLS]);
     task.data.relatedURLs = taskURLs;
+
+    if (taskURLs?.length > 0) {
+        taskURLs?.forEach((tURL: string) => {
+            currentTaskNameWURLS = currentTaskNameWURLS?.replaceAll(tURL, ``)
+        });
+        task.name = currentTaskNameWURLS;
+    }
 
     return task;
 }
