@@ -13,10 +13,9 @@ import { replaceAll, StateContext } from '../../pages/_app';
 import { useState, useEffect, useContext, useRef } from 'react';
 import { Board as BoardModel } from '../../shared/models/Board';
 import { generateArray, withinXTime } from '../../shared/constants';
-import { AuthGrids, GridTypes, Types, Views } from '../../shared/types/types';
-// import FeatureFlagBadge from '../../shared/admin/feature-flag-badge';
 import { Droppable, Draggable, DragDropContext } from '@hello-pangea/dnd';
 import { dragItemToNewList, updateDocFieldsWTimeStamp } from '../../firebase';
+import { AuthGrids, GridTypes, Types, Views } from '../../shared/types/types';
 
 export enum ItemTypes {
     Item = `Item`,
@@ -69,6 +68,7 @@ export default function Boards(props: any) {
         userRecentlyAuthenticated,
         boards, setBoards, boardsLoading,
         gridSearchTerm, setGridSearchTerm,
+        searchFilterTasks, setSearchFilterTasks,
         grids, gridsLoading, selectedGrids, selectedGrid, 
     } = useContext<any>(StateContext);
 
@@ -299,7 +299,7 @@ export default function Boards(props: any) {
                             {isFeatureEnabled(FeatureIDs.Search_Grid) && <>
                                 <form ref={gridFormRef} className={`gridForm w100 searchCreateGridForm`} onInput={(e) => onGridFormChange(e)} onSubmit={(e) => onGridFormSubmit(e)} style={{ position: `relative` }}>
                                     {/* <FeatureFlagBadge featureID={FeatureIDs.Search_Grid} /> */}
-                                    <button style={{ background: `white`, pointerEvents: useSearchInputGridCreate ? `all` : `none`, width: `8%`, minWidth: 33, maxWidth: 33, justifyContent: `center`, borderTopRightRadius: 0, borderBottomRightRadius: 0 }} title={`${searchingGrid ? `Search` : `Create`} Grid`} className={`gridTypeIconButton iconButton filterButton hoverGlow ${searchingGrid ? `filerActive searchButton` : `filterInactive createGridButton`}`} onClick={() => setSearchingGrid(!searchingGrid)}>
+                                    <button style={{ background: `white`, pointerEvents: useSearchInputGridCreate ? `all` : `none`, width: `8%`, minWidth: 33, maxWidth: 33, justifyContent: `center`, borderTopRightRadius: 0, borderBottomRightRadius: 0 }} title={`${searchingGrid ? `Search` : `Create`} Grid`} className={`gridTypeIconButton iconButton filterButton hoverGlow ${searchingGrid ? `filterActive searchButton` : `filterInactive createGridButton`}`} onClick={() => setSearchingGrid(!searchingGrid)}>
                                         {searchingGrid ? <i style={{ color: `var(--gameBlue)`, fontSize: 13 }} className={`fas fa-search`} /> : `+`}
                                     </button>
                                     {searchingGrid ? (
@@ -307,9 +307,13 @@ export default function Boards(props: any) {
                                     ) : (
                                         <input autoComplete={`off`} placeholder={`Create Grid +`} type={`text`} name={`createGrid`} className={`gridInputField createGridField`} />
                                     )}
-                                    {(searchingGrid && gridSearchTerm != ``) && (
+                                    {(searchingGrid && gridSearchTerm != ``) ? (
                                         <button style={{ background: `white`, width: `8%`, minWidth: 33, maxWidth: 33, justifyContent: `center`, borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }} title={`Clear Search`} className={`clearSearchButton gridTypeIconButton iconButton filterButton hoverGlow`} onClick={(e) => onClearSearch(e)}>
                                             <i style={{ color: `var(--gameBlue)`, fontSize: 16 }} className={`fas fa-times`} />
+                                        </button>
+                                    ) : (
+                                        <button style={{ background: `white`, width: `8%`, minWidth: 33, maxWidth: 33, justifyContent: `center`, borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }} title={`Filter Tasks`} className={`clearSearchButton gridTypeIconButton iconButton filterButton hoverGlow ${searchFilterTasks ? `filterActiveButton` : ``}`} onClick={(e) => setSearchFilterTasks(!searchFilterTasks)}>
+                                            <i style={{ color: `var(--gameBlue)`, fontSize: 16 }} className={`fas fa-filter`} />
                                         </button>
                                     )}
                                 </form>

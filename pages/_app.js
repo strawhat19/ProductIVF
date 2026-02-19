@@ -490,7 +490,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let [globalUserData, setGlobalUserData] = useState(null);
   let [profilesLoading, setProfilesLoading] = useState(true);
   let [itemTypeMenuOpen, setItemTypeMenuOpen] = useState(false);
-  let [searchFilterTasks, setSearchFilterTasks] = useState(false);
+  let [searchFilterTasks, setSearchFilterTasks] = useState(true);
   let [globalUserDataLoading, setGlobalUserDataLoading] = useState(true);
 
   const getPageContainerClasses = () => {

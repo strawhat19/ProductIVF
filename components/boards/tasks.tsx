@@ -247,10 +247,23 @@ export default function Tasks(props) {
 
   const getTasksInCurrentSearchFilters = (tasks: Task[]) => {
     let tasksInCurrentSearchFilters = tasks;
-    // let tasksInCurrentSearchFilters = item?.data?.taskIDs?.map(tskID => tasks?.find((tsk: Task) => tsk?.id == tskID));
     let hasSearchTerm = gridSearchTerm != ``;
     if (searchFilterTasks && hasSearchTerm) {
-      tasksInCurrentSearchFilters = tasks?.filter((tsk: Task) => tsk?.name?.toLowerCase()?.includes(gridSearchTerm?.toLowerCase()?.trim()));
+      let searchTerm = gridSearchTerm?.toLowerCase()?.trim();
+      tasksInCurrentSearchFilters = tasks?.filter((tsk: Task) => {
+        let relatedURLS = tsk?.data?.relatedURLs ?? [];
+        let queryFields = [tsk?.name, ...relatedURLS];
+        queryFields.push(
+          String(tsk?.rank), 
+          `${tsk?.type[0]}${tsk?.rank}`, 
+          `${tsk?.type[0]} ${tsk?.rank}`, 
+          `${tsk?.type[0]}-${tsk?.rank}`, 
+          `${tsk?.type[0]}_${tsk?.rank}`,
+        );
+        let queryFieldsLC = queryFields?.map(q => q?.toLowerCase());
+        let inSearchFilters = queryFieldsLC?.some(str => str.includes(searchTerm));
+        return inSearchFilters;
+      });
     }
     if (tasksProp != undefined) {
       return tasksProp;

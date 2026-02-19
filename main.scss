@@ -2783,6 +2783,14 @@ footer {
     }
 }
 
+.filterActiveButton {
+    min-height: 35px !important;
+    background: var(--gameBlue) !important;
+    i {
+        color: white !important;
+    }
+}
+
 .dubscript {
     font-size: 0.85em;
 }
