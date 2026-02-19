@@ -309,20 +309,19 @@ export default function Column(props) {
                                     >
                                         {props.column.name}    
                                     </div>
-                                    <div className={`columnStats flex row end`}>
+                                    <div className={`columnStats flex row end gap5i`}>
                                         <span className={`subscript`} style={{display: `contents`,}}>
-                                            <span className={`slashes`}>
+                                            <span className={`slashesNo`}>
                                                 {props.items.filter(itm => itemActiveFilters(itm) && itm?.options?.complete).length}
-                                            </span> ✓ <div className={`slashes`} style={{display: `contents`}}> // </div> <span className={`slashes`}>
+                                            </span><span className="simpleSlashes slashes_success"> ✓</span> <div className={`slashesNo`} style={{display: `contents`}}> <span className="simpleSlashes">//</span> </div> <span className={`slashesNo`}>
                                                 {props.items.filter(itm => itemActiveFilters(itm)).length}
-                                            </span> ☰</span>
-                                            <span className={`subscript`} style={{display: `contents`,}}> <span className={`slashes`}>
+                                            </span><span className="simpleSlashes" style={{ marginRight: 10 }}> ☰</span></span>
+                                            <span className={`subscript`} style={{display: `contents`,}}> <span className={`slashesNo`}>
                                                 {[].concat(...props.items.filter(itm => itemActiveFilters(itm)).filter(itm => itm?.options?.complete).map(itm => itm?.tasks)).length 
                                                 + [].concat(...props.items.filter(itm => itemActiveFilters(itm)).filter(itm => !itm?.options?.complete).map(itm => itm?.tasks)).filter(tsk => tsk?.options?.complete).length}
-                                                {/* {[].concat(...props.items.filter(itm => itemActiveFilters(itm)).map(itm => itm?.subtasks)).filter(tsk => tsk?.complete).length} */}
-                                            </span> ✓ <div className={`slashes`} style={{display: `contents`}}> // </div> <span className={`slashes`}>
+                                            </span><span className="simpleSlashes slashes_success"> ✓</span> <div className={`slashesNo`} style={{display: `contents`}}> <span className="simpleSlashes">//</span> </div> <span className={`slashesNo`}>
                                                 {[].concat(...props.items.filter(itm => itemActiveFilters(itm)).map(itm => itm?.tasks)).length}
-                                            </span> ☰</span>
+                                            </span><span className="simpleSlashes"> ☰</span></span>
                                     </div>
                                 </div>
                             </h3>

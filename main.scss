@@ -1573,10 +1573,19 @@ textarea {
 }
 
 .slashes {
+    font-weight: 600;
+    display: contents;
+    max-width: fit-content;
+    color: var(--gameBlue);
+}
+
+.simpleSlashes {
     color: var(--gameBlue);
     max-width: fit-content;
-    display: contents;
-    font-weight: 600;
+}
+
+.slashes_success {
+    color: var(--success);
 }
 
 .complete {
