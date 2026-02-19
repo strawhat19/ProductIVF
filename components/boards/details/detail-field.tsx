@@ -50,6 +50,7 @@ export default function DetailField({ item, task = undefined, type = DetailTypes
 
     const detailFieldElement = (itemOrTask: Item | Task, className = `dateDetail`, key: `created` | `updated` = `created`) => {
         let stat = getItemOrTaskStatus(itemOrTask, tasks, task == undefined ? undefined : item);
+        itemOrTask.status = stat;
         return <>
             <span className={`detailField detailField_${type} itemDate ${className} itemName textOverflow extended flex row`}>
                 {type != DetailTypes.Status && (

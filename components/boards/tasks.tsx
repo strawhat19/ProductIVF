@@ -254,6 +254,7 @@ export default function Tasks(props) {
         let relatedURLS = tsk?.data?.relatedURLs ?? [];
         let queryFields = [tsk?.name, ...relatedURLS];
         queryFields.push(
+          tsk?.status,
           String(tsk?.rank), 
           `${tsk?.type[0]}${tsk?.rank}`, 
           `${tsk?.type[0]} ${tsk?.rank}`, 

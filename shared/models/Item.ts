@@ -1,3 +1,4 @@
+import { Task } from './Task';
 import { Data } from './Data';
 import { genID } from '../ID';
 import { User } from './User';
@@ -23,11 +24,12 @@ export class Item extends Data {
 
     image = ``;
     video = ``;
+    status = ``;
     description = ``;
     attachments = [];
     color = `Default`;
     
-    tasks?: any;
+    tasks?: any | Task[];
     
     options = {
         private: true,

@@ -1,4 +1,5 @@
 import Column from './column';
+import DateComponent from '../date';
 import { toast } from 'react-toastify';
 import { getBoardTitleWidth } from './boards';
 import { Droppable } from '@hello-pangea/dnd';
@@ -283,21 +284,21 @@ export default function Board(props) {
                                         className={`boardNameField changeLabel textOverflow ${showExpandedBoard() ? `expandedBoardChangeLabel` : `stretch collapsedBoardChangeLabel`}`} 
                                     />
                                 </h2>
-                                {showExpandedBoard() && <>
-                                    <h3 className={`boardDate`}>
-                                        <span className={`subscript rowDate itemDate itemName itemCreated itemUpdated textOverflow extended flex row`}>
+                                <h3 className={`boardDate`}>
+                                    <span className={`subscript rowDate itemDate itemName itemCreated itemUpdated textOverflow extended flex row`}>
+                                        {showExpandedBoard() && <>
                                             <i> - </i>
-                                            <i className={`status`}>
-                                                {board && board?.meta?.created && !board?.meta?.updated ? `Cre.` : `Upd.` }
-                                            </i> 
-                                            <i>
-                                                <span className={`itemDateTime`}>
-                                                    {board?.meta?.updated ?? board?.meta?.created}
-                                                </span>
-                                            </i>
-                                        </span>
-                                    </h3>
-                                </>}
+                                        </>}
+                                        <i className={`status`}>
+                                            {board && board?.meta?.created && !board?.meta?.updated ? `Cre` : `Upd` }<span className={`simpleSlashes`}>. </span>
+                                        </i> 
+                                        <i>
+                                            <span className={`itemDateTime`}>
+                                                <DateComponent dateString={board?.meta?.updated ?? board?.meta?.created} />
+                                            </span>
+                                        </i>
+                                    </span>
+                                </h3>
                             </div>
                             <h3 className={`divSep`}>
                                 <span className={`subscript`} style={{color: `var(--gameBlue)`}}>

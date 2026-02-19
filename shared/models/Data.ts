@@ -14,6 +14,7 @@ export class Data {
   email: string;
   title?: string;
   properties: number;
+  status: string = ``;
   type: Types = Types.Data;
 
   meta = {

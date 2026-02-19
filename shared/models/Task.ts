@@ -22,6 +22,7 @@ export class Task extends Data {
     type: Types = Types.Task;
 
     image = ``;
+    status = ``;
     description = ``;
     color = `Default`;
     

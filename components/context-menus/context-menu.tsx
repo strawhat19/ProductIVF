@@ -3,8 +3,6 @@ import { toast } from 'react-toastify';
 import { StateContext } from '../../pages/_app';
 import { addBoardScrollBars } from '../boards/board';
 import { updateDocFieldsWTimeStamp } from '../../firebase';
-import { Types } from '../../shared/types/types';
-// import { fontAwesomeIcons } from '../../shared/constants';
 
 export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--gameBlue)` }: any) {
     let { selected, setMenuPosition, setItemTypeMenuOpen, setSelected } = useContext<any>(StateContext);

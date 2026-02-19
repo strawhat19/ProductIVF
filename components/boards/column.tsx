@@ -1,4 +1,5 @@
 import Tasks from './tasks';
+import DateComponent from '../date';
 import { ItemTypes } from './boards';
 import { toast } from 'react-toastify';
 import Item, { getTypeIcon } from './item';
@@ -71,6 +72,7 @@ export default function Column(props) {
             let itemTags = itm?.data?.tags;
             let itemQueryStrings = [
                 itm?.name, 
+                itm?.status,
                 itm?.description, 
                 String(itm?.rank), 
                 `${itm?.type[0]}${itm?.rank}`, 
@@ -92,6 +94,7 @@ export default function Column(props) {
                     let taskRelatedURLs = tsk?.data?.relatedURLs || [];
                     queryStrings.push(...taskTags, ...taskRelatedURLs);
                     queryStrings.push(
+                        tsk?.status,
                         `${tsk?.type[0]}${tsk?.rank}`, 
                         `${tsk?.type[0]} ${tsk?.rank}`, 
                         `${tsk?.type[0]}-${tsk?.rank}`, 
@@ -310,6 +313,12 @@ export default function Column(props) {
                                         {props.column.name}    
                                     </div>
                                     <div className={`columnStats flex row end gap5i`}>
+                                        <div className={`medscript rowThis`} style={{ position: `relative`, top: 1 }}>
+                                            Upd<span className={`simpleSlashes`}>. </span> <DateComponent dateString={props?.column?.meta?.updated ?? props?.column?.meta?.created} />
+                                        </div>
+                                        <div style={{ margin: `0 5px` }}>
+                                            <span className={`simpleSlashes sep`}> | </span>
+                                        </div>
                                         <span className={`subscript`} style={{display: `contents`,}}>
                                             <span className={`slashesNo`}>
                                                 {props.items.filter(itm => itemActiveFilters(itm) && itm?.options?.complete).length}

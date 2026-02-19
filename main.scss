@@ -1580,6 +1580,7 @@ textarea {
 }
 
 .simpleSlashes {
+    display: contents;
     color: var(--gameBlue);
     max-width: fit-content;
 }
@@ -2795,6 +2796,10 @@ footer {
     font-size: 0.85em;
 }
 
+.medscript {
+    font-size: 0.75em;
+}
+
 .subscript {
     font-size: 0.7em;
 }
@@ -2943,6 +2948,7 @@ footer {
             .columnStats {
                 font-weight: 700;
                 padding-right: 3px;
+                align-items: center;
             }
             &:hover {
                 i {
@@ -3228,6 +3234,11 @@ footer {
             }
         }
     }
+}
+
+.sep {
+    font-size: 10px;
+    font-style: normal;
 }
 
 .lineSep {
