@@ -66,7 +66,7 @@ const SortableSubtaskItem = ({
     let targetParent = target?.parentElement;
     let tcl = target?.classList;
     let tpcl = targetParent?.classList;
-    let classesToIgnore = [];
+    let classesToIgnore = [`url`, `taskURL`, `taskTags`];
     let shouldIgnore = classesToIgnore.some(className => tcl?.contains(className) || tpcl?.contains(className));
 
     dev() && console.log(`onRightClick Task`, {
