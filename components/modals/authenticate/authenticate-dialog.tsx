@@ -58,7 +58,7 @@ export default function AuthenticationDialog({ }: any) {
                 paper: {
                     component: `form`,
                     className: `authConfirmForm`,
-                    onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
+                    onSubmit: (event: React.FormEvent<HTMLFormElement> | any) => {
                         event.preventDefault();
                         const formData = new FormData(event.currentTarget);
                         const formJson = Object.fromEntries((formData as any).entries());
