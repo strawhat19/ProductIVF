@@ -2318,6 +2318,12 @@ textarea {
                                         container-type: inline-size;
                                         max-width: -moz-fit-content;
                                         justify-content: space-between;
+                                        &.complete {
+                                            .taskTag {
+                                                color: white !important;
+                                                background: black !important;
+                                            }
+                                        }
                                         .taskDetailsEnd {
                                             align-items: center;
                                             flex-direction: row;

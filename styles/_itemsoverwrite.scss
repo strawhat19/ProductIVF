@@ -186,6 +186,15 @@
             }
             &.boardColumnItems {
                 .boardItem {
+                    &.complete {
+                        .taskTag {
+                            color: white !important;
+                            background: black !important;
+                            .tagNameField {
+                                color: white !important;
+                            }
+                        }
+                    }
                     &.activeItemBoard {
                         .itemChangeLabel {
                             font-weight: calc(var(--activeFontWeight) - 100);
