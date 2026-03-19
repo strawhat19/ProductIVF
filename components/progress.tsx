@@ -24,8 +24,12 @@ export default function Progress({ item, tasks = [], classes = `circleProgress`,
             {customInnerText == true ? (
                 <CircularProgressbarWithChildren styles={styles} value={progress} className={`circleProgressWithChildren`}>
                     <div className={`progressTextValue`} style={{ display: `flex`, flexDirection: `row`, gap: 1, alignItems: `center`, justifyContent: `center`, fontWeight: 700 }}>
-                        <div className={`progressCircleText`} style={{ fontSize: 10 }}>{progress}</div>
-                        <div className={`progressCircleText`} style={{ fontSize: 9 }}>%</div>
+                        <div className={`progressCircleText`} style={{ fontSize: 10 }}>
+                            {progress}
+                        </div>
+                        <div className={`progressCircleText`} style={{ fontSize: 9 }}>
+                            %
+                        </div>
                     </div>
                 </CircularProgressbarWithChildren>
             ) : (

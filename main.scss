@@ -2031,6 +2031,14 @@ textarea {
                     filter: blur(3px) !important;
                 }
 
+                &.review {
+                    .itemButtons {
+                        button {
+                            background: black;
+                        }
+                    }
+                }
+
                 span {
                     width: 100%;
                     max-height: 100%;
@@ -2336,7 +2344,7 @@ textarea {
                                         container-type: inline-size;
                                         max-width: -moz-fit-content;
                                         justify-content: space-between;
-                                        &.complete {
+                                        &.complete, &.review {
                                             .taskTag {
                                                 color: white !important;
                                                 background: black !important;

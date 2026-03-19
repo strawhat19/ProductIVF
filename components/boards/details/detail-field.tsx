@@ -7,6 +7,7 @@ import { Types } from '../../../shared/types/types';
 export enum Statuses {
     Next = `To Do`,
     Active = `Active`,
+    Review = `Review`,
     Complete = `Complete`,
 }
 
@@ -18,8 +19,8 @@ export enum DetailTypes {
 export const getStatSymbol = (stat: Statuses) => {
     let statSymbols = {
         [Statuses.Next]: `o`,
-        // [Statuses.Active]: `✧`,
         [Statuses.Active]: `▶`,
+        [Statuses.Review]: `✧`,
         [Statuses.Complete]: `✓`,
     }
     let statSymbol = statSymbols[stat];
@@ -32,15 +33,24 @@ export const getItemOrTaskStatus = (itemOrTask: Item | Task, tasks: Task[] = [],
     const statusIsTrue = (status) => isValid(status) && status == true;
 
     let isActive = statusIsTrue(itemOrTask?.options?.active);
+    let isReview = statusIsTrue(itemOrTask?.options?.review);
     let isComplete = statusIsTrue(itemOrTask?.options?.complete);
     
     let isItem = itemOrTask?.type == Types.Item;
 
-    let isItemWActiveTasks = isItem && (isValid(tasks) && tasks?.some(tsk => statusIsTrue(tsk?.options?.active) || statusIsTrue(tsk?.options?.complete)));
+    let isItemWActiveTasks = isItem && (isValid(tasks) && tasks?.some(tsk =>
+        statusIsTrue(tsk?.options?.active) ||
+        statusIsTrue(tsk?.options?.review) ||
+        statusIsTrue(tsk?.options?.complete)
+    ));
 
     const taskActive = !isItem && isActive;
+    const taskReview = !isItem && isReview;
     const itemActive = isItem && isActive && itemOrTask?.data?.taskIDs?.length == 0;
+    const itemReview = isItem && isReview && itemOrTask?.data?.taskIDs?.length == 0;
+
     if ((taskActive || itemActive) || isItemWActiveTasks) status = Statuses.Active;
+    if (taskReview || itemReview) status = Statuses.Review;
     if (isComplete || (taskItem != undefined && taskItem?.options?.complete)) status = Statuses.Complete;
 
     return status;

@@ -14,6 +14,7 @@ import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } 
 import { addTaskToDatabase, db, deleteTaskFromDatabase, tasksTable, updateDocFieldsWTimeStamp } from '../../firebase';
 import { restrictToFirstScrollableAncestor, restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers';
 import { forceFieldBlurOnPressEnter, getItemOrTaskURLs, getRankAndNumber, isValid, removeExtraSpacesFromString, stripURLsFromString } from '../../shared/constants';
+import { getStatus } from './item';
 
 const reorder = (list, oldIndex, newIndex) => arrayMove(list, oldIndex, newIndex);
 
@@ -116,7 +117,7 @@ const SortableSubtaskItem = ({
 
   return (
     <div ref={setNodeRef} title={task?.name} style={style} {...attributes} {...listeners} onContextMenu={(e) => onRightClick(e, task, item)} className={`draggableTask boardTaskDraggableWrap ${isLast ? `dndLastTask` : index == 0 ? `dndFirstTask` : `dndMiddleTask`}`}>
-      <div className={`task_${task?.id} boardTask taskMainWrap subTaskItem ${item?.options?.complete ? `taskItemComplete` : `taskItemNotComplete`} ${!item?.options?.complete && (isValid(task?.options?.active) && task?.options?.active == true) ? `activeItemOrTask` : ``} ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`} ${isLast ? `dndLast` : index == 0 ? `dndFirst` : `dndMiddle`}`}>
+      <div className={`task_${task?.id} boardTask taskMainWrap subTaskItem ${item?.options?.complete ? `taskItemComplete` : `taskItemNotComplete`} ${!item?.options?.complete && (isValid(task?.options?.active) && task?.options?.active == true) ? `activeItemOrTask` : ((isValid(task?.options?.review) && task?.options?.review == true) ? `reviewItemOrTask` : ``)} ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`} ${isLast ? `dndLast` : index == 0 ? `dndFirst` : `dndMiddle`}`}>
         <div className={`boardTaskHandle ${searchFilterTasks && gridSearchTerm != `` ? `cursorAuto` : `cursorGrab`} draggableItem item subtaskHandle ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`}`}>
           <span className={`itemOrder taskComponentBG`}>
             <i className={`itemIndex ${(item?.options?.complete || task?.options?.complete) ? `completedIndex` : `activeIndex`}`}>
@@ -124,7 +125,7 @@ const SortableSubtaskItem = ({
             </i>
           </span>
 
-          <div className={`subtaskActions flex row taskComponentBG ${task?.name?.length >= 30 ? `longTaskName` : `shortTaskName`} ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`}`}>
+          <div className={`subtaskActions flex row taskComponentBG ${task?.name?.length >= 30 ? `longTaskName` : `shortTaskName`} ${(item?.options?.review || task?.options?.review) ? `review` : ``} ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`}`}>
             <span
               contentEditable
               spellCheck={false}
@@ -165,7 +166,7 @@ const SortableSubtaskItem = ({
               id={`task_${task?.id}_status_checkbox`}
               onMouseDown={(e) => e.stopPropagation()}
               onPointerDown={(e) => e.stopPropagation()}
-              checked={item?.options?.complete || (task?.options?.complete || task?.options?.active)}
+              checked={item?.options?.complete || (task?.options?.active || task?.options?.review || task?.options?.complete)}
               className={`task_check_box taskCheckbox ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`}`}
             />
           </div>
@@ -273,34 +274,40 @@ export default function Tasks(props) {
     }
   }
 
-  const completeTask = async (e, task) => {
+  const completeTask = async (e, task: Task) => {
     setLoading(true);
 
-    const { date } = getIDParts();
+    let { date } = getIDParts();
 
-    const taskComplete = task?.options?.complete == true;
-    const taskActive = isValid(task?.options?.active) && task?.options?.active == true;
+    let taskActive = isValid(task?.options?.active) && task?.options?.active == true;
+    let taskReview = isValid(task?.options?.review) && task?.options?.review == true;
+    let taskComplete = isValid(task?.options?.complete) && task?.options?.complete == true;
 
-    setSystemStatus(`Marking Task as ${taskComplete ? `Reopened` : `Complete`}.`);
+    let status = getStatus(task, false, true);
+    setSystemStatus(`Marking Task as ${status}.`);
 
     updateTaskInState(task, {
       options: {
         ...task?.options,
         ...(taskActive ? {
-          ...(taskComplete ? {
-            active: false,
-            complete: false,
-          } : {
-            active: false,
-            complete: true,
-          }),
+          active: false,
+          review: true,
+          complete: false,
         } : {
-          ...(taskComplete ? {
+          ...(taskReview ? {
             active: false,
-            complete: false,
+            review: false,
+            complete: true,
           } : {
-            active: true,
-            complete: false,
+            ...(taskComplete ? {
+              active: false,
+              review: false,
+              complete: false,
+            } : {
+              active: true,
+              review: false,
+              complete: false,
+            })
           })
         }),
       },
@@ -312,20 +319,24 @@ export default function Tasks(props) {
 
     await updateDocFieldsWTimeStamp(task, { 
       ...(taskActive ? {
-        ...(taskComplete ? {
-          [`options.active`]: false,
-          [`options.complete`]: false,
-        } : {
-          [`options.active`]: false,
-          [`options.complete`]: true,
-        }),
+        [`options.review`]: true,
+        [`options.active`]: false,
+        [`options.complete`]: false,
       } : {
-        ...(taskComplete ? {
+        ...(taskReview ? {
           [`options.active`]: false,
-          [`options.complete`]: false,
+          [`options.review`]: false,
+          [`options.complete`]: true,
         } : {
-          [`options.active`]: true,
-          [`options.complete`]: false,
+          ...(taskComplete ? {
+            [`options.active`]: false,
+            [`options.review`]: false,
+            [`options.complete`]: false,
+          } : {
+            [`options.active`]: true,
+            [`options.review`]: false,
+            [`options.complete`]: false,
+          })
         })
       }),
     });

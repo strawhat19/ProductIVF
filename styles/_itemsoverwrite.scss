@@ -4,6 +4,7 @@
     --darkInverse: white !important;
     --lightInverse: black !important;
     --primary: var(--gameBlue) !important;
+    --review: rgba(175, 226, 255, 0.85);
     --detailViewBG2: rgba(0, 63, 99, 0.85);
     --detailViewBG: rgba(21, 90, 130, 0.85);
     --detailViewBG3: rgba(21, 90, 130, 0.55);
@@ -31,6 +32,10 @@
     &:has(.status_Active) {
         color: white !important;
         background: linear-gradient(90deg, var(--blackGlass) var(--buttonSize), var(--detailViewBG2) var(--buttonSize)) !important;
+    }
+    &:has(.status_Review) {
+        color: black !important;
+        background: linear-gradient(90deg, var(--blackGlass) var(--buttonSize), var(--review) var(--buttonSize)) !important;
     }
 }
 
@@ -186,7 +191,7 @@
             }
             &.boardColumnItems {
                 .boardItem {
-                    &.complete {
+                    &.complete, &.review {
                         .taskTag {
                             color: white !important;
                             background: black !important;
@@ -231,15 +236,22 @@
                                 -webkit-text-decoration-color: var(--dark) !important;
                             }
                         }
-                        &.activeItemOrTask {
+                        &.activeItemOrTask, &.reviewItemOrTask {
                             --fontColor: var(--gameBlue) !important;
                             input[type="checkbox"] {
                                 &::before {
                                     font-size: 11px;
-                                    // content: "✧" !important;
                                     content: "▶" !important;
                                     padding: 0px 8px !important;
                                     color: var(--fontColor) !important;
+                                }
+                            }
+                            &.reviewItemOrTask {
+                                input[type="checkbox"] {
+                                    &::before {
+                                        content: "✧" !important;
+                                        color: black !important;
+                                    }
                                 }
                             }
                         }

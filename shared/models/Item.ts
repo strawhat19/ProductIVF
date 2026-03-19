@@ -33,6 +33,7 @@ export class Item extends Data {
     
     options = {
         private: true,
+        review: false,
         active: false,
         complete: false,
         archived: false,
@@ -43,9 +44,9 @@ export class Item extends Data {
         archivedData: {
             archivedBy: ``,
             archivedAt: ``,
+            archivedFromListID: ``,
             archivedFromGridID: ``,
             archivedFromBoardID: ``,
-            archivedFromListID: ``,
         },
     }
 

@@ -27,10 +27,11 @@ export class Task extends Data {
     color = `Default`;
     
     options = {
+        review: false,
         private: true,
         active: false,
-        complete: false,
         archived: false,
+        complete: false,
         recurring: false,
     }
 

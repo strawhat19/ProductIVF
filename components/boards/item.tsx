@@ -6,19 +6,65 @@ import CustomImage from '../custom-image';
 import { addBoardScrollBars } from './board';
 import { Task } from '../../shared/models/Task';
 import { List } from '../../shared/models/List';
-import DetailField from './details/detail-field';
 import { Views } from '../../shared/types/types';
 import ConfirmAction from '../context-menus/confirm-action';
 import { Item as ItemModel } from '../../shared/models/Item';
 import React, { useContext, useEffect, useState } from 'react';
+import DetailField, { Statuses } from './details/detail-field';
 import { StateContext, capitalizeAllWords } from '../../pages/_app';
 import { deleteItemFromDatabase, updateDocFieldsWTimeStamp } from '../../firebase';
 import { forceFieldBlurOnPressEnter, isValid, removeExtraSpacesFromString } from '../../shared/constants';
 
+export const getNextStatusIcon = (itemOrTask: ItemModel | Task): string => {
+    let reopenIcon = `fas fa-history`;
+    let searchIcon = `fas fa-search`;
+    let playIcon = `fas fa-play-circle`;
+    let completeIcon = `fas fa-check-circle`;
+    let statusIcon = playIcon;
+    let activeStatus = (itemOrTask?.data?.taskIDs?.length == 0 && itemOrTask?.options?.active) || itemOrTask?.data?.taskIDs?.length > 0;
+    if (activeStatus) statusIcon = searchIcon;
+    if (itemOrTask?.options?.review) statusIcon = completeIcon;
+    if (itemOrTask?.options?.complete) statusIcon = reopenIcon;
+    return statusIcon;
+}
+
+export const getStatus = (itemOrTask: ItemModel | Task, next: boolean = false, label: boolean = false): Statuses | string => {
+    let todoStatus = label ? `Reopen` : Statuses.Next;
+    let activeStatus = label ? `Activate` : Statuses.Active;
+    
+    let status: Statuses | string = todoStatus;
+
+    let { options } = itemOrTask;
+
+    let isActive = options?.active == true;
+    let isReview = options?.review == true;
+    let isComplete = options?.complete == true;
+
+    let toActive = !isActive && !isReview && !isComplete;
+    let toReview = isActive && !isReview && !isComplete;
+    let toComplete = !isActive && isReview && !isComplete;
+
+    if (next) {
+        if (toActive) status = activeStatus;
+        if (toReview) status = Statuses.Review;
+        if (toComplete) status = Statuses.Complete;
+    } else {
+        status = Statuses.Complete;
+        if (toActive) status = todoStatus;
+        if (toReview) status = activeStatus;
+        if (toComplete) status = Statuses.Review;
+    }
+
+    return status;
+}
+
 export const getItemTaskCompletionPercentage = (tasks: Task[], item: ItemModel, isActive = null) => {
     let itemIsActive = isValid(item?.options?.active) && item?.options?.active == true;
+    let itemIsReview = isValid(item?.options?.review) && item?.options?.review == true;
     let itemIsComplete = isValid(item?.options?.complete) && item?.options?.complete == true;
-    if (itemIsActive && item?.data?.taskIDs?.length == 0) return 50;
+
+    if (itemIsActive && item?.data?.taskIDs?.length == 0) return 33.3;
+    if (itemIsReview && item?.data?.taskIDs?.length == 0) return 66.6;
     if (itemIsComplete) return 100;
 
     if (tasks.length == 0) {
@@ -29,12 +75,15 @@ export const getItemTaskCompletionPercentage = (tasks: Task[], item: ItemModel, 
     let itemTaskCompletionProgress = 0;
     
     let activeTasks = tasks.filter(task => isValid(task?.options?.active) && task?.options?.active == true);
+    let reviewTasks = tasks.filter(task => isValid(task?.options?.review) && task?.options?.review == true);
     let completeTasks = tasks.filter(task => isValid(task?.options?.complete) && task?.options?.complete == true);
 
-    let activeTaskProgress = (activeTasks.length / tasks.length) * 50;
+    let activeTaskProgress = (activeTasks.length / tasks.length) * 33.3;
+    let reviewTaskProgress = (reviewTasks.length / tasks.length) * 66.6;
     let completeTaskProgress = (completeTasks.length / tasks.length) * 100;
 
-    itemTaskCompletionProgress = parseFloat((activeTaskProgress + completeTaskProgress).toFixed(1));
+    itemTaskCompletionProgress = parseFloat((activeTaskProgress + reviewTaskProgress + completeTaskProgress).toFixed(1));
+
     return itemTaskCompletionProgress;
 }
 
@@ -77,33 +126,40 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
         updateDocFieldsWTimeStamp(item, { name, A: name, title: `${item?.type} ${item?.rank} ${name}` });
     }
 
-    const completeActions = async (item, isButton) => {
+    const completeActions = async (item: ItemModel, isButton) => {
         if (count == 0) {
             setLoading(true);
-            setSystemStatus(`Marking Item as Complete.`);
+            
+            let status = getStatus(item, false, true);
+            setSystemStatus(`Marking Item as ${status}.`);
 
-            let isComplete = item?.options?.complete == true;
             let isActive = isValid(item?.options?.active) && item?.options?.active == true;
+            let isReview = isValid(item?.options?.review) && item?.options?.review == true;
+            let isComplete = isValid(item?.options?.complete) && item?.options?.complete == true;
 
             await updateDocFieldsWTimeStamp(item, { 
                 ...(item?.data?.taskIDs?.length > 0 ? {
                     [`options.complete`]: !isComplete,
                 } : {
                     ...(isActive ? {
-                        ...(isComplete ? {
-                          [`options.active`]: false,
-                          [`options.complete`]: false,
+                        [`options.review`]: true,
+                        [`options.active`]: false,
+                        [`options.complete`]: false,
+                    } : {
+                        ...(isReview ? {
+                            [`options.active`]: false,
+                            [`options.review`]: false,
+                            [`options.complete`]: true,
                         } : {
-                          [`options.active`]: false,
-                          [`options.complete`]: true,
-                        }),
-                      } : {
-                        ...(isComplete ? {
-                          [`options.active`]: false,
-                          [`options.complete`]: false,
-                        } : {
-                          [`options.active`]: true,
-                          [`options.complete`]: false,
+                            ...(isComplete ? {
+                                [`options.active`]: false,
+                                [`options.review`]: false,
+                                [`options.complete`]: false,
+                            } : {
+                                [`options.active`]: true,
+                                [`options.review`]: false,
+                                [`options.complete`]: false,
+                            })
                         })
                     }),
                 }),
@@ -333,7 +389,7 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
     }, []);
 
     return <>
-        <div id={`itemElement_${item.id}`} className={`itemComponent itemElement_${item.uuid} itemInnerRow flex row ${isValid(item?.options?.active) && item?.options?.active == true ? `activeItemOrTask` : ``}`} onContextMenu={(e) => onRightClick(e, item, column)}>
+        <div id={`itemElement_${item.id}`} className={`itemComponent itemElement_${item.uuid} itemInnerRow flex row ${isValid(item?.options?.active) && item?.options?.active == true ? `activeItemOrTask` : ``} ${isValid(item?.options?.review) && item?.options?.review == true ? `reviewItemOrTask` : ``}`} onContextMenu={(e) => onRightClick(e, item, column)}>
             <span className={`itemOrder rowIndexOrder`}>
                 <i className={`itemIndex ${item?.options?.complete ? `completedIndex` : `activeIndex`}`}>
                     <span className={`itemIconType ${item?.itemType}`}>
@@ -397,19 +453,10 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
                         )}
                     </button>
                     {(item?.data?.taskIDs?.length == 0 || (item?.data?.taskIDs?.length == getItemTasks(`complete`)?.length)) && (
-                        <button id={`complete_${item?.id}`} onClick={(e) => onCompleteItem(e)} title={`Complete Item`} className={`iconButton wordIconButton completeButton itemStatusActionIconButton`}>
-                            <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`itemStatusIcon ${item?.options?.complete ? `fas fa-history` : ((item?.data?.taskIDs?.length == 0 && item?.options?.active) || item?.data?.taskIDs?.length > 0) ? `fas fa-check-circle` : `fas fa-play-circle`}`} />
+                        <button id={`complete_${item?.id}`} onClick={(e) => onCompleteItem(e)} title={`${getStatus(item, true, true)} Item`} className={`iconButton wordIconButton completeButton itemStatusActionIconButton`}>
+                            <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`itemStatusIcon ${getNextStatusIcon(item)}`} />
                         </button>
                     )}
-                    {/* <button id={`complete_${item?.id}`} onClick={(e) => onCompleteItem(e)} title={`Complete Item`} className={`iconButton wordIconButton completeButton`}>
-                        {(item?.options?.complete || ((item?.data?.taskIDs?.length == 0 && item?.options?.active) || item?.data?.taskIDs?.length > 0)) ? (
-                            <i style={{color: `var(--gameBlue)`, fontSize: 13}} className={`itemStatusIcon ${item?.options?.complete ? `fas fa-history` : ((item?.data?.taskIDs?.length == 0 && item?.options?.active) || item?.data?.taskIDs?.length > 0) ? `fas fa-check-circle` : `fas fa-play-circle`}`} />
-                        ) : (
-                            <span className={`customButtonGlyph`} style={{color: `var(--gameBlue)`, fontSize: 16}}>
-                                ▶
-                            </span>
-                        )}
-                    </button> */}
                 </div>
             </div>
         </div>
