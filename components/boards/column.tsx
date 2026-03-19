@@ -316,21 +316,54 @@ export default function Column(props) {
                                         <div className={`medscript rowThis`} style={{ position: `relative`, top: 1 }}>
                                             Upd<span className={`simpleSlashes`}>. </span> <DateComponent dateString={props?.column?.meta?.updated ?? props?.column?.meta?.created} />
                                         </div>
-                                        <div style={{ margin: `0 5px` }}>
+                                        <div className={`slashesSep`}>
                                             <span className={`simpleSlashes sep`}> | </span>
                                         </div>
-                                        <span className={`subscript`} style={{display: `contents`,}}>
-                                            <span className={`slashesNo`}>
-                                                {props.items.filter(itm => itemActiveFilters(itm) && itm?.options?.complete).length}
-                                            </span><span className="simpleSlashes slashes_success"> ✓</span> <div className={`slashesNo`} style={{display: `contents`}}> <span className="simpleSlashes">//</span> </div> <span className={`slashesNo`}>
-                                                {props.items.filter(itm => itemActiveFilters(itm)).length}
-                                            </span><span className="simpleSlashes" style={{ marginRight: 10 }}> ☰</span></span>
-                                            <span className={`subscript`} style={{display: `contents`,}}> <span className={`slashesNo`}>
-                                                {[].concat(...props.items.filter(itm => itemActiveFilters(itm)).filter(itm => itm?.options?.complete).map(itm => itm?.tasks)).length 
-                                                + [].concat(...props.items.filter(itm => itemActiveFilters(itm)).filter(itm => !itm?.options?.complete).map(itm => itm?.tasks)).filter(tsk => tsk?.options?.complete).length}
-                                            </span><span className="simpleSlashes slashes_success"> ✓</span> <div className={`slashesNo`} style={{display: `contents`}}> <span className="simpleSlashes">//</span> </div> <span className={`slashesNo`}>
-                                                {[].concat(...props.items.filter(itm => itemActiveFilters(itm)).map(itm => itm?.tasks)).length}
-                                            </span><span className="simpleSlashes"> ☰</span></span>
+                                        <div className={`columnStatsScripts rowThis gap5`}>
+                                            <span className={`columnStatScript subscript`}>
+                                                <span className={`slashCheck simpleSlashes slashes_success`}>
+                                                    ✓
+                                                </span> 
+                                                <span className={`slashesNo`}>
+                                                    {props.items.filter(itm => itemActiveFilters(itm) && itm?.options?.complete).length}
+                                                </span>
+                                                <div className={`slashesGroup`}>
+                                                    <div className={`slashesNo`}> 
+                                                        <span className={`simpleSlashes`}>
+                                                            //
+                                                        </span> 
+                                                    </div>    
+                                                </div> 
+                                                <span className={`slashesNo`}>
+                                                    {props.items.filter(itm => itemActiveFilters(itm)).length}
+                                                </span>
+                                                <span className={`simpleSlashes`} style={{ marginRight: 10 }}>
+                                                    ☰
+                                                </span>
+                                            </span>
+                                            <span className={`columnStatScript subscript`}> 
+                                                <span className={`slashCheck simpleSlashes slashes_success`}>
+                                                    ✓
+                                                </span> 
+                                                <span className={`slashesNo`}>
+                                                    {[].concat(...props.items.filter(itm => itemActiveFilters(itm)).filter(itm => itm?.options?.complete).map(itm => itm?.tasks)).length 
+                                                    + [].concat(...props.items.filter(itm => itemActiveFilters(itm)).filter(itm => !itm?.options?.complete).map(itm => itm?.tasks)).filter(tsk => tsk?.options?.complete).length}
+                                                </span>
+                                                <div className={`slashesGroup`}>
+                                                    <div className={`slashesNo`}> 
+                                                        <span className={`simpleSlashes`}>
+                                                            //
+                                                        </span> 
+                                                    </div>
+                                                </div> 
+                                                <span className={`slashesNo`}>
+                                                    {[].concat(...props.items.filter(itm => itemActiveFilters(itm)).map(itm => itm?.tasks)).length}
+                                                </span>
+                                                <span className={`simpleSlashes`}>
+                                                    ☰
+                                                </span>
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             </h3>

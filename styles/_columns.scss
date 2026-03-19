@@ -194,6 +194,18 @@
     }
 }
 
+.columnStatsScripts {
+    top: 1px;
+    position: relative;
+}
+
+.columnStatScript {
+    display: flex;
+    grid-gap: 3px;
+    flex-direction: row;
+    align-items: center;
+}
+
 .columnStats {
     max-width: fit-content !important;
 }

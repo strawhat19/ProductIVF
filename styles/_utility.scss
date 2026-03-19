@@ -1,7 +1,9 @@
-.gap5 { grid-gap: 5px; }
-.gap10 { grid-gap: 10px; }
-.gap15 { grid-gap: 15px; }
-.gap5i { grid-gap: 5px !important; }
+.gap0 { --g: 0; gap: var(--g); grid-gap: var(--g); }
+.gap5 { --g: 5px; gap: var(--g); grid-gap: var(--g); }
+.gap10 { --g: 10px; gap: var(--g); grid-gap: var(--g); }
+.gap15 { --g: 15px; gap: var(--g); grid-gap: var(--g); }
+.gap0i { --g: 0 !important; gap: var(--g) !important; grid-gap: var(--g) !important; }
+.gap5i { --g: 5px !important; gap: var(--g) !important; grid-gap: var(--g) !important; }
 
 .hidden { display: none; }
 .flexThis { display: flex; }

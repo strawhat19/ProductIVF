@@ -1369,6 +1369,7 @@ textarea {
         font-size: 1.35em;
         margin: 0 !important;
         max-width: fit-content;
+        padding: 2px 10px 0 10px;
         font-weight: 700 !important;
         &:hover {
             &:not(:focus-visible) {
@@ -1570,6 +1571,23 @@ textarea {
             } 
         }
     }
+}
+
+.slashCheck {
+    padding-right: 2px;
+    display: flex !important;
+}
+
+.slashesSep {
+    max-height: 15px;
+    margin: -5px 3px 0 5px;
+}
+
+.slashesGroup {
+    display: flex;
+    grid-gap: 2px;
+    align-items: center;
+    flex-direction: row;
 }
 
 .slashes {
