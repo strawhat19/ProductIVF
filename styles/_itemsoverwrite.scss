@@ -247,6 +247,9 @@
                                 }
                             }
                             &.reviewItemOrTask {
+                                .changeLabel {
+                                    color: black !important;
+                                }
                                 input[type="checkbox"] {
                                     &::before {
                                         content: "✧" !important;
