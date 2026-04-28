@@ -24,6 +24,7 @@ export default function AuthenticationDialog({ }: any) {
         setAuthenticateOpen(false);
         deleteUserFromDatabases();
     }
+    
     const setAuthGrid = () => {
         setAuthenticateOpen(false);
         hardSetSelectedGrid(upNextGrid, globalUserData?.grids);

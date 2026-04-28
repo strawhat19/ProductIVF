@@ -283,8 +283,8 @@ export default function Column(props) {
             board,
             column,
             itemIndex,
-            type: `Details`,
             tasks: item?.tasks,
+            type: Views.Details,
             activeTasks: item?.tasks?.filter((tsk: Task) => tsk?.options?.active),
             completeTasks: item?.tasks?.filter((tsk: Task) => tsk?.options?.complete),
         };

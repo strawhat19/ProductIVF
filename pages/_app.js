@@ -5,7 +5,7 @@ import moment from 'moment-timezone';
 import ReactDOM from 'react-dom/client';
 import { getIDParts } from '../shared/ID';
 import { Chat } from '../shared/models/Chat';
-import { createGrid, Grid } from '../shared/models/Grid';
+import { Grid } from '../shared/models/Grid';
 import { List } from '../shared/models/List';
 import { Item } from '../shared/models/Item';
 import { Task } from '../shared/models/Task';
@@ -20,6 +20,7 @@ import { renderFirebaseAuthErrorMessage } from '../components/form';
 import { RolesMap, User, userIsMinRole } from '../shared/models/User';
 import DetailsDialog from '../components/modals/details/details-dialog';
 import { seedUserData as generateSeedUserData } from '../shared/database';
+import TransferDialog from '../components/modals/transfer/transfer-dialog';
 import { AuthGrids, AuthStates, GridTypes, Types } from '../shared/types/types';
 import { collection, getDocs, onSnapshot, query, where  } from 'firebase/firestore';
 import { getBoardTitleWidth, recentlyAuthenticated } from '../components/boards/boards';
@@ -482,6 +483,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
   let [gridsLoading, setGridsLoading] = useState(true);
   let [usersLoading, setUsersLoading] = useState(true);
   let [activeOptions, setActiveOptions] = useState([]);
+  let [transferOpen, setTransferOpen] = useState(false);
   let [gridSearchTerm, setGridSearchTerm] = useState(``);
   let [emailsLoading, setEmailsLoading] = useState(true);
   let [boardsLoading, setBoardsLoading] = useState(true);
@@ -571,6 +573,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
     setSelectedGrid(null);
     setGridsLoading(true);
     setGridSearchTerm(``);
+    setTransferOpen(false);
     setBoardsLoading(true);
     setSystemStatus(`Resetting`);
     setGlobalUserDataLoading(true);
@@ -1264,6 +1267,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       rearranging, setRearranging, 
       showLeaders, setShowLeaders, 
       currentTime, setCurrentTime,
+      transferOpen, setTransferOpen,
       chatsLoading, setChatsLoading,
       systemStatus, setSystemStatus, 
       useNavigation, setUseNavigation,
@@ -1360,6 +1364,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       {/* Popup which opens to Authenticate User */}
       <AuthenticationDialog />
       <DetailsDialog />
+      <TransferDialog />
       <ContextMenu menuRef={menuRef} menuPosition={menuPosition} />
     </StateContext.Provider>
   )

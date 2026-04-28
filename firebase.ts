@@ -7,10 +7,10 @@ import { Task } from './shared/models/Task';
 import { Chat } from './shared/models/Chat';
 import { Post } from './shared/models/Post';
 import { initializeApp } from 'firebase/app';
-import { GridTypes, Types } from './shared/types/types';
 import { Board } from './shared/models/Board';
 import { Message } from './shared/models/Message';
 import { Feature } from './shared/admin/features';
+import { GridTypes, Types } from './shared/types/types';
 import { getDownloadURL, getStorage, listAll, ref } from 'firebase/storage';
 import { countPropertiesInObject, formatDateMain, logToast } from './shared/constants';
 import { GoogleAuthProvider, browserLocalPersistence, deleteUser, getAuth, setPersistence } from 'firebase/auth';
@@ -850,6 +850,72 @@ export const transferItem = async (item: Item, listID, boardID, gridID) => {
     return transferItemError;
   }
 }
+
+export const transferTask = async (task: Task, sourceItem: Item, destinationItem: Item) => {
+  const { date } = getIDParts();
+  const transferTaskBatchOperation = await writeBatch(db);
+
+  try {
+    const taskRef = doc(db, tasksTable, task?.id);
+    const sourceItemRef = doc(db, itemsTable, sourceItem?.id);
+    const destinationItemRef = doc(db, itemsTable, destinationItem?.id);
+
+    const sourceItemDoc = await getDoc(sourceItemRef);
+    const destinationItemDoc = await getDoc(destinationItemRef);
+
+    if (!sourceItemDoc.exists() || !destinationItemDoc.exists()) return;
+
+    const sourceItemData = sourceItemDoc.data();
+    const destinationItemData = destinationItemDoc.data();
+
+    const sourceTaskIDs = sourceItemData?.data?.taskIDs ?? [];
+    const destinationTaskIDs = destinationItemData?.data?.taskIDs ?? [];
+
+    const updatedSourceTaskIDs = sourceTaskIDs.filter((id: string) => id !== task?.id);
+
+    const updatedDestinationTaskIDs = destinationTaskIDs.includes(task?.id)
+      ? destinationTaskIDs
+      : [...destinationTaskIDs, task?.id];
+
+    transferTaskBatchOperation.update(sourceItemRef, {
+      [`meta.updated`]: date,
+      [`data.taskIDs`]: updatedSourceTaskIDs,
+      properties: countPropertiesInObject({
+        ...sourceItemData,
+        data: {
+          ...sourceItemData?.data,
+          taskIDs: updatedSourceTaskIDs,
+        },
+      }),
+    });
+
+    transferTaskBatchOperation.update(destinationItemRef, {
+      [`meta.updated`]: date,
+      [`data.taskIDs`]: updatedDestinationTaskIDs,
+      properties: countPropertiesInObject({
+        ...destinationItemData,
+        data: {
+          ...destinationItemData?.data,
+          taskIDs: updatedDestinationTaskIDs,
+        },
+      }),
+    });
+
+    transferTaskBatchOperation.update(taskRef, {
+      itemID: destinationItem?.id,
+      listID: destinationItem?.listID,
+      boardID: destinationItem?.boardID,
+      gridID: destinationItem?.gridID,
+      [`meta.updated`]: date,
+    });
+
+    await transferTaskBatchOperation.commit();
+    return task;
+  } catch (transferTaskError) {
+    await logToast(`Error Transferring Task ${task?.name}`, transferTaskError, true);
+    return transferTaskError;
+  }
+};
 
 export const deleteItemFromDatabase = async (item: Item) => {
   const { date } = getIDParts();

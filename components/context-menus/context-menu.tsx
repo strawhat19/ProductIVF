@@ -1,11 +1,14 @@
 import { useContext } from 'react';
 import { toast } from 'react-toastify';
-import { StateContext } from '../../pages/_app';
+import { Task } from '../../shared/models/Task';
+import { Item } from '../../shared/models/Item';
+import { Views } from '../../shared/types/types';
+import { dev, StateContext } from '../../pages/_app';
 import { addBoardScrollBars } from '../boards/board';
-import { updateDocFieldsWTimeStamp } from '../../firebase';
+import { transferTask, updateDocFieldsWTimeStamp } from '../../firebase';
 
 export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--gameBlue)` }: any) {
-    let { selected, setMenuPosition, setItemTypeMenuOpen, setSelected } = useContext<any>(StateContext);
+    let { selected, setMenuPosition, setItemTypeMenuOpen, setSelected, setTransferOpen } = useContext<any>(StateContext);
     let ids = (selected == null || selected?.column == undefined || selected?.column == null) ? [] : Array.from(selected?.column?.data?.itemIDs);
 
     const onDismiss = (setSelect = true) => {
@@ -74,6 +77,11 @@ export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--
         await updateDocFieldsWTimeStamp(selected?.item, { [`options.showTaskForm`]: !taskFormShowing });
     }
 
+    const onTransferTask = (task: Task, item: Item) => {
+        setTransferOpen(true);
+        onDismiss(false);
+    }
+
     const moveItemToPosition = async (top = true) => {
         const itemIDsWithoutItem = selected?.column?.data?.itemIDs.filter(id => id != selected?.item?.id);
         const itemIDsWithItemMovedToTop = [ selected?.item?.id, ...itemIDsWithoutItem ];
@@ -134,6 +142,11 @@ export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--
                             <i className={`fas fa-sort-amount-down`} style={{ color: iconColor }} /> <span>To Bottom</span>
                         </li>
                     )}
+                </>}
+                {selected?.task && <>
+                    <li className={`customContextMenuOption flex gap15`} onClick={() => onTransferTask(selected?.task, selected?.item)}>
+                        <i className={`fas fa-exchange-alt`} style={{ color: iconColor, fontSize: 20 }} /> <span>Transfer</span>
+                    </li>
                 </>}
                 {/* {devEnv && (
                     <li className={`customContextMenuOption flex gap15`} onClick={onArchiveItem}>
