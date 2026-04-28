@@ -5,6 +5,7 @@ import { User } from './User';
 import { TasksFilterStates, Types } from '../types/types';
 import { ItemTypes } from '../../components/boards/boards';
 import { countPropertiesInObject, isValid, stringNoSpaces } from '../constants';
+import { Board } from './Board';
 
 export class Item extends Data {
     ID: any;
@@ -29,6 +30,7 @@ export class Item extends Data {
     attachments = [];
     color = `Default`;
     
+    board?: Board | any;
     tasks?: any | Task[];
     
     options = {

@@ -875,7 +875,7 @@ export const transferTask = async (task: Task, sourceItem: Item, destinationItem
 
     const updatedDestinationTaskIDs = destinationTaskIDs.includes(task?.id)
       ? destinationTaskIDs
-      : [...destinationTaskIDs, task?.id];
+      : [task?.id, ...destinationTaskIDs];
 
     transferTaskBatchOperation.update(sourceItemRef, {
       [`meta.updated`]: date,

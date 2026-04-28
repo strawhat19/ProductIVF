@@ -138,6 +138,46 @@ body {
 }
 
 .MuiDialog-root {
+    &:has(.transferDialog) {
+        backdrop-filter: blur(10px);
+        .MuiDialog-container {
+            width: 100%;
+        }
+        .transferDialog {
+            min-width: 95dvw;
+            min-height: 75dvh;
+            .transferDialogAlert {
+                width: 100%;
+                height: 100%;
+                .transferDialogAlertInner {
+                    top: 40px;
+                    max-width: 100%;
+                    position: sticky;
+                    padding-bottom: 5px;
+                    /* background: blue; */
+                    justify-content: space-between;
+                    background: var(--detailViewBG);
+                }
+                .transferItemsContainer {
+                    width: 100%;
+                    display: flex;
+                    grid-gap: 3px;
+                    color: white;
+                    flex-direction: column;
+                }
+                .buttonComponent {
+                    min-width: 50px;
+                    min-height: 35px !important;
+                    max-height: 35px !important;
+                }
+                .transferItemElement {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                }
+            }
+        }
+    }
     &:has(.detailsDialog) {
         backdrop-filter: blur(10px);
         .MuiDialog-container {

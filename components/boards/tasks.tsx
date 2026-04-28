@@ -1,4 +1,5 @@
 import Tags from './details/tags';
+import { getStatus } from './item';
 import { CSS } from '@dnd-kit/utilities';
 import { addBoardScrollBars } from './board';
 import { getIDParts } from '../../shared/ID';
@@ -14,7 +15,6 @@ import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } 
 import { addTaskToDatabase, db, deleteTaskFromDatabase, tasksTable, updateDocFieldsWTimeStamp } from '../../firebase';
 import { restrictToFirstScrollableAncestor, restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers';
 import { forceFieldBlurOnPressEnter, getItemOrTaskURLs, getRankAndNumber, isValid, removeExtraSpacesFromString, stripURLsFromString } from '../../shared/constants';
-import { getStatus } from './item';
 
 const reorder = (list, oldIndex, newIndex) => arrayMove(list, oldIndex, newIndex);
 
@@ -31,7 +31,7 @@ const SortableSubtaskItem = ({
   searchFilterTasks, 
 }) => {
   let { listeners, transform, attributes, setNodeRef, transition, isDragging } = useSortable({ id: taskProp?.id });
-  let { menuRef, globalUserData, setMenuPosition, setItemTypeMenuOpen, setSelected } = useContext<any>(StateContext);
+  let { menuRef, globalUserData, setMenuPosition, setItemTypeMenuOpen, setSelected, setTransferOpen } = useContext<any>(StateContext);
 
   let [task, setTask] = useState<Task>(taskProp);
 
@@ -62,7 +62,12 @@ const SortableSubtaskItem = ({
   //   );
   // }
 
-  const onRightClick = (e: React.MouseEvent<HTMLDivElement>, tsk: Task, itm: Item) => {
+  const onDismiss = () => {
+    setMenuPosition(null);
+    setItemTypeMenuOpen(false);
+  }
+
+  const onRightClick = (e: React.MouseEvent<HTMLDivElement>, tsk: Task, itm: Item, transfer: boolean = false) => {
     let target: any = e?.target;
     let targetParent = target?.parentElement;
     let tcl = target?.classList;
@@ -75,6 +80,7 @@ const SortableSubtaskItem = ({
       tcl,
       tpcl,
       target,
+      transfer,
       selected,
       task: tsk,
       item: itm,
@@ -100,13 +106,19 @@ const SortableSubtaskItem = ({
       task: tsk,
       type: Views.Context,
     });
+
+    if (transfer) {
+      // setTimeout(() => {
+        setTransferOpen(true);
+        onDismiss();
+      // }, 500)
+    }
   }
 
   const handleClickOutside = (event: MouseEvent) => {
     if (menuRef?.current && !menuRef?.current?.contains(event?.target as Node)) {
       setSelected(null);
-      setMenuPosition(null);
-      setItemTypeMenuOpen(false);
+      onDismiss();
     }
   }
 
@@ -116,7 +128,7 @@ const SortableSubtaskItem = ({
   }, []);
 
   return (
-    <div ref={setNodeRef} title={task?.name} style={style} {...attributes} {...listeners} onContextMenu={(e) => onRightClick(e, task, item)} className={`draggableTask boardTaskDraggableWrap ${isLast ? `dndLastTask` : index == 0 ? `dndFirstTask` : `dndMiddleTask`}`}>
+    <div ref={setNodeRef} title={task?.name} style={style} {...attributes} {...listeners} onDoubleClick={(e) => onRightClick(e, task, item, true)} onContextMenu={(e) => onRightClick(e, task, item)} className={`draggableTask boardTaskDraggableWrap ${isLast ? `dndLastTask` : index == 0 ? `dndFirstTask` : `dndMiddleTask`}`}>
       <div className={`task_${task?.id} boardTask taskMainWrap subTaskItem ${item?.options?.complete ? `taskItemComplete` : `taskItemNotComplete`} ${!item?.options?.complete && (isValid(task?.options?.active) && task?.options?.active == true) ? `activeItemOrTask` : ((isValid(task?.options?.review) && task?.options?.review == true) ? `reviewItemOrTask` : ``)} ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`} ${isLast ? `dndLast` : index == 0 ? `dndFirst` : `dndMiddle`}`}>
         <div className={`boardTaskHandle ${searchFilterTasks && gridSearchTerm != `` ? `cursorAuto` : `cursorGrab`} draggableItem item subtaskHandle ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`}`}>
           <span className={`itemOrder taskComponentBG`}>
