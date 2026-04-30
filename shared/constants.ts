@@ -14,6 +14,7 @@ export const maxAuthAttempts = 5;
 export const pathPrefix = `https://`;
 export const defaultAuthenticateLabel = `Delete User & All Data`;
 export const userQueryFields = [`id`, `ID`, `uid`, `uuid`, `rank`, `name`, `role`, `email`, `image`, `avatar`, `phone`, `token`];
+export const decimalsString = (number: number, decimalPlaces: number = 1) => number?.toFixed(decimalPlaces)?.replace(/\.?0+$/, ``);
 
 export const months = [`January`, `February`, `March`, `April`, `May`, `June`, `July`, `August`, `September`, `October`, `November`, `December`];
 

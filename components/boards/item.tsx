@@ -428,7 +428,7 @@ export default function Item({ item, count, column, itemIndex, board, setForceLi
                                     {/* {devEnv && <RelatedURLsDND item={{ ...item, data: { ...item?.data, relatedURLs: [item?.data?.relatedURLs[0]] } }} />} */}
                                 </div>
                                 <div className={`itemDetailsEnd fit`}>
-                                    <Counts item={item} activeTasks={getItemTasks(`active`)} completedTasks={getItemTasks(`complete`)} />
+                                    <Counts item={item} activeTasks={[ ...getItemTasks(`active`), ...getItemTasks(`review`) ]} completedTasks={getItemTasks(`complete`)} />
                                 </div>
                             </div>
                         </div>

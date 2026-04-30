@@ -6,7 +6,6 @@ import { ItemTypes } from '../../components/boards/boards';
 import { countPropertiesInObject, isValid, stringNoSpaces } from '../constants';
 
 export class List extends Data {
-    ID: any;
     number: number;
     gridID: string;
     boardID: string;

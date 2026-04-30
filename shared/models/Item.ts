@@ -8,7 +8,6 @@ import { countPropertiesInObject, isValid, stringNoSpaces } from '../constants';
 import { Board } from './Board';
 
 export class Item extends Data {
-    ID: any;
     number: number;
     listID: string;
     gridID: string;

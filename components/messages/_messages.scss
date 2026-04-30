@@ -140,6 +140,10 @@ span {
     display: -webkit-box;
     text-overflow: ellipsis;
     -webkit-box-orient: vertical;
+    &.placeholderPreview {
+        font-weight: 400;
+        color: rgba(255, 255, 255, 0.35);
+    }
     &.clippedText {
         line-clamp: 3;
         -webkit-line-clamp: 3;

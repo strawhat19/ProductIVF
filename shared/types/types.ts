@@ -43,6 +43,7 @@ export enum DetailViews {
     Summary = `Summary`,
     Gallery = `Gallery`,
     Tasks = `Tasks`,
+    Transfer = `Transfer`,
     // Settings = `Settings`,
 }
 

@@ -1,14 +1,14 @@
 import { useContext } from 'react';
 import { toast } from 'react-toastify';
+import { StateContext } from '../../pages/_app';
 import { Task } from '../../shared/models/Task';
 import { Item } from '../../shared/models/Item';
 import { Views } from '../../shared/types/types';
-import { dev, StateContext } from '../../pages/_app';
 import { addBoardScrollBars } from '../boards/board';
-import { transferTask, updateDocFieldsWTimeStamp } from '../../firebase';
+import { updateDocFieldsWTimeStamp } from '../../firebase';
 
 export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--gameBlue)` }: any) {
-    let { selected, setMenuPosition, setItemTypeMenuOpen, setSelected, setTransferOpen } = useContext<any>(StateContext);
+    let { globalUserData, selected, setMenuPosition, setItemTypeMenuOpen, setSelected, openItemOrTaskDetails } = useContext<any>(StateContext);
     let ids = (selected == null || selected?.column == undefined || selected?.column == null) ? [] : Array.from(selected?.column?.data?.itemIDs);
 
     const onDismiss = (setSelect = true) => {
@@ -77,8 +77,24 @@ export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--
         await updateDocFieldsWTimeStamp(selected?.item, { [`options.showTaskForm`]: !taskFormShowing });
     }
 
-    const onTransferTask = (task: Task, item: Item) => {
-        setTransferOpen(true);
+    const onDetails = (e, tsk: Task, item: Item) => {
+        // setTransferOpen(true);
+        let toUse = (selected?.task ? tsk : item);
+        let column = globalUserData?.lists?.find(l => l?.id == toUse?.listID);
+        let board = globalUserData?.boards?.find(b => b?.id == toUse?.boardID);
+        setSelected({ 
+            board,
+            column,
+            task: tsk,
+            ...(selected?.task ? {
+                item: tsk,
+                type: Views.Details,
+            } : {
+                item,
+                type: Views.Context,
+            }),
+        });
+        openItemOrTaskDetails(e, toUse, selected?.index, board, column);
         onDismiss(false);
     }
 
@@ -120,6 +136,9 @@ export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--
                 <li className={`customContextMenuOption flex gap15`} onClick={() => onClose()}>
                     <i className={`fas fa-times`} style={{ color: iconColor }} /> <span>Close</span>
                 </li>
+                <li className={`customContextMenuOption flex gap15`} onClick={(e) => onDetails(e, selected?.task, selected?.item, )}>
+                    <i className={`fas fa-align-left`} style={{ color: iconColor, fontSize: 20 }} /> <span>Details</span>
+                </li>
                 {!selected?.task && <>
                     <li className={`customContextMenuOption flex gap15`} onClick={() => setItemTaskForm(selected?.item?.options?.showTaskForm)}>
                         <i className={`fas ${selected?.item?.options?.showTaskForm ? `fa-minus` : `fa-plus`}`} style={{ color: iconColor, fontSize: selected?.item?.options?.showTaskForm ? 14 : undefined }} /> <span>{selected?.item?.options?.showTaskForm ? `` : ``}Tasks</span>
@@ -143,11 +162,11 @@ export default function ContextMenu({ menuRef, menuPosition, iconColor = `var(--
                         </li>
                     )}
                 </>}
-                {selected?.task && <>
+                {/* {selected?.task && <>
                     <li className={`customContextMenuOption flex gap15`} onClick={() => onTransferTask(selected?.task, selected?.item)}>
                         <i className={`fas fa-exchange-alt`} style={{ color: iconColor, fontSize: 20 }} /> <span>Transfer</span>
                     </li>
-                </>}
+                </>} */}
                 {/* {devEnv && (
                     <li className={`customContextMenuOption flex gap15`} onClick={onArchiveItem}>
                         <i className={`archivedIcon ${fontAwesomeIcons.folder}`} style={{ color: iconColor }} /> <span>Archive</span>

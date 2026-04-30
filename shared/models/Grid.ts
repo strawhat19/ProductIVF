@@ -5,7 +5,6 @@ import { GridTypes, Types } from '../types/types';
 import { countPropertiesInObject, isValid, stringNoSpaces } from '../constants';
 
 export class Grid extends Data {
-    ID: any;
     number: number;
     
     creator: string;

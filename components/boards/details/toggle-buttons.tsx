@@ -10,26 +10,14 @@ export class ToggleButtonsProps {
 };
 
 export default function ToggleButtons({ item, activeTasks, completeTasks, toDoTasks, onActiveChange = () => {} }: ToggleButtonsProps) {
-    let [active, setActive] = useState(
-        item?.options?.complete 
-        ? `complete` 
-        : (item?.options?.active || activeTasks?.length > 0 || completeTasks?.length > 0) 
-        ? `active` 
-        : `to do`
-    );
+    let [active, setActive] = useState(item?.status?.toLowerCase());
     
     useEffect(() => {
         onActiveChange(active);
     }, [active])
     
     useEffect(() => {
-        setActive(
-            item?.options?.complete 
-            ? `complete` 
-            : (item?.options?.active || activeTasks?.length > 0 || completeTasks?.length > 0) 
-            ? `active` 
-            : `to do`
-        )
+        setActive(item?.status?.toLowerCase())
     }, [item])
     
     return (
@@ -66,6 +54,22 @@ export default function ToggleButtons({ item, activeTasks, completeTasks, toDoTa
                 <label className={`flexLabel`}>
                     <i className={`fas fa-play-circle`} />
                     Active
+                </label>
+            </div>
+            <div 
+                onClick={() => setActive(`review`)}
+                className={`toggle-button iconButton ${(active === `review`) ? `active` : ``}`} 
+            >
+                <input 
+                    type={`radio`} 
+                    value={`review`} 
+                    onChange={() => {}} 
+                    name={`toggleReview`} 
+                    checked={(active === `review`)} 
+                />
+                <label className={`flexLabel`}>
+                    <i className={`fas fa-star-of-life`} />
+                    Review
                 </label>
             </div>
             <div 

@@ -137,6 +137,51 @@ body {
     }
 }
 
+.detailsTransferItems {
+    --h: 315px;
+    width: 100%;
+    &.onTransferView {
+        --h: 715px;
+    }
+    max-height: var(--h);
+    .transferItemsContainer {
+        overflow: auto;
+        padding-right: 5px;
+        max-height: var(--h);
+    }
+}
+
+.transferItemsContainer {
+    gap: 5px;
+    width: 100%;
+    display: grid;
+    color: white;
+    // display: flex;
+    // flex-direction: column;
+    grid-template-columns: repeat(2, 1fr);
+    .buttonComponent {
+        min-width: 50px;
+        min-height: 35px !important;
+        max-height: 35px !important;
+    }
+}
+
+.transferItemElement {
+    display: flex;
+    font-size: 13px;
+    align-items: center;
+    padding: 0 0 5px;
+    justify-content: space-between;
+    &:not(:last-child) {
+        border-bottom: 1px solid var(--main);
+    }
+    // transition: var(--transition);
+    // &:hover {
+    //     cursor: pointer;
+    //     filter: brightness(1.1);
+    // }
+}
+
 .MuiDialog-root {
     &:has(.transferDialog) {
         backdrop-filter: blur(10px);
@@ -157,23 +202,6 @@ body {
                     /* background: blue; */
                     justify-content: space-between;
                     background: var(--detailViewBG);
-                }
-                .transferItemsContainer {
-                    width: 100%;
-                    display: flex;
-                    grid-gap: 3px;
-                    color: white;
-                    flex-direction: column;
-                }
-                .buttonComponent {
-                    min-width: 50px;
-                    min-height: 35px !important;
-                    max-height: 35px !important;
-                }
-                .transferItemElement {
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
                 }
             }
         }

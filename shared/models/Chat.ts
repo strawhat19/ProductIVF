@@ -12,9 +12,6 @@ export enum ChatTypes {
 }
 
 export class Chat extends Data {
-    A?: any;
-
-    name: string;
     creator: string;
 
     owner: string;

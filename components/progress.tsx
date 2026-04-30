@@ -4,7 +4,7 @@ import { getItemTaskCompletionPercentage } from './boards/item';
 import { buildStyles, CircularProgressbar, CircularProgressbarWithChildren } from 'react-circular-progressbar';
 
 export default function Progress({ item, tasks = [], classes = `circleProgress`, injectedProgress = null, customInnerText = true }: any) {
-    let allTasksComplete = tasks.every(tsk => tsk?.options?.complete);
+    let allTasksComplete = tasks?.every(tsk => tsk?.options?.complete);
     let progress = (!item?.options?.complete && tasks?.length > 0 && allTasksComplete) ? 99 : getItemTaskCompletionPercentage(tasks, item);
     progress = injectedProgress != null ? injectedProgress : progress;
 

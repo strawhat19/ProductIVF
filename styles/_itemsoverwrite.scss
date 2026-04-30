@@ -83,6 +83,12 @@
     flex-direction: column;
 }
 
+.IDTag {
+    .tagNameField {
+        font-size: 16px;
+    }
+}
+
 .formTop, .tasksContainer {
     .itemDetails_Board {
         .itemDetails_List {

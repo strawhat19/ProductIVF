@@ -32,12 +32,12 @@ export default function Column(props) {
         users,
         selected,
         setLoading,
-        setSelected,
         menuPosition, 
         selectedGrid,
         globalUserData,
         gridSearchTerm,
         setSystemStatus,
+        openItemOrTaskDetails,
     } = useContext<any>(StateContext);
 
     const getListsLength = () => {
@@ -272,25 +272,6 @@ export default function Column(props) {
         }, 1000);
     }
 
-    const openItemDetails = (e, item, itemIndex) => {
-        const target = e?.target;
-        const itemInteractiveClasses = [`urlIcon`, `urlDeleteBtn`, `itemURL`, `tagImage`, `websiteURL`, `iconButton`, `changeLabel`, `completeButton`, `confirmActionOption`, `deleteItemButton`];
-        const itemInteractiveClicked = itemInteractiveClasses?.some(clsString => target?.classList.contains(clsString));
-        if (itemInteractiveClicked) return;
-        e.preventDefault();
-        const selectedToSet = { 
-            item,
-            board,
-            column,
-            itemIndex,
-            tasks: item?.tasks,
-            type: Views.Details,
-            activeTasks: item?.tasks?.filter((tsk: Task) => tsk?.options?.active),
-            completeTasks: item?.tasks?.filter((tsk: Task) => tsk?.options?.complete),
-        };
-        setSelected(selectedToSet);
-    }
-
     return (
         <Draggable key={props.column.id} draggableId={props.column.id} index={props.index} isDragDisabled={gridSearchTerm != ``}>
             {(provided, snapshot) => (
@@ -404,7 +385,7 @@ export default function Column(props) {
                                                 <Draggable key={item?.id} draggableId={item?.id} index={itemIndex} isDragDisabled={gridSearchTerm != ``}>
                                                     {provided => (
                                                         <div id={item?.id} className={`item boardItem ${hoverItemForm ? `itemHoverToExpand` : ``} completeItem ${item?.options?.review ? `review` : ``} ${(item?.options?.complete) ? `complete completeBoardItem` : `activeBoardItem`} ${(item?.options?.active && (getItemTasks(item, `active`)?.length > 0 || item?.data?.taskIDs?.length == 0)) ? `activeItemBoard` : ``} ${gridSearchTerm != `` ? `wSearchTerm` : ``} container ${snapshot.isDragging ? `dragging` : ``} ${(itemTypeMenuOpen || isSelected(selected, [Views.Context])) ? `unfocus` : ``}`} title={item?.name} {...provided.draggableProps} ref={provided.innerRef}>
-                                                            <div onClick={(e) => openItemDetails(e, item, itemIndex)} {...provided.dragHandleProps} className={`itemDraggableWrapper itemRow flex row ${item?.options?.complete ? `completed` : `incomplete`} ${item?.tasks.length > 0 ? `hasTasksRow` : `noTasksRow`}`}>
+                                                            <div onClick={(e) => openItemOrTaskDetails(e, item, itemIndex, board, props.column)} {...provided.dragHandleProps} className={`itemDraggableWrapper itemRow flex row ${item?.options?.complete ? `completed` : `incomplete`} ${item?.tasks.length > 0 ? `hasTasksRow` : `noTasksRow`}`}>
                                                                 <Item 
                                                                     item={item} 
                                                                     count={count} 

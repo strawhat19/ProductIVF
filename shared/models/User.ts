@@ -53,8 +53,6 @@ export const userIsMinRole = (usr: User, role: Roles) => {
 }
 
 export class User extends Data {
-  ID: any;
-
   creator: string;
 
   owner: string;

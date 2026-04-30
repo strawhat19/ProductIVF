@@ -31,7 +31,7 @@ const SortableSubtaskItem = ({
   searchFilterTasks, 
 }) => {
   let { listeners, transform, attributes, setNodeRef, transition, isDragging } = useSortable({ id: taskProp?.id });
-  let { menuRef, globalUserData, setMenuPosition, setItemTypeMenuOpen, setSelected, setTransferOpen } = useContext<any>(StateContext);
+  let { menuRef, globalUserData, setMenuPosition, setItemTypeMenuOpen, setSelected, setTransferOpen, openItemOrTaskDetails } = useContext<any>(StateContext);
 
   let [task, setTask] = useState<Task>(taskProp);
 
@@ -67,7 +67,7 @@ const SortableSubtaskItem = ({
     setItemTypeMenuOpen(false);
   }
 
-  const onRightClick = (e: React.MouseEvent<HTMLDivElement>, tsk: Task, itm: Item, transfer: boolean = false) => {
+  const onRightClick = (e: React.MouseEvent<HTMLDivElement>, tsk: Task, itm: Item, taskDetails: boolean = false) => {
     let target: any = e?.target;
     let targetParent = target?.parentElement;
     let tcl = target?.classList;
@@ -75,19 +75,20 @@ const SortableSubtaskItem = ({
     let classesToIgnore = [`url`, `taskURL`, `taskTags`];
     let shouldIgnore = classesToIgnore.some(className => tcl?.contains(className) || tpcl?.contains(className));
 
-    dev() && console.log(`onRightClick Task`, {
-      e,
-      tcl,
-      tpcl,
-      target,
-      transfer,
-      selected,
-      task: tsk,
-      item: itm,
-      targetParent,
-      shouldIgnore,
-      classesToIgnore,
-    });
+    // dev() && console.log(`onRightClick Task`, {
+    //   e,
+    //   tcl,
+    //   tpcl,
+    //   index,
+    //   target,
+    //   selected,
+    //   task: tsk,
+    //   item: itm,
+    //   taskDetails,
+    //   targetParent,
+    //   shouldIgnore,
+    //   classesToIgnore,
+    // });
     
     if (shouldIgnore) return;
     
@@ -102,16 +103,19 @@ const SortableSubtaskItem = ({
     setSelected({ 
       board,
       column,
-      item: itm,
       task: tsk,
-      type: Views.Context,
+      ...(taskDetails == true ? {
+        item: tsk,
+        type: Views.Details,
+      } : {
+        item: itm,
+        type: Views.Context,
+      }),
     });
 
-    if (transfer) {
-      // setTimeout(() => {
-        setTransferOpen(true);
-        onDismiss();
-      // }, 500)
+    if (taskDetails) {
+      openItemOrTaskDetails(e, tsk, index, board, column);
+      onDismiss();
     }
   }
 
@@ -128,7 +132,17 @@ const SortableSubtaskItem = ({
   }, []);
 
   return (
-    <div ref={setNodeRef} title={task?.name} style={style} {...attributes} {...listeners} onDoubleClick={(e) => onRightClick(e, task, item, true)} onContextMenu={(e) => onRightClick(e, task, item)} className={`draggableTask boardTaskDraggableWrap ${isLast ? `dndLastTask` : index == 0 ? `dndFirstTask` : `dndMiddleTask`}`}>
+    <div 
+      style={style} 
+      ref={setNodeRef} 
+      title={task?.name} 
+      {...attributes} 
+      {...listeners} 
+      onContextMenu={(e) => onRightClick(e, task, item)} 
+      // onClick={(e) => onRightClick(e, task, item, true)} 
+      onDoubleClick={(e) => onRightClick(e, task, item, true)} 
+      className={`draggableTask boardTaskDraggableWrap ${isLast ? `dndLastTask` : index == 0 ? `dndFirstTask` : `dndMiddleTask`}`}
+    >
       <div className={`task_${task?.id} boardTask taskMainWrap subTaskItem ${item?.options?.complete ? `taskItemComplete` : `taskItemNotComplete`} ${!item?.options?.complete && (isValid(task?.options?.active) && task?.options?.active == true) ? `activeItemOrTask` : ((isValid(task?.options?.review) && task?.options?.review == true) ? `reviewItemOrTask` : ``)} ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`} ${isLast ? `dndLast` : index == 0 ? `dndFirst` : `dndMiddle`}`}>
         <div className={`boardTaskHandle ${searchFilterTasks && gridSearchTerm != `` ? `cursorAuto` : `cursorGrab`} draggableItem item subtaskHandle ${(item?.options?.complete || task?.options?.complete) ? `complete` : `activeTask`}`}>
           <span className={`itemOrder taskComponentBG`}>

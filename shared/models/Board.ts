@@ -6,7 +6,6 @@ import { BoardTypes } from '../../components/boards/boards';
 import { countPropertiesInObject, isValid, stringNoSpaces } from '../constants';
 
 export class Board extends Data {
-    ID: any;
     number: number;
     gridID: string;
     titleWidth: any;

@@ -21,8 +21,8 @@ import { RolesMap, User, userIsMinRole } from '../shared/models/User';
 import DetailsDialog from '../components/modals/details/details-dialog';
 import { seedUserData as generateSeedUserData } from '../shared/database';
 import TransferDialog from '../components/modals/transfer/transfer-dialog';
-import { AuthGrids, AuthStates, GridTypes, Types } from '../shared/types/types';
 import { collection, getDocs, onSnapshot, query, where  } from 'firebase/firestore';
+import { AuthGrids, AuthStates, GridTypes, Types, Views } from '../shared/types/types';
 import { getBoardTitleWidth, recentlyAuthenticated } from '../components/boards/boards';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import AuthenticationDialog from '../components/modals/authenticate/authenticate-dialog';
@@ -538,6 +538,29 @@ export default function ProductIVF({ Component, pageProps, router }) {
     }
   }
 
+  const openItemOrTaskDetails = (e, itemOrTask, itemIndex, board, column) => {
+    const target = e?.target;
+    const itemInteractiveClasses = [`urlIcon`, `urlDeleteBtn`, `itemURL`, `tagImage`, `websiteURL`, `iconButton`, `changeLabel`, `completeButton`, `confirmActionOption`, `deleteItemButton`];
+    const itemInteractiveClicked = itemInteractiveClasses?.some(clsString => target?.classList.contains(clsString));
+    if (itemInteractiveClicked) return;
+    e.preventDefault();
+    const selectedToSet = { 
+      board,
+      column,
+      itemIndex,
+      item: itemOrTask,
+      type: Views.Details,
+      ...(itemOrTask?.type == Types.Task ? {
+        task: itemOrTask,
+      } : {
+        tasks: itemOrTask?.tasks,
+        activeTasks: itemOrTask?.tasks?.filter((tsk) => tsk?.options?.active),
+        completeTasks: itemOrTask?.tasks?.filter((tsk) => tsk?.options?.complete),
+      }),
+    };
+    setSelected(selectedToSet);
+  }
+
   const isFeatureEnabled = (featureID, considerBeta = true) => {
     let featureEnabled = false;
     let thisFeature = getFeature(featureID);
@@ -793,8 +816,10 @@ export default function ProductIVF({ Component, pageProps, router }) {
     
     setLoading(true);
 
+    let boardForm = e?.target;
+
     if (nameOfNewBoard == ``) {
-      let formFields = e?.target?.children[0]?.children;
+      let formFields = boardForm?.children?.[0]?.children;
       let boardNameFieldValue = formFields?.createBoard?.value;
       nameOfNewBoard = boardNameFieldValue;
     }
@@ -822,7 +847,8 @@ export default function ProductIVF({ Component, pageProps, router }) {
       if (bord?.type && bord?.type == Types.Board) {
         setTimeout(() => toast.dismiss(addBoardToast), 1500);
         logToast(`Successfully Added Board`, bord);
-        if (nameOfNewBoard == ``) e.target.reset();
+        // if (nameOfNewBoard == ``) form?.reset();
+        form?.reset();
       }
     })?.catch(addBordError => {
       logToast(`Failed to Add Board`, addBordError, true);
@@ -1292,6 +1318,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       switchSelectedGrid,
       setUsersGridsState,
       hardSetSelectedGrid,
+      openItemOrTaskDetails,
       openAuthenticationForm,
       onAuthenticateLabel, setOnAuthenticateLabel,
       onAuthenticateFunction, setOnAuthenticateFunction,

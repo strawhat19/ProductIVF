@@ -12,9 +12,6 @@ export enum PostTypes {
 }
 
 export class Post extends Data {
-    A?: any;
-
-    name: string;
     creator: string;
 
     owner: string;

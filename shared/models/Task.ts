@@ -5,7 +5,6 @@ import { Types } from '../types/types';
 import { countPropertiesInObject, stripURLsFromString, getItemOrTaskURLs, isValid, stringNoSpaces } from '../constants';
 
 export class Task extends Data {
-    ID: any;
     number: number;
     gridID: string;
     boardID: string;
@@ -24,6 +23,7 @@ export class Task extends Data {
     image = ``;
     status = ``;
     description = ``;
+    attachments? = [];
     color = `Default`;
     
     options = {
@@ -33,6 +33,7 @@ export class Task extends Data {
         archived: false,
         complete: false,
         recurring: false,
+        showTaskForm: false,
     }
 
     data?: { [key: string]: string[] } = {

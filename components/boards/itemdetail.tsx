@@ -13,17 +13,18 @@ import DropZone from '../drop-zone/drop-zone';
 import Editor from '../messages/editor/editor';
 import { Task } from '../../shared/models/Task';
 import { Item } from '../../shared/models/Item';
-import DetailField from './details/detail-field';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import parse, { Element } from 'html-react-parser';
 import ToggleButtons from './details/toggle-buttons';
-import { DetailViews } from '../../shared/types/types';
 import { convertURLsToHTML } from '../messages/messages';
 import { updateDocFieldsWTimeStamp } from '../../firebase';
+import { DetailViews, Types } from '../../shared/types/types';
+import DetailField, { Statuses } from './details/detail-field';
 import { useContext, useEffect, useRef, useState } from 'react';
-import { capitalizeAllWords, StateContext } from '../../pages/_app';
+import { capitalizeAllWords, dev, StateContext } from '../../pages/_app';
 import { ToggleButton, ToggleButtonGroup, Tooltip } from '@mui/material';
-import { forceFieldBlurOnPressEnter, removeExtraSpacesFromString } from '../../shared/constants';
+import { decimalsString, forceFieldBlurOnPressEnter, removeExtraSpacesFromString } from '../../shared/constants';
+import TransferItems from '../views/transfer-items';
 
 export const uploadsBaseURL = `https://firebasestorage.googleapis.com/v0/b/productivf.firebasestorage.app/o/`;
 
@@ -32,6 +33,7 @@ export const detailViews = {
     [DetailViews.Gallery]: `fas fa-images`,
     // [DetailViews.Settings]: `fas fa-cogs`,
     [DetailViews.Summary]: `fas fa-align-left`,
+    [DetailViews.Transfer]: `fas fa-exchange-alt`,
 }
 
 export default function ItemDetail(props) {
@@ -39,26 +41,25 @@ export default function ItemDetail(props) {
     let swiperRef = useRef(null);
     let editorRef = useRef(null);
 
-    let { devEnv, selected, setSelected, globalUserData } = useContext<any>(StateContext);
-    let { itemID, item: itemProp, index, tasks: tasksProp, activeTasks, completeTasks, board, column } = props;
+    let { devEnv, selected, setSelected, globalUserData, selectedGrid } = useContext<any>(StateContext);
+    let { itemID, item: itemProp, index, tasks: tasksProp, board, column } = props;
+
+    let defDesc = `Enter ${itemProp?.type} Description`;
+    let statusLCs = Object.values(Statuses)?.map(s => String(s)?.toLowerCase());
 
     let [editing, setEditing] = useState(false);
-    let [item, setItem] = useState<Item>(itemProp);
     let [formStatus, setFormStatus] = useState(``);
     let [tasks, setTasks] = useState<Task[]>(tasksProp);
+    let [item, setItem] = useState<Item | Task>(itemProp);
+    let [taskItem, setTaskItem] = useState<Task>(itemProp);
     let [view, setView] = useState<DetailViews>(DetailViews.Summary);
     let [saveButtonDisabled, setSaveButtonDisabled] = useState(true);
     let [validSelectedImage, setValidSelectedImage] = useState(false);
-    let [description, setDescription] = useState(itemProp?.description || `Enter Item Description`);
+    let [views, setViews] = useState<DetailViews[]>(Object.values(DetailViews));
+    let [description, setDescription] = useState(itemProp?.description || defDesc);
     let [image, setImage] = useState((itemProp?.image && itemProp?.image != ``) ? itemProp?.image : undefined);
 
-    let [active, setActive] = useState(
-        item?.options?.complete 
-        ? `complete` 
-        : (item?.options?.active || activeTasks?.length > 0 || completeTasks?.length > 0) 
-        ? `active` 
-        : `to do`
-    );
+    let [active, setActive] = useState(itemProp?.status?.toLowerCase());
 
     const slideTo = (position: number = 0, last = false) => {
         const swiper = swiperRef?.current?.swiper;
@@ -73,28 +74,41 @@ export default function ItemDetail(props) {
     // }
 
     useEffect(() => {
-        const updatedTasks = [];
-        const refreshedItem = globalUserData?.items?.find((itm: Item) => itm?.id == itemID);
-        const refreshedTasks = globalUserData?.tasks?.filter((tsk: Task) => tsk?.itemID == itemID);
-        refreshedItem?.data?.taskIDs?.forEach(tskID => {
-            const thisTask = refreshedTasks?.find((tsk: Task) => tsk?.id == tskID);
-            if (thisTask) updatedTasks?.push(thisTask);
-        })
-        setTasks(updatedTasks);
-        const updatedItemAndTasks = { ...refreshedItem, tasks: updatedTasks };
-        devEnv && console.log(`Item Details`, updatedItemAndTasks);
-        setItem(updatedItemAndTasks);
-        if (updatedItemAndTasks?.image != `` && updatedItemAndTasks?.image != image) {
-            setImage(updatedItemAndTasks?.image);
-        }
-        setTimeout(() => {
-            if (updatedItemAndTasks?.attachments?.length > 3) {
-                slideTo(undefined, true);
+        if (itemProp) {
+            if (itemProp?.type == Types.Item) {
+                const updatedTasks = [];
+                setViews(prevViews => prevViews?.filter(pv => pv != DetailViews.Transfer));
+                const refreshedItem = globalUserData?.items?.find((itm: Item) => itm?.id == itemID);
+                const refreshedTasks = globalUserData?.tasks?.filter((tsk: Task) => tsk?.itemID == itemID);
+                refreshedItem?.data?.taskIDs?.forEach(tskID => {
+                    const thisTask = refreshedTasks?.find((tsk: Task) => tsk?.id == tskID);
+                    if (thisTask) updatedTasks?.push(thisTask);
+                })
+                setTasks(updatedTasks);
+                const updatedItemAndTasks = { ...refreshedItem, tasks: updatedTasks };
+                devEnv && console.log(`Item Details`, updatedItemAndTasks);
+                setItem(updatedItemAndTasks);
+                if (updatedItemAndTasks?.image != `` && updatedItemAndTasks?.image != image) {
+                    setImage(updatedItemAndTasks?.image);
+                }
+                setTimeout(() => {
+                    if (updatedItemAndTasks?.attachments?.length > 3) {
+                        slideTo(undefined, true);
+                    }
+                }, 500)
+            } else {
+                setViews(prevViews => prevViews?.filter(pv => pv != DetailViews.Tasks));
+                setTaskItem(globalUserData?.items?.find(it => it?.id == itemProp?.itemID));
             }
-        }, 500)
-    }, [globalUserData])
+        }
+    }, [itemProp, globalUserData])
 
-    const changeLabel = (e, item: Item) => {
+    const onActiveChanges = (newStatus) => {
+        setActive(newStatus);
+        refreshDetails(undefined, newStatus);
+    }
+
+    const changeLabel = (e, item: Item | Task) => {
         let elemValue = e.target.textContent;
         let invalidValue = !elemValue || elemValue == ``;
         let sameName = elemValue?.toLowerCase() == item?.name?.toLowerCase();
@@ -112,19 +126,28 @@ export default function ItemDetail(props) {
         }
     }
 
-    const refreshDetails = (e) => {
-        e.preventDefault();
-        let formField = e?.target;
-        if (formField?.name == `itemImageLink`) {
-            const updatedImage = formField?.value;
-            setImage(updatedImage);
+    const refreshDetails = (e?: any, newStatus: string = active) => {
+        let updatedImage = ``;
+        if (e) {
+            e.preventDefault();
+            let formField = e?.target;
+            if (formField) {
+                if (formField?.name == `itemImageLink`) {
+                    updatedImage = formField?.value;
+                    setImage(updatedImage);
+                }
+            }
             const detailViewImage: HTMLImageElement = document?.querySelector(`.detailViewImage`);
             if (detailViewImage || updatedImage == ``) {
-                setValidSelectedImage(true);
+                setValidSelectedImage(image && image != ``);
                 setFormStatus(``);
             }
+        } else {
+            setFormStatus(``);
         }
-        let saveDisabled = formStatus != `` || (description == `` || description == item?.description);
+        let statusSame = itemProp?.status?.toLowerCase() == newStatus;
+        let formChanged = (formStatus != `` || (description == `` || description == defDesc || description == itemProp?.description));
+        let saveDisabled = statusSame && formChanged;
         setSaveButtonDisabled(saveDisabled);
     }
 
@@ -220,11 +243,16 @@ export default function ItemDetail(props) {
         let itemImage = itemImageLink ? itemImageLink?.value : ``;
 
         let itemActive = active == `active`;
+        let itemReview = active == `review`;
         let itemComplete = active == `complete`;
+
+        if (itemProp?.type == Types.Task) item = itemProp;
+
         let activeStatusChanged = itemActive != item?.options?.active;
+        let reviewStatusChanged = itemReview != item?.options?.review;
         let completionStatusChanged = itemComplete != item?.options?.complete;
 
-        let statusChanged = activeStatusChanged || completionStatusChanged;
+        let statusChanged = activeStatusChanged || reviewStatusChanged || completionStatusChanged;
 
         if (itemImage != `` || statusChanged || !saveButtonDisabled) {
             await updateDocFieldsWTimeStamp(item, {
@@ -233,7 +261,7 @@ export default function ItemDetail(props) {
                     ...(item?.image == `` && { image: itemImage, }),
                     attachments: Array.from(new Set([...[...item?.attachments, itemImage]])),
                 }),
-                ...(item?.data?.taskIDs?.length > 0 ? {
+                ...((itemProp?.type == Types.Item && item?.data?.taskIDs?.length > 0) ? {
                     ...(completionStatusChanged && {
                         [`options.complete`]: itemComplete,
                     }),
@@ -241,6 +269,9 @@ export default function ItemDetail(props) {
                     ...(statusChanged && {
                         ...(activeStatusChanged && {
                             [`options.active`]: itemActive,
+                        }),
+                        ...(reviewStatusChanged && {
+                            [`options.review`]: itemReview,
                         }),
                         ...(completionStatusChanged && {
                             [`options.complete`]: itemComplete,
@@ -308,6 +339,60 @@ export default function ItemDetail(props) {
                     {item?.meta?.updated}
                 </h4>
             </div>
+            {item?.type == Types.Task && (
+                <div className={`itemDetailFieldMetric flexLabel`}>
+                    {/* <h4 className={`itemDetailType`}>
+                        <strong>Item:</strong>
+                    </h4> */}
+                    <h4 className={`itemDetailType`}>
+                        <ItemWrapper cursorGrab={false}>    
+                            <Tags item={taskItem} extend={true} parentClass={`itemDetailContentsTagParent itemContents`} className={`IDTag`} />
+                        </ItemWrapper>
+                    </h4>
+                    <h4 className={`fieldName textOverflow`} style={{ paddingBottom: 1, fontSize: 12, maxWidth: 170 }} title={taskItem?.name}>
+                        {taskItem?.name}
+                    </h4>
+                </div>
+            )}
+            <div className={`itemDetailFieldMetric flexLabel`}>
+                {/* <h4 className={`itemDetailType`}>
+                    <strong>List:</strong>
+                </h4> */}
+                <h4 className={`itemDetailType`}>
+                    <ItemWrapper cursorGrab={false}>    
+                        <Tags item={column} extend={true} parentClass={`itemDetailContentsTagParent itemContents`} className={`IDTag`} />
+                    </ItemWrapper>
+                </h4>
+                <h4 className={`fieldName textOverflow`} style={{ paddingBottom: 1, fontSize: 12, maxWidth: 170 }} title={column?.name}>
+                    {column?.name}
+                </h4>
+            </div>
+            <div className={`itemDetailFieldMetric flexLabel`}>
+                {/* <h4 className={`itemDetailType`}>
+                    <strong>Board:</strong>
+                </h4> */}
+                <h4 className={`itemDetailType`}>
+                    <ItemWrapper cursorGrab={false}>    
+                        <Tags item={board} extend={true} parentClass={`itemDetailContentsTagParent itemContents`} className={`IDTag`} />
+                    </ItemWrapper>
+                </h4>
+                <h4 className={`fieldName textOverflow`} style={{ paddingBottom: 1, fontSize: 12, maxWidth: 170 }} title={board?.name}>
+                    {board?.name}
+                </h4>
+            </div>
+            <div className={`itemDetailFieldMetric flexLabel`}>
+                {/* <h4 className={`itemDetailType`}>
+                    <strong>Grid:</strong>
+                </h4> */}
+                <h4 className={`itemDetailType`}>
+                    <ItemWrapper cursorGrab={false}>    
+                        <Tags item={selectedGrid} extend={true} parentClass={`itemDetailContentsTagParent itemContents`} className={`IDTag`} />
+                    </ItemWrapper>
+                </h4>
+                <h4 className={`fieldName textOverflow`} style={{ paddingBottom: 1, fontSize: 12, maxWidth: 170 }} title={selectedGrid?.name}>
+                    {selectedGrid?.name}
+                </h4>
+            </div>
         </>
     }
 
@@ -353,14 +438,14 @@ export default function ItemDetail(props) {
                 </div>
                 <input onKeyDown={(e) => formSubmitOnEnter(e)} type={`text`} name={`itemName`} className={`itemNameField`} placeholder={`Item Name`} defaultValue={item?.name} />
             </div> */}
-            <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
+            <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 10 }}>
                 {/* <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
                     Image
                 </div> */}
-                <input onKeyDown={(e) => formSubmitOnEnter(e)} type={`text`} name={`itemImageLink`} className={`itemImageLinkField`} placeholder={`Item Image URL`} />
+                <input onKeyDown={(e) => formSubmitOnEnter(e)} type={`text`} name={`itemImageLink`} className={`itemImageLinkField`} placeholder={`${item?.type} Image URL`} style={{ minHeight: 37 }} />
                 <DropZone item={item} />
             </div>
-            <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 15 }}>
+            <div className={`itemDetailField`} style={{ display: `flex`, width: `100%`, alignItems: `center`, gridGap: 10 }}>
                 {/* <div className={`itemDetailFieldtitle`} style={{ minWidth: 100, textAlign: `end` }}>
                     Description
                 </div> */}
@@ -370,11 +455,11 @@ export default function ItemDetail(props) {
                         ref={editorRef} 
                         // onBlur={(e) => onEditorBlur(e)}
                         className={`itemDescriptionEditorField`} 
-                        placeholder={description || `Enter Item Description`} 
                         onChange={(editorVal) => onEditorChangeVal(editorVal)} 
+                        placeholder={description || `Enter ${item?.type} Description`} 
                     />
                 ) : (
-                    <div className={`itemDescriptionPreview messageContentPreview renderHTML fullText`} onClick={() => setEditing(!editing)}>
+                    <div className={`itemDescriptionPreview messageContentPreview renderHTML fullText ${description == defDesc ? `placeholderPreview` : ``}`} onClick={() => setEditing(!editing)}>
                         {renderContent(description)}
                     </div>
                 )}
@@ -425,8 +510,8 @@ export default function ItemDetail(props) {
                             contentEditable 
                             spellCheck={false}
                             suppressContentEditableWarning 
-                            onBlur={(e) => changeLabel(e, item)} 
                             onKeyDown={(e) => forceFieldBlurOnPressEnter(e)}
+                            onBlur={(e) => changeLabel(e, (itemProp?.type == Types.Item ? item : itemProp))} 
                             className={`itemDetailsChangeLabel changeLabel stretchEditable itemChangeLabel`}
                         >
                             {item?.name}
@@ -443,7 +528,7 @@ export default function ItemDetail(props) {
                                 className={`detailViewTabs`}
                                 style={{ minHeight: 50, gridGap: 2 }}
                             >
-                                {Object.values(DetailViews).map((v, vi) => (
+                                {views.map((v, vi) => (
                                     <ToggleButton key={vi} value={v} className={`detailViewTabButton flex gap5 alignCenter`} style={{ background: `white` }}>
                                         <i className={`detailViewTabIcon ${detailViews[v]}`} style={{ color: `var(--gameBlue)` }} />
                                         <strong>{v}</strong>
@@ -484,7 +569,7 @@ export default function ItemDetail(props) {
 
                 {selected != null && item != null && item?.type && (
                     <form ref={formRef} onInput={(e) => refreshDetails(e)} onSubmit={(e) => saveItem(e)} className={`itemDetailsForm changeInputs flex isColumn`} data-index={(index ?? 0) + 1}>
-                        {view != DetailViews.Tasks && (
+                        {(view != DetailViews.Tasks && view != DetailViews.Transfer) && (
                             <div className={`formTop`}>
                                 <div className={`detailsStartContent`}>
                                     <div className={`detailsColumn detailStart detailEdge formStartData formTopLeft flexColumn gap10`} style={{ minWidth: 255 }}>
@@ -496,7 +581,13 @@ export default function ItemDetail(props) {
                                             tasks={tasks}
                                             customInnerText={false}
                                             classes={`detailViewProgress detailsColumn detailEdge detailEnd`} 
-                                            injectedProgress={active === `complete` ? 100 : active === `to do` ? 0 : item?.data?.taskIDs?.length == 0 ? 50 : undefined} 
+                                            injectedProgress={itemProp?.type == Types.Item ? (
+                                                active === `complete` ? 100 : active === `to do` ? 0 : item?.data?.taskIDs?.length == 0 ? (
+                                                    decimalsString(((statusLCs?.indexOf(active)) / (statusLCs?.length - 1)) * 100)
+                                                ) : undefined
+                                            ) : (
+                                                decimalsString(((statusLCs?.indexOf(active)) / (statusLCs?.length - 1)) * 100)
+                                            )} 
                                         />
                                     </div>
                                 </div>
@@ -505,12 +596,27 @@ export default function ItemDetail(props) {
                                 </div>
                             </div>
                         )}
-                        {view == DetailViews.Gallery ? <Gallery item={item} /> : <>
-                            {(item?.data?.taskIDs?.length == 0 || item?.data?.taskIDs?.length == tasks?.filter((tsk: Task) => tsk?.options?.complete)?.length) && (
-                                <ToggleButtons item={item} toDoTasks={tasks?.filter((tsk: Task) => !tsk?.options?.active && !tsk?.options?.complete)} activeTasks={tasks?.filter((tsk: Task) => tsk?.options?.active)} completeTasks={tasks?.filter((tsk: Task) => tsk?.options?.complete)} onActiveChange={(newActive) => setActive(newActive)} />
-                            )}
-                            <div className={`tasksContainer detailView_tasksContainer`}>
-                                {TasksField()}
+                        {view != DetailViews.Transfer && (
+                            (view == DetailViews.Gallery) ? <Gallery item={item} /> : <>
+                                {(dev() && (itemProp?.type == Types.Task || (item?.data?.taskIDs?.length == 0 || item?.data?.taskIDs?.length == tasks?.filter((tsk: Task) => tsk?.options?.complete)?.length))) && (
+                                    <ToggleButtons 
+                                        item={itemProp?.type == Types.Task ? itemProp : item} 
+                                        onActiveChange={(newActive) => onActiveChanges(newActive)} 
+                                        activeTasks={tasks?.filter((tsk: Task) => tsk?.options?.active)} 
+                                        completeTasks={tasks?.filter((tsk: Task) => tsk?.options?.complete)} 
+                                        toDoTasks={tasks?.filter((tsk: Task) => !tsk?.options?.active && !tsk?.options?.complete)} 
+                                    />
+                                )}
+                                {itemProp?.type == Types.Item && (
+                                    <div className={`tasksContainer detailView_tasksContainer`}>
+                                        {TasksField()}
+                                    </div>
+                                )}
+                            </>
+                        )}
+                        {(itemProp?.type == Types.Task && view != DetailViews.Gallery) && <>
+                            <div className={`detailsTransferItems ${view == DetailViews.Transfer ? `onTransferView` : ``}`}>
+                                <TransferItems showIndexes={false} />
                             </div>
                         </>}
                     </form>
