@@ -17,12 +17,13 @@ import { forceFieldBlurOnPressEnter, isValid, removeExtraSpacesFromString } from
 
 export const getNextStatusIcon = (itemOrTask: ItemModel | Task): string => {
     let reopenIcon = `fas fa-history`;
-    let searchIcon = `fas fa-search`;
+    // let searchIcon = `fas fa-search`;
     let playIcon = `fas fa-play-circle`;
+    let starIcon = `fas fa-star-of-life`;
     let completeIcon = `fas fa-check-circle`;
     let statusIcon = playIcon;
     let activeStatus = (itemOrTask?.data?.taskIDs?.length == 0 && itemOrTask?.options?.active) || itemOrTask?.data?.taskIDs?.length > 0;
-    if (activeStatus) statusIcon = searchIcon;
+    if (activeStatus) statusIcon = starIcon;
     if (itemOrTask?.options?.review) statusIcon = completeIcon;
     if (itemOrTask?.options?.complete) statusIcon = reopenIcon;
     return statusIcon;
