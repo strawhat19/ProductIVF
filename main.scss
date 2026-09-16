@@ -1126,7 +1126,8 @@ body {
 
     &:has(._projects_boards) {
         article {
-            overflow: hidden;
+            // Clip board overflow without creating a hidden page scroll container.
+            overflow: clip;
             padding-top: max(env(safe-area-inset-top), 1.5rem);
             h1 {
                 margin: -10px 0 -7px 0;
@@ -2920,6 +2921,7 @@ footer {
         opacity: 0;
         margin: -8px 0;
         max-height: 0px;
+        visibility: hidden;
         pointer-events: none;
     }
 }
