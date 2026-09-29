@@ -9,6 +9,7 @@ import { Grid } from '../shared/models/Grid';
 import { List } from '../shared/models/List';
 import { Item } from '../shared/models/Item';
 import { Task } from '../shared/models/Task';
+import { Analytics } from '@vercel/analytics/next';
 import { Feature } from '../shared/admin/features';
 import { toast, ToastContainer } from 'react-toastify';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -1393,6 +1394,7 @@ export default function ProductIVF({ Component, pageProps, router }) {
       <DetailsDialog />
       <TransferDialog />
       <ContextMenu menuRef={menuRef} menuPosition={menuPosition} />
+      <Analytics />
     </StateContext.Provider>
   )
 }
