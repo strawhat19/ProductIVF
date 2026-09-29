@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 304" role="img" aria-labelledby="productivf-title productivf-desc">
+  <title id="productivf-title">ProductIVF — Task cells</title>
+  <desc id="productivf-desc">A modular P built from light blue and graphite task cells. The last rows of its stem spread apart and fade into small silver blocks.</desc>
+  <g id="productivf-mark">
+    <g id="productivf-modular-p">
+      <rect id="productivf-cell-0-0" x="42" y="33" width="23" height="23" rx="2" fill="#9AD5F5"/>
+      <rect id="productivf-cell-0-1" x="68" y="33" width="23" height="23" rx="2" fill="#9AD5F5"/>
+      <rect id="productivf-cell-0-2" x="94" y="33" width="23" height="23" rx="2" fill="#9AD5F5"/>
+      <rect id="productivf-cell-0-3" x="120" y="33" width="23" height="23" rx="2" fill="#9AD5F5"/>
+      <rect id="productivf-cell-0-4" x="146" y="33" width="23" height="23" rx="2" fill="#9AD5F5"/>
+      <rect id="productivf-cell-1-0" x="42" y="59" width="23" height="23" rx="2" fill="#34434F"/>
+      <rect id="productivf-cell-1-1" x="68" y="59" width="23" height="23" rx="2" fill="#667A8B"/>
+      <rect id="productivf-cell-1-4" x="146" y="59" width="23" height="23" rx="2" fill="#7CBFE5"/>
+      <rect id="productivf-cell-1-5" x="172" y="59" width="23" height="23" rx="2" fill="#7CBFE5"/>
+      <rect id="productivf-cell-2-0" x="42" y="85" width="23" height="23" rx="2" fill="#34434F"/>
+      <rect id="productivf-cell-2-1" x="68" y="85" width="23" height="23" rx="2" fill="#667A8B"/>
+      <rect id="productivf-cell-2-4" x="146" y="85" width="23" height="23" rx="2" fill="#7CBFE5"/>
+      <rect id="productivf-cell-2-5" x="172" y="85" width="23" height="23" rx="2" fill="#7CBFE5"/>
+      <rect id="productivf-cell-3-0" x="42" y="111" width="23" height="23" rx="2" fill="#34434F"/>
+      <rect id="productivf-cell-3-1" x="68" y="111" width="23" height="23" rx="2" fill="#667A8B"/>
+      <rect id="productivf-cell-3-2" x="94" y="111" width="23" height="23" rx="2" fill="#7CBFE5"/>
+      <rect id="productivf-cell-3-3" x="120" y="111" width="23" height="23" rx="2" fill="#7CBFE5"/>
+      <rect id="productivf-cell-3-4" x="146" y="111" width="23" height="23" rx="2" fill="#7CBFE5"/>
+      <rect id="productivf-cell-4-0" x="42" y="137" width="23" height="23" rx="2" fill="#34434F"/>
+      <rect id="productivf-cell-4-1" x="68" y="137" width="23" height="23" rx="2" fill="#667A8B"/>
+    </g>
+    <g id="productivf-drifting-cells">
+      <rect x="42" y="168" width="22" height="22" rx="2" fill="#485D6D"/>
+      <rect x="71" y="173" width="21" height="21" rx="2" fill="#9AD5F5" opacity=".9"/>
+      <rect x="38" y="205" width="18" height="18" rx="1.5" fill="#8D9FAB" opacity=".7"/>
+      <rect x="78" y="215" width="16" height="16" rx="1.5" fill="#A9D8F0" opacity=".6"/>
+      <rect x="32" y="246" width="11" height="11" rx="1" fill="#93A5B3" opacity=".35"/>
+      <rect x="89" y="258" width="9" height="9" rx="1" fill="#A8D8F1" opacity=".3"/>
+    </g>
+  </g>
+</svg>

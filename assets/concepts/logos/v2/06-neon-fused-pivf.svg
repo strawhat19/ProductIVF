@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 760" role="img" aria-labelledby="fused-wordmark-title fused-wordmark-description">
+  <title id="fused-wordmark-title">ProductIVF — Neon fused PIVF</title>
+  <desc id="fused-wordmark-description">Four full-height vector letters form a continuous electric-blue PIVF wordmark. The P retains its extended smooth stem and only three tiny fading cells at the terminal tip. The background is near black.</desc>
+  <defs>
+    <linearGradient id="fused-wordmark-face" x1="120" y1="108" x2="1180" y2="720" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#82F7FF"/>
+      <stop offset="0.16" stop-color="#00EDFF"/>
+      <stop offset="0.70" stop-color="#00D9F5"/>
+      <stop offset="1" stop-color="#008BBA"/>
+    </linearGradient>
+    <filter id="fused-wordmark-glow" x="-15%" y="-25%" width="130%" height="150%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="14" result="fused-wordmark-bloom"/>
+      <feComponentTransfer in="fused-wordmark-bloom" result="fused-wordmark-soft-bloom">
+        <feFuncA type="linear" slope="0.22"/>
+      </feComponentTransfer>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="fused-wordmark-edge"/>
+      <feComponentTransfer in="fused-wordmark-edge" result="fused-wordmark-soft-edge">
+        <feFuncA type="linear" slope="0.30"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="fused-wordmark-soft-bloom"/>
+        <feMergeNode in="fused-wordmark-soft-edge"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect id="fused-wordmark-background" class="fused-wordmark-background" width="1440" height="760" fill="#03070D"/>
+  <g id="fused-wordmark-artwork" class="fused-wordmark-artwork" filter="url(#fused-wordmark-glow)">
+    <g id="fused-wordmark-letters" class="fused-wordmark-letters" fill="url(#fused-wordmark-face)">
+      <path
+        id="fused-wordmark-letter-p"
+        class="fused-wordmark-letter"
+        fill-rule="evenodd"
+        d="M 120 108 H 284 C 351 108 400 155 400 219 C 400 286 351 334 284 334 H 190 V 636 Q 190 648 178 648 H 112 Q 100 648 100 636 V 128 Q 100 108 120 108 Z M 190 187 V 255 H 278 C 303 255 320 241 320 220 C 320 199 303 187 278 187 Z"
+      />
+      <rect id="fused-wordmark-letter-i" class="fused-wordmark-letter" x="462" y="108" width="90" height="540" rx="12"/>
+      <path id="fused-wordmark-letter-v" class="fused-wordmark-letter" d="M 614 108 H 706 L 785 527 L 864 108 H 956 L 845 632 Q 842 648 826 648 H 744 Q 728 648 725 632 Z"/>
+      <path id="fused-wordmark-letter-f" class="fused-wordmark-letter" d="M 1028 108 H 1328 Q 1340 108 1340 120 V 175 Q 1340 187 1328 187 H 1106 V 322 H 1288 Q 1300 322 1300 334 V 389 Q 1300 401 1288 401 H 1106 V 636 Q 1106 648 1094 648 H 1028 Q 1016 648 1016 636 V 120 Q 1016 108 1028 108 Z"/>
+    </g>
+    <g id="fused-wordmark-terminal-cells" class="fused-wordmark-terminal-cells" fill="#00D9F5">
+      <rect id="fused-wordmark-terminal-cell-1" class="fused-wordmark-terminal-cell" x="118" y="665" width="16" height="16" rx="3" opacity="0.64"/>
+      <rect id="fused-wordmark-terminal-cell-2" class="fused-wordmark-terminal-cell" x="158" y="684" width="11" height="11" rx="2" opacity="0.38"/>
+      <rect id="fused-wordmark-terminal-cell-3" class="fused-wordmark-terminal-cell" x="122" y="705" width="7" height="7" rx="1.5" opacity="0.18"/>
+    </g>
+  </g>
+</svg>

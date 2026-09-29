@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 760" role="img" aria-labelledby="fused-lockup-title fused-lockup-description">
+  <title id="fused-lockup-title">ProductIVF — Neon fused P with separate IVF</title>
+  <desc id="fused-lockup-description">An oversized smooth electric-blue P with a long continuous stem and three tiny fading terminal cells, paired with smaller separate vector IVF lettering on near black.</desc>
+  <defs>
+    <linearGradient id="fused-lockup-face" x1="180" y1="108" x2="445" y2="648" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#82F7FF"/>
+      <stop offset="0.16" stop-color="#00EDFF"/>
+      <stop offset="0.62" stop-color="#00D9F5"/>
+      <stop offset="1" stop-color="#008BBA"/>
+    </linearGradient>
+    <linearGradient id="fused-lockup-letters" x1="545" y1="321" x2="970" y2="470" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#82F7FF"/>
+      <stop offset="0.35" stop-color="#00EDFF"/>
+      <stop offset="1" stop-color="#00D9F5"/>
+    </linearGradient>
+    <filter id="fused-lockup-glow" x="-30%" y="-25%" width="160%" height="150%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="14" result="fused-lockup-bloom"/>
+      <feComponentTransfer in="fused-lockup-bloom" result="fused-lockup-soft-bloom">
+        <feFuncA type="linear" slope="0.22"/>
+      </feComponentTransfer>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="fused-lockup-edge"/>
+      <feComponentTransfer in="fused-lockup-edge" result="fused-lockup-soft-edge">
+        <feFuncA type="linear" slope="0.30"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="fused-lockup-soft-bloom"/>
+        <feMergeNode in="fused-lockup-soft-edge"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect id="fused-lockup-background" class="fused-lockup-background" width="1080" height="760" fill="#03070D"/>
+  <g id="fused-lockup-artwork" class="fused-lockup-artwork" filter="url(#fused-lockup-glow)">
+    <g id="fused-lockup-large-p" class="fused-lockup-large-p" transform="translate(-50 0)">
+      <path
+        id="fused-lockup-continuous-face"
+        class="fused-lockup-continuous-face"
+        fill="url(#fused-lockup-face)"
+        fill-rule="evenodd"
+        d="M 194 108 H 358 C 425 108 474 155 474 219 C 474 286 425 334 358 334 H 264 V 636 Q 264 648 252 648 H 186 Q 174 648 174 636 V 128 Q 174 108 194 108 Z M 264 187 V 255 H 352 C 377 255 394 241 394 220 C 394 199 377 187 352 187 Z"
+      />
+      <g id="fused-lockup-terminal-cells" class="fused-lockup-terminal-cells" fill="#00D9F5">
+        <rect id="fused-lockup-terminal-cell-1" class="fused-lockup-terminal-cell" x="192" y="665" width="16" height="16" rx="3" opacity="0.64"/>
+        <rect id="fused-lockup-terminal-cell-2" class="fused-lockup-terminal-cell" x="232" y="684" width="11" height="11" rx="2" opacity="0.38"/>
+        <rect id="fused-lockup-terminal-cell-3" class="fused-lockup-terminal-cell" x="196" y="705" width="7" height="7" rx="1.5" opacity="0.18"/>
+      </g>
+    </g>
+    <g id="fused-lockup-ivf" class="fused-lockup-ivf" fill="url(#fused-lockup-letters)">
+      <rect id="fused-lockup-letter-i" class="fused-lockup-letter" x="545" y="321" width="33" height="149" rx="4"/>
+      <path id="fused-lockup-letter-v" class="fused-lockup-letter" d="M 616 321 H 652 L 692 430 L 732 321 H 768 L 711 465 Q 709 470 703 470 H 681 Q 675 470 673 465 Z"/>
+      <path id="fused-lockup-letter-f" class="fused-lockup-letter" d="M 812 321 H 939 Q 943 321 943 325 V 348 Q 943 352 939 352 H 841 V 382 H 921 Q 925 382 925 386 V 409 Q 925 413 921 413 H 841 V 466 Q 841 470 837 470 H 812 Q 808 470 808 466 V 325 Q 808 321 812 321 Z"/>
+    </g>
+  </g>
+</svg>

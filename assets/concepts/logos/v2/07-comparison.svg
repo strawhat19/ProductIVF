@@ -1,0 +1,356 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1450" viewBox="0 0 1800 1450" role="img" aria-labelledby="overview-title overview-desc">
+<title id="overview-title">ProductIVF V2 — six neon logo variants</title>
+<desc id="overview-desc">Two columns compare the dark faceted direction with the smooth luminous blue direction. Rows show a standalone P, a large P paired with IVF, and all four letters PIVF.</desc>
+<rect width="1800" height="1450" fill="#070C12"/>
+<g font-family="Arial, Helvetica, sans-serif">
+<text x="40" y="54" fill="#EAFBFF" font-size="34" font-weight="700">ProductIVF / V2</text>
+<text x="40" y="85" fill="#9FB5C4" font-size="18">Continuous forms. Longer stems. A subtle release of blocks at the tip.</text>
+<text x="40" y="129" fill="#00D9F5" font-size="18" font-weight="700" letter-spacing="2">NEON FACET</text>
+<text x="920" y="129" fill="#00D9F5" font-size="18" font-weight="700" letter-spacing="2">NEON FUSED</text>
+</g>
+<rect x="40" y="150" width="840" height="400" rx="16" fill="#03070D" stroke="#172936" stroke-width="1"/>
+<text x="64" y="183" fill="#ADC5D3" font-family="Arial, Helvetica, sans-serif" font-size="16" letter-spacing="1.4">01 / P ICON</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 800" role="img" aria-labelledby="concept-01-facet-title concept-01-facet-description" x="60" y="198" width="800" height="332" preserveAspectRatio="xMidYMid meet">
+  <title id="concept-01-facet-title">ProductIVF — Neon Facet P</title>
+  <desc id="concept-01-facet-description">A continuous charcoal P with a chamfered bowl, a long smooth tail, and luminous cyan-blue dimensional edges. Exactly three tiny cubes fade immediately below the terminal tip.</desc>
+  <defs id="concept-01-facet-definitions">
+    <linearGradient id="concept-01-facet-face" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#164754" />
+      <stop offset=".15" stop-color="#11161E" />
+      <stop offset=".43" stop-color="#03070D" />
+      <stop offset=".69" stop-color="#101C26" />
+      <stop offset=".87" stop-color="#08303C" />
+      <stop offset="1" stop-color="#008BBA" />
+    </linearGradient>
+    <linearGradient id="concept-01-facet-depth" x1="0" y1="0" x2=".9" y2="1">
+      <stop stop-color="#82F7FF" />
+      <stop offset=".23" stop-color="#00EDFF" />
+      <stop offset=".61" stop-color="#00D9F5" />
+      <stop offset="1" stop-color="#008BBA" />
+    </linearGradient>
+    <linearGradient id="concept-01-facet-rim" x1="0" y1="0" x2=".5" y2="1">
+      <stop stop-color="#82F7FF" />
+      <stop offset=".32" stop-color="#00EDFF" />
+      <stop offset=".74" stop-color="#00D9F5" />
+      <stop offset="1" stop-color="#82F7FF" />
+    </linearGradient>
+    <filter id="concept-01-facet-glow" x="-40%" y="-30%" width="180%" height="160%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="7" result="facet-glow-blur" />
+      <feComponentTransfer in="facet-glow-blur" result="facet-glow-soft">
+        <feFuncA type="linear" slope=".52" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="facet-glow-soft" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <rect id="concept-01-facet-background" class="facet-background" width="640" height="800" fill="#03070D" />
+  <g id="concept-01-facet-p-mark" class="facet-p-mark" transform="translate(174 88) scale(1.06)">
+    <g id="concept-01-facet-p" class="facet-letter facet-letter-p">
+      <path id="concept-01-facet-p-depth" class="facet-letter-depth" transform="translate(18 -13)" d="M0 14Q0 0 14 0H155Q168 0 178 9L248 70Q260 80 260 94V164Q260 179 248 189L187 238Q176 248 161 248H88V488Q88 506 74 515L51 532Q44 537 36 533L14 520Q0 512 0 495ZM88 80V169H139Q145 169 150 165L174 146Q179 142 179 135V116Q179 110 174 106L150 85Q144 80 138 80Z" fill="url(#concept-01-facet-depth)" fill-rule="evenodd" stroke="#00D9F5" stroke-width="1.2" stroke-linejoin="round" filter="url(#concept-01-facet-glow)" />
+      <path id="concept-01-facet-p-continuous-face" class="facet-letter-continuous-face" d="M0 14Q0 0 14 0H155Q168 0 178 9L248 70Q260 80 260 94V164Q260 179 248 189L187 238Q176 248 161 248H88V488Q88 506 74 515L51 532Q44 537 36 533L14 520Q0 512 0 495ZM88 80V169H139Q145 169 150 165L174 146Q179 142 179 135V116Q179 110 174 106L150 85Q144 80 138 80Z" fill="url(#concept-01-facet-face)" fill-rule="evenodd" stroke="url(#concept-01-facet-rim)" stroke-width="2.3" stroke-linejoin="round" />
+    </g>
+    <g id="concept-01-facet-terminal-cubes" class="facet-terminal-cubes">
+      <g id="concept-01-facet-terminal-cube-1" class="facet-terminal-cube" opacity=".55">
+        <path id="concept-01-facet-cube-1-top" class="facet-cube-top" d="M31 552 36 548H49L44 552Z" fill="#82F7FF" />
+        <path id="concept-01-facet-cube-1-side" class="facet-cube-side" d="M44 552 49 548V561L44 565Z" fill="#008BBA" />
+        <path id="concept-01-facet-cube-1-face" class="facet-cube-face" d="M31 552H44V565H31Z" fill="#00D9F5" />
+      </g>
+      <g id="concept-01-facet-terminal-cube-2" class="facet-terminal-cube" opacity=".33">
+        <path id="concept-01-facet-cube-2-top" class="facet-cube-top" d="M68 568 72 565H81L77 568Z" fill="#82F7FF" />
+        <path id="concept-01-facet-cube-2-side" class="facet-cube-side" d="M77 568 81 565V574L77 577Z" fill="#008BBA" />
+        <path id="concept-01-facet-cube-2-face" class="facet-cube-face" d="M68 568H77V577H68Z" fill="#00D9F5" />
+      </g>
+      <g id="concept-01-facet-terminal-cube-3" class="facet-terminal-cube" opacity=".17">
+        <path id="concept-01-facet-cube-3-top" class="facet-cube-top" d="M44 585 47 583H53L50 585Z" fill="#82F7FF" />
+        <path id="concept-01-facet-cube-3-side" class="facet-cube-side" d="M50 585 53 583V589L50 591Z" fill="#008BBA" />
+        <path id="concept-01-facet-cube-3-face" class="facet-cube-face" d="M44 585H50V591H44Z" fill="#00D9F5" />
+      </g>
+    </g>
+  </g>
+</svg>
+<rect x="40" y="580" width="840" height="400" rx="16" fill="#03070D" stroke="#172936" stroke-width="1"/>
+<text x="64" y="613" fill="#ADC5D3" font-family="Arial, Helvetica, sans-serif" font-size="16" letter-spacing="1.4">02 / P + IVF</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 800" role="img" aria-labelledby="concept-02-facet-title concept-02-facet-description" x="60" y="628" width="800" height="332" preserveAspectRatio="xMidYMid meet">
+  <title id="concept-02-facet-title">ProductIVF — Neon Facet P + IVF</title>
+  <desc id="concept-02-facet-description">A large continuous neon cyan-blue and charcoal P with a long smooth tail stands beside separate outlined IVF lettering. Three tiny fading cubes appear only below the P terminal tip.</desc>
+  <defs id="concept-02-facet-definitions">
+    <linearGradient id="concept-02-facet-face" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#164754" />
+      <stop offset=".15" stop-color="#11161E" />
+      <stop offset=".43" stop-color="#03070D" />
+      <stop offset=".69" stop-color="#101C26" />
+      <stop offset=".87" stop-color="#08303C" />
+      <stop offset="1" stop-color="#008BBA" />
+    </linearGradient>
+    <linearGradient id="concept-02-facet-depth" x1="0" y1="0" x2=".9" y2="1">
+      <stop stop-color="#82F7FF" />
+      <stop offset=".23" stop-color="#00EDFF" />
+      <stop offset=".61" stop-color="#00D9F5" />
+      <stop offset="1" stop-color="#008BBA" />
+    </linearGradient>
+    <linearGradient id="concept-02-facet-rim" x1="0" y1="0" x2=".5" y2="1">
+      <stop stop-color="#82F7FF" />
+      <stop offset=".32" stop-color="#00EDFF" />
+      <stop offset=".74" stop-color="#00D9F5" />
+      <stop offset="1" stop-color="#82F7FF" />
+    </linearGradient>
+    <filter id="concept-02-facet-glow" x="-40%" y="-30%" width="180%" height="160%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="7" result="facet-glow-blur" />
+      <feComponentTransfer in="facet-glow-blur" result="facet-glow-soft">
+        <feFuncA type="linear" slope=".52" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="facet-glow-soft" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <rect id="concept-02-facet-background" class="facet-background" width="1400" height="800" fill="#03070D" />
+  <g id="concept-02-facet-p-mark" class="facet-p-mark" transform="translate(136 112)">
+    <g id="concept-02-facet-p" class="facet-letter facet-letter-p">
+      <path id="concept-02-facet-p-depth" class="facet-letter-depth" transform="translate(18 -13)" d="M0 14Q0 0 14 0H155Q168 0 178 9L248 70Q260 80 260 94V164Q260 179 248 189L187 238Q176 248 161 248H88V488Q88 506 74 515L51 532Q44 537 36 533L14 520Q0 512 0 495ZM88 80V169H139Q145 169 150 165L174 146Q179 142 179 135V116Q179 110 174 106L150 85Q144 80 138 80Z" fill="url(#concept-02-facet-depth)" fill-rule="evenodd" stroke="#00D9F5" stroke-width="1.2" stroke-linejoin="round" filter="url(#concept-02-facet-glow)" />
+      <path id="concept-02-facet-p-continuous-face" class="facet-letter-continuous-face" d="M0 14Q0 0 14 0H155Q168 0 178 9L248 70Q260 80 260 94V164Q260 179 248 189L187 238Q176 248 161 248H88V488Q88 506 74 515L51 532Q44 537 36 533L14 520Q0 512 0 495ZM88 80V169H139Q145 169 150 165L174 146Q179 142 179 135V116Q179 110 174 106L150 85Q144 80 138 80Z" fill="url(#concept-02-facet-face)" fill-rule="evenodd" stroke="url(#concept-02-facet-rim)" stroke-width="2.3" stroke-linejoin="round" />
+    </g>
+    <g id="concept-02-facet-terminal-cubes" class="facet-terminal-cubes">
+      <g id="concept-02-facet-terminal-cube-1" class="facet-terminal-cube" opacity=".55">
+        <path id="concept-02-facet-cube-1-top" class="facet-cube-top" d="M31 552 36 548H49L44 552Z" fill="#82F7FF" />
+        <path id="concept-02-facet-cube-1-side" class="facet-cube-side" d="M44 552 49 548V561L44 565Z" fill="#008BBA" />
+        <path id="concept-02-facet-cube-1-face" class="facet-cube-face" d="M31 552H44V565H31Z" fill="#00D9F5" />
+      </g>
+      <g id="concept-02-facet-terminal-cube-2" class="facet-terminal-cube" opacity=".33">
+        <path id="concept-02-facet-cube-2-top" class="facet-cube-top" d="M68 568 72 565H81L77 568Z" fill="#82F7FF" />
+        <path id="concept-02-facet-cube-2-side" class="facet-cube-side" d="M77 568 81 565V574L77 577Z" fill="#008BBA" />
+        <path id="concept-02-facet-cube-2-face" class="facet-cube-face" d="M68 568H77V577H68Z" fill="#00D9F5" />
+      </g>
+      <g id="concept-02-facet-terminal-cube-3" class="facet-terminal-cube" opacity=".17">
+        <path id="concept-02-facet-cube-3-top" class="facet-cube-top" d="M44 585 47 583H53L50 585Z" fill="#82F7FF" />
+        <path id="concept-02-facet-cube-3-side" class="facet-cube-side" d="M50 585 53 583V589L50 591Z" fill="#008BBA" />
+        <path id="concept-02-facet-cube-3-face" class="facet-cube-face" d="M44 585H50V591H44Z" fill="#00D9F5" />
+      </g>
+    </g>
+  </g>
+  <g id="concept-02-facet-ivf-wordmark" class="facet-ivf-wordmark" transform="translate(575 258) scale(1.07)">
+    <g id="concept-02-facet-i" class="facet-letter facet-letter-i">
+      <path id="concept-02-facet-i-depth" class="facet-letter-depth" transform="translate(18 -13)" d="M8 0H60Q68 0 68 8V292Q68 300 60 300H8Q0 300 0 292V8Q0 0 8 0Z" fill="url(#concept-02-facet-depth)" fill-rule="evenodd" stroke="#00D9F5" stroke-width="1.2" stroke-linejoin="round" filter="url(#concept-02-facet-glow)" />
+      <path id="concept-02-facet-i-continuous-face" class="facet-letter-continuous-face" d="M8 0H60Q68 0 68 8V292Q68 300 60 300H8Q0 300 0 292V8Q0 0 8 0Z" fill="url(#concept-02-facet-face)" fill-rule="evenodd" stroke="url(#concept-02-facet-rim)" stroke-width="2.3" stroke-linejoin="round" />
+    </g>
+    <g id="concept-02-facet-v" class="facet-letter facet-letter-v" transform="translate(134 0)">
+      <path id="concept-02-facet-v-depth" class="facet-letter-depth" transform="translate(18 -13)" d="M0 0H72L112 207L152 0H224L149 290Q146 300 137 300H87Q78 300 75 290Z" fill="url(#concept-02-facet-depth)" fill-rule="evenodd" stroke="#00D9F5" stroke-width="1.2" stroke-linejoin="round" filter="url(#concept-02-facet-glow)" />
+      <path id="concept-02-facet-v-continuous-face" class="facet-letter-continuous-face" d="M0 0H72L112 207L152 0H224L149 290Q146 300 137 300H87Q78 300 75 290Z" fill="url(#concept-02-facet-face)" fill-rule="evenodd" stroke="url(#concept-02-facet-rim)" stroke-width="2.3" stroke-linejoin="round" />
+    </g>
+    <g id="concept-02-facet-f" class="facet-letter facet-letter-f" transform="translate(424 0)">
+      <path id="concept-02-facet-f-depth" class="facet-letter-depth" transform="translate(18 -13)" d="M8 0H188Q196 0 196 8V57Q196 65 188 65H69V119H170Q178 119 178 127V175Q178 183 170 183H69V292Q69 300 61 300H8Q0 300 0 292V8Q0 0 8 0Z" fill="url(#concept-02-facet-depth)" fill-rule="evenodd" stroke="#00D9F5" stroke-width="1.2" stroke-linejoin="round" filter="url(#concept-02-facet-glow)" />
+      <path id="concept-02-facet-f-continuous-face" class="facet-letter-continuous-face" d="M8 0H188Q196 0 196 8V57Q196 65 188 65H69V119H170Q178 119 178 127V175Q178 183 170 183H69V292Q69 300 61 300H8Q0 300 0 292V8Q0 0 8 0Z" fill="url(#concept-02-facet-face)" fill-rule="evenodd" stroke="url(#concept-02-facet-rim)" stroke-width="2.3" stroke-linejoin="round" />
+    </g>
+  </g>
+</svg>
+<rect x="40" y="1010" width="840" height="400" rx="16" fill="#03070D" stroke="#172936" stroke-width="1"/>
+<text x="64" y="1043" fill="#ADC5D3" font-family="Arial, Helvetica, sans-serif" font-size="16" letter-spacing="1.4">03 / PIVF</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1540 800" role="img" aria-labelledby="concept-03-facet-title concept-03-facet-description" x="60" y="1058" width="800" height="332" preserveAspectRatio="xMidYMid meet">
+  <title id="concept-03-facet-title">ProductIVF — Neon Facet PIVF</title>
+  <desc id="concept-03-facet-description">Four aligned custom vector letters form PIVF in charcoal with luminous cyan-blue dimensional edges. The P has a continuous extended tail and only three tiny fading cubes below its terminal tip.</desc>
+  <defs id="concept-03-facet-definitions">
+    <linearGradient id="concept-03-facet-face" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#164754" />
+      <stop offset=".15" stop-color="#11161E" />
+      <stop offset=".43" stop-color="#03070D" />
+      <stop offset=".69" stop-color="#101C26" />
+      <stop offset=".87" stop-color="#08303C" />
+      <stop offset="1" stop-color="#008BBA" />
+    </linearGradient>
+    <linearGradient id="concept-03-facet-depth" x1="0" y1="0" x2=".9" y2="1">
+      <stop stop-color="#82F7FF" />
+      <stop offset=".23" stop-color="#00EDFF" />
+      <stop offset=".61" stop-color="#00D9F5" />
+      <stop offset="1" stop-color="#008BBA" />
+    </linearGradient>
+    <linearGradient id="concept-03-facet-rim" x1="0" y1="0" x2=".5" y2="1">
+      <stop stop-color="#82F7FF" />
+      <stop offset=".32" stop-color="#00EDFF" />
+      <stop offset=".74" stop-color="#00D9F5" />
+      <stop offset="1" stop-color="#82F7FF" />
+    </linearGradient>
+    <filter id="concept-03-facet-glow" x="-40%" y="-30%" width="180%" height="160%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="7" result="facet-glow-blur" />
+      <feComponentTransfer in="facet-glow-blur" result="facet-glow-soft">
+        <feFuncA type="linear" slope=".52" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="facet-glow-soft" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <rect id="concept-03-facet-background" class="facet-background" width="1540" height="800" fill="#03070D" />
+  <g id="concept-03-facet-p-mark" class="facet-p-mark" transform="translate(102 112)">
+    <g id="concept-03-facet-p" class="facet-letter facet-letter-p">
+      <path id="concept-03-facet-p-depth" class="facet-letter-depth" transform="translate(18 -13)" d="M0 14Q0 0 14 0H155Q168 0 178 9L248 70Q260 80 260 94V164Q260 179 248 189L187 238Q176 248 161 248H88V488Q88 506 74 515L51 532Q44 537 36 533L14 520Q0 512 0 495ZM88 80V169H139Q145 169 150 165L174 146Q179 142 179 135V116Q179 110 174 106L150 85Q144 80 138 80Z" fill="url(#concept-03-facet-depth)" fill-rule="evenodd" stroke="#00D9F5" stroke-width="1.2" stroke-linejoin="round" filter="url(#concept-03-facet-glow)" />
+      <path id="concept-03-facet-p-continuous-face" class="facet-letter-continuous-face" d="M0 14Q0 0 14 0H155Q168 0 178 9L248 70Q260 80 260 94V164Q260 179 248 189L187 238Q176 248 161 248H88V488Q88 506 74 515L51 532Q44 537 36 533L14 520Q0 512 0 495ZM88 80V169H139Q145 169 150 165L174 146Q179 142 179 135V116Q179 110 174 106L150 85Q144 80 138 80Z" fill="url(#concept-03-facet-face)" fill-rule="evenodd" stroke="url(#concept-03-facet-rim)" stroke-width="2.3" stroke-linejoin="round" />
+    </g>
+    <g id="concept-03-facet-terminal-cubes" class="facet-terminal-cubes">
+      <g id="concept-03-facet-terminal-cube-1" class="facet-terminal-cube" opacity=".55">
+        <path id="concept-03-facet-cube-1-top" class="facet-cube-top" d="M31 552 36 548H49L44 552Z" fill="#82F7FF" />
+        <path id="concept-03-facet-cube-1-side" class="facet-cube-side" d="M44 552 49 548V561L44 565Z" fill="#008BBA" />
+        <path id="concept-03-facet-cube-1-face" class="facet-cube-face" d="M31 552H44V565H31Z" fill="#00D9F5" />
+      </g>
+      <g id="concept-03-facet-terminal-cube-2" class="facet-terminal-cube" opacity=".33">
+        <path id="concept-03-facet-cube-2-top" class="facet-cube-top" d="M68 568 72 565H81L77 568Z" fill="#82F7FF" />
+        <path id="concept-03-facet-cube-2-side" class="facet-cube-side" d="M77 568 81 565V574L77 577Z" fill="#008BBA" />
+        <path id="concept-03-facet-cube-2-face" class="facet-cube-face" d="M68 568H77V577H68Z" fill="#00D9F5" />
+      </g>
+      <g id="concept-03-facet-terminal-cube-3" class="facet-terminal-cube" opacity=".17">
+        <path id="concept-03-facet-cube-3-top" class="facet-cube-top" d="M44 585 47 583H53L50 585Z" fill="#82F7FF" />
+        <path id="concept-03-facet-cube-3-side" class="facet-cube-side" d="M50 585 53 583V589L50 591Z" fill="#008BBA" />
+        <path id="concept-03-facet-cube-3-face" class="facet-cube-face" d="M44 585H50V591H44Z" fill="#00D9F5" />
+      </g>
+    </g>
+  </g>
+  <g id="concept-03-facet-pivf-lettering" class="facet-pivf-lettering">
+    <g id="concept-03-facet-i" class="facet-letter facet-letter-i" transform="translate(420 112) scale(1.78)">
+      <path id="concept-03-facet-i-depth" class="facet-letter-depth" transform="translate(18 -13)" d="M8 0H60Q68 0 68 8V292Q68 300 60 300H8Q0 300 0 292V8Q0 0 8 0Z" fill="url(#concept-03-facet-depth)" fill-rule="evenodd" stroke="#00D9F5" stroke-width="1.2" stroke-linejoin="round" filter="url(#concept-03-facet-glow)" />
+      <path id="concept-03-facet-i-continuous-face" class="facet-letter-continuous-face" d="M8 0H60Q68 0 68 8V292Q68 300 60 300H8Q0 300 0 292V8Q0 0 8 0Z" fill="url(#concept-03-facet-face)" fill-rule="evenodd" stroke="url(#concept-03-facet-rim)" stroke-width="2.3" stroke-linejoin="round" />
+    </g>
+    <g id="concept-03-facet-v" class="facet-letter facet-letter-v" transform="translate(592 112) scale(1.78)">
+      <path id="concept-03-facet-v-depth" class="facet-letter-depth" transform="translate(18 -13)" d="M0 0H72L112 207L152 0H224L149 290Q146 300 137 300H87Q78 300 75 290Z" fill="url(#concept-03-facet-depth)" fill-rule="evenodd" stroke="#00D9F5" stroke-width="1.2" stroke-linejoin="round" filter="url(#concept-03-facet-glow)" />
+      <path id="concept-03-facet-v-continuous-face" class="facet-letter-continuous-face" d="M0 0H72L112 207L152 0H224L149 290Q146 300 137 300H87Q78 300 75 290Z" fill="url(#concept-03-facet-face)" fill-rule="evenodd" stroke="url(#concept-03-facet-rim)" stroke-width="2.3" stroke-linejoin="round" />
+    </g>
+    <g id="concept-03-facet-f" class="facet-letter facet-letter-f" transform="translate(1052 112) scale(1.78)">
+      <path id="concept-03-facet-f-depth" class="facet-letter-depth" transform="translate(18 -13)" d="M8 0H188Q196 0 196 8V57Q196 65 188 65H69V119H170Q178 119 178 127V175Q178 183 170 183H69V292Q69 300 61 300H8Q0 300 0 292V8Q0 0 8 0Z" fill="url(#concept-03-facet-depth)" fill-rule="evenodd" stroke="#00D9F5" stroke-width="1.2" stroke-linejoin="round" filter="url(#concept-03-facet-glow)" />
+      <path id="concept-03-facet-f-continuous-face" class="facet-letter-continuous-face" d="M8 0H188Q196 0 196 8V57Q196 65 188 65H69V119H170Q178 119 178 127V175Q178 183 170 183H69V292Q69 300 61 300H8Q0 300 0 292V8Q0 0 8 0Z" fill="url(#concept-03-facet-face)" fill-rule="evenodd" stroke="url(#concept-03-facet-rim)" stroke-width="2.3" stroke-linejoin="round" />
+    </g>
+  </g>
+</svg>
+<rect x="920" y="150" width="840" height="400" rx="16" fill="#03070D" stroke="#172936" stroke-width="1"/>
+<text x="944" y="183" fill="#ADC5D3" font-family="Arial, Helvetica, sans-serif" font-size="16" letter-spacing="1.4">04 / P ICON</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 760" role="img" aria-labelledby="concept-04-fused-p-title concept-04-fused-p-description" x="940" y="198" width="800" height="332" preserveAspectRatio="xMidYMid meet">
+  <title id="concept-04-fused-p-title">ProductIVF — Neon fused P</title>
+  <desc id="concept-04-fused-p-description">A single smooth electric-blue P on near black. Its long uninterrupted stem ends in three small fading task cells. All artwork remains editable vector geometry.</desc>
+  <defs>
+    <linearGradient id="concept-04-fused-p-face" x1="180" y1="108" x2="445" y2="648" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#82F7FF" />
+      <stop offset="0.16" stop-color="#00EDFF" />
+      <stop offset="0.62" stop-color="#00D9F5" />
+      <stop offset="1" stop-color="#008BBA" />
+    </linearGradient>
+    <filter id="concept-04-fused-p-glow" x="-35%" y="-25%" width="170%" height="150%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="14" result="fused-p-bloom" />
+      <feComponentTransfer in="fused-p-bloom" result="fused-p-soft-bloom">
+        <feFuncA type="linear" slope="0.22" />
+      </feComponentTransfer>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="fused-p-edge" />
+      <feComponentTransfer in="fused-p-edge" result="fused-p-soft-edge">
+        <feFuncA type="linear" slope="0.30" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="fused-p-soft-bloom" />
+        <feMergeNode in="fused-p-soft-edge" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <rect id="concept-04-fused-p-background" class="fused-p-background" width="640" height="760" fill="#03070D" />
+  <g id="concept-04-fused-p-artwork" class="fused-p-artwork" filter="url(#concept-04-fused-p-glow)">
+    <path id="concept-04-fused-p-continuous-face" class="fused-p-continuous-face" fill="url(#concept-04-fused-p-face)" fill-rule="evenodd" d="M 194 108 H 358 C 425 108 474 155 474 219 C 474 286 425 334 358 334 H 264 V 636 Q 264 648 252 648 H 186 Q 174 648 174 636 V 128 Q 174 108 194 108 Z M 264 187 V 255 H 352 C 377 255 394 241 394 220 C 394 199 377 187 352 187 Z" />
+    <g id="concept-04-fused-p-terminal-cells" class="fused-p-terminal-cells" fill="#00D9F5">
+      <rect id="concept-04-fused-p-terminal-cell-1" class="fused-p-terminal-cell" x="192" y="665" width="16" height="16" rx="3" opacity="0.64" />
+      <rect id="concept-04-fused-p-terminal-cell-2" class="fused-p-terminal-cell" x="232" y="684" width="11" height="11" rx="2" opacity="0.38" />
+      <rect id="concept-04-fused-p-terminal-cell-3" class="fused-p-terminal-cell" x="196" y="705" width="7" height="7" rx="1.5" opacity="0.18" />
+    </g>
+  </g>
+</svg>
+<rect x="920" y="580" width="840" height="400" rx="16" fill="#03070D" stroke="#172936" stroke-width="1"/>
+<text x="944" y="613" fill="#ADC5D3" font-family="Arial, Helvetica, sans-serif" font-size="16" letter-spacing="1.4">05 / P + IVF</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 760" role="img" aria-labelledby="concept-05-fused-lockup-title concept-05-fused-lockup-description" x="940" y="628" width="800" height="332" preserveAspectRatio="xMidYMid meet">
+  <title id="concept-05-fused-lockup-title">ProductIVF — Neon fused P with separate IVF</title>
+  <desc id="concept-05-fused-lockup-description">An oversized smooth electric-blue P with a long continuous stem and three tiny fading terminal cells, paired with smaller separate vector IVF lettering on near black.</desc>
+  <defs>
+    <linearGradient id="concept-05-fused-lockup-face" x1="180" y1="108" x2="445" y2="648" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#82F7FF" />
+      <stop offset="0.16" stop-color="#00EDFF" />
+      <stop offset="0.62" stop-color="#00D9F5" />
+      <stop offset="1" stop-color="#008BBA" />
+    </linearGradient>
+    <linearGradient id="concept-05-fused-lockup-letters" x1="545" y1="321" x2="970" y2="470" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#82F7FF" />
+      <stop offset="0.35" stop-color="#00EDFF" />
+      <stop offset="1" stop-color="#00D9F5" />
+    </linearGradient>
+    <filter id="concept-05-fused-lockup-glow" x="-30%" y="-25%" width="160%" height="150%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="14" result="fused-lockup-bloom" />
+      <feComponentTransfer in="fused-lockup-bloom" result="fused-lockup-soft-bloom">
+        <feFuncA type="linear" slope="0.22" />
+      </feComponentTransfer>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="fused-lockup-edge" />
+      <feComponentTransfer in="fused-lockup-edge" result="fused-lockup-soft-edge">
+        <feFuncA type="linear" slope="0.30" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="fused-lockup-soft-bloom" />
+        <feMergeNode in="fused-lockup-soft-edge" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <rect id="concept-05-fused-lockup-background" class="fused-lockup-background" width="1080" height="760" fill="#03070D" />
+  <g id="concept-05-fused-lockup-artwork" class="fused-lockup-artwork" filter="url(#concept-05-fused-lockup-glow)">
+    <g id="concept-05-fused-lockup-large-p" class="fused-lockup-large-p" transform="translate(-50 0)">
+      <path id="concept-05-fused-lockup-continuous-face" class="fused-lockup-continuous-face" fill="url(#concept-05-fused-lockup-face)" fill-rule="evenodd" d="M 194 108 H 358 C 425 108 474 155 474 219 C 474 286 425 334 358 334 H 264 V 636 Q 264 648 252 648 H 186 Q 174 648 174 636 V 128 Q 174 108 194 108 Z M 264 187 V 255 H 352 C 377 255 394 241 394 220 C 394 199 377 187 352 187 Z" />
+      <g id="concept-05-fused-lockup-terminal-cells" class="fused-lockup-terminal-cells" fill="#00D9F5">
+        <rect id="concept-05-fused-lockup-terminal-cell-1" class="fused-lockup-terminal-cell" x="192" y="665" width="16" height="16" rx="3" opacity="0.64" />
+        <rect id="concept-05-fused-lockup-terminal-cell-2" class="fused-lockup-terminal-cell" x="232" y="684" width="11" height="11" rx="2" opacity="0.38" />
+        <rect id="concept-05-fused-lockup-terminal-cell-3" class="fused-lockup-terminal-cell" x="196" y="705" width="7" height="7" rx="1.5" opacity="0.18" />
+      </g>
+    </g>
+    <g id="concept-05-fused-lockup-ivf" class="fused-lockup-ivf" fill="url(#concept-05-fused-lockup-letters)">
+      <rect id="concept-05-fused-lockup-letter-i" class="fused-lockup-letter" x="545" y="321" width="33" height="149" rx="4" />
+      <path id="concept-05-fused-lockup-letter-v" class="fused-lockup-letter" d="M 616 321 H 652 L 692 430 L 732 321 H 768 L 711 465 Q 709 470 703 470 H 681 Q 675 470 673 465 Z" />
+      <path id="concept-05-fused-lockup-letter-f" class="fused-lockup-letter" d="M 812 321 H 939 Q 943 321 943 325 V 348 Q 943 352 939 352 H 841 V 382 H 921 Q 925 382 925 386 V 409 Q 925 413 921 413 H 841 V 466 Q 841 470 837 470 H 812 Q 808 470 808 466 V 325 Q 808 321 812 321 Z" />
+    </g>
+  </g>
+</svg>
+<rect x="920" y="1010" width="840" height="400" rx="16" fill="#03070D" stroke="#172936" stroke-width="1"/>
+<text x="944" y="1043" fill="#ADC5D3" font-family="Arial, Helvetica, sans-serif" font-size="16" letter-spacing="1.4">06 / PIVF</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 760" role="img" aria-labelledby="concept-06-fused-wordmark-title concept-06-fused-wordmark-description" x="940" y="1058" width="800" height="332" preserveAspectRatio="xMidYMid meet">
+  <title id="concept-06-fused-wordmark-title">ProductIVF — Neon fused PIVF</title>
+  <desc id="concept-06-fused-wordmark-description">Four full-height vector letters form a continuous electric-blue PIVF wordmark. The P retains its extended smooth stem and only three tiny fading cells at the terminal tip. The background is near black.</desc>
+  <defs>
+    <linearGradient id="concept-06-fused-wordmark-face" x1="120" y1="108" x2="1180" y2="720" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#82F7FF" />
+      <stop offset="0.16" stop-color="#00EDFF" />
+      <stop offset="0.70" stop-color="#00D9F5" />
+      <stop offset="1" stop-color="#008BBA" />
+    </linearGradient>
+    <filter id="concept-06-fused-wordmark-glow" x="-15%" y="-25%" width="130%" height="150%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="14" result="fused-wordmark-bloom" />
+      <feComponentTransfer in="fused-wordmark-bloom" result="fused-wordmark-soft-bloom">
+        <feFuncA type="linear" slope="0.22" />
+      </feComponentTransfer>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="fused-wordmark-edge" />
+      <feComponentTransfer in="fused-wordmark-edge" result="fused-wordmark-soft-edge">
+        <feFuncA type="linear" slope="0.30" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="fused-wordmark-soft-bloom" />
+        <feMergeNode in="fused-wordmark-soft-edge" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <rect id="concept-06-fused-wordmark-background" class="fused-wordmark-background" width="1440" height="760" fill="#03070D" />
+  <g id="concept-06-fused-wordmark-artwork" class="fused-wordmark-artwork" filter="url(#concept-06-fused-wordmark-glow)">
+    <g id="concept-06-fused-wordmark-letters" class="fused-wordmark-letters" fill="url(#concept-06-fused-wordmark-face)">
+      <path id="concept-06-fused-wordmark-letter-p" class="fused-wordmark-letter" fill-rule="evenodd" d="M 120 108 H 284 C 351 108 400 155 400 219 C 400 286 351 334 284 334 H 190 V 636 Q 190 648 178 648 H 112 Q 100 648 100 636 V 128 Q 100 108 120 108 Z M 190 187 V 255 H 278 C 303 255 320 241 320 220 C 320 199 303 187 278 187 Z" />
+      <rect id="concept-06-fused-wordmark-letter-i" class="fused-wordmark-letter" x="462" y="108" width="90" height="540" rx="12" />
+      <path id="concept-06-fused-wordmark-letter-v" class="fused-wordmark-letter" d="M 614 108 H 706 L 785 527 L 864 108 H 956 L 845 632 Q 842 648 826 648 H 744 Q 728 648 725 632 Z" />
+      <path id="concept-06-fused-wordmark-letter-f" class="fused-wordmark-letter" d="M 1028 108 H 1328 Q 1340 108 1340 120 V 175 Q 1340 187 1328 187 H 1106 V 322 H 1288 Q 1300 322 1300 334 V 389 Q 1300 401 1288 401 H 1106 V 636 Q 1106 648 1094 648 H 1028 Q 1016 648 1016 636 V 120 Q 1016 108 1028 108 Z" />
+    </g>
+    <g id="concept-06-fused-wordmark-terminal-cells" class="fused-wordmark-terminal-cells" fill="#00D9F5">
+      <rect id="concept-06-fused-wordmark-terminal-cell-1" class="fused-wordmark-terminal-cell" x="118" y="665" width="16" height="16" rx="3" opacity="0.64" />
+      <rect id="concept-06-fused-wordmark-terminal-cell-2" class="fused-wordmark-terminal-cell" x="158" y="684" width="11" height="11" rx="2" opacity="0.38" />
+      <rect id="concept-06-fused-wordmark-terminal-cell-3" class="fused-wordmark-terminal-cell" x="122" y="705" width="7" height="7" rx="1.5" opacity="0.18" />
+    </g>
+  </g>
+</svg>
+</svg>

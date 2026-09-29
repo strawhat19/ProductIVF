@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 760" role="img" aria-labelledby="fused-p-title fused-p-description">
+  <title id="fused-p-title">ProductIVF — Neon fused P</title>
+  <desc id="fused-p-description">A single smooth electric-blue P on near black. Its long uninterrupted stem ends in three small fading task cells. All artwork remains editable vector geometry.</desc>
+  <defs>
+    <linearGradient id="fused-p-face" x1="180" y1="108" x2="445" y2="648" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#82F7FF"/>
+      <stop offset="0.16" stop-color="#00EDFF"/>
+      <stop offset="0.62" stop-color="#00D9F5"/>
+      <stop offset="1" stop-color="#008BBA"/>
+    </linearGradient>
+    <filter id="fused-p-glow" x="-35%" y="-25%" width="170%" height="150%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="14" result="fused-p-bloom"/>
+      <feComponentTransfer in="fused-p-bloom" result="fused-p-soft-bloom">
+        <feFuncA type="linear" slope="0.22"/>
+      </feComponentTransfer>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="fused-p-edge"/>
+      <feComponentTransfer in="fused-p-edge" result="fused-p-soft-edge">
+        <feFuncA type="linear" slope="0.30"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="fused-p-soft-bloom"/>
+        <feMergeNode in="fused-p-soft-edge"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect id="fused-p-background" class="fused-p-background" width="640" height="760" fill="#03070D"/>
+  <g id="fused-p-artwork" class="fused-p-artwork" filter="url(#fused-p-glow)">
+    <path
+      id="fused-p-continuous-face"
+      class="fused-p-continuous-face"
+      fill="url(#fused-p-face)"
+      fill-rule="evenodd"
+      d="M 194 108 H 358 C 425 108 474 155 474 219 C 474 286 425 334 358 334 H 264 V 636 Q 264 648 252 648 H 186 Q 174 648 174 636 V 128 Q 174 108 194 108 Z M 264 187 V 255 H 352 C 377 255 394 241 394 220 C 394 199 377 187 352 187 Z"
+    />
+    <g id="fused-p-terminal-cells" class="fused-p-terminal-cells" fill="#00D9F5">
+      <rect id="fused-p-terminal-cell-1" class="fused-p-terminal-cell" x="192" y="665" width="16" height="16" rx="3" opacity="0.64"/>
+      <rect id="fused-p-terminal-cell-2" class="fused-p-terminal-cell" x="232" y="684" width="11" height="11" rx="2" opacity="0.38"/>
+      <rect id="fused-p-terminal-cell-3" class="fused-p-terminal-cell" x="196" y="705" width="7" height="7" rx="1.5" opacity="0.18"/>
+    </g>
+  </g>
+</svg>

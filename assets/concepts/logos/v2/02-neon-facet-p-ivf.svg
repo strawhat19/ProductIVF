@@ -1,0 +1,154 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 800" role="img" aria-labelledby="facet-title facet-description">
+  <title id="facet-title">ProductIVF — Neon Facet P + IVF</title>
+  <desc id="facet-description">A large continuous neon cyan-blue and charcoal P with a long smooth tail stands beside separate outlined IVF lettering. Three tiny fading cubes appear only below the P terminal tip.</desc>
+  <defs id="facet-definitions">
+    <linearGradient id="facet-face" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#164754"/>
+      <stop offset=".15" stop-color="#11161E"/>
+      <stop offset=".43" stop-color="#03070D"/>
+      <stop offset=".69" stop-color="#101C26"/>
+      <stop offset=".87" stop-color="#08303C"/>
+      <stop offset="1" stop-color="#008BBA"/>
+    </linearGradient>
+    <linearGradient id="facet-depth" x1="0" y1="0" x2=".9" y2="1">
+      <stop stop-color="#82F7FF"/>
+      <stop offset=".23" stop-color="#00EDFF"/>
+      <stop offset=".61" stop-color="#00D9F5"/>
+      <stop offset="1" stop-color="#008BBA"/>
+    </linearGradient>
+    <linearGradient id="facet-rim" x1="0" y1="0" x2=".5" y2="1">
+      <stop stop-color="#82F7FF"/>
+      <stop offset=".32" stop-color="#00EDFF"/>
+      <stop offset=".74" stop-color="#00D9F5"/>
+      <stop offset="1" stop-color="#82F7FF"/>
+    </linearGradient>
+    <filter id="facet-glow" x="-40%" y="-30%" width="180%" height="160%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="7" result="facet-glow-blur"/>
+      <feComponentTransfer in="facet-glow-blur" result="facet-glow-soft">
+        <feFuncA type="linear" slope=".52"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="facet-glow-soft"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect id="facet-background" class="facet-background" width="1400" height="800" fill="#03070D"/>
+  <g id="facet-p-mark" class="facet-p-mark" transform="translate(136 112)">
+    <g id="facet-p" class="facet-letter facet-letter-p">
+      <path
+        id="facet-p-depth"
+        class="facet-letter-depth"
+        transform="translate(18 -13)"
+        d="M0 14Q0 0 14 0H155Q168 0 178 9L248 70Q260 80 260 94V164Q260 179 248 189L187 238Q176 248 161 248H88V488Q88 506 74 515L51 532Q44 537 36 533L14 520Q0 512 0 495ZM88 80V169H139Q145 169 150 165L174 146Q179 142 179 135V116Q179 110 174 106L150 85Q144 80 138 80Z"
+        fill="url(#facet-depth)"
+        fill-rule="evenodd"
+        stroke="#00D9F5"
+        stroke-width="1.2"
+        stroke-linejoin="round"
+        filter="url(#facet-glow)"
+      />
+      <path
+        id="facet-p-continuous-face"
+        class="facet-letter-continuous-face"
+        d="M0 14Q0 0 14 0H155Q168 0 178 9L248 70Q260 80 260 94V164Q260 179 248 189L187 238Q176 248 161 248H88V488Q88 506 74 515L51 532Q44 537 36 533L14 520Q0 512 0 495ZM88 80V169H139Q145 169 150 165L174 146Q179 142 179 135V116Q179 110 174 106L150 85Q144 80 138 80Z"
+        fill="url(#facet-face)"
+        fill-rule="evenodd"
+        stroke="url(#facet-rim)"
+        stroke-width="2.3"
+        stroke-linejoin="round"
+      />
+    </g>
+    <g id="facet-terminal-cubes" class="facet-terminal-cubes">
+      <g id="facet-terminal-cube-1" class="facet-terminal-cube" opacity=".55">
+        <path id="facet-cube-1-top" class="facet-cube-top" d="M31 552 36 548H49L44 552Z" fill="#82F7FF"/>
+        <path id="facet-cube-1-side" class="facet-cube-side" d="M44 552 49 548V561L44 565Z" fill="#008BBA"/>
+        <path id="facet-cube-1-face" class="facet-cube-face" d="M31 552H44V565H31Z" fill="#00D9F5"/>
+      </g>
+      <g id="facet-terminal-cube-2" class="facet-terminal-cube" opacity=".33">
+        <path id="facet-cube-2-top" class="facet-cube-top" d="M68 568 72 565H81L77 568Z" fill="#82F7FF"/>
+        <path id="facet-cube-2-side" class="facet-cube-side" d="M77 568 81 565V574L77 577Z" fill="#008BBA"/>
+        <path id="facet-cube-2-face" class="facet-cube-face" d="M68 568H77V577H68Z" fill="#00D9F5"/>
+      </g>
+      <g id="facet-terminal-cube-3" class="facet-terminal-cube" opacity=".17">
+        <path id="facet-cube-3-top" class="facet-cube-top" d="M44 585 47 583H53L50 585Z" fill="#82F7FF"/>
+        <path id="facet-cube-3-side" class="facet-cube-side" d="M50 585 53 583V589L50 591Z" fill="#008BBA"/>
+        <path id="facet-cube-3-face" class="facet-cube-face" d="M44 585H50V591H44Z" fill="#00D9F5"/>
+      </g>
+    </g>
+  </g>
+  <g id="facet-ivf-wordmark" class="facet-ivf-wordmark" transform="translate(575 258) scale(1.07)">
+    <g id="facet-i" class="facet-letter facet-letter-i">
+      <path
+        id="facet-i-depth"
+        class="facet-letter-depth"
+        transform="translate(18 -13)"
+        d="M8 0H60Q68 0 68 8V292Q68 300 60 300H8Q0 300 0 292V8Q0 0 8 0Z"
+        fill="url(#facet-depth)"
+        fill-rule="evenodd"
+        stroke="#00D9F5"
+        stroke-width="1.2"
+        stroke-linejoin="round"
+        filter="url(#facet-glow)"
+      />
+      <path
+        id="facet-i-continuous-face"
+        class="facet-letter-continuous-face"
+        d="M8 0H60Q68 0 68 8V292Q68 300 60 300H8Q0 300 0 292V8Q0 0 8 0Z"
+        fill="url(#facet-face)"
+        fill-rule="evenodd"
+        stroke="url(#facet-rim)"
+        stroke-width="2.3"
+        stroke-linejoin="round"
+      />
+    </g>
+    <g id="facet-v" class="facet-letter facet-letter-v" transform="translate(134 0)">
+      <path
+        id="facet-v-depth"
+        class="facet-letter-depth"
+        transform="translate(18 -13)"
+        d="M0 0H72L112 207L152 0H224L149 290Q146 300 137 300H87Q78 300 75 290Z"
+        fill="url(#facet-depth)"
+        fill-rule="evenodd"
+        stroke="#00D9F5"
+        stroke-width="1.2"
+        stroke-linejoin="round"
+        filter="url(#facet-glow)"
+      />
+      <path
+        id="facet-v-continuous-face"
+        class="facet-letter-continuous-face"
+        d="M0 0H72L112 207L152 0H224L149 290Q146 300 137 300H87Q78 300 75 290Z"
+        fill="url(#facet-face)"
+        fill-rule="evenodd"
+        stroke="url(#facet-rim)"
+        stroke-width="2.3"
+        stroke-linejoin="round"
+      />
+    </g>
+    <g id="facet-f" class="facet-letter facet-letter-f" transform="translate(424 0)">
+      <path
+        id="facet-f-depth"
+        class="facet-letter-depth"
+        transform="translate(18 -13)"
+        d="M8 0H188Q196 0 196 8V57Q196 65 188 65H69V119H170Q178 119 178 127V175Q178 183 170 183H69V292Q69 300 61 300H8Q0 300 0 292V8Q0 0 8 0Z"
+        fill="url(#facet-depth)"
+        fill-rule="evenodd"
+        stroke="#00D9F5"
+        stroke-width="1.2"
+        stroke-linejoin="round"
+        filter="url(#facet-glow)"
+      />
+      <path
+        id="facet-f-continuous-face"
+        class="facet-letter-continuous-face"
+        d="M8 0H188Q196 0 196 8V57Q196 65 188 65H69V119H170Q178 119 178 127V175Q178 183 170 183H69V292Q69 300 61 300H8Q0 300 0 292V8Q0 0 8 0Z"
+        fill="url(#facet-face)"
+        fill-rule="evenodd"
+        stroke="url(#facet-rim)"
+        stroke-width="2.3"
+        stroke-linejoin="round"
+      />
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 320" role="img" aria-labelledby="productivf-title productivf-desc">
+  <title id="productivf-title">ProductIVF — Dissolving stem</title>
+  <desc id="productivf-desc">A light blue P with a strong rounded bowl. The lower stem separates into smaller blue, graphite and silver blocks, drifting downward with progressively lower opacity.</desc>
+  <defs>
+    <linearGradient id="productivf-blue" x1="48" y1="28" x2="177" y2="192" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#B5E3FA"/>
+      <stop offset=".6" stop-color="#83C7EC"/>
+      <stop offset="1" stop-color="#5CA9D5"/>
+    </linearGradient>
+  </defs>
+  <g id="productivf-mark">
+    <path id="productivf-continuous-p" fill="url(#productivf-blue)" fill-rule="evenodd" d="M48 28H126C173 28 198 51 198 87S173 146 126 146H96V167H48ZM96 70V104H124C141 104 150 99 150 87S141 70 124 70Z"/>
+    <g id="productivf-separating-stem">
+      <rect x="48" y="173" width="22" height="22" rx="2" fill="#7ABFE6"/>
+      <rect x="75" y="174" width="21" height="21" rx="2" fill="#414C57"/>
+      <rect x="43" y="204" width="19" height="19" rx="2" fill="#9DD7F3" opacity=".8"/>
+      <rect x="79" y="210" width="17" height="17" rx="2" fill="#A7B4BF" opacity=".7"/>
+      <rect x="39" y="237" width="13" height="13" rx="1.5" fill="#7895A9" opacity=".5"/>
+      <rect x="85" y="245" width="11" height="11" rx="1.5" fill="#B3DDF4" opacity=".4"/>
+      <rect x="58" y="270" width="7" height="7" rx="1" fill="#9DAFBD" opacity=".22"/>
+    </g>
+  </g>
+  <g id="productivf-wordmark" fill="#222C35" font-family="Inter, Avenir Next, Arial, sans-serif" font-size="65" font-weight="650" letter-spacing="-2.5">
+    <text x="280" y="171">Product<tspan fill="#71B7DF" font-weight="750">IVF</tspan></text>
+  </g>
+</svg>
