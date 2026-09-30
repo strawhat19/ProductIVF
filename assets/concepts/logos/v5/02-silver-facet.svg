@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 384" role="img" aria-labelledby="productivf-title productivf-desc">
+  <title id="productivf-title">ProductIVF — Silver facet — V5 blue cubes</title>
+  <desc id="productivf-desc">The V4 faceted neon P with all five detached cubes rendered in blue: cyan highlights, electric-blue fronts and deep-blue sides. Its long stem, main body, cube geometry, positions and fading opacities are retained.</desc>
+  <defs>
+    <linearGradient id="productivf-silver" x1="46" y1="40" x2="169" y2="172" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#82F7FF" />
+      <stop offset=".36" stop-color="#00D9F5" />
+      <stop offset=".67" stop-color="#008BBA" />
+      <stop offset="1" stop-color="#00EDFF" />
+    </linearGradient>
+    <filter id="productivf-v5-glow" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation=".8" result="soft-light" />
+      <feComponentTransfer in="soft-light" result="soft-glow">
+        <feFuncA type="linear" slope=".2" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="soft-glow" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <rect id="productivf-v5-background" width="920" height="384" fill="#03070D" />
+  <g id="productivf-mark" filter="url(#productivf-v5-glow)">
+    <g id="productivf-p-extrusion">
+      <path d="M50 44 66 32H157L141 44Z" fill="#82F7FF" />
+      <path d="M141 44 157 32 194 67 178 79Z" fill="#00EDFF" />
+      <path d="M178 79 194 67V118L178 130Z" fill="#008BBA" />
+      <path d="M141 155 178 130 194 118 157 143Z" fill="#11161E" stroke="#008BBA" stroke-width=".7" stroke-opacity=".7" />
+      <path d="M96 231 112 219V143L96 155Z" fill="#008BBA" />
+    </g>
+    <path id="productivf-silver-p" fill="url(#productivf-silver)" fill-rule="evenodd" d="M50 44H141L178 79V130L141 155H96V231H50ZM96 82V117H128L137 110V92L127 82Z" />
+    <path d="M96 82H127L137 92V110L128 117H118V95H96Z" fill="#03070D" opacity=".5" />
+    <path d="M52 45H140L175 79" fill="none" stroke="#82F7FF" stroke-width="2" />
+    <g id="productivf-floating-cubes" transform="translate(0 64)">
+      <g id="productivf-cube-1">
+        <path d="M49 184 61 175 82 175 70 184Z" fill="#82F7FF" />
+        <path d="M70 184 82 175V196L70 205Z" fill="#008BBA" />
+        <path d="M49 184H70V205H49Z" fill="#00D9F5" />
+      </g>
+      <g id="productivf-cube-2">
+        <path d="M82 178 94 169 113 169 101 178Z" fill="#82F7FF" />
+        <path d="M101 178 113 169V188L101 197Z" fill="#008BBA" />
+        <path d="M82 178H101V197H82Z" fill="#00D9F5" />
+      </g>
+      <g id="productivf-cube-3" opacity=".72">
+        <path d="M44 225 54 218 71 218 61 225Z" fill="#82F7FF" />
+        <path d="M61 225 71 218V235L61 242Z" fill="#008BBA" />
+        <path d="M44 225H61V242H44Z" fill="#00D9F5" />
+      </g>
+      <g id="productivf-cube-4" opacity=".54">
+        <path d="M91 221 100 214 115 214 106 221Z" fill="#82F7FF" />
+        <path d="M106 221 115 214V229L106 236Z" fill="#008BBA" />
+        <path d="M91 221H106V236H91Z" fill="#00D9F5" />
+      </g>
+      <g id="productivf-cube-5" opacity=".3">
+        <path d="M62 265 69 260 79 260 72 265Z" fill="#82F7FF" />
+        <path d="M72 265 79 260V270L72 275Z" fill="#008BBA" />
+        <path d="M62 265H72V275H62Z" fill="#00D9F5" />
+      </g>
+    </g>
+  </g>
+  <g id="productivf-wordmark" fill="#82F7FF" font-family="Inter, Avenir Next, Arial, sans-serif" font-size="65" font-weight="650" letter-spacing="-2.5">
+    <text x="280" y="203">Product<tspan fill="#00EDFF" font-weight="750">IVF</tspan>
+    </text>
+  </g>
+</svg>

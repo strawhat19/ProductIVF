@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 368" role="img" aria-labelledby="productivf-title productivf-desc">
+  <title id="productivf-title">ProductIVF — Silver facet — V6 rounded dimensional P</title>
+  <desc id="productivf-desc">A rounded refinement of the V5 dimensional blue P. A curved bowl and counter, softly rounded stem foot and matching extrusion lead into five rounded blue cubes with the original falling arrangement and fading opacities.</desc>
+  <defs>
+    <linearGradient id="productivf-silver" x1="46" y1="40" x2="169" y2="172" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#82F7FF" />
+      <stop offset=".36" stop-color="#00D9F5" />
+      <stop offset=".67" stop-color="#008BBA" />
+      <stop offset="1" stop-color="#00EDFF" />
+    </linearGradient>
+    <filter id="productivf-v6-glow" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation=".8" result="soft-light" />
+      <feComponentTransfer in="soft-light" result="soft-glow">
+        <feFuncA type="linear" slope=".2" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="soft-glow" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <linearGradient id="productivf-rounded-top" x1="72" y1="32" x2="189" y2="84" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#82F7FF"/>
+      <stop offset=".65" stop-color="#41F2FF"/>
+      <stop offset="1" stop-color="#00D9F5"/>
+    </linearGradient>
+    <linearGradient id="productivf-rounded-side" x1="97" y1="220" x2="188" y2="90" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#008BBA"/>
+      <stop offset=".55" stop-color="#007FA8"/>
+      <stop offset="1" stop-color="#00B7D5"/>
+    </linearGradient>
+    <clipPath id="productivf-cube-1-rounded-clip"><path d="M49 185.4Q49 184 50.12 183.16L60.253 175.56Q61 175 61.933 175L79.2 175Q82 175 82 177.8L82 194.6Q82 196 80.88 196.84L70.747 204.44Q70 205 69.067 205L51.8 205Q49 205 49 202.2Z"/></clipPath>
+    <clipPath id="productivf-cube-2-rounded-clip"><path d="M82 179.3Q82 178 83.04 177.22L93.307 169.52Q94 169 94.867 169L110.4 169Q113 169 113 171.6L113 186.7Q113 188 111.96 188.78L101.693 196.48Q101 197 100.133 197L84.6 197Q82 197 82 194.4Z"/></clipPath>
+    <clipPath id="productivf-cube-3-rounded-clip"><path d="M44 226.198Q44 225 44.981 224.313L53.406 218.416Q54 218 54.725 218L68.7 218Q71 218 71 220.3L71 233.802Q71 235 70.019 235.687L61.594 241.584Q61 242 60.275 242L46.3 242Q44 242 44 239.7Z"/></clipPath>
+    <clipPath id="productivf-cube-4-rounded-clip"><path d="M91 221.978Q91 221 91.772 220.399L99.458 214.421Q100 214 100.686 214L113 214Q115 214 115 216L115 228.022Q115 229 114.228 229.601L106.542 235.579Q106 236 105.314 236L93 236Q91 236 91 234Z"/></clipPath>
+    <clipPath id="productivf-cube-5-rounded-clip"><path d="M62 265.772Q62 265 62.628 264.551L68.609 260.279Q69 260 69.481 260L77.5 260Q79 260 79 261.5L79 269.228Q79 270 78.372 270.449L72.391 274.721Q72 275 71.519 275L63.5 275Q62 275 62 273.5Z"/></clipPath>
+  </defs>
+  <rect id="productivf-v6-background" width="256" height="368" fill="#03070D" />
+  <g id="productivf-mark" filter="url(#productivf-v6-glow)">
+    <g id="productivf-p-extrusion">
+      <path id="productivf-rounded-back" d="M58 44H128C158 44 178 66 178 92V113C178 139 161 155 136 155H104Q96 155 96 163V223A8 8 0 0 1 88 231H58A8 8 0 0 1 50 223V52A8 8 0 0 1 58 44Z" transform="translate(16 -12)" fill="#008BBA"/>
+      <path id="productivf-rounded-side-face" d="M128 44C158 44 178 66 178 92V113C178 139 161 155 136 155H104Q96 155 96 163V223A8 8 0 0 1 88 231A8 8 0 0 0 92.8 229.4L108.8 217.4A8 8 0 0 0 112 211V151Q112 143 120 143H152C177 143 194 127 194 101V80C194 54 174 32 144 32Z" fill="url(#productivf-rounded-side)"/>
+      <path id="productivf-rounded-top-face" d="M50 52A8 8 0 0 1 53.2 45.6L69.2 33.6A8 8 0 0 1 74 32H144C174 32 194 54 194 80L178 92C178 66 158 44 128 44H58A8 8 0 0 0 50 52Z" fill="url(#productivf-rounded-top)"/>
+    </g>
+    <path id="productivf-silver-p" d="M58 44H128C158 44 178 66 178 92V113C178 139 161 155 136 155H104Q96 155 96 163V223A8 8 0 0 1 88 231H58A8 8 0 0 1 50 223V52A8 8 0 0 1 58 44ZM103 82H122C131 82 137 89 137 99.5S131 117 122 117H103Q96 117 96 110V89Q96 82 103 82Z" fill="url(#productivf-silver)" fill-rule="evenodd"/>
+    <path id="productivf-rounded-counter" d="M103 82H122C131 82 137 89 137 99.5S131 117 122 117H103Q96 117 96 110V89Q96 82 103 82Z" fill="#03070D"/>
+    <path id="productivf-rounded-highlight" d="M55 53Q55 47 61 47H128C153 47 171 64 174 83" fill="none" stroke="#82F7FF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity=".72"/>
+    <g id="productivf-floating-cubes" transform="translate(0 64)">
+      <g id="productivf-cube-1" opacity="1">
+        <path d="M49 185.4Q49 184 50.12 183.16L60.253 175.56Q61 175 61.933 175L79.2 175Q82 175 82 177.8L82 194.6Q82 196 80.88 196.84L70.747 204.44Q70 205 69.067 205L51.8 205Q49 205 49 202.2Z" fill="#00D9F5"/>
+        <g clip-path="url(#productivf-cube-1-rounded-clip)">
+          <path d="M49 184 61 175H82L70 184Z" fill="#82F7FF"/>
+          <path d="M70 184 82 175V196L70 205Z" fill="#008BBA"/>
+        </g>
+      </g>
+      <g id="productivf-cube-2" opacity="1">
+        <path d="M82 179.3Q82 178 83.04 177.22L93.307 169.52Q94 169 94.867 169L110.4 169Q113 169 113 171.6L113 186.7Q113 188 111.96 188.78L101.693 196.48Q101 197 100.133 197L84.6 197Q82 197 82 194.4Z" fill="#00D9F5"/>
+        <g clip-path="url(#productivf-cube-2-rounded-clip)">
+          <path d="M82 178 94 169H113L101 178Z" fill="#82F7FF"/>
+          <path d="M101 178 113 169V188L101 197Z" fill="#008BBA"/>
+        </g>
+      </g>
+      <g id="productivf-cube-3" opacity="0.72">
+        <path d="M44 226.198Q44 225 44.981 224.313L53.406 218.416Q54 218 54.725 218L68.7 218Q71 218 71 220.3L71 233.802Q71 235 70.019 235.687L61.594 241.584Q61 242 60.275 242L46.3 242Q44 242 44 239.7Z" fill="#00D9F5"/>
+        <g clip-path="url(#productivf-cube-3-rounded-clip)">
+          <path d="M44 225 54 218H71L61 225Z" fill="#82F7FF"/>
+          <path d="M61 225 71 218V235L61 242Z" fill="#008BBA"/>
+        </g>
+      </g>
+      <g id="productivf-cube-4" opacity="0.54">
+        <path d="M91 221.978Q91 221 91.772 220.399L99.458 214.421Q100 214 100.686 214L113 214Q115 214 115 216L115 228.022Q115 229 114.228 229.601L106.542 235.579Q106 236 105.314 236L93 236Q91 236 91 234Z" fill="#00D9F5"/>
+        <g clip-path="url(#productivf-cube-4-rounded-clip)">
+          <path d="M91 221 100 214H115L106 221Z" fill="#82F7FF"/>
+          <path d="M106 221 115 214V229L106 236Z" fill="#008BBA"/>
+        </g>
+      </g>
+      <g id="productivf-cube-5" opacity="0.3">
+        <path d="M62 265.772Q62 265 62.628 264.551L68.609 260.279Q69 260 69.481 260L77.5 260Q79 260 79 261.5L79 269.228Q79 270 78.372 270.449L72.391 274.721Q72 275 71.519 275L63.5 275Q62 275 62 273.5Z" fill="#00D9F5"/>
+        <g clip-path="url(#productivf-cube-5-rounded-clip)">
+          <path d="M62 265 69 260H79L72 265Z" fill="#82F7FF"/>
+          <path d="M72 265 79 260V270L72 275Z" fill="#008BBA"/>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

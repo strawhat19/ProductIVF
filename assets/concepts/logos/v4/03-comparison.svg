@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 610" role="img" aria-labelledby="comparison-title comparison-desc">
+  <title id="comparison-title">ProductIVF — V4 longer tails</title>
+  <desc id="comparison-desc">Dissolving stem and silver facet P concepts with the approved V3 neon treatment and a 64-unit extension to the continuous lower stem. Both original falling-block groups are moved down by the same amount.</desc>
+  <rect id="comparison-background" class="comparison-background" width="1000" height="610" fill="#03070D" />
+  <g id="comparison-headings" class="comparison-headings" font-family="Inter, Avenir Next, Arial, sans-serif">
+    <text id="comparison-heading" class="comparison-heading" x="32" y="43" fill="#82F7FF" font-size="25" font-weight="650">ProductIVF / V4</text>
+    <text id="comparison-subheading" class="comparison-subheading" x="32" y="69" fill="#94A3B8" font-size="14">The same neon forms. A longer continuous P tail.</text>
+  </g>
+  <g id="comparison-card-1" class="comparison-card">
+    <rect id="comparison-card-background-1" class="comparison-card-background" x="32" y="96" width="452" height="476" rx="16" fill="#03070D" stroke="#1D3444" />
+    <text id="comparison-card-label-1" class="comparison-card-label" x="56" y="130" fill="#82F7FF" font-family="Inter, Avenir Next, Arial, sans-serif" font-size="17" font-weight="650">01 / Dissolving stem</text>
+    <text id="comparison-card-caption-1" class="comparison-card-caption" x="56" y="153" fill="#94A3B8" font-family="Inter, Avenir Next, Arial, sans-serif" font-size="12">V3 face + 64-unit tail extension</text>
+    <svg id="comparison-icon-1" class="comparison-icon" x="130" y="177" width="256" height="368" viewBox="0 0 256 368">
+  <defs>
+    <linearGradient id="comparison-concept-1-blue" x1="48" y1="28" x2="177" y2="192" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#82F7FF" />
+      <stop offset=".6" stop-color="#00EDFF" />
+      <stop offset="1" stop-color="#008BBA" />
+    </linearGradient>
+    <filter id="comparison-concept-1-v4-glow" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation=".8" result="soft-light" />
+      <feComponentTransfer in="soft-light" result="soft-glow">
+        <feFuncA type="linear" slope=".2" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="soft-glow" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <rect id="comparison-concept-1-v4-background" width="256" height="368" fill="#03070D" />
+  <g id="comparison-concept-1-mark" filter="url(#comparison-concept-1-v4-glow)">
+    <path id="comparison-concept-1-continuous-p" fill="url(#comparison-concept-1-blue)" fill-rule="evenodd" d="M48 28H126C173 28 198 51 198 87S173 146 126 146H96V231H48ZM96 70V104H124C141 104 150 99 150 87S141 70 124 70Z" />
+    <g id="comparison-concept-1-separating-stem" transform="translate(0 64)">
+      <rect x="48" y="173" width="22" height="22" rx="2" fill="#00D9F5" />
+      <rect x="75" y="174" width="21" height="21" rx="2" fill="#11161E" stroke="#008BBA" stroke-width=".7" stroke-opacity=".7" />
+      <rect x="43" y="204" width="19" height="19" rx="2" fill="#00EDFF" opacity=".8" />
+      <rect x="79" y="210" width="17" height="17" rx="2" fill="#008BBA" opacity=".7" />
+      <rect x="39" y="237" width="13" height="13" rx="1.5" fill="#008BBA" opacity=".5" />
+      <rect x="85" y="245" width="11" height="11" rx="1.5" fill="#82F7FF" opacity=".4" />
+      <rect x="58" y="270" width="7" height="7" rx="1" fill="#008BBA" opacity=".22" />
+    </g>
+  </g>
+    </svg>
+  </g>
+  <g id="comparison-card-2" class="comparison-card">
+    <rect id="comparison-card-background-2" class="comparison-card-background" x="516" y="96" width="452" height="476" rx="16" fill="#03070D" stroke="#1D3444" />
+    <text id="comparison-card-label-2" class="comparison-card-label" x="540" y="130" fill="#82F7FF" font-family="Inter, Avenir Next, Arial, sans-serif" font-size="17" font-weight="650">02 / Silver facet</text>
+    <text id="comparison-card-caption-2" class="comparison-card-caption" x="540" y="153" fill="#94A3B8" font-family="Inter, Avenir Next, Arial, sans-serif" font-size="12">V3 face + 64-unit tail extension</text>
+    <svg id="comparison-icon-2" class="comparison-icon" x="614" y="177" width="256" height="368" viewBox="0 0 256 368">
+  <defs>
+    <linearGradient id="comparison-concept-2-silver" x1="46" y1="40" x2="169" y2="172" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#82F7FF" />
+      <stop offset=".36" stop-color="#00D9F5" />
+      <stop offset=".67" stop-color="#008BBA" />
+      <stop offset="1" stop-color="#00EDFF" />
+    </linearGradient>
+    <filter id="comparison-concept-2-v4-glow" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation=".8" result="soft-light" />
+      <feComponentTransfer in="soft-light" result="soft-glow">
+        <feFuncA type="linear" slope=".2" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="soft-glow" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <rect id="comparison-concept-2-v4-background" width="256" height="368" fill="#03070D" />
+  <g id="comparison-concept-2-mark" filter="url(#comparison-concept-2-v4-glow)">
+    <g id="comparison-concept-2-p-extrusion">
+      <path d="M50 44 66 32H157L141 44Z" fill="#82F7FF" />
+      <path d="M141 44 157 32 194 67 178 79Z" fill="#00EDFF" />
+      <path d="M178 79 194 67V118L178 130Z" fill="#008BBA" />
+      <path d="M141 155 178 130 194 118 157 143Z" fill="#11161E" stroke="#008BBA" stroke-width=".7" stroke-opacity=".7" />
+      <path d="M96 231 112 219V143L96 155Z" fill="#008BBA" />
+    </g>
+    <path id="comparison-concept-2-silver-p" fill="url(#comparison-concept-2-silver)" fill-rule="evenodd" d="M50 44H141L178 79V130L141 155H96V231H50ZM96 82V117H128L137 110V92L127 82Z" />
+    <path d="M96 82H127L137 92V110L128 117H118V95H96Z" fill="#03070D" opacity=".5" />
+    <path d="M52 45H140L175 79" fill="none" stroke="#82F7FF" stroke-width="2" />
+    <g id="comparison-concept-2-floating-cubes" transform="translate(0 64)">
+      <g id="comparison-concept-2-cube-1">
+        <path d="M49 184 61 175 82 175 70 184Z" fill="#82F7FF" />
+        <path d="M70 184 82 175V196L70 205Z" fill="#008BBA" />
+        <path d="M49 184H70V205H49Z" fill="#00D9F5" />
+      </g>
+      <g id="comparison-concept-2-cube-2">
+        <path d="M82 178 94 169 113 169 101 178Z" fill="#00D9F5" />
+        <path d="M101 178 113 169V188L101 197Z" fill="#03070D" />
+        <path d="M82 178H101V197H82Z" fill="#11161E" stroke="#008BBA" stroke-width=".7" stroke-opacity=".7" />
+      </g>
+      <g id="comparison-concept-2-cube-3" opacity=".72">
+        <path d="M44 225 54 218 71 218 61 225Z" fill="#82F7FF" />
+        <path d="M61 225 71 218V235L61 242Z" fill="#008BBA" />
+        <path d="M44 225H61V242H44Z" fill="#00D9F5" />
+      </g>
+      <g id="comparison-concept-2-cube-4" opacity=".54">
+        <path d="M91 221 100 214 115 214 106 221Z" fill="#82F7FF" />
+        <path d="M106 221 115 214V229L106 236Z" fill="#008BBA" />
+        <path d="M91 221H106V236H91Z" fill="#00D9F5" />
+      </g>
+      <g id="comparison-concept-2-cube-5" opacity=".3">
+        <path d="M62 265 69 260 79 260 72 265Z" fill="#82F7FF" />
+        <path d="M72 265 79 260V270L72 275Z" fill="#008BBA" />
+        <path d="M62 265H72V275H62Z" fill="#00D9F5" />
+      </g>
+    </g>
+  </g>
+    </svg>
+  </g>
+  <text id="comparison-footer" class="comparison-footer" x="32" y="596" fill="#64748B" font-family="Inter, Avenir Next, Arial, sans-serif" font-size="12">Original bowls, neon colors, glow and falling-block spacing retained.</text>
+</svg>

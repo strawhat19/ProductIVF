@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 320" role="img" aria-labelledby="productivf-title productivf-desc">
+  <title id="productivf-title">ProductIVF — Task cells — V3 neon palette</title>
+  <desc id="productivf-desc">The original V1 task cells P geometry and full block arrangement, recolored in luminous cyan-blue, black and charcoal with a restrained glow. Original proportions, block positions and fading opacities are preserved.</desc>
+  <defs>
+    <filter id="productivf-v3-glow" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation=".8" result="soft-light" />
+      <feComponentTransfer in="soft-light" result="soft-glow">
+        <feFuncA type="linear" slope=".2" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="soft-glow" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <rect id="productivf-v3-background" width="920" height="320" fill="#03070D" />
+  <g id="productivf-mark" filter="url(#productivf-v3-glow)">
+    <g id="productivf-modular-p">
+      <rect id="productivf-cell-0-0" x="42" y="33" width="23" height="23" rx="2" fill="#00EDFF" />
+      <rect id="productivf-cell-0-1" x="68" y="33" width="23" height="23" rx="2" fill="#00EDFF" />
+      <rect id="productivf-cell-0-2" x="94" y="33" width="23" height="23" rx="2" fill="#00EDFF" />
+      <rect id="productivf-cell-0-3" x="120" y="33" width="23" height="23" rx="2" fill="#00EDFF" />
+      <rect id="productivf-cell-0-4" x="146" y="33" width="23" height="23" rx="2" fill="#00EDFF" />
+      <rect id="productivf-cell-1-0" x="42" y="59" width="23" height="23" rx="2" fill="#11161E" stroke="#008BBA" stroke-width=".7" stroke-opacity=".7" />
+      <rect id="productivf-cell-1-1" x="68" y="59" width="23" height="23" rx="2" fill="#008BBA" />
+      <rect id="productivf-cell-1-4" x="146" y="59" width="23" height="23" rx="2" fill="#00D9F5" />
+      <rect id="productivf-cell-1-5" x="172" y="59" width="23" height="23" rx="2" fill="#00D9F5" />
+      <rect id="productivf-cell-2-0" x="42" y="85" width="23" height="23" rx="2" fill="#11161E" stroke="#008BBA" stroke-width=".7" stroke-opacity=".7" />
+      <rect id="productivf-cell-2-1" x="68" y="85" width="23" height="23" rx="2" fill="#008BBA" />
+      <rect id="productivf-cell-2-4" x="146" y="85" width="23" height="23" rx="2" fill="#00D9F5" />
+      <rect id="productivf-cell-2-5" x="172" y="85" width="23" height="23" rx="2" fill="#00D9F5" />
+      <rect id="productivf-cell-3-0" x="42" y="111" width="23" height="23" rx="2" fill="#11161E" stroke="#008BBA" stroke-width=".7" stroke-opacity=".7" />
+      <rect id="productivf-cell-3-1" x="68" y="111" width="23" height="23" rx="2" fill="#008BBA" />
+      <rect id="productivf-cell-3-2" x="94" y="111" width="23" height="23" rx="2" fill="#00D9F5" />
+      <rect id="productivf-cell-3-3" x="120" y="111" width="23" height="23" rx="2" fill="#00D9F5" />
+      <rect id="productivf-cell-3-4" x="146" y="111" width="23" height="23" rx="2" fill="#00D9F5" />
+      <rect id="productivf-cell-4-0" x="42" y="137" width="23" height="23" rx="2" fill="#11161E" stroke="#008BBA" stroke-width=".7" stroke-opacity=".7" />
+      <rect id="productivf-cell-4-1" x="68" y="137" width="23" height="23" rx="2" fill="#008BBA" />
+    </g>
+    <g id="productivf-drifting-cells">
+      <rect x="42" y="168" width="22" height="22" rx="2" fill="#11161E" stroke="#008BBA" stroke-width=".7" stroke-opacity=".7" />
+      <rect x="71" y="173" width="21" height="21" rx="2" fill="#00EDFF" opacity=".9" />
+      <rect x="38" y="205" width="18" height="18" rx="1.5" fill="#008BBA" opacity=".7" />
+      <rect x="78" y="215" width="16" height="16" rx="1.5" fill="#82F7FF" opacity=".6" />
+      <rect x="32" y="246" width="11" height="11" rx="1" fill="#008BBA" opacity=".35" />
+      <rect x="89" y="258" width="9" height="9" rx="1" fill="#82F7FF" opacity=".3" />
+    </g>
+  </g>
+  <g id="productivf-wordmark" fill="#82F7FF" font-family="Inter, Avenir Next, Arial, sans-serif" font-size="65" font-weight="650" letter-spacing="-2.5">
+    <text x="280" y="171">Product<tspan fill="#00EDFF" font-weight="750">IVF</tspan>
+    </text>
+  </g>
+</svg>

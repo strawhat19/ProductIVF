@@ -1,0 +1,158 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1260" height="660" viewBox="0 0 1260 660" role="img" aria-labelledby="comparison-title comparison-description">
+<title id="comparison-title">ProductIVF V3 — V1 shapes with V2 colors</title>
+<desc id="comparison-description">Three original P concepts retain their proportions and block arrangements, with the approved neon blue, black and charcoal palette.</desc>
+<rect width="1260" height="660" fill="#070C12"/>
+<text x="24" y="48" font-family="Arial, Helvetica, sans-serif" font-size="29" font-weight="700" fill="#82F7FF">ProductIVF / V3</text>
+<text x="24" y="80" font-family="Arial, Helvetica, sans-serif" font-size="17" fill="#AAC1CB">V1 shapes + V2 neon palette</text>
+<rect x="24" y="110" width="396" height="522" rx="15" fill="#03070D" stroke="#18313C"/>
+<text x="44" y="147" font-family="Arial, Helvetica, sans-serif" font-size="15" letter-spacing="1.2" fill="#00EDFF">01 / DISSOLVING STEM</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 304" role="img" aria-labelledby="preview-0-productivf-title preview-0-productivf-desc" x="48" y="164" width="348" height="440" preserveAspectRatio="xMidYMid meet">
+  <title id="preview-0-productivf-title">ProductIVF — Dissolving stem — V3 neon palette</title>
+  <desc id="preview-0-productivf-desc">The original V1 dissolving stem P geometry and full block arrangement, recolored in luminous cyan-blue, black and charcoal with a restrained glow. Original proportions, block positions and fading opacities are preserved.</desc>
+  <defs>
+    <linearGradient id="preview-0-productivf-blue" x1="48" y1="28" x2="177" y2="192" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#82F7FF" />
+      <stop offset=".6" stop-color="#00EDFF" />
+      <stop offset="1" stop-color="#008BBA" />
+    </linearGradient>
+    <filter id="preview-0-productivf-v3-glow" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation=".8" result="soft-light" />
+      <feComponentTransfer in="soft-light" result="soft-glow">
+        <feFuncA type="linear" slope=".2" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="soft-glow" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <rect id="preview-0-productivf-v3-background" width="256" height="304" fill="#03070D" />
+  <g id="preview-0-productivf-mark" filter="url(#preview-0-productivf-v3-glow)">
+    <path id="preview-0-productivf-continuous-p" fill="url(#preview-0-productivf-blue)" fill-rule="evenodd" d="M48 28H126C173 28 198 51 198 87S173 146 126 146H96V167H48ZM96 70V104H124C141 104 150 99 150 87S141 70 124 70Z" />
+    <g id="preview-0-productivf-separating-stem">
+      <rect x="48" y="173" width="22" height="22" rx="2" fill="#00D9F5" />
+      <rect x="75" y="174" width="21" height="21" rx="2" fill="#11161E" stroke="#008BBA" stroke-width=".7" stroke-opacity=".7" />
+      <rect x="43" y="204" width="19" height="19" rx="2" fill="#00EDFF" opacity=".8" />
+      <rect x="79" y="210" width="17" height="17" rx="2" fill="#008BBA" opacity=".7" />
+      <rect x="39" y="237" width="13" height="13" rx="1.5" fill="#008BBA" opacity=".5" />
+      <rect x="85" y="245" width="11" height="11" rx="1.5" fill="#82F7FF" opacity=".4" />
+      <rect x="58" y="270" width="7" height="7" rx="1" fill="#008BBA" opacity=".22" />
+    </g>
+  </g>
+</svg>
+<rect x="432" y="110" width="396" height="522" rx="15" fill="#03070D" stroke="#18313C"/>
+<text x="452" y="147" font-family="Arial, Helvetica, sans-serif" font-size="15" letter-spacing="1.2" fill="#00EDFF">02 / FACETED P</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 304" role="img" aria-labelledby="preview-1-productivf-title preview-1-productivf-desc" x="456" y="164" width="348" height="440" preserveAspectRatio="xMidYMid meet">
+  <title id="preview-1-productivf-title">ProductIVF — Silver facet — V3 neon palette</title>
+  <desc id="preview-1-productivf-desc">The original V1 silver facet P geometry and full block arrangement, recolored in luminous cyan-blue, black and charcoal with a restrained glow. Original proportions, block positions and fading opacities are preserved.</desc>
+  <defs>
+    <linearGradient id="preview-1-productivf-silver" x1="46" y1="40" x2="169" y2="172" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#82F7FF" />
+      <stop offset=".36" stop-color="#00D9F5" />
+      <stop offset=".67" stop-color="#008BBA" />
+      <stop offset="1" stop-color="#00EDFF" />
+    </linearGradient>
+    <filter id="preview-1-productivf-v3-glow" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation=".8" result="soft-light" />
+      <feComponentTransfer in="soft-light" result="soft-glow">
+        <feFuncA type="linear" slope=".2" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="soft-glow" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <rect id="preview-1-productivf-v3-background" width="256" height="304" fill="#03070D" />
+  <g id="preview-1-productivf-mark" filter="url(#preview-1-productivf-v3-glow)">
+    <g id="preview-1-productivf-p-extrusion">
+      <path d="M50 44 66 32H157L141 44Z" fill="#82F7FF" />
+      <path d="M141 44 157 32 194 67 178 79Z" fill="#00EDFF" />
+      <path d="M178 79 194 67V118L178 130Z" fill="#008BBA" />
+      <path d="M141 155 178 130 194 118 157 143Z" fill="#11161E" stroke="#008BBA" stroke-width=".7" stroke-opacity=".7" />
+      <path d="M96 167 112 155V143L96 155Z" fill="#008BBA" />
+    </g>
+    <path id="preview-1-productivf-silver-p" fill="url(#preview-1-productivf-silver)" fill-rule="evenodd" d="M50 44H141L178 79V130L141 155H96V167H50ZM96 82V117H128L137 110V92L127 82Z" />
+    <path d="M96 82H127L137 92V110L128 117H118V95H96Z" fill="#03070D" opacity=".5" />
+    <path d="M52 45H140L175 79" fill="none" stroke="#82F7FF" stroke-width="2" />
+    <g id="preview-1-productivf-floating-cubes">
+      <g id="preview-1-productivf-cube-1">
+        <path d="M49 184 61 175 82 175 70 184Z" fill="#82F7FF" />
+        <path d="M70 184 82 175V196L70 205Z" fill="#008BBA" />
+        <path d="M49 184H70V205H49Z" fill="#00D9F5" />
+      </g>
+      <g id="preview-1-productivf-cube-2">
+        <path d="M82 178 94 169 113 169 101 178Z" fill="#00D9F5" />
+        <path d="M101 178 113 169V188L101 197Z" fill="#03070D" />
+        <path d="M82 178H101V197H82Z" fill="#11161E" stroke="#008BBA" stroke-width=".7" stroke-opacity=".7" />
+      </g>
+      <g id="preview-1-productivf-cube-3" opacity=".72">
+        <path d="M44 225 54 218 71 218 61 225Z" fill="#82F7FF" />
+        <path d="M61 225 71 218V235L61 242Z" fill="#008BBA" />
+        <path d="M44 225H61V242H44Z" fill="#00D9F5" />
+      </g>
+      <g id="preview-1-productivf-cube-4" opacity=".54">
+        <path d="M91 221 100 214 115 214 106 221Z" fill="#82F7FF" />
+        <path d="M106 221 115 214V229L106 236Z" fill="#008BBA" />
+        <path d="M91 221H106V236H91Z" fill="#00D9F5" />
+      </g>
+      <g id="preview-1-productivf-cube-5" opacity=".3">
+        <path d="M62 265 69 260 79 260 72 265Z" fill="#82F7FF" />
+        <path d="M72 265 79 260V270L72 275Z" fill="#008BBA" />
+        <path d="M62 265H72V275H62Z" fill="#00D9F5" />
+      </g>
+    </g>
+  </g>
+</svg>
+<rect x="840" y="110" width="396" height="522" rx="15" fill="#03070D" stroke="#18313C"/>
+<text x="860" y="147" font-family="Arial, Helvetica, sans-serif" font-size="15" letter-spacing="1.2" fill="#00EDFF">03 / TASK CELLS</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 304" role="img" aria-labelledby="preview-2-productivf-title preview-2-productivf-desc" x="864" y="164" width="348" height="440" preserveAspectRatio="xMidYMid meet">
+  <title id="preview-2-productivf-title">ProductIVF — Task cells — V3 neon palette</title>
+  <desc id="preview-2-productivf-desc">The original V1 task cells P geometry and full block arrangement, recolored in luminous cyan-blue, black and charcoal with a restrained glow. Original proportions, block positions and fading opacities are preserved.</desc>
+  <defs>
+    <filter id="preview-2-productivf-v3-glow" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation=".8" result="soft-light" />
+      <feComponentTransfer in="soft-light" result="soft-glow">
+        <feFuncA type="linear" slope=".2" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="soft-glow" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <rect id="preview-2-productivf-v3-background" width="256" height="304" fill="#03070D" />
+  <g id="preview-2-productivf-mark" filter="url(#preview-2-productivf-v3-glow)">
+    <g id="preview-2-productivf-modular-p">
+      <rect id="preview-2-productivf-cell-0-0" x="42" y="33" width="23" height="23" rx="2" fill="#00EDFF" />
+      <rect id="preview-2-productivf-cell-0-1" x="68" y="33" width="23" height="23" rx="2" fill="#00EDFF" />
+      <rect id="preview-2-productivf-cell-0-2" x="94" y="33" width="23" height="23" rx="2" fill="#00EDFF" />
+      <rect id="preview-2-productivf-cell-0-3" x="120" y="33" width="23" height="23" rx="2" fill="#00EDFF" />
+      <rect id="preview-2-productivf-cell-0-4" x="146" y="33" width="23" height="23" rx="2" fill="#00EDFF" />
+      <rect id="preview-2-productivf-cell-1-0" x="42" y="59" width="23" height="23" rx="2" fill="#11161E" stroke="#008BBA" stroke-width=".7" stroke-opacity=".7" />
+      <rect id="preview-2-productivf-cell-1-1" x="68" y="59" width="23" height="23" rx="2" fill="#008BBA" />
+      <rect id="preview-2-productivf-cell-1-4" x="146" y="59" width="23" height="23" rx="2" fill="#00D9F5" />
+      <rect id="preview-2-productivf-cell-1-5" x="172" y="59" width="23" height="23" rx="2" fill="#00D9F5" />
+      <rect id="preview-2-productivf-cell-2-0" x="42" y="85" width="23" height="23" rx="2" fill="#11161E" stroke="#008BBA" stroke-width=".7" stroke-opacity=".7" />
+      <rect id="preview-2-productivf-cell-2-1" x="68" y="85" width="23" height="23" rx="2" fill="#008BBA" />
+      <rect id="preview-2-productivf-cell-2-4" x="146" y="85" width="23" height="23" rx="2" fill="#00D9F5" />
+      <rect id="preview-2-productivf-cell-2-5" x="172" y="85" width="23" height="23" rx="2" fill="#00D9F5" />
+      <rect id="preview-2-productivf-cell-3-0" x="42" y="111" width="23" height="23" rx="2" fill="#11161E" stroke="#008BBA" stroke-width=".7" stroke-opacity=".7" />
+      <rect id="preview-2-productivf-cell-3-1" x="68" y="111" width="23" height="23" rx="2" fill="#008BBA" />
+      <rect id="preview-2-productivf-cell-3-2" x="94" y="111" width="23" height="23" rx="2" fill="#00D9F5" />
+      <rect id="preview-2-productivf-cell-3-3" x="120" y="111" width="23" height="23" rx="2" fill="#00D9F5" />
+      <rect id="preview-2-productivf-cell-3-4" x="146" y="111" width="23" height="23" rx="2" fill="#00D9F5" />
+      <rect id="preview-2-productivf-cell-4-0" x="42" y="137" width="23" height="23" rx="2" fill="#11161E" stroke="#008BBA" stroke-width=".7" stroke-opacity=".7" />
+      <rect id="preview-2-productivf-cell-4-1" x="68" y="137" width="23" height="23" rx="2" fill="#008BBA" />
+    </g>
+    <g id="preview-2-productivf-drifting-cells">
+      <rect x="42" y="168" width="22" height="22" rx="2" fill="#11161E" stroke="#008BBA" stroke-width=".7" stroke-opacity=".7" />
+      <rect x="71" y="173" width="21" height="21" rx="2" fill="#00EDFF" opacity=".9" />
+      <rect x="38" y="205" width="18" height="18" rx="1.5" fill="#008BBA" opacity=".7" />
+      <rect x="78" y="215" width="16" height="16" rx="1.5" fill="#82F7FF" opacity=".6" />
+      <rect x="32" y="246" width="11" height="11" rx="1" fill="#008BBA" opacity=".35" />
+      <rect x="89" y="258" width="9" height="9" rx="1" fill="#82F7FF" opacity=".3" />
+    </g>
+  </g>
+</svg>
+</svg>

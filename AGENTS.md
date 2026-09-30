@@ -57,3 +57,11 @@ or this
 </Label>
 
 8. in javascript or typescript or tsx or jsx, always use backticks whenever possible, if not then use single quotes, and double quotes as a last resort.
+
+9. make apps with expo react native typescript sass with web and mobile, unless instructed to do otherwise (like angular or vue or next)
+
+10. each app should either be a PWA or mobile app deployable to app store along with web so it can be put on a website with one of my custom domains
+
+11. shared state should be managed either through context api for react or services with angular inside a shared/ folder, each app can have users, user, theme, etc. for example
+
+12. each component should have its own folder, with logic, structure, and styles separated

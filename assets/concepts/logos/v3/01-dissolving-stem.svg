@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 320" role="img" aria-labelledby="productivf-title productivf-desc">
+  <title id="productivf-title">ProductIVF — Dissolving stem — V3 neon palette</title>
+  <desc id="productivf-desc">The original V1 dissolving stem P geometry and full block arrangement, recolored in luminous cyan-blue, black and charcoal with a restrained glow. Original proportions, block positions and fading opacities are preserved.</desc>
+  <defs>
+    <linearGradient id="productivf-blue" x1="48" y1="28" x2="177" y2="192" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#82F7FF" />
+      <stop offset=".6" stop-color="#00EDFF" />
+      <stop offset="1" stop-color="#008BBA" />
+    </linearGradient>
+    <filter id="productivf-v3-glow" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation=".8" result="soft-light" />
+      <feComponentTransfer in="soft-light" result="soft-glow">
+        <feFuncA type="linear" slope=".2" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="soft-glow" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <rect id="productivf-v3-background" width="920" height="320" fill="#03070D" />
+  <g id="productivf-mark" filter="url(#productivf-v3-glow)">
+    <path id="productivf-continuous-p" fill="url(#productivf-blue)" fill-rule="evenodd" d="M48 28H126C173 28 198 51 198 87S173 146 126 146H96V167H48ZM96 70V104H124C141 104 150 99 150 87S141 70 124 70Z" />
+    <g id="productivf-separating-stem">
+      <rect x="48" y="173" width="22" height="22" rx="2" fill="#00D9F5" />
+      <rect x="75" y="174" width="21" height="21" rx="2" fill="#11161E" stroke="#008BBA" stroke-width=".7" stroke-opacity=".7" />
+      <rect x="43" y="204" width="19" height="19" rx="2" fill="#00EDFF" opacity=".8" />
+      <rect x="79" y="210" width="17" height="17" rx="2" fill="#008BBA" opacity=".7" />
+      <rect x="39" y="237" width="13" height="13" rx="1.5" fill="#008BBA" opacity=".5" />
+      <rect x="85" y="245" width="11" height="11" rx="1.5" fill="#82F7FF" opacity=".4" />
+      <rect x="58" y="270" width="7" height="7" rx="1" fill="#008BBA" opacity=".22" />
+    </g>
+  </g>
+  <g id="productivf-wordmark" fill="#82F7FF" font-family="Inter, Avenir Next, Arial, sans-serif" font-size="65" font-weight="650" letter-spacing="-2.5">
+    <text x="280" y="171">Product<tspan fill="#00EDFF" font-weight="750">IVF</tspan>
+    </text>
+  </g>
+</svg>
