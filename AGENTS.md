@@ -65,3 +65,9 @@ or this
 11. shared state should be managed either through context api for react or services with angular inside a shared/ folder, each app can have users, user, theme, etc. for example
 
 12. each component should have its own folder, with logic, structure, and styles separated
+
+13. footers should always include copyright with dynamic year and link to https://piratechs.com/
+
+14. when an apps landing page is done being designed, and before the app is about to be published, it should have an About, Terms, Contact and Privacy Policy page, the menu links should lead to new pages, not # anchors, remove all those and replace with internal page links and include common redirects like about-us to about, contact-us to contact, etc.
+
+15. before back end is hooked up, use local storage or device storage for CRUD operations to mock them or demo them, with one master variable called useLocalStorage true or false, set to true by default
