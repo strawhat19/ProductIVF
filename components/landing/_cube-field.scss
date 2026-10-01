@@ -1,0 +1,124 @@
+.landingCubeField {
+    width: 100%;
+    height: 100%;
+    isolation: isolate;
+    pointer-events: none;
+
+    .landingCubeFieldCanvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+        overflow: hidden;
+    }
+
+    .landingCubeFieldPlatform {
+        fill: #090d10;
+    }
+
+    .landingCubeFieldContactShadows {
+        opacity: 0.56;
+        filter: blur(2.5px);
+    }
+
+    .landingCubeFieldContactShadow {
+        fill: #000;
+    }
+
+    .landingCubeFieldCubeBloom {
+        opacity: 0.65;
+        animation: landingCubeFieldBloom 6.5s ease-in-out infinite;
+        animation-delay: var(--cube-delay);
+    }
+
+    .landingCubeFieldCubeTop {
+        stroke: none;
+        fill: url(#landing-cube-field-dark-top-gradient);
+    }
+
+    .landingCubeFieldCubeLeft {
+        fill: #101518;
+    }
+
+    .landingCubeFieldCubeRight {
+        fill: #070c0f;
+    }
+
+    .landingCubeFieldCubeLeft,
+    .landingCubeFieldCubeRight {
+        transform-origin: 0 0;
+        transform-box: view-box;
+    }
+
+    .landingCubeFieldCubeGlowing {
+        filter: drop-shadow(0 0 10px rgba(0, 232, 239, 0.38));
+
+        .landingCubeFieldCubeTop {
+            fill: url(#landing-cube-field-cyan-top-gradient);
+            animation: landingCubeFieldLiftTop 6.5s ease-in-out infinite;
+            animation-delay: var(--cube-delay);
+        }
+
+        .landingCubeFieldCubeLeft {
+            fill: url(#landing-cube-field-cyan-left-gradient);
+        }
+
+        .landingCubeFieldCubeRight {
+            fill: url(#landing-cube-field-cyan-right-gradient);
+        }
+
+        .landingCubeFieldCubeLeft,
+        .landingCubeFieldCubeRight {
+            animation: landingCubeFieldLiftSide 6.5s ease-in-out infinite;
+            animation-delay: var(--cube-delay);
+        }
+    }
+
+    .landingCubeFieldLightSpill {
+        opacity: 0.25;
+        mix-blend-mode: screen;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .landingCubeFieldCubeGlowing {
+            .landingCubeFieldCubeTop,
+            .landingCubeFieldCubeLeft,
+            .landingCubeFieldCubeRight {
+                animation: none;
+            }
+        }
+
+        .landingCubeFieldCubeBloom {
+            animation: none;
+        }
+    }
+}
+
+@keyframes landingCubeFieldLiftTop {
+    0%, 100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-12px);
+    }
+}
+
+@keyframes landingCubeFieldLiftSide {
+    0%, 100% {
+        transform: scaleY(1);
+    }
+
+    50% {
+        transform: scaleY(var(--cube-side-scale));
+    }
+}
+
+@keyframes landingCubeFieldBloom {
+    0%, 100% {
+        opacity: 0.55;
+    }
+
+    50% {
+        opacity: 0.85;
+    }
+}

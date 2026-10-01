@@ -10,6 +10,7 @@
 @use './shared/admin/features';
 @use './styles/itemsoverwrite';
 @use './styles/finaloverwrite';
+@use './components/landing/landing';
 @use './components/messages/messages';
 @use './components/modals/details/details';
 @use './components/selector/multiselector';

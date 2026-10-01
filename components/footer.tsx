@@ -17,7 +17,10 @@ export default function Footer(props) {
                     </a>
                 </div>
                 <div className={`right`}>
-                    Piratechs <i className={`fas fa-copyright`} /> {year}
+                    <a id={`footer-piratechs-link`} className={`footerPiratechsLink hoverLink`} href={`https://piratechs.com/`}>
+                        {`Piratechs`}
+                    </a>
+                    <i className={`fas fa-copyright`} /> {year}
                 </div>
             {/* </>} */}
         </footer>

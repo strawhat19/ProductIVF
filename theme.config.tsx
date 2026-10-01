@@ -1,14 +1,35 @@
 import React from 'react';
+import Image from 'next/image';
 import Logo from './components/logo';
 import Time from './components/time';
 import Form from './components/form';
 import Quote from './components/qotd';
 import Status from './components/status';
 import Footer from './components/footer';
+import { useRouter } from 'next/router';
 import AuthState from './components/auth-state';
 import { AuthStates } from './shared/types/types';
+import landingLogo from './assets/concepts/logos/v6/02-silver-facet-icon.svg';
 
-const logo = () => <Logo title={`ProductIVF`} color={`hsl(var(--nextra-primary-hue)100% 50%/1)`} />;
+const HeaderLogo = () => {
+  const { pathname } = useRouter();
+  if (pathname !== `/landing`) return <Logo title={`ProductIVF`} color={`hsl(var(--nextra-primary-hue)100% 50%/1)`} />;
+  return <>
+    <Image
+      priority
+      width={44}
+      height={56}
+      src={landingLogo}
+      alt={`ProductIVF`}
+      id={`landing-header-logo`}
+      className={`logo landingHeaderLogo`}
+      style={{ objectFit: `contain` }}
+    />
+    <h1 id={`landing-header-title`} className={`appTitle`} style={{ padding: 1, fontWeight: 700, fontSize: 20 }}>
+      {`ProductIVF`}
+    </h1>
+  </>;
+};
 const footer = () => <Footer style={{ minHeight: `fit-content` }} />;
 
 const head = () => {
@@ -65,7 +86,7 @@ const setToc = (e) => {
 
 const config = {
   head: head(),
-  logo: logo(),
+  logo: <HeaderLogo />,
   primaryHue: 195,
   editLink: { text: null },
   feedback: { content: null },

@@ -1,4 +1,15 @@
 {
+  "landing": {
+    "title": "Landing",
+    "display": "hidden",
+    "theme": {
+      "toc": false,
+      "layout": "full",
+      "timestamp": false,
+      "pagination": false,
+      "breadcrumb": false
+    }
+  },
   "index": {
     "title": "Home",
     "theme": {
